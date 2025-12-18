@@ -112,26 +112,65 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Simulate form submission
-            this.innerHTML = '<i class="ph ph-spinner"></i> Invio in corso...';
+            // Send data to backend API
+            this.innerHTML = '<i class="ph ph-spinner"></i> Elaborazione IA...';
             this.disabled = true;
 
-            // Show loading state
-            setTimeout(() => {
-                // Open Calendly for scheduling
-                openCalendly();
+            const payload = {
+                name: name,
+                agency: agency,
+                phone: phone,
+                properties: formData.get('properties')
+            };
 
-                // Show success notification using alert as fallback
-                const currentLang = document.documentElement.lang;
-                const successMessage = currentLang === 'it'
-                    ? 'Grazie! Scegli un orario per la tua demo personalizzata.'
-                    : 'Thank you! Please choose a time for your personalized demo.';
+            // Dynamic API URL: Use localhost for dev, relative path for prod
+            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:8000'
+                : '';
 
-                alert(successMessage);
-                contactForm.reset();
-                this.innerHTML = '<i class="ph ph-calendar-plus"></i> <span data-translate="form-submit">Prenota Demo Gratuita</span>';
-                this.disabled = false;
-            }, 2500);
+            fetch(`${API_BASE}/api/leads`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Success
+                    const currentLang = document.documentElement.lang;
+                    const successMessage = currentLang === 'it'
+                        ? '✅ Lead ricevuto! Controlla il tuo WhatsApp tra 10 secondi.'
+                        : '✅ Lead received! Check your WhatsApp in 10 seconds.';
+
+                    // Use showNotification if available, otherwise alert fallback (though we removed the annoying one, this is key feedback)
+                    if (typeof showNotification === 'function') {
+                        showNotification(successMessage, 'success');
+                    } else {
+                        alert(successMessage);
+                    }
+
+                    contactForm.reset();
+                    this.innerHTML = '<i class="ph ph-check-circle"></i> Inviato!';
+
+                    // Open Calendly as secondary step
+                    setTimeout(() => openCalendly(), 2000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const errorMsg = document.documentElement.lang === 'it'
+                        ? 'Errore di connessione. Riprova.'
+                        : 'Connection error. Please try again.';
+
+                    if (typeof showNotification === 'function') {
+                        showNotification(errorMsg, 'error');
+                    } else {
+                        alert(errorMsg);
+                    }
+
+                    this.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    this.disabled = false;
+                });
         });
     }
 

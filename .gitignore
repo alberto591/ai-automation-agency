@@ -38,3 +38,4 @@ yarn-error.log
 # Ignore OS generated files
 *.swp
 *.swo
+.vercel

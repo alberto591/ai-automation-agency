@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+supabase
+mistralai
+twilio
+python-multipart
+requests
+python-dotenv

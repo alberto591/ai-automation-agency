@@ -1,0 +1,26 @@
+{
+    "builds": [
+        {
+            "src": "api.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "landing_page/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "api.py"
+        },
+        {
+            "src": "/webhooks/(.*)",
+            "dest": "api.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/landing_page/$1"
+        }
+    ]
+}
