@@ -1,0 +1,919 @@
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Mobile Navigation Toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (navToggle && navLinks) {
+        navToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            const icon = navToggle.querySelector('i');
+            icon.classList.toggle('ph-list');
+            icon.classList.toggle('ph-x');
+        });
+    }
+
+    // Smooth scrolling for navigation links
+    const navAnchors = document.querySelectorAll('a[href^="#"]');
+    navAnchors.forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const targetPosition = target.offsetTop - navHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+                
+                // Close mobile menu if open
+                if (navLinks && navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    const icon = navToggle.querySelector('i');
+                    icon.classList.remove('ph-x');
+                    icon.classList.add('ph-list');
+                }
+            }
+        });
+    });
+
+    // Demo Conversation Animation
+    function startDemoConversation() {
+        const conversationSteps = document.querySelectorAll('.conversation-step');
+        let currentStep = 0;
+        
+        function showNextStep() {
+            if (currentStep < conversationSteps.length) {
+                // Hide current step
+                conversationSteps.forEach(step => step.classList.remove('active'));
+                
+                // Show next step
+                const nextStep = conversationSteps[currentStep];
+                nextStep.classList.add('active');
+                
+                currentStep++;
+                
+                // Continue to next step after delay
+                setTimeout(showNextStep, 3000);
+            } else {
+                // Reset to beginning after completion
+                setTimeout(() => {
+                    currentStep = 0;
+                    showNextStep();
+                }, 5000);
+            }
+        }
+        
+        // Start the conversation animation
+        setTimeout(showNextStep, 1000);
+    }
+    
+    // Initialize demo conversation when in view
+    const demoContainer = document.querySelector('.demo-conversation');
+    if (demoContainer) {
+        const demoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    startDemoConversation();
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        demoObserver.observe(demoContainer);
+    }
+
+    // Contact Form Handling
+    const contactForm = document.querySelector('.contact-form');
+    const submitButton = document.querySelector('.contact-form .btn-primary');
+    
+    if (contactForm && submitButton) {
+        submitButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(contactForm);
+            const name = formData.get('name');
+            const agency = formData.get('agency');
+            const phone = formData.get('phone');
+            
+            // Basic validation
+            if (!name || !agency || !phone) {
+                showNotification('Per favore compila tutti i campi obbligatori', 'error');
+                return;
+            }
+            
+            // Phone validation (Italian format)
+            const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+            if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+                showNotification('Per favore inserisci un numero di telefono valido', 'error');
+                return;
+            }
+            
+            // Simulate form submission
+            this.innerHTML = '<i class="ph ph-spinner"></i> Invio in corso...';
+            this.disabled = true;
+            
+            // Show loading state
+            setTimeout(() => {
+                // Open Calendly for scheduling
+                openCalendly();
+                
+                // Show success notification using alert as fallback
+                const currentLang = document.documentElement.lang;
+                const successMessage = currentLang === 'it'
+                    ? 'Grazie! Scegli un orario per la tua demo personalizzata.'
+                    : 'Thank you! Please choose a time for your personalized demo.';
+                
+                alert(successMessage);
+                contactForm.reset();
+                this.innerHTML = '<i class="ph ph-calendar-plus"></i> <span data-translate="form-submit">Prenota Demo Gratuita</span>';
+                this.disabled = false;
+            }, 2500);
+        });
+    }
+
+    // Calendly Integration
+    function openCalendly() {
+        // Your specific Calendly scheduling URL
+        const calendlyUrl = 'https://calendly.com/albertocalvorivas';
+        
+        // Open Calendly in a new tab to avoid frame options issues
+        window.open(calendlyUrl, '_blank');
+        
+        // Return false to prevent default behavior
+        return false;
+    }
+    
+    // Demo Button Handling
+    const demoButtons = document.querySelectorAll('.btn-primary');
+    demoButtons.forEach(button => {
+        if (button.textContent.includes('Demo') || button.textContent.includes('Prenota') || button.textContent.includes('Book')) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                openCalendly();
+            });
+        }
+    });
+
+    // WhatsApp Integration
+    const whatsappButtons = document.querySelectorAll('[href*="whatsapp"]');
+    whatsappButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const phoneNumber = '+393401234567'; // Replace with actual number
+            const message = encodeURIComponent('Ciao! Vorrei saperne di più sui vostri servizi AI per agenzie immobiliari.');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappUrl, '_blank');
+        });
+    });
+
+    // Navbar Background on Scroll
+    const navbar = document.querySelector('.navbar');
+    
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 100) {
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            navbar.style.boxShadow = '0 4px 20px rgba(15, 23, 42, 0.1)';
+        } else {
+            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.boxShadow = 'none';
+        }
+    });
+
+    // Intersection Observer for Animations
+    const animatedElements = document.querySelectorAll('.feature-card, .feature-item, .problem-stat, .stat-card');
+    
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0) scale(1)';
+                }, index * 100);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    animatedElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px) scale(0.95)';
+        element.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+        animationObserver.observe(element);
+    });
+
+    // Typing Animation for Hero Chat
+    function simulateTyping() {
+        const typingBubble = document.querySelector('.typing-indicator');
+        if (typingBubble) {
+            setTimeout(() => {
+                const chatContainer = document.querySelector('.chat-container');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'chat-message from-ai';
+                newMessage.innerHTML = `
+                    <div class="message-time">14:23</div>
+                    <div class="message-bubble ai-bubble">
+                        Perfetto! Ho trovato 3 trilocali disponibili a Porta Nuova nel tuo budget. Ti invio le foto e organizziamo una visita per domani alle 16:00?
+                    </div>
+                `;
+                typingBubble.closest('.chat-message').remove();
+                chatContainer.appendChild(newMessage);
+                
+                // Continue the conversation
+                setTimeout(() => {
+                    const clientResponse = document.createElement('div');
+                    clientResponse.className = 'chat-message from-client';
+                    clientResponse.innerHTML = `
+                        <div class="message-time">14:24</div>
+                        <div class="message-bubble">
+                            Sì, mi interessa! Grazie per la velocità della risposta
+                        </div>
+                    `;
+                    chatContainer.appendChild(clientResponse);
+                    
+                    // Scroll to bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 2000);
+                
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 2000);
+        }
+    }
+    
+    // Start typing simulation after page load
+    setTimeout(simulateTyping, 3000);
+
+    // Dashboard Stats Animation
+    const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
+    let dashboardAnimated = false;
+    
+    function animateDashboardStats() {
+        if (dashboardAnimated) return;
+        
+        dashboardStats.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            let current = 0;
+            const increment = target / 50;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    dashboardAnimated = true;
+                }
+                stat.textContent = Math.floor(current);
+            }, 40);
+        });
+    }
+    
+    // Intersection Observer for dashboard animation
+    const dashboardSection = document.querySelector('.dashboard-section');
+    if (dashboardSection && dashboardStats.length > 0) {
+        const dashboardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateDashboardStats, 500);
+                }
+            });
+        }, {
+            threshold: 0.3
+        });
+        
+        dashboardObserver.observe(dashboardSection);
+    }
+
+    // Conversation Step Navigation
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active state from all items
+            conversationItems.forEach(conv => conv.classList.remove('active'));
+            
+            // Add active state to clicked item
+            this.classList.add('active');
+            
+            // You could add logic here to show conversation details
+        });
+    });
+
+    // Feature Card Hover Effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Problem Stats Animation
+    const problemStats = document.querySelectorAll('.problem-stat');
+    let problemStatsAnimated = false;
+    
+    function animateProblemStats() {
+        if (problemStatsAnimated) return;
+        
+        problemStats.forEach((stat, index) => {
+            const numberElement = stat.querySelector('.stat-number');
+            const targetText = numberElement.textContent;
+            const isPercentage = targetText.includes('%');
+            const isEuro = targetText.includes('€');
+            
+            let target = parseInt(targetText.replace(/[^0-9]/g, ''));
+            let current = 0;
+            const increment = target / 60;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    problemStatsAnimated = true;
+                }
+                
+                let displayValue = Math.floor(current);
+                if (isPercentage) displayValue += '%';
+                if (isEuro) displayValue = '€' + displayValue.toLocaleString();
+                
+                numberElement.textContent = displayValue;
+            }, 30 + (index * 100));
+        });
+    }
+    
+    // Intersection Observer for problem stats
+    const problemSection = document.querySelector('.problem-section');
+    if (problemSection && problemStats.length > 0) {
+        const problemObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateProblemStats, 800);
+                }
+            });
+        }, {
+            threshold: 0.4
+        });
+        
+        problemObserver.observe(problemSection);
+    }
+
+    // Form Input Enhancements
+    const formInputs = document.querySelectorAll('.form-group input, .form-group select');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+            if (this.value) {
+                this.parentElement.classList.add('filled');
+            } else {
+                this.parentElement.classList.remove('filled');
+            }
+        });
+    });
+
+    // Parallax Effect for Hero Section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.3;
+            hero.style.transform = `translateY(${rate}px)`;
+        });
+    }
+
+    // Loading states for buttons
+    function addLoadingState(button, originalText) {
+        button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
+        button.disabled = true;
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+    }
+
+    // Success/Error Notifications
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}"></i>
+                <span>${message}</span>
+                <button class="notification-close class="ph ph">
+                    <i-x"></i>
+                </button>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#1e40af'};
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            max-width: 400px;
+            font-family: Inter, sans-serif;
+        `;
+        
+        notification.querySelector('.notification-content').style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        `;
+        
+        notification.querySelector('.notification-close').style.cssText = `
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: auto;
+        `;
+        
+        // Add to DOM
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Close functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        });
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Add mobile menu styles
+    const mobileMenuStyles = `
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid rgba(148, 163, 184, 0.2);
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 25px rgba(15, 23, 42, 0.15);
+                z-index: 999;
+            }
+            
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .nav-links .btn-primary {
+                margin-top: 16px;
+                align-self: flex-start;
+            }
+        }
+    `;
+
+    // Inject mobile menu styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = mobileMenuStyles;
+    document.head.appendChild(styleSheet);
+
+    // Performance optimization: Debounce scroll events
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Apply debounce to scroll handlers
+    const debouncedScrollHandler = debounce(function() {
+        // Additional scroll-based animations can be added here
+    }, 16); // ~60fps
+
+    window.addEventListener('scroll', debouncedScrollHandler);
+
+    // Accessibility improvements
+    document.addEventListener('keydown', function(e) {
+        // ESC key closes mobile menu
+        if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = navToggle.querySelector('i');
+            icon.classList.remove('ph-x');
+            icon.classList.add('ph-list');
+        }
+    });
+
+    // Focus management for mobile menu
+    if (navLinks) {
+        const focusableElements = navLinks.querySelectorAll('a, button');
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        navToggle.addEventListener('click', function() {
+            setTimeout(() => {
+                if (navLinks.classList.contains('active')) {
+                    firstFocusable.focus();
+                }
+            }, 300);
+        });
+
+        navLinks.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+    }
+
+    console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
+});
+
+// Utility Functions
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function isValidPhone(phone) {
+    const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+}
+
+// Performance monitoring
+window.addEventListener('load', function() {
+    // Log performance metrics
+    if (window.performance) {
+        const loadTime = window.performance.timing.loadEventEnd - window.performance.timing.navigationStart;
+        console.log(`Page load time: ${loadTime}ms`);
+    }
+});
+
+// Language Translation Data
+const translations = {
+    it: {
+        // Navigation
+        'nav-soluzione': 'Soluzione',
+        'nav-dashboard': 'Dashboard',
+        'nav-caratteristiche': 'Caratteristiche',
+        'nav-contatto': 'Contatto',
+        'nav-prenota-demo': 'Prenota Demo',
+        
+        // Hero Section
+        'hero-subtitle': 'Il Futuro dell\'Immobiliare',
+        'hero-title': 'Vendi più case ',
+        'hero-title-highlight': 'mentre dormi',
+        'hero-description': 'Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24. Trasforma ogni notturna in un\'opportunità di vendita.',
+        'hero-cta-button': 'Prenota una Demo Gratuita',
+        'hero-cta-note': 'Nessun impegno • Setup in 24 ore • Garanzia risultati',
+        
+        // Problem Section
+        'problem-tag': 'Il Problema',
+        'problem-title': 'Stai perdendo il 80% dei tuoi migliori clienti',
+        'problem-description': 'Ogni giorno, centinaia di potenziali acquirenti visitano Immobiliare.it e Idealista, compilano moduli e ti contattano via WhatsApp. Ma quando li chiami, sono già passati alla concorrenza.',
+        
+        // Solution Section
+        'solution-tag': 'La Soluzione',
+        'solution-title': 'Il tuo primo Dipendente AI',
+        'solution-subtitle': 'Un assistente virtuale che lavora 24/7, parla con i clienti come un agente umano e trasforma ogni contatto in un\'opportunità.',
+        
+        // Dashboard Section
+        'dashboard-tag': 'Dashboard di Controllo',
+        'dashboard-title': 'Monitora tutto in tempo reale',
+        'dashboard-subtitle': 'La tua console di comando per controllare ogni conversazione AI, gestire i lead e ottimizzare le performance di vendita.',
+        
+        // Features Section
+        'features-tag': 'Caratteristiche',
+        'features-title': 'Tutto quello che ti serve per vendere di più',
+        'features-subtitle': 'Una suite completa di strumenti AI progettata specificamente per le agenzie immobiliari italiane.',
+        
+        // Contact Section
+        'contact-tag': 'Inizia Oggi',
+        'contact-title': 'Trasforma la tua agenzia in una macchina di vendite',
+        'contact-subtitle': 'Parla con un esperto e scopri come l\'AI può aumentare le tue vendite del 300% in soli 90 giorni.',
+        'contact-form-title': 'Prenota la tua demo gratuita',
+        'contact-form-subtitle': 'Compila il form e ti contatteremo entro 2 ore',
+        'form-name': 'Nome *',
+        'form-agency': 'Nome Agenzia *',
+        'form-phone': 'Telefono *',
+        'form-email': 'Email',
+        'form-properties': 'Quante proprietà gestisci?',
+        'form-submit': 'Prenota Demo Gratuita',
+        'form-note': 'I tuoi dati sono protetti e non verranno mai condivisi',
+        'form-name-placeholder': 'Il tuo nome completo',
+        'form-agency-placeholder': 'Nome della tua agenzia',
+        'form-phone-placeholder': '+39 123 456 7890',
+        'form-email-placeholder': 'tua@email.it (opzionale)',
+        'form-properties-option-empty': 'Seleziona una opzione',
+        'form-properties-option-1-50': '1-50 proprietà',
+        'form-properties-option-51-100': '51-100 proprietà',
+        'form-properties-option-101-200': '101-200 proprietà',
+        'form-properties-option-200+': 'Oltre 200 proprietà',
+        
+        // Footer
+        'footer-description': 'Il primo agente AI per le agenzie immobiliari italiane. Trasforma ogni contatto in un\'opportunità di vendita.',
+        'footer-soluzione': 'Soluzione',
+        'footer-come-funziona': 'Come Funziona',
+        'footer-azienda': 'Azienda',
+        'footer-supporto': 'Supporto',
+        'footer-legal': 'Legal',
+        'footer-copyright': '© 2025 Anzevino AI Real Estate. Tutti i diritti riservati.',
+        
+        // Demo Conversation
+        'demo-title': 'Esempio di Conversazione AI',
+        'demo-ai-in-azione': 'AI in azione',
+        
+        // Dashboard Mockup
+        'dashboard-conversazioni': 'Conversazioni',
+        'dashboard-clienti': 'Clienti',
+        'dashboard-proprieta': 'Proprietà',
+        'dashboard-appuntamenti': 'Appuntamenti',
+        'dashboard-analytics': 'Analytics',
+        'dashboard-conversazioni-oggi': 'Conversazioni Oggi',
+        'dashboard-lead-qualificati': 'Lead Qualificati',
+        'dashboard-visite-prenotate': 'Visite Prenotate',
+        'dashboard-conversazioni-recenti': 'Conversazioni Recenti',
+        'dashboard-vedi-tutte': 'Vedi tutte',
+        
+        // Feature Items
+        'feature-conversazione': 'Conversa in Linguaggio Naturale',
+        'feature-conversazione-desc': 'L\'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande specifiche sul mercato immobiliare.',
+        'feature-rag': 'Ricerca nel Tuo Database (RAG)',
+        'feature-rag-desc': 'Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su preferenze, budget e zona geografica.',
+        'feature-prenotazioni': 'Prenota Appuntamenti Automaticamente',
+        'feature-prenotazioni-desc': 'Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e confermando l\'appuntamento.',
+        
+        // Stats
+        'stat-tempo-risposta': 'Tempo di risposta',
+        'stat-disponibilita': 'Disponibilità',
+        'stat-lead-qualificati': 'Lead qualificati',
+        
+        // Testimonial
+        'testimonial-quote': '"In 3 mesi abbiamo aumentato le vendite del 340%. L\'AI risponde meglio di molti agenti umani."',
+        'testimonial-author': 'Roberto Anzevino',
+        'testimonial-title': 'Direttore, Milano Premium Real Estate',
+        
+        // Benefits
+        'benefit-demo': 'Demo personalizzata in 30 minuti',
+        'benefit-setup': 'Setup gratuito e senza impegno',
+        'benefit-formazione': 'Formazione inclusa per il tuo team',
+        'benefit-supporto': 'Supporto tecnico dedicato'
+    },
+    en: {
+        // Navigation
+        'nav-soluzione': 'Solution',
+        'nav-dashboard': 'Dashboard',
+        'nav-caratteristiche': 'Features',
+        'nav-contatto': 'Contact',
+        'nav-prenota-demo': 'Book Demo',
+        
+        // Hero Section
+        'hero-subtitle': 'The Future of Real Estate',
+        'hero-title': 'Sell more homes while you sleep',
+        'hero-description': 'Your first AI Agent that qualifies leads on WhatsApp in 15 seconds, 24/7. Turn every night into a sales opportunity.',
+        'hero-cta-button': 'Book a Free Demo',
+        'hero-cta-note': 'No commitment • Setup in 24 hours • Results guaranteed',
+        
+        // Problem Section
+        'problem-tag': 'The Problem',
+        'problem-title': 'You\'re losing 80% of your best customers',
+        'problem-description': 'Every day, hundreds of potential buyers visit Immobiliare.it and Idealista, fill out forms and contact you via WhatsApp. But when you call them, they\'ve already gone to the competition.',
+        
+        // Solution Section
+        'solution-tag': 'The Solution',
+        'solution-title': 'Your first AI Employee',
+        'solution-subtitle': 'A virtual assistant that works 24/7, talks to customers like a human agent and turns every contact into an opportunity.',
+        
+        // Dashboard Section
+        'dashboard-tag': 'Control Dashboard',
+        'dashboard-title': 'Monitor everything in real time',
+        'dashboard-subtitle': 'Your command console to control every AI conversation, manage leads and optimize sales performance.',
+        
+        // Features Section
+        'features-tag': 'Features',
+        'features-title': 'Everything you need to sell more',
+        'features-subtitle': 'A complete suite of AI tools designed specifically for Italian real estate agencies.',
+        
+        // Contact Section
+        'contact-tag': 'Get Started Today',
+        'contact-title': 'Transform your agency into a sales machine',
+        'contact-subtitle': 'Talk to an expert and discover how AI can increase your sales by 300% in just 90 days.',
+        'contact-form-title': 'Book your free demo',
+        'contact-form-subtitle': 'Fill out the form and we\'ll contact you within 2 hours',
+        'form-name': 'Name *',
+        'form-agency': 'Agency Name *',
+        'form-phone': 'Phone *',
+        'form-email': 'Email',
+        'form-properties': 'How many properties do you manage?',
+        'form-submit': 'Book Free Demo',
+        'form-note': 'Your data is protected and will never be shared',
+        'form-name-placeholder': 'Your full name',
+        'form-agency-placeholder': 'Your agency name',
+        'form-phone-placeholder': '+39 123 456 7890',
+        'form-email-placeholder': 'your@email.com (optional)',
+        'form-properties-option-empty': 'Select an option',
+        'form-properties-option-1-50': '1-50 properties',
+        'form-properties-option-51-100': '51-100 properties',
+        'form-properties-option-101-200': '101-200 properties',
+        'form-properties-option-200+': 'More than 200 properties',
+        
+        // Footer
+        'footer-description': 'The first AI agent for Italian real estate agencies. Turn every contact into a sales opportunity.',
+        'footer-soluzione': 'Solution',
+        'footer-come-funziona': 'How It Works',
+        'footer-azienda': 'Company',
+        'footer-supporto': 'Support',
+        'footer-legal': 'Legal',
+        'footer-copyright': '© 2025 Anzevino AI Real Estate. All rights reserved.',
+        
+        // Demo Conversation
+        'demo-title': 'AI Conversation Example',
+        'demo-ai-in-azione': 'AI in action',
+        
+        // Dashboard Mockup
+        'dashboard-conversazioni': 'Conversations',
+        'dashboard-clienti': 'Clients',
+        'dashboard-proprieta': 'Properties',
+        'dashboard-appuntamenti': 'Appointments',
+        'dashboard-analytics': 'Analytics',
+        'dashboard-conversazioni-oggi': 'Conversations Today',
+        'dashboard-lead-qualificati': 'Qualified Leads',
+        'dashboard-visite-prenotate': 'Booked Visits',
+        'dashboard-conversazioni-recenti': 'Recent Conversations',
+        'dashboard-vedi-tutte': 'View all',
+        
+        // Feature Items
+        'feature-conversazione': 'Natural Language Conversation',
+        'feature-conversazione-desc': 'The AI speaks like an expert agent, understands customer needs and answers specific questions about the real estate market.',
+        'feature-rag': 'Search Your Database (RAG)',
+        'feature-rag-desc': 'Instantly access your property archive and find precise matches based on preferences, budget and geographic area.',
+        'feature-prenotazioni': 'Book Appointments Automatically',
+        'feature-prenotazioni-desc': 'Integrate the company calendar and book visits directly, suggesting available times and confirming the appointment.',
+        
+        // Stats
+        'stat-tempo-risposta': 'Response time',
+        'stat-disponibilita': 'Availability',
+        'stat-lead-qualificati': 'Qualified leads',
+        
+        // Testimonial
+        'testimonial-quote': '"In 3 months we increased sales by 340%. AI responds better than many human agents."',
+        'testimonial-author': 'Roberto Anzevino',
+        'testimonial-title': 'Director, Milano Premium Real Estate',
+        
+        // Benefits
+        'benefit-demo': 'Personalized demo in 30 minutes',
+        'benefit-setup': 'Free setup with no commitment',
+        'benefit-formazione': 'Training included for your team',
+        'benefit-supporto': 'Dedicated technical support'
+    }
+};
+
+// Language Switching Function
+function switchLanguage(language) {
+    // Update all translatable elements
+    for (const [key, text] of Object.entries(translations[language])) {
+        const elements = document.querySelectorAll(`[data-translate="${key}"]`);
+        elements.forEach(element => {
+            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.placeholder = text;
+            } else {
+                element.textContent = text;
+            }
+        });
+    }
+    
+    // Update HTML lang attribute
+    document.documentElement.lang = language;
+    
+    // Update URL for language
+    const currentUrl = window.location.href;
+    if (currentUrl.includes('?lang=')) {
+        const newUrl = currentUrl.replace(/\?lang=[a-z]{2}/, `?lang=${language}`);
+        window.history.pushState({}, '', newUrl);
+    } else {
+        window.history.pushState({}, '', `${currentUrl}?lang=${language}`);
+    }
+    
+    // Store language preference
+    localStorage.setItem('preferredLanguage', language);
+}
+
+// Initialize Language
+function initializeLanguage() {
+    // Check URL parameter first
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    
+    // Check localStorage
+    const savedLang = localStorage.getItem('preferredLanguage');
+    
+    // Determine language (URL takes precedence over localStorage)
+    let language = urlLang || savedLang || 'it';
+    
+    // Validate language
+    if (!['it', 'en'].includes(language)) {
+        language = 'it'; // Default to Italian
+    }
+    
+    // Set active button
+    const langButtons = document.querySelectorAll('.lang-btn');
+    langButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-lang') === language) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Apply translations
+    switchLanguage(language);
+}
+
+// Language Toggle Functionality
+const languageToggle = document.querySelector('.language-toggle');
+if (languageToggle) {
+    const langButtons = languageToggle.querySelectorAll('.lang-btn');
+    
+    langButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            langButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get selected language
+            const selectedLang = this.getAttribute('data-lang');
+            
+            // Switch language
+            switchLanguage(selectedLang);
+            
+            // Show notification - using alert as fallback since showNotification is scoped
+            const languageName = selectedLang === 'it' ? 'Italiano' : 'English';
+            alert(`Language changed to ${languageName}`);
+        });
+    });
+    
+    // Initialize language on page load
+    initializeLanguage();
+}
+
+// Error handling
+window.addEventListener('error', function(e) {
+    console.error('JavaScript error:', e.error);
+    // You could send this to an error tracking service
+});

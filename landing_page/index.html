@@ -1,13 +1,805 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>landing_page</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anzevino AI Real Estate | Il Primo Agente AI per le Agenzie Immobiliari</title>
+    <meta name="description" content="Vendi più case mentre dormi. Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <i class="ph ph-robot"></i>
+                    <span class="brand-name">Anzevino AI</span>
+                </div>
+                <span class="brand-tagline">Real Estate</span>
+            </div>
+            <div class="nav-links">
+                <a href="#soluzione" data-translate="nav-soluzione">Soluzione</a>
+                <a href="#dashboard" data-translate="nav-dashboard">Dashboard</a>
+                <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
+                <a href="#contatto" data-translate="nav-contatto">Contatto</a>
+                <button class="btn-primary">
+                    <i class="ph ph-calendar"></i>
+                    <span data-translate="nav-prenota-demo">Prenota Demo</span>
+                </button>
+            </div>
+            <div class="language-toggle">
+                <button class="lang-btn active" data-lang="it">IT</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+            <div class="nav-toggle">
+                <i class="ph ph-list"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-subtitle">
+                        <span class="subtitle-badge" data-translate="hero-subtitle">Il Futuro dell'Immobiliare</span>
+                    </div>
+                    <h1 class="hero-title"><span data-translate="hero-title">Vendi più case </span><span class="highlight" data-translate="hero-title-highlight">mentre dormi</span></h1>
+                    <p class="hero-description" data-translate="hero-description">Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24. Trasforma ogni notturna in un'opportunità di vendita.</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">15s</div>
+                            <div class="stat-label">Tempo di risposta</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Disponibilità</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">85%</div>
+                            <div class="stat-label">Lead qualificati</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-cta">
+                        <button class="btn-primary btn-large">
+                            <i class="ph ph-calendar-plus"></i>
+                            <span data-translate="hero-cta-button">Prenota una Demo Gratuita</span>
+                        </button>
+                        <p class="cta-note" data-translate="hero-cta-note">Nessun impegno • Setup in 24 ore • Garanzia risultati</p>
+                    </div>
+                    
+                    <div class="hero-trust">
+                        <div class="trust-item">
+                            <i class="ph ph-shield-check"></i>
+                            <span>GDPR Compliant</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="ph ph-handshake"></i>
+                            <span>Partner Immobiliare.it</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="ph ph-medal"></i>
+                            <span>Certificato AI</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="hero-image-container">
+                        <div class="floating-phones">
+                            <div class="phone-main">
+                                <div class="phone-screen">
+                                    <div class="phone-header">
+                                        <i class="ph ph-whatsapp-logo"></i>
+                                        <span>WhatsApp Business</span>
+                                        <div class="status online"></div>
+                                    </div>
+                                    <div class="chat-container">
+                                        <div class="chat-message from-client">
+                                            <div class="message-time">14:23</div>
+                                            <div class="message-bubble">
+                                                Ciao, sono interessato a un trilocale a Roma zona Prati
+                                            </div>
+                                        </div>
+                                        <div class="chat-message from-ai typing">
+                                            <div class="message-time">14:23</div>
+                                            <div class="message-bubble ai-bubble">
+                                                <div class="typing-indicator">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chat-message from-ai">
+                                            <div class="message-time">14:23</div>
+                                            <div class="message-bubble ai-bubble">
+                                                Perfetto! Ho trovato 3 trilocali disponibili a Prati. Posso inviarti le foto e organizzare una visita per domani?
+                                            </div>
+                                        </div>
+                                        <div class="chat-message from-client">
+                                            <div class="message-time">14:24</div>
+                                            <div class="message-bubble">
+                                                Sì, mi interessa! Grazie per la velocità
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="phone-secondary">
+                                <div class="phone-screen mini">
+                                    <div class="notification-card">
+                                        <div class="notification-header">
+                                            <i class="ph ph-bell"></i>
+                                            <span>Nuovo Lead Qualificato</span>
+                                        </div>
+                                        <div class="notification-body">
+                                            <strong>Cliente: Marco R.</strong><br>
+                                            <span>Preferenza: Trilocale Prati</span><br>
+                                            <span class="score">Score: 92/100</span>
+                                        </div>
+                                        <div class="notification-time">2 min fa</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ai-badge">
+                            <i class="ph ph-robot"></i>
+                            <span>AI Attivo</span>
+                            <div class="pulse"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <div class="problem-content">
+                <div class="problem-text">
+                    <div class="section-intro">
+                        <span class="intro-tag" data-translate="problem-tag">Il Problema</span>
+                        <h2 data-translate="problem-title">Stai perdendo il 80% dei tuoi migliori clienti</h2>
+                    </div>
+                    <p class="problem-description" data-translate="problem-description">Ogni giorno, centinaia di potenziali acquirenti visitano Immobiliare.it e Idealista, compilano moduli e ti contattano via WhatsApp. Ma quando li chiami, sono già passati alla concorrenza.</p>
+                    
+                    <div class="problem-stats">
+                        <div class="problem-stat">
+                            <div class="stat-number red">80%</div>
+                            <div class="stat-text">dei lead persi entro 2 ore</div>
+                        </div>
+                        <div class="problem-stat">
+                            <div class="stat-number red">€45.000</div>
+                            <div class="stat-text">perdita media annua per agenzia</div>
+                        </div>
+                        <div class="problem-stat">
+                            <div class="stat-number red">73%</div>
+                            <div class="stat-text">dei clienti preferisce WhatsApp</div>
+                        </div>
+                    </div>
+                    
+                    <div class="problem-scenarios">
+                        <div class="scenario">
+                            <i class="ph ph-clock"></i>
+                            <div>
+                                <h4>Ore 22:30 - Cliente notturno</h4>
+                                <p>Interessato a un bilocale, scrive su WhatsApp. Tu dormi. Il concorrente risponde in 2 minuti.</p>
+                            </div>
+                        </div>
+                        <div class="scenario">
+                            <i class="ph ph-phone-call"></i>
+                            <div>
+                                <h4>Domenica pomeriggio - Weekend</h4>
+                                <p>Coppia vuole vedere 3 appartamenti. Chiami lunedì: "Abbiamo già comprato".</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="problem-visual">
+                    <div class="loss-chart">
+                        <div class="chart-header">
+                            <h3>Lead Persi nel Tempo</h3>
+                        </div>
+                        <div class="chart-bars">
+                            <div class="bar-group">
+                                <div class="bar immediate" style="height: 25%"></div>
+                                <span class="bar-label">0-5 min</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar fast" style="height: 45%"></div>
+                                <span class="bar-label">5-30 min</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar medium" style="height: 70%"></div>
+                                <span class="bar-label">30min-2h</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar slow" style="height: 85%"></div>
+                                <span class="bar-label">2-8h</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar lost" style="height: 100%"></div>
+                                <span class="bar-label">8h+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section id="soluzione" class="solution-section">
+        <div class="container">
+            <div class="solution-content">
+                <div class="solution-intro">
+                    <span class="intro-tag" data-translate="solution-tag">La Soluzione</span>
+                    <h2><span data-translate="solution-title">Il tuo primo </span><span class="highlight" data-translate="solution-title-highlight">Dipendente AI</span></h2>
+                    <p class="solution-subtitle" data-translate="solution-subtitle">Un assistente virtuale che lavora 24/7, parla con i clienti come un agente umano e trasforma ogni contatto in un'opportunità.</p>
+                </div>
+                
+                <div class="employee-features">
+                    <div class="feature-card primary">
+                        <div class="feature-icon">
+                            <i class="ph ph-chat-circle-text"></i>
+                        </div>
+                        <h3>Conversa in Linguaggio Naturale</h3>
+                        <p>L'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande specifiche sul mercato immobiliare.</p>
+                        <ul class="feature-benefits">
+                            <li><i class="ph ph-check"></i> Dialetto locale e espressioni italiane</li>
+                            <li><i class="ph ph-check"></i> Domande intelligenti per qualificare il budget</li>
+                            <li><i class="ph ph-check"></i> Gestione obiezioni e resistenze</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card primary">
+                        <div class="feature-icon">
+                            <i class="ph ph-database"></i>
+                        </div>
+                        <h3>Ricerca nel Tuo Database (RAG)</h3>
+                        <p>Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su preferenze, budget e zona geografica.</p>
+                        <ul class="feature-benefits">
+                            <li><i class="ph ph-check"></i> Ricerca semantica nelle tue proprietà</li>
+                            <li><i class="ph ph-check"></i> Suggerimenti di alternative intelligenti</li>
+                            <li><i class="ph ph-check"></i> Aggiornamento automatico inventario</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-card primary">
+                        <div class="feature-icon">
+                            <i class="ph ph-calendar-plus"></i>
+                        </div>
+                        <h3>Prenota Appuntamenti Automaticamente</h3>
+                        <p>Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e confermando l'appuntamento.</p>
+                        <ul class="feature-benefits">
+                            <li><i class="ph ph-check"></i> Sincronizzazione con Google Calendar</li>
+                            <li><i class="ph ph-check"></i> Promemoria automatici SMS/Email</li>
+                            <li><i class="ph ph-check"></i> Gestione conflitti e rinvii</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="solution-demo">
+                    <div class="demo-container">
+                        <div class="demo-header">
+                            <h3>Esempio di Conversazione AI</h3>
+                            <div class="demo-controls">
+                                <div class="demo-status">
+                                    <div class="status-dot"></div>
+                                    <span>AI in azione</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-conversation">
+                            <div class="conversation-step active" data-step="1">
+                                <div class="step-time">09:15</div>
+                                <div class="step-message from-client">
+                                    <strong>Cliente:</strong> Buongiorno, vorrei informazioni su appartamenti a Milano Porta Nuova
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-step" data-step="2">
+                                <div class="step-time">09:15</div>
+                                <div class="step-message from-ai">
+                                    <strong>Anzevino AI:</strong> Buongiorno! Sono l'assistente virtuale dell'agenzia. Per aiutarti al meglio, mi puoi dire il budget disponibile e che tipologia stai cercando?
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-step" data-step="3">
+                                <div class="step-time">09:16</div>
+                                <div class="step-message from-client">
+                                    <strong>Cliente:</strong> Budget 400k, vorrei un bilocale moderno
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-step" data-step="4">
+                                <div class="step-time">09:16</div>
+                                <div class="step-message from-ai">
+                                    <strong>Anzevino AI:</strong> Perfetto! Ho trovato 3 bilocali in Porta Nuova nel tuo budget. Ti invio le planimetrie e organizziamo una visita per giovedì alle 16:00?
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-step" data-step="5">
+                                <div class="step-time">09:17</div>
+                                <div class="step-message from-client">
+                                    <strong>Cliente:</strong> Sì, perfetto! A giovedì allora
+                                </div>
+                            </div>
+                            
+                            <div class="conversation-step" data-step="6">
+                                <div class="step-time">09:17</div>
+                                <div class="step-message from-ai">
+                                    <strong>Anzevino AI:</strong> Confermato! Appuntamento giovedì 16:00 in Via Dante 12. Riceverai un promemoria domani. Buona giornata!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Preview -->
+    <section id="dashboard" class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-content">
+                <div class="dashboard-intro">
+                    <span class="intro-tag" data-translate="dashboard-tag">Dashboard di Controllo</span>
+                    <h2 data-translate="dashboard-title">Monitora tutto in tempo reale</h2>
+                    <p data-translate="dashboard-subtitle">La tua console di comando per controllare ogni conversazione AI, gestire i lead e ottimizzare le performance di vendita.</p>
+                </div>
+                
+                <div class="dashboard-mockup">
+                    <div class="browser-frame">
+                        <div class="browser-header">
+                            <div class="browser-controls">
+                                <span class="control red"></span>
+                                <span class="control yellow"></span>
+                                <span class="control green"></span>
+                            </div>
+                            <div class="browser-url">
+                                <i class="ph ph-shield-check"></i>
+                                anzevino-ai.com/dashboard
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-grid">
+                            <div class="dashboard-sidebar">
+                                <div class="sidebar-header">
+                                    <div class="logo">
+                                        <i class="ph ph-robot"></i>
+                                        <span>Anzevino AI</span>
+                                    </div>
+                                </div>
+                                
+                                <nav class="sidebar-nav">
+                                    <div class="nav-item active">
+                                        <i class="ph ph-chats"></i>
+                                        <span>Conversazioni</span>
+                                        <span class="badge">23</span>
+                                    </div>
+                                    <div class="nav-item">
+                                        <i class="ph ph-users"></i>
+                                        <span>Clienti</span>
+                                    </div>
+                                    <div class="nav-item">
+                                        <i class="ph ph-house"></i>
+                                        <span>Proprietà</span>
+                                    </div>
+                                    <div class="nav-item">
+                                        <i class="ph ph-calendar"></i>
+                                        <span>Appuntamenti</span>
+                                        <span class="badge">8</span>
+                                    </div>
+                                    <div class="nav-item">
+                                        <i class="ph ph-chart-line"></i>
+                                        <span>Analytics</span>
+                                    </div>
+                                </nav>
+                            </div>
+                            
+                            <div class="dashboard-main">
+                                <div class="dashboard-stats">
+                                    <div class="stat-card">
+                                        <div class="stat-icon">
+                                            <i class="ph ph-chats"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-number">247</div>
+                                            <div class="stat-label">Conversazioni Oggi</div>
+                                            <div class="stat-change positive">+23%</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stat-card">
+                                        <div class="stat-icon">
+                                            <i class="ph ph-user-check"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-number">89</div>
+                                            <div class="stat-label">Lead Qualificati</div>
+                                            <div class="stat-change positive">+15%</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stat-card">
+                                        <div class="stat-icon">
+                                            <i class="ph ph-calendar-check"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <div class="stat-number">34</div>
+                                            <div class="stat-label">Visite Prenotate</div>
+                                            <div class="stat-change positive">+8%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="recent-conversations">
+                                    <div class="conversations-header">
+                                        <h3>Conversazioni Recenti</h3>
+                                        <div class="view-all">Vedi tutte</div>
+                                    </div>
+                                    
+                                    <div class="conversation-item">
+                                        <div class="client-info">
+                                            <div class="client-avatar">MR</div>
+                                            <div class="client-details">
+                                                <div class="client-name">Marco Rossi</div>
+                                                <div class="client-source">WhatsApp • 2 min fa</div>
+                                            </div>
+                                        </div>
+                                        <div class="conversation-status">
+                                            <span class="status-badge hot">HOT LEAD</span>
+                                            <div class="conversation-preview">
+                                                "Budget 500k, trilocale zona Porta Nuova..."
+                                            </div>
+                                        </div>
+                                        <div class="conversation-actions">
+                                            <button class="action-btn">
+                                                <i class="ph ph-phone"></i>
+                                            </button>
+                                            <button class="action-btn">
+                                                <i class="ph ph-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="conversation-item">
+                                        <div class="client-info">
+                                            <div class="client-avatar">GB</div>
+                                            <div class="client-details">
+                                                <div class="client-name">Giulia Bianchi</div>
+                                                <div class="client-source">WhatsApp • 5 min fa</div>
+                                            </div>
+                                        </div>
+                                        <div class="conversation-status">
+                                            <span class="status-badge qualified">QUALIFICATO</span>
+                                            <div class="conversation-preview">
+                                                "Visita prenotata per domani alle 15:00..."
+                                            </div>
+                                        </div>
+                                        <div class="conversation-actions">
+                                            <button class="action-btn">
+                                                <i class="ph ph-phone"></i>
+                                            </button>
+                                            <button class="action-btn">
+                                                <i class="ph ph-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="conversation-item">
+                                        <div class="client-info">
+                                            <div class="client-avatar">AV</div>
+                                            <div class="client-details">
+                                                <div class="client-name">Alessandro Verde</div>
+                                                <div class="client-source">WhatsApp • 8 min fa</div>
+                                            </div>
+                                        </div>
+                                        <div class="conversation-status">
+                                            <span class="status-badge follow-up">FOLLOW UP</span>
+                                            <div class="conversation-preview">
+                                                "Inviate 3 alternative bilocali zona Niguarda..."
+                                            </div>
+                                        </div>
+                                        <div class="conversation-actions">
+                                            <button class="action-btn">
+                                                <i class="ph ph-phone"></i>
+                                            </button>
+                                            <button class="action-btn">
+                                                <i class="ph ph-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="caratteristiche" class="features-section">
+        <div class="container">
+            <div class="features-content">
+                <div class="features-intro">
+                    <span class="intro-tag" data-translate="features-tag">Caratteristiche</span>
+                    <h2 data-translate="features-title">Tutto quello che ti serve per vendere di più</h2>
+                    <p data-translate="features-subtitle">Una suite completa di strumenti AI progettata specificamente per le agenzie immobiliari italiane.</p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-chat-circle-text"></i>
+                        </div>
+                        <h3>Risposte WhatsApp Istantanee</h3>
+                        <p>Risposta automatica in meno di 15 secondi, 24 ore su 24, anche durante i weekend e le festività.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">15s</span>
+                            <span class="highlight-text">tempo medio di risposta</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-clock"></i>
+                        </div>
+                        <h3>Disponibilità 24/7</h3>
+                        <p>Il tuo agente AI lavora ininterrottamente, anche quando tu dormi o sei in vacanza.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">8760h</span>
+                            <span class="highlight-text">ore di lavoro annuali</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-translate"></i>
+                        </div>
+                        <h3>Supporto Multi-lingua</h3>
+                        <p>Comunicazione automatica in italiano e inglese, con riconoscimento intelligente della lingua del cliente.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">2</span>
+                            <span class="highlight-text">lingue supportate</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-database"></i>
+                        </div>
+                        <h3>Integrazione CRM Diretta</h3>
+                        <p>Connessione immediata con i principali CRM immobiliari: Casa.it, Immobiliare.it, Idealista e software gestionali.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">15+</span>
+                            <span class="highlight-text">integrazioni disponibili</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-chart-line-up"></i>
+                        </div>
+                        <h3>Analytics Avanzate</h3>
+                        <p>Report dettagliati su performance, conversione e ROI della tua strategia AI.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">50+</span>
+                            <span class="highlight-text">metriche tracciate</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="ph ph-shield-check"></i>
+                        </div>
+                        <h3>Sicurezza e Privacy</h3>
+                        <p>GDPR compliant, crittografia end-to-end e server italiani per la massima protezione dei dati.</p>
+                        <div class="feature-highlight">
+                            <span class="highlight-number">100%</span>
+                            <span class="highlight-text">GDPR compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section id="contatto" class="contact-section">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-intro">
+                        <span class="intro-tag" data-translate="contact-tag">Inizia Oggi</span>
+                        <h2 data-translate="contact-title">Trasforma la tua agenzia in una macchina di vendite</h2>
+                        <p data-translate="contact-subtitle">Parla con un esperto e scopri come l'AI può aumentare le tue vendite del 300% in soli 90 giorni.</p>
+                    </div>
+                    
+                    <div class="contact-benefits">
+                        <div class="benefit-item">
+                            <i class="ph ph-check-circle"></i>
+                            <span data-translate="benefit-demo">Demo personalizzata in 30 minuti</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="ph ph-check-circle"></i>
+                            <span data-translate="benefit-setup">Setup gratuito e senza impegno</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="ph ph-check-circle"></i>
+                            <span data-translate="benefit-formazione">Formazione inclusa per il tuo team</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="ph ph-check-circle"></i>
+                            <span data-translate="benefit-supporto">Supporto tecnico dedicato</span>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-testimonial">
+                        <blockquote>
+                            "In 3 mesi abbiamo aumentato le vendite del 340%. L'AI risponde meglio di molti agenti umani."
+                        </blockquote>
+                        <div class="testimonial-author">
+                            <strong>Roberto Anzevino</strong>
+                            <span>Direttore, Milano Premium Real Estate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <div class="form-header">
+                        <h3 data-translate="contact-form-title">Prenota la tua demo gratuita</h3>
+                        <p data-translate="contact-form-subtitle">Compila il form e ti contatteremo entro 2 ore</p>
+                    </div>
+                    
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name" data-translate="form-name">Nome *</label>
+                            <input type="text" id="name" name="name" required placeholder="Il tuo nome completo" data-translate="form-name-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="agency" data-translate="form-agency">Nome Agenzia *</label>
+                            <input type="text" id="agency" name="agency" required placeholder="Nome della tua agenzia" data-translate="form-agency-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone" data-translate="form-phone">Telefono *</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="+39 123 456 7890" data-translate="form-phone-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email" data-translate="form-email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="tua@email.it (opzionale)" data-translate="form-email-placeholder">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="properties" data-translate="form-properties">Quante proprietà gestisci?</label>
+                            <select id="properties" name="properties">
+                                <option value="" data-translate="form-properties-option-empty">Seleziona una opzione</option>
+                                <option value="1-50" data-translate="form-properties-option-1-50">1-50 proprietà</option>
+                                <option value="51-100" data-translate="form-properties-option-51-100">51-100 proprietà</option>
+                                <option value="101-200" data-translate="form-properties-option-101-200">101-200 proprietà</option>
+                                <option value="200+" data-translate="form-properties-option-200+">Oltre 200 proprietà</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary btn-full">
+                            <i class="ph ph-calendar-plus"></i>
+                            <span data-translate="form-submit">Prenota Demo Gratuita</span>
+                        </button>
+                        
+                        <p class="form-note">
+                            <i class="ph ph-shield-check"></i>
+                            <span data-translate="form-note">I tuoi dati sono protetti e non verranno mai condivisi</span>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="ph ph-robot"></i>
+                        <div class="logo-text">
+                            <strong>Anzevino AI</strong>
+                            <span>Real Estate</span>
+                        </div>
+                    </div>
+                    <p data-translate="footer-description">Il primo agente AI per le agenzie immobiliari italiane. Trasforma ogni contatto in un'opportunità di vendita.</p>
+                    
+                    <div class="footer-social">
+                        <a href="#" class="social-link">
+                            <i class="ph ph-linkedin-logo"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="ph ph-instagram-logo"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="ph ph-facebook-logo"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 data-translate="footer-soluzione">Soluzione</h4>
+                        <a href="#soluzione" data-translate="footer-come-funziona">Come Funziona</a>
+                        <a href="#dashboard" data-translate="footer-dashboard">Dashboard</a>
+                        <a href="#caratteristiche" data-translate="footer-caratteristiche">Caratteristiche</a>
+                        <a href="#" data-translate="footer-prezzi">Prezzi</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 data-translate="footer-azienda">Azienda</h4>
+                        <a href="#" data-translate="footer-chi-siamo">Chi Siamo</a>
+                        <a href="#" data-translate="footer-case-study">Case Study</a>
+                        <a href="#" data-translate="footer-partner">Partner</a>
+                        <a href="#" data-translate="footer-careers">Careers</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 data-translate="footer-supporto">Supporto</h4>
+                        <a href="#" data-translate="footer-documentazione">Documentazione</a>
+                        <a href="#" data-translate="footer-centro-assistenza">Centro Assistenza</a>
+                        <a href="#" data-translate="footer-stato-sistema">Stato Sistema</a>
+                        <a href="#" data-translate="footer-contatto">Contatto</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 data-translate="footer-legal">Legal</h4>
+                        <a href="#" data-translate="footer-privacy">Privacy Policy</a>
+                        <a href="#" data-translate="footer-terms">Terms of Service</a>
+                        <a href="#" data-translate="footer-cookies">Cookie Policy</a>
+                        <a href="#" data-translate="footer-gdpr">GDPR</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p data-translate="footer-copyright">&copy; 2025 Anzevino AI Real Estate. Tutti i diritti riservati.</p>
+                <div class="footer-badges">
+                    <div class="badge">
+                        <i class="ph ph-shield-check"></i>
+                        <span>GDPR Compliant</span>
+                    </div>
+                    <div class="badge">
+                        <i class="ph ph-certificate"></i>
+                        <span>ISO 27001</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Calendly Integration -->
+    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+    <script src="script.js"></script>
+</body>
 </html>
