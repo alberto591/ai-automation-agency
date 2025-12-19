@@ -16,7 +16,7 @@ from api import app, validate_phone
 client = TestClient(app)
 
 # Test headers
-HEADERS = {"X-Webhook-Key": "prod_dev_secret_key_2025"}
+HEADERS = {"X-Webhook-Key": "test_webhook_secret"}
 
 
 def test_health_check():

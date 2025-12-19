@@ -5,8 +5,9 @@ Welcome to the **Anzevino AI Real Estate Agent** documentation. This folder cont
 ## 📂 Documentation Sections
 
 ### 🚀 Getting Started & Deployment
-- [Next Steps Roadmap](roadmap.md) - Path to production and scaling phase.
-- [Vercel Deployment](file:///Users/lycanbeats/Desktop/agenzia-ai/README.md) - Basic setup and environment variables.
+- [**Production Deployment Guide**](PRODUCTION_DEPLOYMENT.md) - **[START HERE]** Complete guide for Vercel, Render, and Twilio.
+- [Next Steps Roadmap](roadmap.md) - Path to scaling and scaling phase.
+- [Basic Setup](file:///Users/lycanbeats/Desktop/agenzia-ai/README.md) - Local install and project overview.
 
 ### 🔄 Integrations & Data
 - [Portal Integration Guide](portal-integration.md) - How to connect Immobiliare.it, Idealista, and Casa.it.

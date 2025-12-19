@@ -235,11 +235,15 @@ def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes, le
             data["status"] = "Warm"
 
         # --- DATA 2.0: Lead Profiling ---
-        # 1. Budget Extraction
-        budget_match = re.search(r'(\d+)[\s]?k|(\d{4,})', last_msg.lower())
-        if budget_match:
-            b_str = budget_match.group(1) or budget_match.group(2)
-            data["budget_max"] = int(b_str) * (1000 if 'k' in budget_match.group(0) else 1)
+        # 1. Budget Extraction (Find all k-values or large numbers and take the max)
+        budget_matches = re.findall(r'(\d+)[\s]?k|(\d{5,})', last_msg.lower())
+        if budget_matches:
+            found_budgets = []
+            for m1, m2 in budget_matches:
+                b_str = m1 or m2
+                val = int(b_str) * (1000 if m1 else 1)
+                found_budgets.append(val)
+            data["budget_max"] = max(found_budgets)
         
         # 2. Zone Extraction
         zones = ["Navigli", "Brera", "Prati", "Centro", "Isola", "Niguarda"]
@@ -495,12 +499,12 @@ def check_if_human_mode(customer_phone):
             
         last_record = response.data[0]
         
-        # If status is RESUMED, AI is active
-        if last_record["status"] == "RESUMED":
+        # If status is active, AI is active
+        if last_record["status"] == "active":
             return False
             
-        # If status is TAKEOVER, check expiry
-        if last_record["status"] == "TAKEOVER":
+        # If status is human_mode, check expiry
+        if last_record["status"] == "human_mode":
             # Parse timestamp (Supabase returns ISO format)
             created_str = last_record.get("created_at", "")
             if created_str:

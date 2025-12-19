@@ -79,55 +79,85 @@ export default function ChatWindow({ selectedLead }) {
 
     if (!selectedLead) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-[#f0f2f5] border-l border-gray-300">
-                <div className="text-center text-gray-500">
-                    <h2 className="text-xl font-light mb-2">Agenzia AI Dashboard</h2>
-                    <p className="text-sm">Seleziona una chat per iniziare</p>
+            <div className="flex-1 flex items-center justify-center bg-[hsl(var(--zen-bg))] border-l border-[hsl(var(--zen-border))]">
+                <div className="text-center space-y-4 max-w-md p-8 animate-in fade-in zoom-in duration-700">
+                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border border-[hsl(var(--zen-border))]">
+                        <Bot className="w-10 h-10 text-[hsl(var(--zen-accent))]" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-bold text-[hsl(var(--zen-text-main))] tracking-tight">Agenzia AI Dashboard</h2>
+                        <p className="text-[hsl(var(--zen-text-muted))] text-sm mt-2">Seleziona una conversazione per iniziare a gestire i tuoi lead con intelligenza.</p>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#efeae2] relative overflow-hidden">
+        <div className="flex flex-col h-full bg-white relative overflow-hidden">
             {/* Header */}
-            <div className="px-4 py-3 bg-[#f0f2f5] flex justify-between items-center border-b border-gray-300 shadow-sm z-10">
-                <div className="flex items-center cursor-pointer" onClick={() => setDrawerOpen(!drawerOpen)}>
-                    <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold mr-3">
+            <div className="px-6 py-4 bg-white/80 backdrop-blur-md flex justify-between items-center border-b border-[hsl(var(--zen-border))] z-10 shadow-sm">
+                <div className="flex items-center cursor-pointer group" onClick={() => setDrawerOpen(!drawerOpen)}>
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-[hsl(var(--zen-text-main))] font-bold mr-4 shadow-sm border border-gray-100 group-hover:border-[hsl(var(--zen-accent))] transition-all">
                         {selectedLead.name[0]?.toUpperCase()}
                     </div>
                     <div>
-                        <div className="font-semibold text-gray-800">{selectedLead.name}</div>
-                        <div className="text-xs text-gray-500">{status === 'human_mode' ? '🛑 AI Stopped' : '✅ AI Active'}</div>
+                        <div className="font-bold text-[hsl(var(--zen-text-main))] text-lg tracking-tight">{selectedLead.name}</div>
+                        <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--zen-text-muted))]">
+                            {status === 'human_mode' ? (
+                                <>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                                    <span>Presa in carico</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                                    <span>AI Attiva</span>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-4 text-gray-600">
+                <div className="flex items-center space-x-6">
+                    {/* Premium Toggle Switch */}
                     <div
                         onClick={toggleAiMode}
-                        className={`flex items-center px-3 py-1 rounded-full border cursor-pointer shadow-sm transition-all ${status === 'human_mode'
-                            ? 'bg-gray-100 border-gray-300 hover:bg-gray-200'
-                            : 'bg-white border-green-200 hover:bg-green-50'
+                        className={`relative w-24 h-9 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 shadow-inner ${status === 'human_mode' ? 'bg-gray-200' : 'bg-green-100'
                             }`}
                     >
-                        <span className={`w-2 h-2 rounded-full mr-2 ${status === 'human_mode' ? 'bg-gray-400' : 'bg-green-500'}`}></span>
-                        <span className={`text-xs font-bold ${status === 'human_mode' ? 'text-gray-600' : 'text-green-700'}`}>
-                            {status === 'human_mode' ? 'AI OFF' : 'AI ON'}
-                        </span>
+                        <div className={`absolute text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${status === 'human_mode' ? 'right-3 text-gray-400' : 'left-8 text-green-700'}`}>
+                            {status === 'human_mode' ? 'Manual' : 'Auto'}
+                        </div>
+                        <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center ${status === 'human_mode' ? 'translate-x-0' : 'translate-x-15'
+                            }`}>
+                            {status === 'human_mode' ? <User className="w-3.5 h-3.5 text-gray-400" /> : <Bot className="w-3.5 h-3.5 text-green-600" />}
+                        </div>
                     </div>
-                    <button onClick={() => setDrawerOpen(!drawerOpen)} className="p-2 hover:bg-gray-200 rounded-full">
-                        <Info className={`w-5 h-5 ${drawerOpen ? 'text-green-600' : 'text-gray-600'}`} />
+
+                    <button
+                        onClick={() => setDrawerOpen(!drawerOpen)}
+                        className={`p-2.5 rounded-xl transition-all ${drawerOpen
+                                ? 'bg-green-50 text-[hsl(var(--zen-accent))] shadow-inner'
+                                : 'hover:bg-gray-50 text-[hsl(var(--zen-text-muted))]'
+                            }`}
+                    >
+                        <Info className="w-5.5 h-5.5" />
                     </button>
                 </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex overflow-hidden relative">
+            <div className="flex-1 flex overflow-hidden relative bg-[hsl(var(--zen-bg))]/50">
 
                 {/* Messages Area */}
                 <div className="flex-1 flex flex-col min-w-0">
-                    <div className="flex-1 p-8 overflow-y-auto space-y-4">
-                        {loading && <div className="text-center text-xs text-gray-500">Loading history...</div>}
+                    <div className="flex-1 p-6 md:p-10 overflow-y-auto space-y-6 custom-scrollbar">
+                        {loading && (
+                            <div className="flex justify-center p-4">
+                                <div className="animate-pulse text-[10px] font-bold uppercase tracking-widest text-gray-400">Syncing History...</div>
+                            </div>
+                        )}
 
                         {messages.map((msg, index) => (
                             <MessageBubble
@@ -142,8 +172,8 @@ export default function ChatWindow({ selectedLead }) {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-3 bg-[#f0f2f5] flex items-center space-x-2">
-                        <div className="p-2 text-gray-500 hover:bg-gray-200 rounded-full cursor-not-allowed">
+                    <div className="p-4 bg-white/80 backdrop-blur-sm border-t border-[hsl(var(--zen-border))] flex items-center space-x-3">
+                        <div className="p-3 text-[hsl(var(--zen-text-muted))] hover:bg-gray-100 rounded-2xl cursor-not-allowed transition-colors">
                             <MoreVertical className="w-5 h-5" />
                         </div>
                         <input
@@ -152,13 +182,16 @@ export default function ChatWindow({ selectedLead }) {
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                             placeholder="Scrivi un messaggio..."
-                            className="flex-1 p-3 rounded-lg border-none focus:outline-none focus:ring-1 focus:ring-green-500"
+                            className="flex-1 p-3.5 bg-[hsl(var(--zen-bg))] rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-[hsl(var(--zen-accent))] transition-all text-sm font-medium"
                             disabled={sending}
                         />
                         <button
                             onClick={sendMessage}
                             disabled={sending || !inputText.trim()}
-                            className={`p-3 text-white rounded-full ${sending ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'}`}
+                            className={`p-3.5 rounded-2xl transition-all flex items-center justify-center shadow-lg ${sending
+                                    ? 'bg-gray-100 text-gray-300'
+                                    : 'bg-[hsl(var(--zen-accent))] text-white hover:shadow-green-200 hover:-translate-y-0.5 active:translate-y-0'
+                                }`}
                         >
                             <Send className="w-5 h-5" />
                         </button>
@@ -167,7 +200,7 @@ export default function ChatWindow({ selectedLead }) {
 
                 {/* Sliding Info Drawer */}
                 <LeadDrawer
-                    lead={{ ...selectedLead, status }} // Pass updated status
+                    lead={{ ...selectedLead, status }}
                     isOpen={drawerOpen}
                     onClose={() => setDrawerOpen(false)}
                 />
@@ -179,15 +212,18 @@ export default function ChatWindow({ selectedLead }) {
 
 function MessageBubble({ isAi, text, time, isHuman }) {
     return (
-        <div className={`flex ${isAi ? 'justify-end' : 'justify-start'}`}>
+        <div className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
             <div
-                className={`max-w-[70%] p-3 rounded-lg shadow-sm text-sm relative leading-relaxed ${isAi ? (isHuman ? 'bg-[#fff5c4] rounded-tr-none' : 'bg-[#d9fdd3] rounded-tr-none') : 'bg-white rounded-tl-none'
+                className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all ${isAi
+                        ? (isHuman ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100' : 'bubble-ai')
+                        : 'bubble-user'
                     }`}
             >
-                <div className="mb-1 whitespace-pre-wrap">{text}</div>
-                <div className="text-[10px] text-gray-500 text-right flex items-center justify-end gap-1 mt-1">
+                <div className="whitespace-pre-wrap font-medium">{text}</div>
+                <div className={`text-[9px] font-bold uppercase tracking-tight flex items-center justify-end gap-1.5 mt-2 ${isAi && !isHuman ? 'text-white/60' : 'text-gray-400'
+                    }`}>
                     {time}
-                    {isAi && (isHuman ? <User className="w-3 h-3 text-orange-600" /> : <Bot className="w-3 h-3 text-green-600" />)}
+                    {isAi && (isHuman ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />)}
                 </div>
             </div>
         </div>

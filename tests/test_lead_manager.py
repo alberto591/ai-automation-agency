@@ -77,7 +77,7 @@ def test_check_if_human_mode_active(mock_supabase):
     mock_execute = mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute
 
     # Simulating DB return
-    mock_execute.return_value.data = [{"status": "TAKEOVER"}]
+    mock_execute.return_value.data = [{"status": "human_mode"}]
 
     assert check_if_human_mode("+39123") is True
 
@@ -88,7 +88,7 @@ def test_check_if_human_mode_inactive(mock_supabase):
     mock_execute = mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute
 
     # Simulating DB return
-    mock_execute.return_value.data = [{"status": "ACTIVE"}]
+    mock_execute.return_value.data = [{"status": "active"}]
 
     assert check_if_human_mode("+39123") is False
 

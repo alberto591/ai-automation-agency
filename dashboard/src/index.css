@@ -1,6 +1,58 @@
 @import "tailwindcss";
 
-body {
-  background-color: #f0f2f5;
-  /* WhatsApp Web Background */
+:root {
+  /* Premium "Zen" Color Palette (HSL) */
+  --zen-bg: 0 0% 98%;
+  /* #f9f9f9 */
+  --zen-sidebar: 0 0% 100%;
+  /* #ffffff */
+  --zen-accent: 142 45% 44%;
+  /* #3da35d - Soft Forest Green */
+  --zen-human: 12 76% 61%;
+  /* #e66a4c - Warnish Orange/Red */
+  --zen-text-main: 222 47% 11%;
+  /* #0f172a - Deep Slate */
+  --zen-text-muted: 215 16% 47%;
+  /* #64748b - Slate 500 */
+  --zen-border: 210 40% 96.1%;
+  /* #f1f5f9 */
+
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-soft: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 20px -5px rgb(16 185 129 / 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-[hsl(var(--zen-bg))] text-[hsl(var(--zen-text-main))] antialiased selection:bg-green-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  .zen-glass {
+    @apply bg-white/80 backdrop-blur-md border border-[hsl(var(--zen-border))] shadow-sm;
+  }
+
+  .bubble-ai {
+    @apply bg-[hsl(var(--zen-accent))] text-white rounded-2xl rounded-tr-sm shadow-sm;
+  }
+
+  .bubble-user {
+    @apply bg-white text-[hsl(var(--zen-text-main))] border border-[hsl(var(--zen-border))] rounded-2xl rounded-tl-sm shadow-sm;
+  }
+
+  .pulse-dot {
+    @apply relative flex h-3 w-3;
+  }
+
+  .pulse-dot-inner {
+    @apply animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }

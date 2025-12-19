@@ -340,6 +340,7 @@ async def send_outbound_message(req: MessageRequest):
         # Update
         supabase.table("lead_conversations").update({
             "messages": current_msgs,
+            "status": "human_mode",
             "updated_at": datetime.now().isoformat()
         }).eq("customer_phone", req.phone).execute()
 
