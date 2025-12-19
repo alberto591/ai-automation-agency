@@ -27,10 +27,10 @@ def test_handle_real_estate_lead_happy_path(mock_twilio, mock_mistral, mock_supa
     # The code does: supabase.table("properties").select...
     # We need to structure the mock chain
 
-    # Mocking verify_property_details internal call:
-    # It does: response = supabase.table("properties").select("*").ilike("title", ...).execute()
+    # Mocking get_matching_properties internal call:
+    # It does: response = supabase.table("properties").select("*").ilike("title", ...).limit(3).execute()
     mock_supabase_query = (
-        mock_supabase.table.return_value.select.return_value.ilike.return_value.execute
+        mock_supabase.table.return_value.select.return_value.ilike.return_value.limit.return_value.execute
     )
     mock_supabase_query.return_value.data = [
         {

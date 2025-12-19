@@ -22,7 +22,7 @@ twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_T
 
 
 def get_property_details(property_name):
-    # This query searches your Supabase 'properties' table
+    """Returns the first matching property (legacy function)"""
     response = (
         supabase.table("properties")
         .select("*")
@@ -33,6 +33,46 @@ def get_property_details(property_name):
     if response.data:
         return response.data[0]  # Return the first match found
     return None
+
+
+def get_matching_properties(property_query, limit=3):
+    """
+    Returns multiple matching properties for better client engagement.
+    Shows top 3 matches instead of just the first one.
+    """
+    response = (
+        supabase.table("properties")
+        .select("*")
+        .ilike("title", f"%{property_query}%")
+        .limit(limit)
+        .execute()
+    )
+    
+    return response.data if response.data else []
+
+
+def format_property_options(properties):
+    """Formats multiple properties into a readable list"""
+    if not properties:
+        return "Non ho trovato immobili corrispondenti."
+    
+    if len(properties) == 1:
+        # Single match - detailed format
+        p = properties[0]
+        return (
+            f"TITOLO: {p.get('title', 'N/A')}\n"
+            f"PREZZO: €{p.get('price', 0):,}\n"
+            f"DESCRIZIONE: {p.get('description', '')}"
+        )
+    
+    # Multiple matches - compact list format
+    result = f"Ho trovato {len(properties)} opzioni per te:\n\n"
+    for i, p in enumerate(properties, 1):
+        price_str = f"€{p.get('price', 0):,}" if p.get('price') else "Prezzo su richiesta"
+        result += f"{i}. {p.get('title', 'N/A')} - {price_str}\n"
+    result += "\nQuale ti interessa di più? Posso darti più dettagli!"
+    return result
+
 
 
 def send_ai_whatsapp(customer_phone, customer_name, interest):
@@ -129,24 +169,18 @@ def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes, le
 
 
 def handle_real_estate_lead(customer_phone, customer_name, property_query):
-    # 1. Search the database first
-    property_info = get_property_details(property_query)
-
-    if property_info:
-        # Construct a Rich Data Context
-        details = (
-            f"TITOLO: {property_info.get('title', 'N/A')}\n"
-            f"PREZZO: €{property_info.get('price', 0):,}\n"
-            f"DESCRIZIONE: {property_info.get('description', '')}\n"
-            f"CARATTERISTICHE: {property_info.get('features', '')}\n"
-            f"ZONA: {property_info.get('location', '')}"
-        )
+    # 1. Search database for ALL matching properties (up to 3)
+    matching_properties = get_matching_properties(property_query, limit=3)
+    
+    # 2. Format property information
+    if matching_properties:
+        details = format_property_options(matching_properties)
+        context_note = f"Found {len(matching_properties)} properties"
     else:
-        details = (
-            "Non ho trovato l'immobile specifico, ma offri una consulenza generale."
-        )
+        details = "Non ho trovato l'immobile specifico, ma offri una consulenza generale."
+        context_note = "No match"
 
-    # 2. Tell the AI the facts
+    # 3. Build AI prompt
     prompt = f"""
     Sei "Anzevino AI", l'assistente virtuale d'élite dell'agenzia immobiliare.
     Parla in modo professionale, persuasivo ma succinto (stile WhatsApp). Non usare mai "Saluti" o firme lunghe.
@@ -158,8 +192,8 @@ def handle_real_estate_lead(customer_phone, customer_name, property_query):
     {details}
     
     OBIETTIVO:
-    1. Conferma che l'immobile è perfetto per loro citando 1-2 dettagli specifici (es. la terrazza o la zona).
-    2. Crea urgenza (es. "È molto richiesto").
+    1. {"Presenta le opzioni trovate in modo entusiasta" if matching_properties else "Offri consulenza generale"}.
+    2. Crea urgenza (es. "Sono molto richiesti").
     3. Chiudi con una Call to Action chiara: "Vuoi vedere le foto?" o "Quando puoi passare per una visita?".
     """
 
@@ -167,7 +201,7 @@ def handle_real_estate_lead(customer_phone, customer_name, property_query):
         model="mistral-small-latest", messages=[{"role": "user", "content": prompt}]
     )
 
-    # 3. Send via WhatsApp
+    # 4. Send via WhatsApp
     message_text = ai_response.choices[0].message.content
     try:
         twilio_client.messages.create(
@@ -177,11 +211,10 @@ def handle_real_estate_lead(customer_phone, customer_name, property_query):
         )
     except Exception as e:
         logger.warning(f"Twilio Send Error: {e}")
-        # Proceed to save to dashboard anyway logic is sound
         message_text += " [Simulated Send]"
 
-    # 4. Save to Dashboard
-    ai_notes = f"Interessato a {property_query}. Proposta inviata con successo."
+    # 5. Save to Dashboard
+    ai_notes = f"Interessato a {property_query}. {context_note}. Proposta inviata."
     save_lead_to_dashboard(customer_name, customer_phone, message_text, ai_notes)
 
     return "Messaggio inviato con dati reali!"
@@ -452,8 +485,19 @@ def handle_incoming_message(customer_phone, message_text):
     tier2_triggered = fuzzy_keyword_match(message_text, TIER2_ALERT_KEYWORDS)
     if tier2_triggered:
         logger.info(f"TIER2 Keyword (alert): {customer_phone} discussing sensitive topic")
-        # Alert owner (non-blocking, AI still responds)
+        #Alert owner (non-blocking, AI still responds)
         notify_owner_urgent(customer_phone, f"[ATTENZIONE] Cliente sta negoziando: {message_text}")
+
+    # 3.5 SENTIMENT ANALYSIS - Detect frustration before it escalates
+    NEGATIVE_SIGNALS = ["deluso", "arrabbiato", "scherzo", "perché non", "assurdo", "ridicolo", 
+                       "mai risposto", "non funziona", "delusione", "pessimo", "inaccettabile"]
+    
+    sentiment_negative = any(signal in message_lower for signal in NEGATIVE_SIGNALS)
+    if sentiment_negative:
+        logger.warning(f"Negative sentiment detected from {customer_phone}: {message_text}")
+        # Preemptive alert to owner
+        notify_owner_urgent(customer_phone, f"⚠️ CLIENTE FRUSTRATO: {message_text}")
+        # AI will use softer tone (handled in prompt below)
 
     # 4. Retrieve Context
     history = get_chat_history(customer_phone)
@@ -468,14 +512,19 @@ def handle_incoming_message(customer_phone, message_text):
     if wants_appointment and calendly_link:
         booking_instruction = f"\n\nIMPORTANTE: Il cliente vuole prenotare. Includi questo link: {calendly_link}"
     
-    # 5. Generate Reply
+    # Adjust tone for negative sentiment
+    tone_instruction = ""
+    if sentiment_negative:
+        tone_instruction = "\n\nATTENZIONE: Il cliente sembra frustrato. Usa un tono MOLTO empatico, scusati se necessario, e offri soluzioni concrete."
+    
+    # 6. Generate Reply
     prompt = f"""
     Sei un assistente immobiliare esperto.
     Storico chat: {history}
     Ultimo messaggio utente: "{message_text}"
     
     Obiettivo: Rispondi in modo professionale e breve (max 50 parole).
-    Se chiedono appuntamenti, proponi il link di prenotazione.{booking_instruction}
+    Se chiedono appuntamenti, proponi il link di prenotazione.{booking_instruction}{tone_instruction}
     """
     
     ai_response = mistral.chat.complete(
