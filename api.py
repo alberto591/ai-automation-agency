@@ -106,14 +106,16 @@ async def create_lead(lead: LeadRequest):
 # PORTAL INTEGRATIONS (Immobiliare.it, Casa.it, Idealista)
 # ---------------------------------------------------------
 
+from typing import Optional
+
 class PortalLead(BaseModel):
     """Universal format for portal leads"""
-    name: str = None
+    name: Optional[str] = None
     phone: str
-    email: str = None
-    property_title: str = None
-    property_url: str = None
-    message: str = None
+    email: Optional[str] = None
+    property_title: Optional[str] = None
+    property_url: Optional[str] = None
+    message: Optional[str] = None
     source: str = "unknown"  # immobiliare, casa, idealista
 
 

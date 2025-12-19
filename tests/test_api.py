@@ -11,7 +11,7 @@ if not os.path.exists(".env"):
 # Ensure we can import the module from parent dir
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api import app
+from api import app, validate_phone
 
 client = TestClient(app)
 
@@ -98,3 +98,66 @@ def test_takeover_failure(mock_toggle):
     response = client.post("/api/leads/takeover", json=payload)
 
     assert response.status_code == 500
+
+
+@patch("api.handle_real_estate_lead")
+def test_portal_webhook_success(mock_handle_lead):
+    """Test the universal /webhooks/portal endpoint."""
+    mock_handle_lead.return_value = "AI Response"
+    payload = {
+        "name": "Portal Lead",
+        "phone": "+393330001111",
+        "source": "idealista"
+    }
+    response = client.post("/webhooks/portal", json=payload)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    assert "idealista" in response.json()["source"]
+
+
+@patch("api.handle_real_estate_lead")
+def test_immobiliare_webhook_success(mock_handle_lead):
+    """Test the specific /webhooks/immobiliare endpoint."""
+    mock_handle_lead.return_value = "AI Response"
+    payload = {
+        "contact_name": "Immo Client",
+        "contact_phone": "3331234567",  # Testing auto-fix +39
+        "listing_title": "Modern Loft"
+    }
+    response = client.post("/webhooks/immobiliare", json=payload)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    # Verify auto-fix worked
+    mock_handle_lead.assert_called_once_with("+393331234567", "Immo Client", "Modern Loft")
+
+
+@patch("api.handle_real_estate_lead")
+def test_email_parser_webhook_success(mock_handle_lead):
+    """Test the /webhooks/email-parser endpoint from Make.com."""
+    mock_handle_lead.return_value = "AI Response"
+    payload = {
+        "parsed_name": "Email Client",
+        "parsed_phone": "+393339998888",
+        "property": "Villa"
+    }
+    response = client.post("/webhooks/email-parser", json=payload)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+
+
+@patch("lead_manager.resume_ai_mode")
+def test_resume_ai_success(mock_resume):
+    """Test the /api/leads/resume endpoint."""
+    mock_resume.return_value = True
+    payload = {"phone": "+393331112222"}
+    response = client.post("/api/leads/resume", json=payload)
+    assert response.status_code == 200
+    assert "AI Resumed" in response.json()["message"]
+
+
+def test_validate_phone_formats():
+    """Test the validate_phone utility directly."""
+    assert validate_phone("+393331234567") is True
+    assert validate_phone("+14155552671") is True
+    assert validate_phone("021234567") is False
+    assert validate_phone("invalid") is False
