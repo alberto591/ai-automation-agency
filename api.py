@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import sys
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 # Ensure lead_manager can be imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -16,6 +18,33 @@ except ImportError:
 
 
 app = FastAPI()
+
+# Simple in-memory rate limiter (for production, use Redis)
+rate_limit_store = defaultdict(list)
+RATE_LIMIT_REQUESTS = 10  # Max requests
+RATE_LIMIT_WINDOW = 60  # Per 60 seconds
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Basic rate limiting to prevent abuse"""
+    client_ip = request.client.host
+    now = datetime.now()
+    
+    # Clean old requests
+    rate_limit_store[client_ip] = [
+        req_time for req_time in rate_limit_store[client_ip]
+        if now - req_time < timedelta(seconds=RATE_LIMIT_WINDOW)
+    ]
+    
+    # Check limit
+    if len(rate_limit_store[client_ip]) >= RATE_LIMIT_REQUESTS:
+        raise HTTPException(status_code=429, detail="Too many requests. Try again later.")
+    
+    # Log request
+    rate_limit_store[client_ip].append(now)
+    
+    response = await call_next(request)
+    return response
 
 # Enable CORS for frontend communication
 app.add_middleware(
@@ -97,7 +126,10 @@ async def monitor_control_phase(req: TakeoverRequest):
             "message": f"AI Muted for {req.phone}. Human Control Active.",
         }
     else:
-        raise HTTPException(status_code=500, detail="Failed to toggle human mode")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to toggle human mode for {req.phone}. Check server logs."
+        )
 
 
 @app.get("/health")

@@ -105,3 +105,22 @@ def test_handle_incoming_message_muted(mock_history, mock_check_mode):
     # Ensure get_chat_history was NOT called (optimization check)
     # The code calls check_if_human_mode first.
     mock_history.assert_not_called()
+
+@patch('lead_manager.notify_owner_urgent')
+@patch('lead_manager.toggle_human_mode')
+@patch('lead_manager.check_if_human_mode')
+def test_handle_incoming_message_keyword_trigger(mock_check_mode, mock_toggle, mock_notify):
+    """Test that keywords trigger the takeover protocol."""
+    mock_check_mode.return_value = False
+    
+    # User asks for human
+    msg = "Voglio parlare con un umano subito"
+    
+    response = handle_incoming_message("+39123", msg)
+    
+    # Check that AI response is the standard 'Wait for boss' message
+    assert "responsabile" in response
+    
+    # Check side effects
+    mock_toggle.assert_called_once_with("+39123")
+    mock_notify.assert_called_once()

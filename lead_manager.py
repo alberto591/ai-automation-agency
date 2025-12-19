@@ -1,19 +1,23 @@
 import os
+import logging
 from dotenv import load_dotenv
 from supabase import create_client
 from mistralai import Mistral
 from twilio.rest import Client
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 # Initialize everything
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
 mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 
-# Debug: Print Twilio credentials to verify they are loaded correctly
-print(f"TWILIO_ACCOUNT_SID: {os.getenv('TWILIO_ACCOUNT_SID')}")
-print(f"TWILIO_AUTH_TOKEN: {os.getenv('TWILIO_AUTH_TOKEN')}")
-print(f"TWILIO_PHONE_NUMBER: {os.getenv('TWILIO_PHONE_NUMBER')}")
-
+# Initialize Twilio client (credentials loaded from env)
 twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
 
 
@@ -61,9 +65,9 @@ def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes):
     # Execute the insert
     try:
         supabase.table("lead_conversations").insert(data).execute()
-        print(f"✅ Lead {customer_name} saved to Dashboard!")
+        logger.info(f"Lead {customer_name} saved to Dashboard")
     except Exception as e:
-        print(f"❌ Error saving lead: {e}")
+        logger.error(f"Error saving lead: {e}")
 
 
 def handle_real_estate_lead(customer_phone, customer_name, property_query):
@@ -114,7 +118,7 @@ def handle_real_estate_lead(customer_phone, customer_name, property_query):
             to=f"whatsapp:{customer_phone}",
         )
     except Exception as e:
-        print(f"⚠️ Twilio Send Error (Expected in Sandbox): {e}")
+        logger.warning(f"Twilio Send Error: {e}")
         # Proceed to save to dashboard anyway logic is sound
         message_text += " [Simulated Send]"
 
@@ -126,12 +130,7 @@ def handle_real_estate_lead(customer_phone, customer_name, property_query):
 
 
 if __name__ == "__main__":
-    # TEST: Use your own phone number here (with international code, e.g., +39...)
-    my_test_number = "+34625852546"
-    # print(f"Sending message... SID: {send_ai_whatsapp(my_test_number, 'Marco', 'Attico a Milano')}")
-
-    # TEST: Try searching for the "Attico" we put in the database
-    # print(handle_real_estate_lead("+34625852546", "Marco", "Attico"))
+    # Tests are now in tests/ directory - run: pytest tests/
     pass
 
 
@@ -140,10 +139,10 @@ def get_chat_history(customer_phone):
     Retrieves the last 5 messages for this user to build context.
     """
     try:
-        # Fetch last 5 interactions
+        # Fetch last 5 interactions (only fields we need)
         response = (
             supabase.table("lead_conversations")
-            .select("*")
+            .select("last_message,ai_summary,created_at")
             .eq("customer_phone", customer_phone)
             .order("created_at", desc=True)
             .limit(5)
@@ -211,47 +210,117 @@ def check_if_human_mode(customer_phone):
         return False
 
 
+# ---------------------------------------------------------
+# STRATEGY: INVISIBLE LOGIC & ALERTS
+# ---------------------------------------------------------
+
+TRIGGER_KEYWORDS = ["trattabile", "prezzo", "umano", "parlare", "staff", "human", "agent"]
+AGENCY_OWNER_PHONE = os.getenv("AGENCY_OWNER_PHONE", "+39000000000") # Set this in .env
+
+def notify_owner_urgent(customer_phone, message_text):
+    """Sends an urgent WhatsApp to the Boss."""
+    try:
+        twilio_client.messages.create(
+            body=f"⚠️ URGENT: Lead {customer_phone} asking for human!\nMsg: '{message_text}'\nAI Paused.",
+            from_=os.getenv("TWILIO_PHONE_NUMBER"),
+            to=f"whatsapp:{AGENCY_OWNER_PHONE}"
+        )
+        print("🚨 Urgent Alert sent to Owner.")
+    except Exception as e:
+        print(f"❌ Failed to alert owner: {e}")
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def notify_agent_via_email(customer_name, message, reply):
+    """
+    Sends an email CC of the conversation to the agency.
+    """
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    sender_email = os.getenv("SMTP_EMAIL")
+    sender_password = os.getenv("SMTP_PASSWORD")
+    recipient_email = os.getenv("AGENCY_OWNER_EMAIL")
+
+    if not all([sender_email, sender_password, recipient_email]):
+        print("⚠️ Email skipped: Missing SMTP credentials in .env")
+        return
+
+    try:
+        # Create Message
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        msg['Subject'] = f"🔔 Agenzia AI: Reply to {customer_name}"
+
+        body = f"""
+        <h2>New AI Interaction</h2>
+        <p><strong>Customer:</strong> {customer_name}</p>
+        <hr>
+        <p><strong>User:</strong> "{message}"</p>
+        <p><strong>AI:</strong> "{reply}"</p>
+        <hr>
+        <p><em>(Reply to this email to ignore, or WhatsApp the client directly to intervene)</em></p>
+        """
+        msg.attach(MIMEText(body, 'html'))
+
+        # Send
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+        server.quit()
+        print(f"📧 Email sent to {recipient_email}")
+
+    except Exception as e:
+        print(f"❌ Email Failed: {e}")
+
 def handle_incoming_message(customer_phone, message_text):
-    # 0. SAFETY CHECK: Is Human Mode On?
+    # 1. Check if we are already in Human Mode
     if check_if_human_mode(customer_phone):
-        print(f"🛑 AI Muted for {customer_phone} (Human Mode Active)")
         return "AI is muted. Human agent is in control."
 
-    # 1. Get Context
+    # 2. KEYWORD TRIGGER (The "Invisible" Logic)
+    # If the user asks for price negotiation or human, we pause IMMEDIATELY.
+    if any(keyword in message_text.lower() for keyword in TRIGGER_KEYWORDS):
+        logger.warning(f"Keyword detected in message from {customer_phone}: {message_text}")
+        toggle_human_mode(customer_phone) # Pause AI
+        notify_owner_urgent(customer_phone, message_text)
+        return "Ho avvisato il mio responsabile. Le risponderà personalmente a breve. 👨‍💼"
+
+    # 3. Retrieve Context
     history = get_chat_history(customer_phone)
-
-    # 2. Build Prompt with Memory
+    
+    # 4. Generate Reply
     prompt = f"""
-    Sei "Anzevino AI". Stai avendo una conversazione WhatsApp con un cliente.
+    Sei un assistente immobiliare esperto.
+    Storico chat: {history}
+    Ultimo messaggio utente: "{message_text}"
     
-    STORICO CONVERSAZIONE:
-    {history}
-    
-    NUOVO MESSAGGIO CLIENTE: {message_text}
-    
-    OBIETTIVO:
-    Rispondi in modo cordiale, breve e utile. 
-    Se chiedono di visitare, proponi 2 orari domani.
-    Se chiedono info, rispondi basandoti sul contesto precedente.
+    Obiettivo: Rispondi in modo professionale e breve (max 50 parole).
+    Se chiedono appuntamenti, proponi date.
     """
-
-    # 3. Generate Reply
+    
     ai_response = mistral.chat.complete(
-        model="mistral-small-latest", messages=[{"role": "user", "content": prompt}]
+        model="mistral-small-latest",
+        messages=[{"role": "user", "content": prompt}]
     )
     reply_text = ai_response.choices[0].message.content
 
-    # 4. Send Reply
+    # 5. Send Reply (with error handling)
     try:
         twilio_client.messages.create(
             body=reply_text,
             from_=os.getenv("TWILIO_PHONE_NUMBER"),
-            to=f"whatsapp:{customer_phone}",
+            to=f"whatsapp:{customer_phone}"
         )
     except Exception as e:
-        print(f"⚠️ Twilio Send Error (Expected in Sandbox): {e}")
+        print(f"⚠️ Twilio Send Error: {e}")
+        # Continue processing even if send fails (message still logged)
 
-    # 5. Save Interaction
+    # 6. Save & Report
     save_lead_to_dashboard("Cliente WhatsApp", customer_phone, message_text, reply_text)
-
+    notify_agent_via_email("Cliente WhatsApp", message_text, reply_text)
+    
     return reply_text
