@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenzia AI - WhatsApp Simulator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #075e54;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #25d366;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #128c7e;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background: #dcf8c6;
+            color: #075e54;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #777;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <h1>📱 WhatsApp Simulator</h1>
+
+        <div class="input-group">
+            <label>Il tuo Numero (Reale)</label>
+            <input type="text" id="phone" value="+34625852546">
+        </div>
+
+        <div class="input-group">
+            <label>Il tuo Messaggio</label>
+            <textarea id="message" rows="3" placeholder="Es: Vorrei fissare una visita..."></textarea>
+        </div>
+
+        <button onclick="sendMessage()">Invia all'AI 🚀</button>
+
+        <div id="status" class="status"></div>
+
+        <p class="note">Nota: Questo invia il messaggio al "Cervello AI" locale.<br>La risposta arriverà sul tuo
+            <b>WhatsApp Vero</b>.</p>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const phone = document.getElementById('phone').value;
+            const message = document.getElementById('message').value;
+            const statusDiv = document.getElementById('status');
+
+            if (!message) { alert("Scrivi un messaggio!"); return; }
+
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.innerText = 'Invio in corso...';
+
+            // Simulate Twilio Form Data
+            const formData = new URLSearchParams();
+            formData.append('Body', message);
+            formData.append('From', 'whatsapp:' + phone);
+            formData.append('ProfileName', 'Demo User');
+
+            try {
+                const response = await fetch('http://localhost:8000/webhooks/twilio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerText = '✅ Inviato! Controlla il tuo telefono.';
+                    document.getElementById('message').value = ''; // operations
+                } else {
+                    throw new Error(data.detail || 'Errore sconosciuto');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerText = '❌ Errore: ' + error.message;
+                console.error(error);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -23,6 +23,30 @@ mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 # Initialize Twilio client (credentials loaded from env)
 twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
 
+def send_whatsapp_safe(to_number, body_text):
+    """
+    Sends a WhatsApp message via Twilio or logs it if MOCK_MODE is enabled.
+    """
+    mock_mode = os.getenv("MOCK_MODE", "False").lower() in ["true", "1", "yes"]
+    
+    if mock_mode:
+        log_entry = f"\n[MOCK WHATSAPP] To: {to_number} | Body: {body_text}\n"
+        print(f"\033[93m{log_entry}\033[0m")
+        with open("mock_messages.log", "a") as f:
+            f.write(f"{datetime.now().isoformat()} - {log_entry}")
+        return "queued-mock"
+
+    try:
+        msg = twilio_client.messages.create(
+            body=body_text,
+            from_=os.getenv("TWILIO_PHONE_NUMBER"),
+            to=f"whatsapp:{to_number}"
+        )
+        return msg.sid
+    except Exception as e:
+        logger.error(f"Failed to send WhatsApp to {to_number}: {e}")
+        return None
+
 
 def get_property_details(property_name):
     """Returns the first matching property (legacy function)"""
@@ -637,14 +661,7 @@ def handle_incoming_message(customer_phone, message_text):
             )
             
             # Send WhatsApp
-            try:
-                twilio_client.messages.create(
-                    body=report,
-                    from_=os.getenv("TWILIO_PHONE_NUMBER"),
-                    to=f"whatsapp:{customer_phone}"
-                )
-            except Exception as e:
-                logger.error(f"Failed to send valuation WhatsApp: {e}")
+            send_whatsapp_safe(customer_phone, report)
                 
             return report
         
@@ -782,15 +799,8 @@ def handle_incoming_message(customer_phone, message_text):
         reply_text = ai_response.choices[0].message.content
 
         # 8. Send Reply (with error handling)
-        try:
-            twilio_client.messages.create(
-                body=reply_text,
-                from_=os.getenv("TWILIO_PHONE_NUMBER"),
-                to=f"whatsapp:{customer_phone}"
-            )
-        except Exception as e:
-            print(f"⚠️ Twilio Send Error: {e}")
-            # Continue processing even if send fails (message still logged)
+        # 8. Send Reply (SAFE MODE)
+        send_whatsapp_safe(customer_phone, reply_text)
 
         # 9. Calculate Lead Score
         lead_score = calculate_lead_score(message_text)

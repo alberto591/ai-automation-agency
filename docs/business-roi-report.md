@@ -1,39 +1,39 @@
-# 📊 Proposta Strategica: Automazione Agenzia AI 2.0
+# 📊 Strategic Proposal: AI Agency Automation 2.0
 
-Questo report illustra l'impatto economico e operativo stimato dal passaggio a un'agenzia guidata dall'AI.
+This report illustrates the estimated economic and operational impact of transitioning to an AI-driven agency.
 
 ---
 
-## 💰 Proiezione ROI (Ritorno sull'Investimento)
+## 💰 ROI Projection (Return on Investment)
 
-| Metrica | Senza AI | Con Agenzia AI | Miglioramento |
+| Metric | Without AI | With AI Agency | Improvement |
 | :--- | :--- | :--- | :--- |
-| **Tempo Risposta Lead** | ~2-4 ore | **< 15 secondi** | ⚡ 99% più veloce |
-| **Costo per Lead Gestito** | €12 (Umano) | **€0.20 (AI)** | 📉 -95% costi |
-| **Conversione Appuntamenti** | 8% | **18%** | 📈 +125% efficacia |
-| **Disponibilità** | 8 ore/giorno | **24/7** | 🕒 +300% copertura |
+| **Lead Response Time** | ~2-4 hours | **< 15 seconds** | ⚡ 99% faster |
+| **Cost Per Managed Lead** | €12 (Human) | **€0.20 (AI)** | 📉 -95% costs |
+| **Appointment Conversion** | 8% | **18%** | 📈 +125% effectiveness |
+| **Availability** | 8 hours/day | **24/7** | 🕒 +300% coverage |
 
 ---
 
-## 🛡️ Risparmio Mensile Stimato
+## 🛡️ Estimated Monthly Savings
 
-Se gestiamo **500 lead al mese**:
-*   **Risparmio Ore Umane**: ~150 ore (equivale a 1 dipendente full-time).
-*   **Budget Salvato**: €2.500+ al mese in costi operativi.
-*   **Valore Commerciale**: Recupero del 30% dei lead che altrimenti andrebbero alla concorrenza per lentezza.
-
----
-
-## 🚀 Strategia di Crescita (Roadmap)
-
-### Fase 1: Automazione (Attivo ✅)
-Risposta istantanea, Dashboard WhatsApp, Profilazione automatica.
-### Fase 2: Scalabilità (Prossimamente 🔜)
-Scraping massivo di Idealista, Campagne Outreach automatiche verso altre agenzie.
-### Fase 3: AI Intelligence (Futuro 💎)
-Analisi predittiva dei prezzi (Market Intelligence) e Report di vendita automatici per i proprietari.
+If managing **500 leads per month**:
+*   **Human Hours Saved**: ~150 hours (equivalent to 1 full-time employee).
+*   **Budget Saved**: €2,500+ per month in operational costs.
+*   **Commercial Value**: Recovery of 30% of leads that would otherwise go to competitors due to slowness.
 
 ---
 
-## 🎯 Conclusione
-Il sistema non è solo un chatbot. È un **moltiplicatore di forza**. Ci permette di scalare il volume di lead senza aumentare il numero di dipendenti, mantenendo una qualità di servizio "Elite".
+## 🚀 Growth Strategy (Roadmap)
+
+### Phase 1: Automation (Active ✅)
+Instant response, WhatsApp Dashboard, Automatic Profiling.
+### Phase 2: Scalability (Coming Soon 🔜)
+Massive scraping of Idealista, Automatic Outreach Campaigns to other agencies.
+### Phase 3: AI Intelligence (Future 💎)
+Predictive price analysis (Market Intelligence) and Automatic sales reports for owners.
+
+---
+
+## 🎯 Conclusion
+The system is not just a chatbot. It is a **force multiplier**. It allows us to scale lead volume without increasing headcount, maintaining "Elite" service quality.

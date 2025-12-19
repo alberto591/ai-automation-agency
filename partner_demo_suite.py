@@ -1,9 +1,10 @@
+
 import requests
 import time
 import os
 
 BASE_URL = "http://localhost:8000"
-PHONE = "+39111222333"
+PHONE = "+34625852546"
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
@@ -16,7 +17,7 @@ def banner():
 def scenario(title, description):
     print(f"\n🔥 SCENARIO: \033[93m{title}\033[0m")
     print(f"   {description}\n")
-    input("👉 [Premi INVIO per iniziare]")
+    # input("👉 [Premi INVIO per iniziare]")
 
 def print_msg(role, text):
     color = "\033[94m" if role == "AI" else "\033[92m"

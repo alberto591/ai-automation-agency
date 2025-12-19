@@ -1,16 +1,12 @@
-# 🔄 How Clients Reach You: The Complete Flow
-
-## The Big Picture
-
 ```mermaid
 flowchart LR
-    A[🏠 Cliente cerca casa] --> B[📱 Portale Immobiliare]
-    B --> C[📝 Compila modulo]
-    C --> D[🤖 AI riceve lead]
-    D --> E[💬 WhatsApp automatico]
-    E --> F[👤 Cliente risponde]
-    F --> G[🔄 Conversazione AI]
-    G --> H[📊 Tu vedi tutto in Dashboard]
+    A[🏠 Customer searches home] --> B[📱 Real Estate Portal]
+    B --> C[📝 Fills form]
+    C --> D[🤖 AI receives lead]
+    D --> E[💬 Automated WhatsApp]
+    E --> F[👤 Customer replies]
+    F --> G[🔄 AI Conversation]
+    G --> H[📊 You see everything in Dashboard]
 ```
 
 ---
@@ -40,14 +36,14 @@ The AI engages the client in a natural conversation to qualify:
 
 ```mermaid
 flowchart TD
-    A[Cliente riceve WhatsApp] --> B{Cliente risponde?}
-    B -->|Sì| C[AI analizza messaggio]
+    A[Customer receives WhatsApp] --> B{Customer replies?}
+    B -->|Yes| C[AI analyzes message]
     C --> D{Keyword check}
-    D -->|"umano/staff"| E[🚨 Takeover Mode]
-    D -->|Normal| F[AI risponde automaticamente]
-    E --> G[Umano prende il controllo]
-    F --> H[Conversazione continua]
-    B -->|No| I[Follow-up automatico]
+    D -->|"human/staff"| E[🚨 Takeover Mode]
+    D -->|Normal| F[AI replies automatically]
+    E --> G[Human takes control]
+    F --> H[Conversation continues]
+    B -->|No| I[Automated Follow-up]
 ```
 
 ### Human Takeover Mode

@@ -23,6 +23,7 @@ Welcome to the **Anzevino AI Real Estate Agent** documentation. This folder cont
 - [Database Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/database-upgrade.md): SQL scripts for Pro Dashboard.
 - [WhatsApp Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/whatsapp-migration-guide.md): **[STRATEGIC]** How to move from Twilio to Meta to save costs.
 - [Business ROI Report](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/business-roi-report.md): **[PARTNER FOCUS]** Data-driven pitch for the AI Agency value.
+- [Testing & Demo Guide](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/testing-and-demo-guide.md): **[NEW]** How to run Mock Mode, Partner Demos, and Simulations.
 - [Market Scraper](file:///Users/lycanbeats/Desktop/agenzia-ai/market_scraper.py) - Tool to gather competitive property data.
 - [Agency Outreach](file:///Users/lycanbeats/Desktop/agenzia-ai/agency_outreach.py) - Script to generate B2B lead lists of real estate agencies.
 - [Market Data SQL Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/market-data-migration.sql) - Schema for the competitive data table.
