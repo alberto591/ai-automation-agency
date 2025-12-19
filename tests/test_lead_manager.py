@@ -110,10 +110,10 @@ def test_handle_incoming_message_muted(mock_history, mock_check_mode):
 @patch('lead_manager.toggle_human_mode')
 @patch('lead_manager.check_if_human_mode')
 def test_handle_incoming_message_keyword_trigger(mock_check_mode, mock_toggle, mock_notify):
-    """Test that keywords trigger the takeover protocol."""
+    """Test that TIER1 keywords trigger the takeover protocol."""
     mock_check_mode.return_value = False
     
-    # User asks for human
+    # User asks for human (TIER1 keyword)
     msg = "Voglio parlare con un umano subito"
     
     response = handle_incoming_message("+39123", msg)

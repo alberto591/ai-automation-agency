@@ -181,41 +181,103 @@ def toggle_human_mode(customer_phone):
             "status": "TAKEOVER",
         }
         supabase.table("lead_conversations").insert(data).execute()
+        logger.info(f"Human takeover activated for {customer_phone}")
         return True
     except Exception as e:
-        print(f"❌ Error setting human mode: {e}")
+        logger.error(f"Error setting human mode: {e}")
         return False
+
+
+def resume_ai_mode(customer_phone):
+    """
+    Resumes AI control by logging a RESUMED status event.
+    """
+    try:
+        data = {
+            "customer_name": "System",
+            "customer_phone": customer_phone,
+            "last_message": "[SYSTEM] AI Control Resumed",
+            "ai_summary": "Human released control back to AI",
+            "status": "RESUMED",
+        }
+        supabase.table("lead_conversations").insert(data).execute()
+        logger.info(f"AI control resumed for {customer_phone}")
+        return True
+    except Exception as e:
+        logger.error(f"Error resuming AI mode: {e}")
+        return False
+
+
+# Auto-expire takeover after this many hours
+TAKEOVER_EXPIRY_HOURS = int(os.getenv("TAKEOVER_EXPIRY_HOURS", "24"))
 
 
 def check_if_human_mode(customer_phone):
     """
     Checks if the AI should be muted.
+    Auto-expires after TAKEOVER_EXPIRY_HOURS (default 24h).
     """
+    from datetime import datetime, timedelta, timezone
+    
     try:
-        # Get the VERY LAST interaction
+        # Get the VERY LAST interaction with status and timestamp
         response = (
             supabase.table("lead_conversations")
-            .select("status")
+            .select("status,created_at")
             .eq("customer_phone", customer_phone)
             .order("created_at", desc=True)
             .limit(1)
             .execute()
         )
 
-        if response.data and response.data[0]["status"] == "TAKEOVER":
-            return True
+        if not response.data:
+            return False
+            
+        last_record = response.data[0]
+        
+        # If status is RESUMED, AI is active
+        if last_record["status"] == "RESUMED":
+            return False
+            
+        # If status is TAKEOVER, check expiry
+        if last_record["status"] == "TAKEOVER":
+            # Parse timestamp (Supabase returns ISO format)
+            created_str = last_record.get("created_at", "")
+            if created_str:
+                # Handle various timestamp formats
+                try:
+                    created_at = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
+                    expiry_time = created_at + timedelta(hours=TAKEOVER_EXPIRY_HOURS)
+                    
+                    if datetime.now(timezone.utc) > expiry_time:
+                        logger.info(f"Takeover expired for {customer_phone}, auto-resuming AI")
+                        return False  # Expired, AI can respond
+                except Exception:
+                    pass  # If parsing fails, assume not expired
+                    
+            return True  # Still in takeover mode
+            
         return False
+        
     except Exception as e:
-        print(f"⚠️ Error checking human mode: {e}")
+        logger.error(f"Error checking human mode: {e}")
         return False
 
 
 # ---------------------------------------------------------
-# STRATEGY: INVISIBLE LOGIC & ALERTS
+# STRATEGY: INVISIBLE LOGIC & ALERTS (Tiered Keywords)
 # ---------------------------------------------------------
 
-TRIGGER_KEYWORDS = ["trattabile", "prezzo", "umano", "parlare", "staff", "human", "agent"]
-AGENCY_OWNER_PHONE = os.getenv("AGENCY_OWNER_PHONE", "+39000000000") # Set this in .env
+# Tier 1: IMMEDIATE TAKEOVER - Client explicitly wants human
+TIER1_TAKEOVER_KEYWORDS = ["umano", "staff", "human", "agent", "manager", "parlare con", "persona reale"]
+
+# Tier 2: ALERT ONLY - Sensitive topic, but AI can still respond
+TIER2_ALERT_KEYWORDS = ["trattabile", "negoziare", "sconto", "ribasso", "offerta"]
+
+# Tier 3: INFORMATIONAL - AI handles these normally (no special action)
+# Examples: "prezzo", "costo", "quanto" - These are normal questions
+
+AGENCY_OWNER_PHONE = os.getenv("AGENCY_OWNER_PHONE", "+39000000000")  # Set this in .env
 
 def notify_owner_urgent(customer_phone, message_text):
     """Sends an urgent WhatsApp to the Boss."""
@@ -281,13 +343,21 @@ def handle_incoming_message(customer_phone, message_text):
     if check_if_human_mode(customer_phone):
         return "AI is muted. Human agent is in control."
 
-    # 2. KEYWORD TRIGGER (The "Invisible" Logic)
-    # If the user asks for price negotiation or human, we pause IMMEDIATELY.
-    if any(keyword in message_text.lower() for keyword in TRIGGER_KEYWORDS):
-        logger.warning(f"Keyword detected in message from {customer_phone}: {message_text}")
-        toggle_human_mode(customer_phone) # Pause AI
+    message_lower = message_text.lower()
+    
+    # 2. TIER 1: IMMEDIATE TAKEOVER - Client explicitly wants human
+    if any(keyword in message_lower for keyword in TIER1_TAKEOVER_KEYWORDS):
+        logger.warning(f"TIER1 Keyword (takeover): {customer_phone} said '{message_text}'")
+        toggle_human_mode(customer_phone)
         notify_owner_urgent(customer_phone, message_text)
         return "Ho avvisato il mio responsabile. Le risponderà personalmente a breve. 👨‍💼"
+
+    # 3. TIER 2: ALERT ONLY - Sensitive topic, notify owner but AI continues
+    tier2_triggered = any(keyword in message_lower for keyword in TIER2_ALERT_KEYWORDS)
+    if tier2_triggered:
+        logger.info(f"TIER2 Keyword (alert): {customer_phone} discussing sensitive topic")
+        # Alert owner (non-blocking, AI still responds)
+        notify_owner_urgent(customer_phone, f"[ATTENZIONE] Cliente sta negoziando: {message_text}")
 
     # 3. Retrieve Context
     history = get_chat_history(customer_phone)

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -56,6 +56,18 @@ app.add_middleware(
 )
 
 
+import re
+
+def validate_phone(phone: str) -> bool:
+    """Validates international phone number format (+[country code][number])"""
+    # Accepts: +39123456789, +1-555-123-4567, +44 20 7946 0958
+    # Rejects: abc123, 123, +1
+    pattern = r'^\+[1-9]\d{6,14}$'
+    # Remove common separators before validation
+    clean_phone = re.sub(r'[\s\-\(\)]', '', phone)
+    return bool(re.match(pattern, clean_phone))
+
+
 class LeadRequest(BaseModel):
     name: str
     agency: str
@@ -66,6 +78,13 @@ class LeadRequest(BaseModel):
 @app.post("/api/leads")
 async def create_lead(lead: LeadRequest):
     print(f"🔔 New Lead Received: {lead.name} from {lead.agency}")
+    
+    # Validate phone number
+    if not validate_phone(lead.phone):
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Invalid phone number format: {lead.phone}. Use international format: +[country code][number]"
+        )
 
     try:
         # Trigger the AI Logic (The Heart)
@@ -84,7 +103,7 @@ async def create_lead(lead: LeadRequest):
 
 
 @app.post("/webhooks/twilio")
-async def twilio_webhook(request: Request):
+async def twilio_webhook(request: Request, background_tasks: BackgroundTasks):
     """
     The Ears: Receives incoming WhatsApp messages from Twilio.
     """
@@ -97,9 +116,12 @@ async def twilio_webhook(request: Request):
         print(f"📩 New Message from {from_number}: {incoming_msg}")
 
         # Trigger the "Conversation Loop" in lead_manager
-        from lead_manager import handle_incoming_message
+        from lead_manager import handle_incoming_message, notify_agent_via_email
 
         response_text = handle_incoming_message(from_number, incoming_msg)
+        
+        # Send email notification in background (non-blocking)
+        background_tasks.add_task(notify_agent_via_email, "WhatsApp Client", incoming_msg, response_text)
 
         return {"status": "replied", "message": response_text}
 
@@ -135,6 +157,26 @@ async def monitor_control_phase(req: TakeoverRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "online", "service": "Agenzia AI Backend"}
+
+
+@app.post("/api/leads/resume")
+async def resume_ai_control(req: TakeoverRequest):
+    """
+    Resumes AI control for a specific client.
+    """
+    from lead_manager import resume_ai_mode
+
+    success = resume_ai_mode(req.phone)
+    if success:
+        return {
+            "status": "success",
+            "message": f"AI Resumed for {req.phone}. Bot is back online.",
+        }
+    else:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to resume AI for {req.phone}. Check server logs."
+        )
 
 
 if __name__ == "__main__":
