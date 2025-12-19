@@ -246,6 +246,65 @@ document.addEventListener('DOMContentLoaded', function () {
         animationObserver.observe(element);
     });
 
+    // Appraisal Form Handling (Lead Magnet)
+    const appraisalForm = document.getElementById('appraisal-form');
+    if (appraisalForm) {
+        appraisalForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const address = document.getElementById('appraisal-address').value;
+            const phone = document.getElementById('appraisal-phone').value;
+
+            if (!address || !phone) {
+                showNotification('Inserisci indirizzo e numero WhatsApp', 'error');
+                return;
+            }
+
+            // Simple phone validation
+            const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+            if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+                showNotification('Numero di telefono non valido', 'error');
+                return;
+            }
+
+            submitBtn.innerHTML = '<i class="ph ph-spinner"></i> Analisi...';
+            submitBtn.disabled = true;
+
+            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:8000'
+                : '';
+
+            const payload = {
+                name: "AI Appraisal Lead",
+                agency: "Appraisal Tool",
+                phone: phone,
+                properties: "RICHIESTA VALUTAZIONE: " + address
+            };
+
+            fetch(`${API_BASE}/api/leads`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    showNotification('Valutazione in arrivo su WhatsApp!', 'success');
+                    appraisalForm.reset();
+                    submitBtn.innerHTML = '<span data-translate="appraisal-cta">Ottieni Valutazione AI</span> <i class="ph ph-check-circle"></i>';
+                    setTimeout(() => {
+                        submitBtn.classList.add('btn-success');
+                        submitBtn.innerHTML = 'Controlla WhatsApp! ✅';
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Errore. Riprova più tardi.', 'error');
+                    submitBtn.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    submitBtn.disabled = false;
+                });
+        });
+    }
+
     // Typing Animation for Hero Chat
     function simulateTyping() {
         const typingBubble = document.querySelector('.typing-indicator');
@@ -665,21 +724,81 @@ const translations = {
         'problem-tag': 'Il Problema',
         'problem-title': 'Stai perdendo il 80% dei tuoi migliori clienti',
         'problem-description': 'Ogni giorno, centinaia di potenziali acquirenti visitano Immobiliare.it e Idealista, compilano moduli e ti contattano via WhatsApp. Ma quando li chiami, sono già passati alla concorrenza.',
+        'problem-stat-lost': 'dei lead persi entro 2 ore',
+        'problem-stat-money': 'perdita media annua per agenzia',
+        'problem-stat-whatsapp': 'dei clienti preferisce WhatsApp',
+        'problem-scenario-1-title': 'Ore 22:30 - Cliente notturno',
+        'problem-scenario-1-desc': 'Interessato a un bilocale, scrive su WhatsApp. Tu dormi. Il concorrente risponde in 2 minuti.',
+        'problem-scenario-2-title': 'Domenica pomeriggio - Weekend',
+        'problem-scenario-2-desc': 'Coppia vuole vedere 3 appartamenti. Chiami lunedì: "Abbiamo già comprato".',
+        'chart-title': 'Lead Persi nel Tempo',
 
         // Solution Section
         'solution-tag': 'La Soluzione',
         'solution-title': 'Il tuo primo Dipendente AI',
         'solution-subtitle': 'Un assistente virtuale che lavora 24/7, parla con i clienti come un agente umano e trasforma ogni contatto in un\'opportunità.',
+        'benefit-conversation-1': 'Dialetto locale e espressioni italiane',
+        'benefit-conversation-2': 'Domande intelligenti per qualificare il budget',
+        'benefit-conversation-3': 'Gestione obiezioni e resistenze',
+        'benefit-rag-1': 'Matches precisi in 15 secondi',
+        'benefit-rag-2': 'Risposte basate solo sui tuoi dati',
+        'benefit-rag-3': 'Aggiornamento automatico inventario',
+        'benefit-calendar-1': 'Sincronizzazione con Google Calendar',
+        'benefit-calendar-2': 'Promemoria automatici SMS/Email',
+        'benefit-calendar-3': 'Gestione conflitti e rinvii',
+
+        // Demo Live Section
+        'demo-live-tag': 'Demo Live',
+        'demo-live-title': 'Guarda l\'AI in Azione',
+        'demo-live-desc': 'In questo video ti mostro esattamente come l\'AI gestisce un lead dal primo contatto all\'appuntamento.',
 
         // Dashboard Section
         'dashboard-tag': 'Dashboard di Controllo',
         'dashboard-title': 'Monitora tutto in tempo reale',
         'dashboard-subtitle': 'La tua console di comando per controllare ogni conversazione AI, gestire i lead e ottimizzare le performance di vendita.',
+        'dashboard-logo-name': 'Anzevino AI',
+        'dashboard-conversazioni': 'Conversazioni',
+        'dashboard-clienti': 'Clienti',
+        'dashboard-proprieta': 'Proprietà',
+        'dashboard-appuntamenti': 'Appuntamenti',
+        'dashboard-analytics': 'Analytics',
+        'dashboard-conversazioni-oggi': 'Conversazioni Oggi',
+        'dashboard-lead-qualificati': 'Lead Qualificati',
+        'dashboard-visite-prenotate': 'Visite Prenotate',
+        'dashboard-conversazioni-recenti': 'Conversazioni Recenti',
+        'dashboard-vedi-tutte': 'Vedi tutte',
+        'dashboard-whatsapp': 'WhatsApp',
+        'dashboard-time-2min': '2 min fa',
+        'dashboard-time-5min': '5 min fa',
+        'dashboard-time-8min': '8 min fa',
+        'dashboard-status-hot': 'HOT LEAD',
+        'dashboard-status-qualified': 'QUALIFICATO',
+        'dashboard-status-followup': 'FOLLOW UP',
+        'dashboard-preview-1': 'Budget 500k, trilocale zona Porta Nuova...',
+        'dashboard-preview-2': 'Visita prenotata per domani alle 15:00...',
+        'dashboard-preview-3': 'Inviate 3 alternative bilocali zona Niguarda...',
 
         // Features Section
         'features-tag': 'Caratteristiche',
         'features-title': 'Tutto quello che ti serve per vendere di più',
         'features-subtitle': 'Una suite completa di strumenti AI progettata specificamente per le agenzie immobiliari italiane.',
+        'feature-conversazione': 'Conversa in Linguaggio Naturale',
+        'feature-conversazione-desc': 'L\'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande specifiche sul mercato immobiliare.',
+        'feature-rag': 'Ricerca nel Tuo Database (RAG)',
+        'feature-rag-desc': 'Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su preferenze, budget e zona geografica.',
+        'feature-prenotazioni': 'Prenota Appuntamenti Automaticamente',
+        'feature-prenotazioni-desc': 'Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e confermando l\'appuntamento.',
+        'feature-item-language': 'Supporto multilingue (IT/EN)',
+        'feature-item-tone': 'Tone of voice personalizzabile',
+        'feature-item-takeover': 'Takeover umano immediato',
+
+        // Stats Grid
+        'stat-speed-title': 'Velocità Estrema',
+        'stat-speed-desc': 'Risposte in meno di 15 secondi su WhatsApp, superando ogni aspettativa del cliente.',
+        'stat-conv-title': 'Conversion Rate +300%',
+        'stat-conv-desc': 'Trasforma semplici curiosi in lead qualificati pronti per la visita.',
+        'stat-team-title': 'Team Potenziato',
+        'stat-team-desc': 'I tuoi agenti si concentrano solo sulle visite, l\'AI gestisce tutto il funnel iniziale.',
 
         // Contact Section
         'contact-tag': 'Inizia Oggi',
@@ -708,34 +827,37 @@ const translations = {
         'footer-description': 'Il primo agente AI per le agenzie immobiliari italiane. Trasforma ogni contatto in un\'opportunità di vendita.',
         'footer-soluzione': 'Soluzione',
         'footer-come-funziona': 'Come Funziona',
+        'footer-dashboard': 'Dashboard',
+        'footer-caratteristiche': 'Caratteristiche',
+        'footer-prezzi': 'Prezzi',
         'footer-azienda': 'Azienda',
+        'footer-chi-siamo': 'Chi Siamo',
+        'footer-case-study': 'Case Study',
+        'footer-partner': 'Partner',
+        'footer-careers': 'Careers',
         'footer-supporto': 'Supporto',
+        'footer-centro-assistenza': 'Centro Assistenza',
+        'footer-documentazione': 'Documentazione',
+        'footer-stato-sistema': 'Stato Sistema',
+        'footer-contatto': 'Contatto',
         'footer-legal': 'Legal',
+        'footer-privacy': 'Privacy Policy',
+        'footer-terms': 'Termini di Servizio',
+        'footer-cookies': 'Cookie Policy',
+        'footer-gdpr': 'GDPR',
         'footer-copyright': '© 2025 Anzevino AI Real Estate. Tutti i diritti riservati.',
 
         // Demo Conversation
         'demo-title': 'Esempio di Conversazione AI',
         'demo-ai-in-azione': 'AI in azione',
-
-        // Dashboard Mockup
-        'dashboard-conversazioni': 'Conversazioni',
-        'dashboard-clienti': 'Clienti',
-        'dashboard-proprieta': 'Proprietà',
-        'dashboard-appuntamenti': 'Appuntamenti',
-        'dashboard-analytics': 'Analytics',
-        'dashboard-conversazioni-oggi': 'Conversazioni Oggi',
-        'dashboard-lead-qualificati': 'Lead Qualificati',
-        'dashboard-visite-prenotate': 'Visite Prenotate',
-        'dashboard-conversazioni-recenti': 'Conversazioni Recenti',
-        'dashboard-vedi-tutte': 'Vedi tutte',
-
-        // Feature Items
-        'feature-conversazione': 'Conversa in Linguaggio Naturale',
-        'feature-conversazione-desc': 'L\'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande specifiche sul mercato immobiliare.',
-        'feature-rag': 'Ricerca nel Tuo Database (RAG)',
-        'feature-rag-desc': 'Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su preferenze, budget e zona geografica.',
-        'feature-prenotazioni': 'Prenota Appuntamenti Automaticamente',
-        'feature-prenotazioni-desc': 'Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e confermando l\'appuntamento.',
+        'demo-client-label': 'Cliente',
+        'demo-ai-label': 'Anzevino AI',
+        'demo-step-1-msg': 'Buongiorno, vorrei informazioni su appartamenti a Milano Porta Nuova',
+        'demo-step-2-msg': 'Buongiorno! Sono l\'assistente virtuale dell\'agenzia. Per aiutarti al meglio, mi puoi dire il budget disponibile e che tipologia stai cercando?',
+        'demo-step-3-msg': 'Budget 400k, vorrei un bilocale moderno',
+        'demo-step-4-msg': 'Perfetto! Ho trovato 3 bilocali in Porta Nuova nel tuo budget. Ti invio le planimetrie e organizziamo una visita per giovedì alle 16:00?',
+        'demo-step-5-msg': 'Sì, perfetto! A giovedì allora',
+        'demo-step-6-msg': 'Confermato! Appuntamento giovedì 16:00 in Via Dante 12. Riceverai un promemoria domani. Buona giornata!',
 
         // Stats
         'stat-tempo-risposta': 'Tempo di risposta',
@@ -751,7 +873,19 @@ const translations = {
         'benefit-demo': 'Demo personalizzata in 30 minuti',
         'benefit-setup': 'Setup gratuito e senza impegno',
         'benefit-formazione': 'Formazione inclusa per il tuo team',
-        'benefit-supporto': 'Supporto tecnico dedicato'
+        'benefit-supporto': 'Supporto tecnico dedicato',
+
+        // Appraisal (Lead Magnet)
+        'appraisal-tag': 'Novità',
+        'appraisal-title': 'Scopri il valore della tua casa in 15 secondi',
+        'appraisal-subtitle': 'L\'IA analizza i prezzi di mercato della tua zona e ti invia una valutazione istantanea su WhatsApp. Gratuito, veloce, preciso.',
+        'appraisal-f1': 'Analisi Big Data real-time',
+        'appraisal-f2': 'Risultato diretto su WhatsApp',
+        'appraisal-f3': 'Precisione per quartiere',
+        'appraisal-address-placeholder': 'Indirizzo dell\'immobile',
+        'appraisal-phone-placeholder': 'Tuo WhatsApp (+39 ...)',
+        'appraisal-cta': 'Ottieni Valutazione AI',
+        'appraisal-disclaimer': 'Zero spam. Solo i dati che ti servono.'
     },
     en: {
         // Navigation
@@ -763,7 +897,8 @@ const translations = {
 
         // Hero Section
         'hero-subtitle': 'The Future of Real Estate',
-        'hero-title': 'Sell more homes while you sleep',
+        'hero-title': 'Sell more homes ',
+        'hero-title-highlight': 'while you sleep',
         'hero-description': 'Your first AI Agent that qualifies leads on WhatsApp in 15 seconds, 24/7. Turn every night into a sales opportunity.',
         'hero-cta-button': 'Book a Free Demo',
         'hero-cta-note': 'No commitment • Setup in 24 hours • Results guaranteed',
@@ -771,26 +906,86 @@ const translations = {
         // Problem Section
         'problem-tag': 'The Problem',
         'problem-title': 'You\'re losing 80% of your best customers',
-        'problem-description': 'Every day, hundreds of potential buyers visit Immobiliare.it and Idealista, fill out forms and contact you via WhatsApp. But when you call them, they\'ve already gone to the competition.',
+        'problem-description': 'Every day, hundreds of potential buyers visit portals, fill out forms and contact you via WhatsApp. But when you call them, they\'ve already gone to the competition.',
+        'problem-stat-lost': 'of leads lost within 2 hours',
+        'problem-stat-money': 'avg annual loss per agency',
+        'problem-stat-whatsapp': 'of customers prefer WhatsApp',
+        'problem-scenario-1-title': '10:30 PM - Nightly Lead',
+        'problem-scenario-1-desc': 'Interested in a flat, writes on WhatsApp. You are asleep. The competitor responds in 2 minutes.',
+        'problem-scenario-2-title': 'Sunday Afternoon - Weekend',
+        'problem-scenario-2-desc': 'Couple wants to see 3 apartments. You call on Monday: "We already bought one".',
+        'chart-title': 'Leads Lost Over Time',
 
         // Solution Section
         'solution-tag': 'The Solution',
-        'solution-title': 'Your first AI Employee',
+        'solution-title': 'Your First AI Employee',
         'solution-subtitle': 'A virtual assistant that works 24/7, talks to customers like a human agent and turns every contact into an opportunity.',
+        'benefit-conversation-1': 'Local dialect and natural expressions',
+        'benefit-conversation-2': 'Smart questions to qualify budget',
+        'benefit-conversation-3': 'Objection and resistance handling',
+        'benefit-rag-1': 'Precise matches in 15 seconds',
+        'benefit-rag-2': 'Answers based strictly on your data',
+        'benefit-rag-3': 'Automatic inventory update',
+        'benefit-calendar-1': 'Google Calendar synchronization',
+        'benefit-calendar-2': 'Automatic SMS/Email reminders',
+        'benefit-calendar-3': 'Conflict and rescheduling management',
+
+        // Demo Live Section
+        'demo-live-tag': 'Live Demo',
+        'demo-live-title': 'Watch AI in Action',
+        'demo-live-desc': 'In this video I show you exactly how the AI handles a lead from first contact to appointment.',
 
         // Dashboard Section
         'dashboard-tag': 'Control Dashboard',
         'dashboard-title': 'Monitor everything in real time',
         'dashboard-subtitle': 'Your command console to control every AI conversation, manage leads and optimize sales performance.',
+        'dashboard-logo-name': 'Anzevino AI',
+        'dashboard-conversazioni': 'Conversations',
+        'dashboard-clienti': 'Clients',
+        'dashboard-proprieta': 'Properties',
+        'dashboard-appuntamenti': 'Appointments',
+        'dashboard-analytics': 'Analytics',
+        'dashboard-conversazioni-oggi': 'Conversations Today',
+        'dashboard-lead-qualificati': 'Qualified Leads',
+        'dashboard-visite-prenotate': 'Booked Visits',
+        'dashboard-conversazioni-recenti': 'Recent Conversations',
+        'dashboard-vedi-tutte': 'View All',
+        'dashboard-whatsapp': 'WhatsApp',
+        'dashboard-time-2min': '2 min ago',
+        'dashboard-time-5min': '5 min ago',
+        'dashboard-time-8min': '8 min ago',
+        'dashboard-status-hot': 'HOT LEAD',
+        'dashboard-status-qualified': 'QUALIFIED',
+        'dashboard-status-followup': 'FOLLOW UP',
+        'dashboard-preview-1': 'Budget 500k, 3-room apt in Porta Nuova...',
+        'dashboard-preview-2': 'Viewing booked for tomorrow at 3 PM...',
+        'dashboard-preview-3': 'Sent 3 alternatives in Niguarda area...',
 
         // Features Section
         'features-tag': 'Features',
         'features-title': 'Everything you need to sell more',
-        'features-subtitle': 'A complete suite of AI tools designed specifically for Italian real estate agencies.',
+        'features-subtitle': 'A complete suite of AI tools designed specifically for real estate agencies.',
+        'feature-conversazione': 'Natural Language Conversation',
+        'feature-conversazione-desc': 'The AI speaks like an expert agent, understands customer needs and answers specific questions about the real estate market.',
+        'feature-rag': 'Search Your Database (RAG)',
+        'feature-rag-desc': 'Instantly access your property archive and find precise matches based on preferences, budget and geographic area.',
+        'feature-prenotazioni': 'Book Appointments Automatically',
+        'feature-prenotazioni-desc': 'Integrate the company calendar and book visits directly, proposing available times and confirming the appointment.',
+        'feature-item-language': 'Multilingual Support (IT/EN)',
+        'feature-item-tone': 'Customizable Tone of Voice',
+        'feature-item-takeover': 'Immediate Human Takeover',
+
+        // Stats Grid
+        'stat-speed-title': 'Extreme Speed',
+        'stat-speed-desc': 'Responses in less than 15 seconds on WhatsApp, exceeding every customer expectation.',
+        'stat-conv-title': 'Conversion Rate +300%',
+        'stat-conv-desc': 'Turns simple curious prospects into qualified leads ready for viewing.',
+        'stat-team-title': 'Boosted Team',
+        'stat-team-desc': 'Your agents focus only on viewings, the AI manages the entire initial funnel.',
 
         // Contact Section
-        'contact-tag': 'Get Started Today',
-        'contact-title': 'Transform your agency into a sales machine',
+        'contact-tag': 'Start Today',
+        'contact-title': 'Turn your agency into a sales machine',
         'contact-subtitle': 'Talk to an expert and discover how AI can increase your sales by 300% in just 90 days.',
         'contact-form-title': 'Book your free demo',
         'contact-form-subtitle': 'Fill out the form and we\'ll contact you within 2 hours',
@@ -809,40 +1004,43 @@ const translations = {
         'form-properties-option-1-50': '1-50 properties',
         'form-properties-option-51-100': '51-100 properties',
         'form-properties-option-101-200': '101-200 properties',
-        'form-properties-option-200+': 'More than 200 properties',
+        'form-properties-option-200+': 'Over 200 properties',
 
         // Footer
         'footer-description': 'The first AI agent for Italian real estate agencies. Turn every contact into a sales opportunity.',
         'footer-soluzione': 'Solution',
         'footer-come-funziona': 'How It Works',
+        'footer-dashboard': 'Dashboard',
+        'footer-caratteristiche': 'Features',
+        'footer-prezzi': 'Pricing',
         'footer-azienda': 'Company',
+        'footer-chi-siamo': 'About Us',
+        'footer-case-study': 'Case Studies',
+        'footer-partner': 'Partners',
+        'footer-careers': 'Careers',
         'footer-supporto': 'Support',
+        'footer-centro-assistenza': 'Help Center',
+        'footer-documentazione': 'Documentation',
+        'footer-stato-sistema': 'System Status',
+        'footer-contatto': 'Contact',
         'footer-legal': 'Legal',
+        'footer-privacy': 'Privacy Policy',
+        'footer-terms': 'Terms of Service',
+        'footer-cookies': 'Cookie Policy',
+        'footer-gdpr': 'GDPR',
         'footer-copyright': '© 2025 Anzevino AI Real Estate. All rights reserved.',
 
         // Demo Conversation
         'demo-title': 'AI Conversation Example',
         'demo-ai-in-azione': 'AI in action',
-
-        // Dashboard Mockup
-        'dashboard-conversazioni': 'Conversations',
-        'dashboard-clienti': 'Clients',
-        'dashboard-proprieta': 'Properties',
-        'dashboard-appuntamenti': 'Appointments',
-        'dashboard-analytics': 'Analytics',
-        'dashboard-conversazioni-oggi': 'Conversations Today',
-        'dashboard-lead-qualificati': 'Qualified Leads',
-        'dashboard-visite-prenotate': 'Booked Visits',
-        'dashboard-conversazioni-recenti': 'Recent Conversations',
-        'dashboard-vedi-tutte': 'View all',
-
-        // Feature Items
-        'feature-conversazione': 'Natural Language Conversation',
-        'feature-conversazione-desc': 'The AI speaks like an expert agent, understands customer needs and answers specific questions about the real estate market.',
-        'feature-rag': 'Search Your Database (RAG)',
-        'feature-rag-desc': 'Instantly access your property archive and find precise matches based on preferences, budget and geographic area.',
-        'feature-prenotazioni': 'Book Appointments Automatically',
-        'feature-prenotazioni-desc': 'Integrate the company calendar and book visits directly, suggesting available times and confirming the appointment.',
+        'demo-client-label': 'Client',
+        'demo-ai-label': 'Anzevino AI',
+        'demo-step-1-msg': 'Hello, I would like information about apartments in Milan Porta Nuova',
+        'demo-step-2-msg': 'Hello! I am the agency\'s virtual assistant. To help you better, can you tell me your budget and what type you are looking for?',
+        'demo-step-3-msg': 'Budget 400k, I\'d like a modern 2-room apartment',
+        'demo-step-4-msg': 'Perfect! I found 3 apartments in Porta Nuova within your budget. Shall I send you the plans and organize a visit for Thursday at 4 PM?',
+        'demo-step-5-msg': 'Yes, perfect! See you on Thursday then',
+        'demo-step-6-msg': 'Confirmed! Appointment Thursday 4 PM in Via Dante 12. You\'ll receive a reminder tomorrow. Have a great day!',
 
         // Stats
         'stat-tempo-risposta': 'Response time',
@@ -858,7 +1056,19 @@ const translations = {
         'benefit-demo': 'Personalized demo in 30 minutes',
         'benefit-setup': 'Free setup with no commitment',
         'benefit-formazione': 'Training included for your team',
-        'benefit-supporto': 'Dedicated technical support'
+        'benefit-supporto': 'Dedicated technical support',
+
+        // Appraisal (Lead Magnet)
+        'appraisal-tag': 'New',
+        'appraisal-title': 'Discover your home\'s value in 15 seconds',
+        'appraisal-subtitle': 'AI analyzes market prices in your area and sends you an instant valuation on WhatsApp. Free, fast, precise.',
+        'appraisal-f1': 'Real-time Big Data analysis',
+        'appraisal-f2': 'Direct results on WhatsApp',
+        'appraisal-f3': 'Neighborhood precision',
+        'appraisal-address-placeholder': 'Property address',
+        'appraisal-phone-placeholder': 'Your WhatsApp (+39 ...)',
+        'appraisal-cta': 'Get AI Valuation',
+        'appraisal-disclaimer': 'Zero spam. Only the data you need.'
     }
 };
 

@@ -1,0 +1,66 @@
+# 🔄 How Clients Reach You: The Complete Flow
+
+## The Big Picture
+
+```mermaid
+flowchart LR
+    A[🏠 Cliente cerca casa] --> B[📱 Portale Immobiliare]
+    B --> C[📝 Compila modulo]
+    C --> D[🤖 AI riceve lead]
+    D --> E[💬 WhatsApp automatico]
+    E --> F[👤 Cliente risponde]
+    F --> G[🔄 Conversazione AI]
+    G --> H[📊 Tu vedi tutto in Dashboard]
+```
+
+---
+
+## 📍 Step-by-Step Journey
+
+### Step 1: Lead Source
+A potential buyer/renter finds a property on:
+- **Immobiliare.it**, **Casa.it**, **Idealista**.
+- **Your agency landing page**.
+
+### Step 2: Automated AI Contact
+As soon as the lead is submitted, the system:
+1. Receives the lead via a **webhook**.
+2. Analyzes the property context (using RAG).
+3. Sends an personalized WhatsApp message via **Twilio** in < 15 seconds.
+
+### Step 3: Interactive Qualification
+The AI engages the client in a natural conversation to qualify:
+- **Budget** & **Timing**.
+- **Property preferences**.
+- **Availability for a viewing**.
+
+---
+
+## 💬 Conversation Management
+
+```mermaid
+flowchart TD
+    A[Cliente riceve WhatsApp] --> B{Cliente risponde?}
+    B -->|Sì| C[AI analizza messaggio]
+    C --> D{Keyword check}
+    D -->|"umano/staff"| E[🚨 Takeover Mode]
+    D -->|Normal| F[AI risponde automaticamente]
+    E --> G[Umano prende il controllo]
+    F --> H[Conversazione continua]
+    B -->|No| I[Follow-up automatico]
+```
+
+### Human Takeover Mode
+If at any point you want to chat personally with the lead, you can trigger **Takeover Mode** via the API/Dashboard. This pauses the AI for that specific lead, allowing you to handle the closing manually.
+
+---
+
+## 🎯 Lead Entry Points
+
+| Type | Speed | Accuracy |
+| :--- | :--- | :--- |
+| **Direct Webhook** | Immediate (<10s) | High (structured data) |
+| **Email Parsing** | Near-realtime (~1m) | Medium (regex extraction) |
+| **Manual Form** | Immediate (<1s) | High |
+
+All leads are centrally logged in **Supabase** and optionally synced to **Google Sheets**.

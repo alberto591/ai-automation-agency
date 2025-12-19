@@ -1,104 +1,43 @@
-# Agenzia AI: The Autonomous Real Estate Agent 🏠🤖
+# 🏠 Anzevino AI Real Estate Agent
 
-> **"An entire Real Estate agency in a single Python script."**
+An advanced AI-powered assistant for Italian real estate agencies. Automated lead qualification via WhatsApp, multi-portal integration, and RAG-based property matching.
 
-Agenzia AI is a full-stack automation system designed to Capture, Qualify, and Convert real estate leads 24/7 using Generative AI (Mistral), WhatsApp (Twilio), and Vector Database (Supabase).
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F...&env=SUPABASE_URL,SUPABASE_KEY,MISTRAL_API_KEY,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN,TWILIO_WHATSAPP_NUMBER,WEBHOOK_API_KEY)
 
-## 🧩 System Architecture: The 5 Pillars
+## 📖 Documentation
+All technical and user guides are centralized in the [**docs/**](docs/README.md) folder:
 
-This project is built on **5 Strategic Pillars** that mimic a human agent's workflow:
+- [🚀 Production Roadmap](docs/roadmap.md)
+- [🔌 Portal Integration](docs/portal-integration.md)
+- [🏠 Property CSV Import](docs/property-import.md)
+- [🛡️ Security & API](docs/api-security.md)
+- [🔄 How it Works (Flow)](docs/customer-flow.md)
 
-### 1. CAPTURE (The Ears) 👂
-*   **Logic:** Listens for leads via HTTP Webhooks (from Portals like Immobiliare.it/Idealista).
-*   **File:** `api.py` (FastAPI Server).
-*   **Action:** Parsers the lead name, phone, and specific property interest.
+## 🛠️ Tech Stack
+- **Backend**: FastAPI (Python)
+- **Database**: Supabase (PostgreSQL + Vector)
+- **AI Brain**: Mistral AI (Natural Language + RAG)
+- **Messaging**: Twilio (WhatsApp API)
+- **Frontend**: Vanilla HTML/CSS/JS (Bilingual IT/EN)
+- **Automation**: Make.com / Zapier
 
-### 2. INTELLIGENCE (The Brain) 🧠
-*   **Logic:** Retrieves the *exact* property details from the database (RAG - Retrieval Augmented Generation) to prevent hallucinations.
-*   **Data:** Managed via `upload_data.py` -> Supabase.
-*   **AI:** Mistral AI generates a hyper-personalized, persuasive pitch based on real data (Price, Amenities, Location).
+## 🚀 Quick Local Setup
 
-### 3. ACTION (The Voice) 🗣️
-*   **Logic:** Engages the client via WhatsApp.
-*   **File:** `lead_manager.py`.
-*   **Features:**
-    *   Maintains conversation history (Memory).
-    *   Handles objections ("Price negotiable?").
-    *   Proposes appointment times.
-
-### 4. CONTROL (The Magic Mirror) 👮‍♂️
-*   **Logic:** Allows the Human Owner to intervene instantly.
-*   **Takeover Mode:** A "Stop" button mutes the AI for a specific client.
-*   **Keyword Triggers:** If a client says *"Voglio parlare con un umano"* or *"Trattabile"*, the system **automatically** pauses and alerts the owner.
-*   **Alerts:** WhatsApp notifications to the Boss + Email CC of all chats.
-
-### 5. REPORTING (The Dashboard) 📊
-*   **Logic:** Tracks every interaction.
-*   **Tools:**
-    *   **Supabase:** The Source of Truth.
-    *   **CSV Export:** `scripts/export_leads.py`.
-    *   **No-Code:** Ready for integration with Make.com -> Google Sheets.
-
----
-
-## 🛠 Tech Stack
-
-*   **Backend:** Python 3.12+, FastAPI
-*   **AI Model:** Mistral-Small (via API)
-*   **Database:** Supabase (PostgreSQL)
-*   **Messaging:** Twilio API (WhatsApp)
-*   **Frontend:** HTML5/JS (Landing Page for Lead Capture)
-*   **Deploy:** Vercel (Serverless)
-
----
-
-## 🚀 Quick Start
-
-### 1. Prerequisites
-You need accounts for **Supabase**, **Mistral**, and **Twilio**.
-Copy `.env.example` to `.env` and fill in your keys.
-
-### 2. Installation
+1. **Clone & Install**:
 ```bash
-git clone https://github.com/alberto591/ai-automation-agency.git
-cd ai-automation-agency
-python3 -m venv venv
+git clone ...
+python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run Locally
+2. **Environment**:
+Copy `.env.example` to `.env` and fill in your keys.
+
+3. **Run API**:
 ```bash
-# Start the Backend
 uvicorn api:app --reload
 ```
 
-### 4. Run the "Sales Demo"
-Want to impress a client? Run the interactive simulation script:
-```bash
-python demo_live.py
-```
-
 ---
-
-## 📂 Project Structure
-
-```
-├── api.py                  # The Web Server (FastAPI)
-├── lead_manager.py         # The Core Logic (AI, Database, Twilio)
-├── demo_live.py            # Client Demonstration Script
-├── scenario_negotiation.py # Logic Test Script
-├── upload_data.py          # Admin Tool: Upload listings to DB
-├── scripts/
-│   └── export_leads.py     # Admin Tool: Export DB to CSV
-└── tests/                  # Unit Tests (Pytest)
-```
-
-## 🛡️ Best Practices
-*   **Testing:** Run `pytest tests/` to verify logic.
-*   **Linting:** Codebase adheres to PEP 8 (checked via `ruff`).
-*   **Security:** Environment variables for all API keys.
-
----
-**License:** Private / Commercial Use.
-*Built by Antigravity*
+*Created with ❤️ for Italian Real Estate Excellence.*

@@ -70,15 +70,15 @@
                     <div class="hero-stats">
                         <div class="stat-item">
                             <div class="stat-number">15s</div>
-                            <div class="stat-label">Tempo di risposta</div>
+                            <div class="stat-label" data-translate="stat-tempo-risposta">Tempo di risposta</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number">24/7</div>
-                            <div class="stat-label">Disponibilità</div>
+                            <div class="stat-label" data-translate="stat-disponibilita">Disponibilità</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number">85%</div>
-                            <div class="stat-label">Lead qualificati</div>
+                            <div class="stat-label" data-translate="stat-lead-qualificati">Lead qualificati</div>
                         </div>
                     </div>
 
@@ -196,15 +196,17 @@
                     <div class="problem-stats">
                         <div class="problem-stat">
                             <div class="stat-number red">80%</div>
-                            <div class="stat-text">dei lead persi entro 2 ore</div>
+                            <div class="stat-text" data-translate="problem-stat-lost">dei lead persi entro 2 ore</div>
                         </div>
                         <div class="problem-stat">
                             <div class="stat-number red">€45.000</div>
-                            <div class="stat-text">perdita media annua per agenzia</div>
+                            <div class="stat-text" data-translate="problem-stat-money">perdita media annua per agenzia
+                            </div>
                         </div>
                         <div class="problem-stat">
                             <div class="stat-number red">73%</div>
-                            <div class="stat-text">dei clienti preferisce WhatsApp</div>
+                            <div class="stat-text" data-translate="problem-stat-whatsapp">dei clienti preferisce
+                                WhatsApp</div>
                         </div>
                     </div>
 
@@ -212,16 +214,18 @@
                         <div class="scenario">
                             <i class="ph ph-clock"></i>
                             <div>
-                                <h4>Ore 22:30 - Cliente notturno</h4>
-                                <p>Interessato a un bilocale, scrive su WhatsApp. Tu dormi. Il concorrente risponde in 2
+                                <h4 data-translate="problem-scenario-1-title">Ore 22:30 - Cliente notturno</h4>
+                                <p data-translate="problem-scenario-1-desc">Interessato a un bilocale, scrive su
+                                    WhatsApp. Tu dormi. Il concorrente risponde in 2
                                     minuti.</p>
                             </div>
                         </div>
                         <div class="scenario">
                             <i class="ph ph-phone-call"></i>
                             <div>
-                                <h4>Domenica pomeriggio - Weekend</h4>
-                                <p>Coppia vuole vedere 3 appartamenti. Chiami lunedì: "Abbiamo già comprato".</p>
+                                <h4 data-translate="problem-scenario-2-title">Domenica pomeriggio - Weekend</h4>
+                                <p data-translate="problem-scenario-2-desc">Coppia vuole vedere 3 appartamenti. Chiami
+                                    lunedì: "Abbiamo già comprato".</p>
                             </div>
                         </div>
                     </div>
@@ -230,7 +234,7 @@
                 <div class="problem-visual">
                     <div class="loss-chart">
                         <div class="chart-header">
-                            <h3>Lead Persi nel Tempo</h3>
+                            <h3 data-translate="chart-title">Lead Persi nel Tempo</h3>
                         </div>
                         <div class="chart-bars">
                             <div class="bar-group">
@@ -260,6 +264,53 @@
         </div>
     </section>
 
+    <!-- AI Appraisal Section (Lead Magnet) -->
+    <section id="appraisal" class="appraisal-section">
+        <div class="container">
+            <div class="appraisal-card">
+                <div class="appraisal-content">
+                    <div class="appraisal-text">
+                        <span class="intro-tag" data-translate="appraisal-tag">Novità</span>
+                        <h2 data-translate="appraisal-title">Scopri il valore della tua casa in 15 secondi</h2>
+                        <p data-translate="appraisal-subtitle">L'IA analizza i prezzi di mercato della tua zona e ti
+                            invia una valutazione istantanea su WhatsApp. Gratuito, veloce, preciso.</p>
+
+                        <ul class="appraisal-features">
+                            <li><i class="ph ph-lightning"></i> <span data-translate="appraisal-f1">Analisi Big Data
+                                    real-time</span></li>
+                            <li><i class="ph ph-whatsapp-logo"></i> <span data-translate="appraisal-f2">Risultato
+                                    diretto su WhatsApp</span></li>
+                            <li><i class="ph ph-map-pin"></i> <span data-translate="appraisal-f3">Precisione per
+                                    quartiere</span></li>
+                        </ul>
+                    </div>
+                    <div class="appraisal-form-box">
+                        <form id="appraisal-form" class="mini-form">
+                            <div class="form-group">
+                                <i class="ph ph-map-pin"></i>
+                                <input type="text" id="appraisal-address" name="address" required
+                                    placeholder="Indirizzo dell'immobile"
+                                    data-translate="appraisal-address-placeholder">
+                            </div>
+                            <div class="form-group">
+                                <i class="ph ph-whatsapp-logo"></i>
+                                <input type="tel" id="appraisal-phone" name="phone" required
+                                    placeholder="Tuo WhatsApp (+39 ...)" data-translate="appraisal-phone-placeholder">
+                            </div>
+                            <button type="submit" class="btn-primary btn-full">
+                                <span data-translate="appraisal-cta">Ottieni Valutazione AI</span>
+                                <i class="ph ph-arrow-right"></i>
+                            </button>
+                            <p class="form-disclaimer" data-translate="appraisal-disclaimer">Zero spam. Solo i dati che
+                                ti servono.</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
     <!-- Solution Section -->
     <section id="soluzione" class="solution-section">
         <div class="container">
@@ -281,9 +332,12 @@
                         <p>L'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande
                             specifiche sul mercato immobiliare.</p>
                         <ul class="feature-benefits">
-                            <li><i class="ph ph-check"></i> Dialetto locale e espressioni italiane</li>
-                            <li><i class="ph ph-check"></i> Domande intelligenti per qualificare il budget</li>
-                            <li><i class="ph ph-check"></i> Gestione obiezioni e resistenze</li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-1">Dialetto
+                                    locale e espressioni italiane</span></li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-2">Domande
+                                    intelligenti per qualificare il budget</span></li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-3">Gestione
+                                    obiezioni e resistenze</span></li>
                         </ul>
                     </div>
 
@@ -309,9 +363,12 @@
                         <p>Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e
                             confermando l'appuntamento.</p>
                         <ul class="feature-benefits">
-                            <li><i class="ph ph-check"></i> Sincronizzazione con Google Calendar</li>
-                            <li><i class="ph ph-check"></i> Promemoria automatici SMS/Email</li>
-                            <li><i class="ph ph-check"></i> Gestione conflitti e rinvii</li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-1">Sincronizzazione
+                                    con Google Calendar</span></li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-2">Promemoria
+                                    automatici SMS/Email</span></li>
+                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-3">Gestione conflitti
+                                    e rinvii</span></li>
                         </ul>
                     </div>
                 </div>
@@ -331,47 +388,58 @@
                             <div class="conversation-step active" data-step="1">
                                 <div class="step-time">09:15</div>
                                 <div class="step-message from-client">
-                                    <strong>Cliente:</strong> Buongiorno, vorrei informazioni su appartamenti a Milano
-                                    Porta Nuova
+                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
+                                        data-translate="demo-step-1-msg">Buongiorno, vorrei informazioni su appartamenti
+                                        a Milano
+                                        Porta Nuova</span>
                                 </div>
                             </div>
 
                             <div class="conversation-step" data-step="2">
                                 <div class="step-time">09:15</div>
                                 <div class="step-message from-ai">
-                                    <strong>Anzevino AI:</strong> Buongiorno! Sono l'assistente virtuale dell'agenzia.
-                                    Per aiutarti al meglio, mi puoi dire il budget disponibile e che tipologia stai
-                                    cercando?
+                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
+                                        data-translate="demo-step-2-msg">Buongiorno! Sono l'assistente virtuale
+                                        dell'agenzia.
+                                        Per aiutarti al meglio, mi puoi dire il budget disponibile e che tipologia stai
+                                        cercando?</span>
                                 </div>
                             </div>
 
                             <div class="conversation-step" data-step="3">
                                 <div class="step-time">09:16</div>
                                 <div class="step-message from-client">
-                                    <strong>Cliente:</strong> Budget 400k, vorrei un bilocale moderno
+                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
+                                        data-translate="demo-step-3-msg">Budget 400k, vorrei un bilocale moderno</span>
                                 </div>
                             </div>
 
                             <div class="conversation-step" data-step="4">
                                 <div class="step-time">09:16</div>
                                 <div class="step-message from-ai">
-                                    <strong>Anzevino AI:</strong> Perfetto! Ho trovato 3 bilocali in Porta Nuova nel tuo
-                                    budget. Ti invio le planimetrie e organizziamo una visita per giovedì alle 16:00?
+                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
+                                        data-translate="demo-step-4-msg">Perfetto! Ho trovato 3 bilocali in Porta Nuova
+                                        nel tuo
+                                        budget. Ti invio le planimetrie e organizziamo una visita per giovedì alle
+                                        16:00?</span>
                                 </div>
                             </div>
 
                             <div class="conversation-step" data-step="5">
                                 <div class="step-time">09:17</div>
                                 <div class="step-message from-client">
-                                    <strong>Cliente:</strong> Sì, perfetto! A giovedì allora
+                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
+                                        data-translate="demo-step-5-msg">Sì, perfetto! A giovedì allora</span>
                                 </div>
                             </div>
 
                             <div class="conversation-step" data-step="6">
                                 <div class="step-time">09:17</div>
                                 <div class="step-message from-ai">
-                                    <strong>Anzevino AI:</strong> Confermato! Appuntamento giovedì 16:00 in Via Dante
-                                    12. Riceverai un promemoria domani. Buona giornata!
+                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
+                                        data-translate="demo-step-6-msg">Confermato! Appuntamento giovedì 16:00 in Via
+                                        Dante
+                                        12. Riceverai un promemoria domani. Buona giornata!</span>
                                 </div>
                             </div>
                         </div>
@@ -385,12 +453,9 @@
     <section class="video-section" style="padding: 6rem 0; background-color: #f8fafc; text-align: center;">
         <div class="container">
             <div class="section-intro">
-                <span class="intro-tag"
-                    style="background: #e2e8f0; color: #475569; padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600;">Demo
-                    Live</span>
-                <h2 style="margin-top: 1rem; margin-bottom: 1rem; font-size: 2.5rem; color: #0f172a;">Guarda l'AI in
-                    Azione</h2>
-                <p class="solution-subtitle" style="max-width: 600px; margin: 0 auto 3rem; color: #64748b;">In questo
+                <span class="intro-tag" data-translate="demo-live-tag">Demo Live</span>
+                <h2 data-translate="demo-live-title">Guarda l'AI in Azione</h2>
+                <p class="solution-subtitle" data-translate="demo-live-desc">In questo
                     video ti mostro esattamente come l'AI gestisce un lead dal primo contatto all'appuntamento.</p>
             </div>
             <div class="video-container"
@@ -438,32 +503,32 @@
                                 <div class="sidebar-header">
                                     <div class="logo">
                                         <i class="ph ph-robot"></i>
-                                        <span>Anzevino AI</span>
+                                        <span data-translate="dashboard-logo-name">Anzevino AI</span>
                                     </div>
                                 </div>
 
                                 <nav class="sidebar-nav">
                                     <div class="nav-item active">
                                         <i class="ph ph-chats"></i>
-                                        <span>Conversazioni</span>
+                                        <span data-translate="dashboard-conversazioni">Conversazioni</span>
                                         <span class="badge">23</span>
                                     </div>
                                     <div class="nav-item">
                                         <i class="ph ph-users"></i>
-                                        <span>Clienti</span>
+                                        <span data-translate="dashboard-clienti">Clienti</span>
                                     </div>
                                     <div class="nav-item">
                                         <i class="ph ph-house"></i>
-                                        <span>Proprietà</span>
+                                        <span data-translate="dashboard-proprieta">Proprietà</span>
                                     </div>
                                     <div class="nav-item">
                                         <i class="ph ph-calendar"></i>
-                                        <span>Appuntamenti</span>
+                                        <span data-translate="dashboard-appuntamenti">Appuntamenti</span>
                                         <span class="badge">8</span>
                                     </div>
                                     <div class="nav-item">
                                         <i class="ph ph-chart-line"></i>
-                                        <span>Analytics</span>
+                                        <span data-translate="dashboard-analytics">Analytics</span>
                                     </div>
                                 </nav>
                             </div>
@@ -476,7 +541,8 @@
                                         </div>
                                         <div class="stat-content">
                                             <div class="stat-number">247</div>
-                                            <div class="stat-label">Conversazioni Oggi</div>
+                                            <div class="stat-label" data-translate="dashboard-conversazioni-oggi">
+                                                Conversazioni Oggi</div>
                                             <div class="stat-change positive">+23%</div>
                                         </div>
                                     </div>
@@ -487,7 +553,8 @@
                                         </div>
                                         <div class="stat-content">
                                             <div class="stat-number">89</div>
-                                            <div class="stat-label">Lead Qualificati</div>
+                                            <div class="stat-label" data-translate="dashboard-lead-qualificati">Lead
+                                                Qualificati</div>
                                             <div class="stat-change positive">+15%</div>
                                         </div>
                                     </div>
@@ -498,7 +565,8 @@
                                         </div>
                                         <div class="stat-content">
                                             <div class="stat-number">34</div>
-                                            <div class="stat-label">Visite Prenotate</div>
+                                            <div class="stat-label" data-translate="dashboard-visite-prenotate">Visite
+                                                Prenotate</div>
                                             <div class="stat-change positive">+8%</div>
                                         </div>
                                     </div>
@@ -506,8 +574,8 @@
 
                                 <div class="recent-conversations">
                                     <div class="conversations-header">
-                                        <h3>Conversazioni Recenti</h3>
-                                        <div class="view-all">Vedi tutte</div>
+                                        <h3 data-translate="dashboard-conversazioni-recenti">Conversazioni Recenti</h3>
+                                        <div class="view-all" data-translate="dashboard-vedi-tutte">Vedi tutte</div>
                                     </div>
 
                                     <div class="conversation-item">
@@ -515,13 +583,17 @@
                                             <div class="client-avatar">MR</div>
                                             <div class="client-details">
                                                 <div class="client-name">Marco Rossi</div>
-                                                <div class="client-source">WhatsApp • 2 min fa</div>
+                                                <div class="client-source"><span
+                                                        data-translate="dashboard-whatsapp">WhatsApp</span> • <span
+                                                        data-translate="dashboard-time-2min">2 min fa</span></div>
                                             </div>
                                         </div>
                                         <div class="conversation-status">
-                                            <span class="status-badge hot">HOT LEAD</span>
+                                            <span class="status-badge hot" data-translate="dashboard-status-hot">HOT
+                                                LEAD</span>
                                             <div class="conversation-preview">
-                                                "Budget 500k, trilocale zona Porta Nuova..."
+                                                "<span data-translate="dashboard-preview-1">Budget 500k, trilocale zona
+                                                    Porta Nuova...</span>"
                                             </div>
                                         </div>
                                         <div class="conversation-actions">
@@ -539,13 +611,17 @@
                                             <div class="client-avatar">GB</div>
                                             <div class="client-details">
                                                 <div class="client-name">Giulia Bianchi</div>
-                                                <div class="client-source">WhatsApp • 5 min fa</div>
+                                                <div class="client-source"><span
+                                                        data-translate="dashboard-whatsapp">WhatsApp</span> • <span
+                                                        data-translate="dashboard-time-5min">5 min fa</span></div>
                                             </div>
                                         </div>
                                         <div class="conversation-status">
-                                            <span class="status-badge qualified">QUALIFICATO</span>
+                                            <span class="status-badge qualified"
+                                                data-translate="dashboard-status-qualified">QUALIFICATO</span>
                                             <div class="conversation-preview">
-                                                "Visita prenotata per domani alle 15:00..."
+                                                "<span data-translate="dashboard-preview-2">Visita prenotata per domani
+                                                    alle 15:00...</span>"
                                             </div>
                                         </div>
                                         <div class="conversation-actions">
@@ -563,13 +639,17 @@
                                             <div class="client-avatar">AV</div>
                                             <div class="client-details">
                                                 <div class="client-name">Alessandro Verde</div>
-                                                <div class="client-source">WhatsApp • 8 min fa</div>
+                                                <div class="client-source"><span
+                                                        data-translate="dashboard-whatsapp">WhatsApp</span> • <span
+                                                        data-translate="dashboard-time-8min">8 min fa</span></div>
                                             </div>
                                         </div>
                                         <div class="conversation-status">
-                                            <span class="status-badge follow-up">FOLLOW UP</span>
+                                            <span class="status-badge follow-up"
+                                                data-translate="dashboard-status-followup">FOLLOW UP</span>
                                             <div class="conversation-preview">
-                                                "Inviate 3 alternative bilocali zona Niguarda..."
+                                                "<span data-translate="dashboard-preview-3">Inviate 3 alternative
+                                                    bilocali zona Niguarda...</span>"
                                             </div>
                                         </div>
                                         <div class="conversation-actions">
@@ -788,6 +868,50 @@
         </div>
     </section>
 
+    <!-- Detailed Stats Grid -->
+    <section class="stats-grid-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ph ph-lightning"></i></div>
+                    <h3 data-translate="stat-speed-title">Velocità Estrema</h3>
+                    <p data-translate="stat-speed-desc">Risposte in meno di 15 secondi su WhatsApp, superando ogni
+                        aspettativa del cliente.</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ph ph-trend-up"></i></div>
+                    <h3 data-translate="stat-conv-title">Conversion Rate +300%</h3>
+                    <p data-translate="stat-conv-desc">Trasforma semplici curiosi in lead qualificati pronti per la
+                        visita.</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="ph ph-users-three"></i></div>
+                    <h3 data-translate="stat-team-title">Team Potenziato</h3>
+                    <p data-translate="stat-team-desc">I tuoi agenti si concentrano solo sulle visite, l'AI gestisce
+                        tutto il funnel iniziale.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial -->
+    <section class="testimonial-section">
+        <div class="container">
+            <div class="testimonial-content">
+                <div class="quote-icon"><i class="ph ph-quotes"></i></div>
+                <p class="quote-text" data-translate="testimonial-quote">"In 3 mesi abbiamo aumentato le vendite del
+                    340%. L'AI risponde meglio di molti agenti umani."</p>
+                <div class="author-info">
+                    <div class="author-avatar">RA</div>
+                    <div class="author-details">
+                        <h4 data-translate="testimonial-author">Roberto Anzevino</h4>
+                        <p data-translate="testimonial-title">Direttore, Milano Premium Real Estate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -819,34 +943,43 @@
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4 data-translate="footer-soluzione">Soluzione</h4>
-                        <a href="#soluzione" data-translate="footer-come-funziona">Come Funziona</a>
-                        <a href="#dashboard" data-translate="footer-dashboard">Dashboard</a>
-                        <a href="#caratteristiche" data-translate="footer-caratteristiche">Caratteristiche</a>
-                        <a href="#" data-translate="footer-prezzi">Prezzi</a>
+                        <ul>
+                            <li><a href="#soluzione" data-translate="footer-come-funziona">Come Funziona</a></li>
+                            <li><a href="#dashboard" data-translate="footer-dashboard">Dashboard</a></li>
+                            <li><a href="#caratteristiche" data-translate="footer-caratteristiche">Caratteristiche</a>
+                            </li>
+                            <li><a href="#" data-translate="footer-prezzi">Prezzi</a></li>
+                        </ul>
                     </div>
 
                     <div class="footer-column">
                         <h4 data-translate="footer-azienda">Azienda</h4>
-                        <a href="#" data-translate="footer-chi-siamo">Chi Siamo</a>
-                        <a href="#" data-translate="footer-case-study">Case Study</a>
-                        <a href="#" data-translate="footer-partner">Partner</a>
-                        <a href="#" data-translate="footer-careers">Careers</a>
+                        <ul>
+                            <li><a href="#" data-translate="footer-chi-siamo">Chi Siamo</a></li>
+                            <li><a href="#" data-translate="footer-case-study">Case Study</a></li>
+                            <li><a href="#" data-translate="footer-partner">Partner</a></li>
+                            <li><a href="#" data-translate="footer-careers">Careers</a></li>
+                        </ul>
                     </div>
 
                     <div class="footer-column">
                         <h4 data-translate="footer-supporto">Supporto</h4>
-                        <a href="#" data-translate="footer-documentazione">Documentazione</a>
-                        <a href="#" data-translate="footer-centro-assistenza">Centro Assistenza</a>
-                        <a href="#" data-translate="footer-stato-sistema">Stato Sistema</a>
-                        <a href="#" data-translate="footer-contatto">Contatto</a>
+                        <ul>
+                            <li><a href="#" data-translate="footer-documentazione">Documentazione</a></li>
+                            <li><a href="#" data-translate="footer-centro-assistenza">Centro Assistenza</a></li>
+                            <li><a href="#" data-translate="footer-stato-sistema">Stato Sistema</a></li>
+                            <li><a href="#" data-translate="footer-contatto">Contatto</a></li>
+                        </ul>
                     </div>
 
                     <div class="footer-column">
                         <h4 data-translate="footer-legal">Legal</h4>
-                        <a href="#" data-translate="footer-privacy">Privacy Policy</a>
-                        <a href="#" data-translate="footer-terms">Terms of Service</a>
-                        <a href="#" data-translate="footer-cookies">Cookie Policy</a>
-                        <a href="#" data-translate="footer-gdpr">GDPR</a>
+                        <ul>
+                            <li><a href="#" data-translate="footer-privacy">Privacy Policy</a></li>
+                            <li><a href="#" data-translate="footer-terms">Terms of Service</a></li>
+                            <li><a href="#" data-translate="footer-cookies">Cookie Policy</a></li>
+                            <li><a href="#" data-translate="footer-gdpr">GDPR</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import os
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
+import time
 
 # Ensure lead_manager can be imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -21,12 +22,37 @@ app = FastAPI()
 
 # Simple in-memory rate limiter (for production, use Redis)
 rate_limit_store = defaultdict(list)
-RATE_LIMIT_REQUESTS = 10  # Max requests
+RATE_LIMIT_REQUESTS = 100  # Max requests
 RATE_LIMIT_WINDOW = 60  # Per 60 seconds
+
+# SECONDARY LIMITER: Phone-based (Protects AI/Twilio budget)
+phone_limit_store = defaultdict(list)
+MAX_MSG_PER_HOUR = 20 
+
+def check_phone_rate_limit(phone: str):
+    """
+    Checks if a specific phone number has exceeded the message limit.
+    Prevents a single user from draining the AI/Twilio budget.
+    """
+    now = time.time()
+    # Clean old requests (older than 1 hour)
+    phone_limit_store[phone] = [t for t in phone_limit_store[phone] if now - t < 3600]
+    
+    if len(phone_limit_store[phone]) >= MAX_MSG_PER_HOUR:
+        raise HTTPException(
+            status_code=429, 
+            detail=f"Rate limit exceeded for {phone}. Please wait before sending more messages."
+        )
+    
+    # Log the request
+    phone_limit_store[phone].append(now)
+
+
+from fastapi.responses import JSONResponse
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    """Basic rate limiting to prevent abuse"""
+    """Basic IP-based rate limiting to prevent infrastructure abuse"""
     client_ip = request.client.host
     now = datetime.now()
     
@@ -38,13 +64,23 @@ async def rate_limit_middleware(request: Request, call_next):
     
     # Check limit
     if len(rate_limit_store[client_ip]) >= RATE_LIMIT_REQUESTS:
-        raise HTTPException(status_code=429, detail="Too many requests. Try again later.")
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Try again later."}
+        )
     
     # Log request
     rate_limit_store[client_ip].append(now)
     
-    response = await call_next(request)
-    return response
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as e:
+        print(f"🚨 Middleware caught unhandled error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error"}
+        )
 
 # Enable CORS for frontend communication
 app.add_middleware(
@@ -99,6 +135,9 @@ async def create_lead(lead: LeadRequest):
             status_code=400, 
             detail=f"Invalid phone number format: {lead.phone}. Use international format: +[country code][number]"
         )
+
+    # SECRECY: Phone-based rate limiting
+    check_phone_rate_limit(lead.phone)
 
     try:
         # Trigger the AI Logic (The Heart)
@@ -236,6 +275,9 @@ async def twilio_webhook(request: Request, background_tasks: BackgroundTasks, x_
         from_number = form_data.get("From", "").replace("whatsapp:", "")
 
         print(f"📩 New Message from {from_number}: {incoming_msg}")
+
+        # SECRECY: Phone-based rate limiting
+        check_phone_rate_limit(from_number)
 
         # Trigger the "Conversation Loop" in lead_manager
         from lead_manager import handle_incoming_message, notify_agent_via_email
