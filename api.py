@@ -102,6 +102,105 @@ async def create_lead(lead: LeadRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ---------------------------------------------------------
+# PORTAL INTEGRATIONS (Immobiliare.it, Casa.it, Idealista)
+# ---------------------------------------------------------
+
+class PortalLead(BaseModel):
+    """Universal format for portal leads"""
+    name: str = None
+    phone: str
+    email: str = None
+    property_title: str = None
+    property_url: str = None
+    message: str = None
+    source: str = "unknown"  # immobiliare, casa, idealista
+
+
+@app.post("/webhooks/portal")
+async def portal_webhook(lead: PortalLead):
+    """
+    Universal webhook for real estate portals.
+    Accepts leads from Immobiliare.it, Casa.it, Idealista, etc.
+    """
+    print(f"📡 Portal Lead from {lead.source}: {lead.name} - {lead.phone}")
+    
+    # Validate phone
+    if lead.phone and not validate_phone(lead.phone):
+        # Try to fix common format issues
+        if not lead.phone.startswith("+"):
+            lead.phone = "+39" + lead.phone.lstrip("0")
+    
+    try:
+        # Build property context
+        property_query = lead.property_title or lead.message or "Generic inquiry"
+        customer_name = lead.name or "Cliente Portale"
+        
+        # Process the lead
+        result = handle_real_estate_lead(lead.phone, customer_name, property_query)
+        
+        return {
+            "status": "success",
+            "source": lead.source,
+            "message": f"Lead {customer_name} processed via AI",
+        }
+    except Exception as e:
+        print(f"❌ Portal webhook error: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
+@app.post("/webhooks/immobiliare")
+async def immobiliare_webhook(request: Request):
+    """
+    Specific webhook for Immobiliare.it lead format.
+    """
+    try:
+        data = await request.json()
+        
+        # Immobiliare.it typical payload structure
+        lead = PortalLead(
+            name=data.get("contact_name") or data.get("name"),
+            phone=data.get("contact_phone") or data.get("phone"),
+            email=data.get("contact_email") or data.get("email"),
+            property_title=data.get("property_title") or data.get("listing_title"),
+            property_url=data.get("property_url") or data.get("listing_url"),
+            message=data.get("message") or data.get("inquiry_text"),
+            source="immobiliare.it"
+        )
+        
+        return await portal_webhook(lead)
+        
+    except Exception as e:
+        print(f"❌ Immobiliare webhook error: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
+@app.post("/webhooks/email-parser")
+async def email_parser_webhook(request: Request):
+    """
+    Receives parsed email data from Make.com/Zapier.
+    Use this when portal sends email notifications.
+    """
+    try:
+        data = await request.json()
+        
+        # Make.com/Zapier sends parsed email data
+        lead = PortalLead(
+            name=data.get("parsed_name") or data.get("sender_name"),
+            phone=data.get("parsed_phone") or data.get("phone"),
+            email=data.get("parsed_email") or data.get("sender_email"),
+            property_title=data.get("property") or data.get("subject"),
+            message=data.get("body") or data.get("email_body"),
+            source=data.get("source") or "email"
+        )
+        
+        return await portal_webhook(lead)
+        
+    except Exception as e:
+        print(f"❌ Email parser webhook error: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
 @app.post("/webhooks/twilio")
 async def twilio_webhook(request: Request, background_tasks: BackgroundTasks):
     """
