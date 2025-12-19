@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -54,6 +54,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+async def verify_webhook_key(x_webhook_key: str = Header(None)):
+    """Security Layer: Verifies the X-Webhook-Key header."""
+    # Special case: Twilio might not send headers easily in some configurations, 
+    # but for portals it's mandatory.
+    EXPECTED_KEY = os.getenv("WEBHOOK_API_KEY")
+    if not EXPECTED_KEY:
+        # If no key is set, we are in open-dev mode (not recommended for prod)
+        return
+        
+    if x_webhook_key != EXPECTED_KEY:
+        print(f"⚠️ Unauthorized Webhook Attempt: {x_webhook_key}")
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Webhook API Key")
 
 
 import re
@@ -120,7 +134,7 @@ class PortalLead(BaseModel):
 
 
 @app.post("/webhooks/portal")
-async def portal_webhook(lead: PortalLead):
+async def portal_webhook(lead: PortalLead, _=Depends(verify_webhook_key)):
     """
     Universal webhook for real estate portals.
     Accepts leads from Immobiliare.it, Casa.it, Idealista, etc.
@@ -152,7 +166,7 @@ async def portal_webhook(lead: PortalLead):
 
 
 @app.post("/webhooks/immobiliare")
-async def immobiliare_webhook(request: Request):
+async def immobiliare_webhook(request: Request, _=Depends(verify_webhook_key)):
     """
     Specific webhook for Immobiliare.it lead format.
     """
@@ -178,7 +192,7 @@ async def immobiliare_webhook(request: Request):
 
 
 @app.post("/webhooks/email-parser")
-async def email_parser_webhook(request: Request):
+async def email_parser_webhook(request: Request, _=Depends(verify_webhook_key)):
     """
     Receives parsed email data from Make.com/Zapier.
     Use this when portal sends email notifications.
@@ -204,10 +218,17 @@ async def email_parser_webhook(request: Request):
 
 
 @app.post("/webhooks/twilio")
-async def twilio_webhook(request: Request, background_tasks: BackgroundTasks):
+async def twilio_webhook(request: Request, background_tasks: BackgroundTasks, x_webhook_key: str = Header(None)):
     """
     The Ears: Receives incoming WhatsApp messages from Twilio.
     """
+    # NOTE: Twilio security is usually done via signature validation. 
+    # For now, we allow X-Webhook-Key or we can skip for Twilio if needed.
+    # We'll make it optional for Twilio to avoid breaking delivery if header isn't set.
+    EXPECTED_KEY = os.getenv("WEBHOOK_API_KEY")
+    if EXPECTED_KEY and x_webhook_key and x_webhook_key != EXPECTED_KEY:
+         raise HTTPException(status_code=401, detail="Unauthorized")
+
     try:
         # Twilio sends data as Form Data, not JSON
         form_data = await request.form()

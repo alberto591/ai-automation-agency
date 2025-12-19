@@ -15,6 +15,9 @@ from api import app, validate_phone
 
 client = TestClient(app)
 
+# Test headers
+HEADERS = {"X-Webhook-Key": "prod_dev_secret_key_2025"}
+
 
 def test_health_check():
     """Test the /health endpoint returns 200."""
@@ -64,7 +67,7 @@ def test_twilio_webhook(mock_handle_msg):
     # Twilio sends form data
     form_data = {"Body": "Ciao, info?", "From": "whatsapp:+393331234567"}
 
-    response = client.post("/webhooks/twilio", data=form_data)
+    response = client.post("/webhooks/twilio", data=form_data, headers=HEADERS)
 
     assert response.status_code == 200
     assert response.json() == {"status": "replied", "message": "Mock Reply"}
@@ -109,10 +112,17 @@ def test_portal_webhook_success(mock_handle_lead):
         "phone": "+393330001111",
         "source": "idealista"
     }
-    response = client.post("/webhooks/portal", json=payload)
+    response = client.post("/webhooks/portal", json=payload, headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "success"
     assert "idealista" in response.json()["source"]
+
+
+def test_portal_webhook_unauthorized():
+    """Test the universal /webhooks/portal endpoint with invalid key."""
+    payload = {"phone": "+393330001111"}
+    response = client.post("/webhooks/portal", json=payload, headers={"X-Webhook-Key": "wrong"})
+    assert response.status_code == 401
 
 
 @patch("api.handle_real_estate_lead")
@@ -124,7 +134,7 @@ def test_immobiliare_webhook_success(mock_handle_lead):
         "contact_phone": "3331234567",  # Testing auto-fix +39
         "listing_title": "Modern Loft"
     }
-    response = client.post("/webhooks/immobiliare", json=payload)
+    response = client.post("/webhooks/immobiliare", json=payload, headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "success"
     # Verify auto-fix worked
@@ -140,7 +150,7 @@ def test_email_parser_webhook_success(mock_handle_lead):
         "parsed_phone": "+393339998888",
         "property": "Villa"
     }
-    response = client.post("/webhooks/email-parser", json=payload)
+    response = client.post("/webhooks/email-parser", json=payload, headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "success"
 
