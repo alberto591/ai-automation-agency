@@ -26,7 +26,9 @@ export default function ChatWindow({ selectedLead }) {
         setSending(true);
 
         try {
-            const response = await fetch('http://localhost:8000/api/leads/message', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+            const response = await fetch(`${API_URL}/api/leads/message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -56,8 +58,10 @@ export default function ChatWindow({ selectedLead }) {
 
         const endpoint = isAiActive ? '/api/leads/takeover' : '/api/leads/resume';
 
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
         try {
-            const response = await fetch(`http://localhost:8000${endpoint}`, {
+            const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: selectedLead.phone })
