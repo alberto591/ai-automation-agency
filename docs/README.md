@@ -18,6 +18,11 @@ Welcome to the **Anzevino AI Real Estate Agent** documentation. This folder cont
 - [Database Upgrade (Pro Chat)](database-upgrade.md) - SQL commands for full dashboard history.
 
 ### 📈 Growth & Lead Generation
+- [Portal Integrations](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/portal-integration.md): How to connect Immobiliare.it and Idealista.
+- [Sales Journey Blueprint](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/sales-journey-blueprint.md): Detailed step-by-step from lead capture to sale.
+- [Database Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/database-upgrade.md): SQL scripts for Pro Dashboard.
+- [WhatsApp Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/whatsapp-migration-guide.md): **[STRATEGIC]** How to move from Twilio to Meta to save costs.
+- [Business ROI Report](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/business-roi-report.md): **[PARTNER FOCUS]** Data-driven pitch for the AI Agency value.
 - [Market Scraper](file:///Users/lycanbeats/Desktop/agenzia-ai/market_scraper.py) - Tool to gather competitive property data.
 - [Agency Outreach](file:///Users/lycanbeats/Desktop/agenzia-ai/agency_outreach.py) - Script to generate B2B lead lists of real estate agencies.
 - [Market Data SQL Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/market-data-migration.sql) - Schema for the competitive data table.
