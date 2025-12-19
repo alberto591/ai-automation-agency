@@ -7,25 +7,32 @@ BASE_URL = "http://localhost:8000"
 PHONE = "+39888999000"
 NAME = "Giulia (Cliente VIP)"
 
+
 def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
+
 
 def header(text):
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print(f"  ✨ {text}")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
+
 
 def pause_for_effect():
     input("\n👉 [Press Enter to Continue] ")
 
+
 def print_ai(text):
     print(f"\n🤖 \033[94mAI AGENT:\033[0m {text}")
+
 
 def print_user(text):
     print(f"\n👤 \033[92mCLIENTE:\033[0m {text}")
 
+
 def print_system(text):
     print(f"\n⚙️  \033[90mSYSTEM:\033[0m {text}")
+
 
 # ---------------------------------------------------------
 # THE SHOW
@@ -46,7 +53,7 @@ payload = {
     "name": NAME,
     "phone": PHONE,
     "agency": "Immobiliare.it",
-    "properties": "Richiesta per: Villa con Piscina in Toscana"
+    "properties": "Richiesta per: Villa con Piscina in Toscana",
 }
 
 try:
@@ -54,7 +61,7 @@ try:
     if resp.status_code == 200:
         data = resp.json()
         print_system("Lead Captured & Processed in 0.4s")
-        print_ai(data.get('ai_response', ''))
+        print_ai(data.get("ai_response", ""))
     else:
         print("❌ Error connecting to server. Is it running?")
         sys.exit(1)
@@ -73,12 +80,15 @@ pause_for_effect()
 print_system("Sending message to AI...")
 
 try:
-    resp = requests.post(f"{BASE_URL}/webhooks/twilio", data={
-        "Body": "Wow che bella! Ma il prezzo è trattabile? Offro 1.0M.",
-        "From": f"whatsapp:{PHONE}"
-    })
+    resp = requests.post(
+        f"{BASE_URL}/webhooks/twilio",
+        data={
+            "Body": "Wow che bella! Ma il prezzo è trattabile? Offro 1.0M.",
+            "From": f"whatsapp:{PHONE}",
+        },
+    )
     data = resp.json()
-    print_ai(data.get('message', ''))
+    print_ai(data.get("message", ""))
 except Exception as e:
     print(f"❌ Error: {e}")
 
@@ -106,19 +116,19 @@ print_user("Pronto? C'è nessuno?")
 
 pause_for_effect()
 try:
-    resp = requests.post(f"{BASE_URL}/webhooks/twilio", data={
-        "Body": "Pronto? C'è nessuno?",
-        "From": f"whatsapp:{PHONE}"
-    })
+    resp = requests.post(
+        f"{BASE_URL}/webhooks/twilio",
+        data={"Body": "Pronto? C'è nessuno?", "From": f"whatsapp:{PHONE}"},
+    )
     data = resp.json()
     if data.get("message") == "AI is muted. Human agent is in control.":
-         print_system("AI Status: MUTED 🔇")
-         print("\n🎉 DEMO SUCCESSFUL! The Client is yours to call.")
+        print_system("AI Status: MUTED 🔇")
+        print("\n🎉 DEMO SUCCESSFUL! The Client is yours to call.")
     else:
-         print_ai(data.get('message', ''))
+        print_ai(data.get("message", ""))
 except Exception as e:
     print(f"❌ Error: {e}")
 
-print("\n" + "="*30)
+print("\n" + "=" * 30)
 print("  END OF DEMO")
-print("="*30 + "\n")
+print("=" * 30 + "\n")
