@@ -234,13 +234,21 @@ def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes, le
             data["status"] = "Warm"
 
         # --- DATA 2.0: Lead Profiling ---
-        # 1. Budget Extraction (Find all k-values or large numbers and take the max)
-        budget_matches = re.findall(r'(\d+)[\s]?k|(\d{5,})', last_msg.lower())
+        # 1. Budget Extraction (Matches k, mln, M, and large numbers)
+        # Regex explanation: 
+        # Group 1 & 2: Decimals + M/mln (e.g., 2.5mln)
+        # Group 3: Thousands + k (e.g., 500k)
+        # Group 4: Large raw numbers (e.g., 500000)
+        budget_matches = re.findall(r'(\d+(?:\.\d+)?)[\s]?(m(?:ln|ilioni)?)|(\d+)[\s]?k|(\d{5,})', last_msg.lower())
         if budget_matches:
             found_budgets = []
-            for m1, m2 in budget_matches:
-                b_str = m1 or m2
-                val = int(b_str) * (1000 if m1 else 1)
+            for m_val, m_unit, k_val, raw_val in budget_matches:
+                if m_val:
+                    val = int(float(m_val) * 1000000)
+                elif k_val:
+                    val = int(k_val) * 1000
+                else:
+                    val = int(raw_val)
                 found_budgets.append(val)
             data["budget_max"] = max(found_budgets)
         
