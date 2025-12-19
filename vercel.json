@@ -11,6 +11,10 @@
     ],
     "routes": [
         {
+            "src": "/health",
+            "dest": "api.py"
+        },
+        {
             "src": "/api/(.*)",
             "dest": "api.py"
         },
