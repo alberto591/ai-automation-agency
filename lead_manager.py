@@ -52,7 +52,57 @@ def send_ai_whatsapp(customer_phone, customer_name, interest):
     return message.sid
 
 
-def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes):
+# ---------------------------------------------------------
+# LEAD SCORING SYSTEM
+# ---------------------------------------------------------
+
+SCORING_SIGNALS = {
+    # High Intent Signals (+20-30 points)
+    "visita": 30,
+    "visitare": 30,
+    "vedere": 25,
+    "appuntamento": 30,
+    "urgente": 25,
+    "subito": 20,
+    "oggi": 20,
+    "domani": 15,
+    
+    # Budget Signals (+15-20 points)
+    "budget": 20,
+    "contanti": 20,
+    "mutuo": 15,
+    "finanziamento": 15,
+    
+    # Specific Interest (+10-15 points)
+    "camera": 10,
+    "bagno": 10,
+    "terrazza": 15,
+    "giardino": 15,
+    "garage": 10,
+    "piscina": 15,
+    
+    # Negotiation (neutral - AI handles but owner notified)
+    "trattabile": 5,
+    "sconto": 5,
+}
+
+def calculate_lead_score(message_text: str) -> int:
+    """
+    Calculates a lead score (0-100) based on intent signals in the message.
+    Higher score = more likely to convert.
+    """
+    score = 0
+    message_lower = message_text.lower()
+    
+    for signal, points in SCORING_SIGNALS.items():
+        if signal in message_lower:
+            score += points
+    
+    # Cap at 100
+    return min(score, 100)
+
+
+def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes, lead_score=0):
     # This sends the data directly to your Supabase table
     data = {
         "customer_name": customer_name,
@@ -60,12 +110,20 @@ def save_lead_to_dashboard(customer_name, customer_phone, last_msg, ai_notes):
         "last_message": last_msg,
         "ai_summary": ai_notes,
         "status": "New",
+        # Note: lead_score column needs to be added to Supabase table
+        # For now, we include it in ai_summary if > 50
     }
+    
+    # Add score indicator to summary if hot lead
+    if lead_score >= 50:
+        data["ai_summary"] = f"🔥 HOT LEAD (Score: {lead_score}) - {ai_notes}"
+    elif lead_score >= 30:
+        data["ai_summary"] = f"⭐ Warm Lead (Score: {lead_score}) - {ai_notes}"
 
     # Execute the insert
     try:
         supabase.table("lead_conversations").insert(data).execute()
-        logger.info(f"Lead {customer_name} saved to Dashboard")
+        logger.info(f"Lead {customer_name} saved to Dashboard (Score: {lead_score})")
     except Exception as e:
         logger.error(f"Error saving lead: {e}")
 
@@ -268,11 +326,49 @@ def check_if_human_mode(customer_phone):
 # STRATEGY: INVISIBLE LOGIC & ALERTS (Tiered Keywords)
 # ---------------------------------------------------------
 
+from thefuzz import fuzz
+
 # Tier 1: IMMEDIATE TAKEOVER - Client explicitly wants human
 TIER1_TAKEOVER_KEYWORDS = ["umano", "staff", "human", "agent", "manager", "parlare con", "persona reale"]
 
 # Tier 2: ALERT ONLY - Sensitive topic, but AI can still respond
 TIER2_ALERT_KEYWORDS = ["trattabile", "negoziare", "sconto", "ribasso", "offerta"]
+
+# Synonyms map (common alternative phrasings)
+KEYWORD_SYNONYMS = {
+    "umano": ["umani", "persona", "persone", "qualcuno"],
+    "trattabile": ["trattabili", "negoziabile"],
+    "sconto": ["sconti", "riduzione", "ribassare"],
+    "visita": ["visite", "vedere", "guardare"],
+    "appuntamento": ["appuntamenti", "incontro", "meeting"],
+}
+
+def fuzzy_keyword_match(text: str, keywords: list, threshold: int = 80) -> bool:
+    """
+    Checks if any keyword matches the text using fuzzy matching.
+    Handles typos like "umnao" -> "umano", "tratabile" -> "trattabile"
+    """
+    text_lower = text.lower()
+    
+    # Expand keywords with synonyms
+    expanded_keywords = set(keywords)
+    for kw in keywords:
+        if kw in KEYWORD_SYNONYMS:
+            expanded_keywords.update(KEYWORD_SYNONYMS[kw])
+    
+    # Check each word in the text
+    words = text_lower.split()
+    for word in words:
+        for keyword in expanded_keywords:
+            # Exact match first (fast path)
+            if keyword in text_lower:
+                return True
+            # Fuzzy match for typos
+            if len(word) >= 4 and fuzz.ratio(word, keyword) >= threshold:
+                logger.debug(f"Fuzzy match: '{word}' ~ '{keyword}' (score: {fuzz.ratio(word, keyword)})")
+                return True
+    
+    return False
 
 # Tier 3: INFORMATIONAL - AI handles these normally (no special action)
 # Examples: "prezzo", "costo", "quanto" - These are normal questions
@@ -345,31 +441,41 @@ def handle_incoming_message(customer_phone, message_text):
 
     message_lower = message_text.lower()
     
-    # 2. TIER 1: IMMEDIATE TAKEOVER - Client explicitly wants human
-    if any(keyword in message_lower for keyword in TIER1_TAKEOVER_KEYWORDS):
+    # 2. TIER 1: IMMEDIATE TAKEOVER - Client explicitly wants human (with fuzzy matching)
+    if fuzzy_keyword_match(message_text, TIER1_TAKEOVER_KEYWORDS):
         logger.warning(f"TIER1 Keyword (takeover): {customer_phone} said '{message_text}'")
         toggle_human_mode(customer_phone)
         notify_owner_urgent(customer_phone, message_text)
         return "Ho avvisato il mio responsabile. Le risponderà personalmente a breve. 👨‍💼"
 
-    # 3. TIER 2: ALERT ONLY - Sensitive topic, notify owner but AI continues
-    tier2_triggered = any(keyword in message_lower for keyword in TIER2_ALERT_KEYWORDS)
+    # 3. TIER 2: ALERT ONLY - Sensitive topic, notify owner but AI continues (with fuzzy matching)
+    tier2_triggered = fuzzy_keyword_match(message_text, TIER2_ALERT_KEYWORDS)
     if tier2_triggered:
         logger.info(f"TIER2 Keyword (alert): {customer_phone} discussing sensitive topic")
         # Alert owner (non-blocking, AI still responds)
         notify_owner_urgent(customer_phone, f"[ATTENZIONE] Cliente sta negoziando: {message_text}")
 
-    # 3. Retrieve Context
+    # 4. Retrieve Context
     history = get_chat_history(customer_phone)
+
+    # 5. Check if appointment-related keywords
+    APPOINTMENT_KEYWORDS = ["visita", "visitare", "appuntamento", "vedere", "incontrare", "passare"]
+    wants_appointment = any(kw in message_lower for kw in APPOINTMENT_KEYWORDS)
     
-    # 4. Generate Reply
+    # Get Calendly link from env (set by agency owner)
+    calendly_link = os.getenv("CALENDLY_LINK", "")
+    booking_instruction = ""
+    if wants_appointment and calendly_link:
+        booking_instruction = f"\n\nIMPORTANTE: Il cliente vuole prenotare. Includi questo link: {calendly_link}"
+    
+    # 5. Generate Reply
     prompt = f"""
     Sei un assistente immobiliare esperto.
     Storico chat: {history}
     Ultimo messaggio utente: "{message_text}"
     
     Obiettivo: Rispondi in modo professionale e breve (max 50 parole).
-    Se chiedono appuntamenti, proponi date.
+    Se chiedono appuntamenti, proponi il link di prenotazione.{booking_instruction}
     """
     
     ai_response = mistral.chat.complete(
@@ -389,8 +495,14 @@ def handle_incoming_message(customer_phone, message_text):
         print(f"⚠️ Twilio Send Error: {e}")
         # Continue processing even if send fails (message still logged)
 
-    # 6. Save & Report
-    save_lead_to_dashboard("Cliente WhatsApp", customer_phone, message_text, reply_text)
-    notify_agent_via_email("Cliente WhatsApp", message_text, reply_text)
+    # 6. Calculate Lead Score
+    lead_score = calculate_lead_score(message_text)
+    
+    # 7. Alert owner if HOT LEAD (score >= 50)
+    if lead_score >= 50:
+        notify_owner_urgent(customer_phone, f"🔥 HOT LEAD (Score: {lead_score}): {message_text}")
+
+    # 8. Save & Report
+    save_lead_to_dashboard("Cliente WhatsApp", customer_phone, message_text, reply_text, lead_score)
     
     return reply_text
