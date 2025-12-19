@@ -39,3 +39,4 @@ yarn-error.log
 *.swp
 *.swo
 .vercel
+.env*.local
