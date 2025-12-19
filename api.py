@@ -294,6 +294,61 @@ async def twilio_webhook(request: Request, background_tasks: BackgroundTasks, x_
         return {"status": "error", "detail": str(e)}
 
 
+class MessageRequest(BaseModel):
+    phone: str
+    message: str
+
+@app.post("/api/leads/message")
+async def send_outbound_message(req: MessageRequest):
+    """
+    Agency Dashboard sends a manual message to the client.
+    """
+    from lead_manager import send_whatsapp_safe, supabase
+    
+    # 1. Send via Twilio (or Mock)
+    sid = send_whatsapp_safe(req.phone, req.message)
+    
+    if sidebar_error := (sid == None): # Check for failure mechanism in send_whatsapp_safe if implemented
+         # For now send_whatsapp_safe returns SID or "queued-mock" or None on error
+         pass
+
+    if not sid:
+        raise HTTPException(status_code=500, detail="Failed to send message via Twilio")
+
+    # 2. Log to Database (User role)
+    # We fetch the current history first to append, or we can use a specific 'append' function if we had one.
+    # For simplicity, we'll do a quick fetch-and-update or RPC if available. 
+    # Actually, let's just grab, append, and update.
+    
+    try:
+        # Fetch current
+        row = supabase.table("lead_conversations").select("messages").eq("customer_phone", req.phone).single().execute()
+        current_msgs = row.data.get("messages", []) if row.data else []
+        
+        # Append User message (Role: assistant? No, if the HUMAN sends it, it's strictly 'assistant' from the client's perspective, 
+        # but for the internal logs, we might want to distinguish 'ai' vs 'human'. 
+        # Standard schema usually uses 'assistant' for anything sent TO the user.
+        # Let's verify schema. Usually: user=lead, assistant=agency(ai/human).
+        
+        new_msg = {
+            "role": "assistant", 
+            "content": req.message, 
+            "metadata": {"by": "human_agent"} # Mark as human
+        }
+        current_msgs.append(new_msg)
+        
+        # Update
+        supabase.table("lead_conversations").update({
+            "messages": current_msgs,
+            "updated_at": datetime.now().isoformat()
+        }).eq("customer_phone", req.phone).execute()
+
+        return {"status": "sent", "sid": sid}
+        
+    except Exception as e:
+        print(f"❌ Database Log Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Message sent but failed to log: {e}")
+
 class TakeoverRequest(BaseModel):
     phone: str
 

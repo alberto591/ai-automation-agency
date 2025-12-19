@@ -378,22 +378,21 @@ def get_chat_history(customer_phone):
 
 def toggle_human_mode(customer_phone):
     """
-    Activates Human Takeover by logging a special status event.
+    Activates Human Takeover by updating the status.
     """
     try:
         data = {
-            "customer_name": "System",
-            "customer_phone": customer_phone,
             "last_message": "[SYSTEM] Human Takeover Activated",
             "ai_summary": "AI Stopped by Agent",
-            "status": "TAKEOVER",
+            "status": "human_mode",
+            "updated_at": datetime.now().isoformat()
         }
-        supabase.table("lead_conversations").insert(data).execute()
+        supabase.table("lead_conversations").update(data).eq("customer_phone", customer_phone).execute()
         logger.info(f"Human takeover activated for {customer_phone}")
         return True
     except Exception as e:
-        logger.error(f"Error fetching properties: {e}")
-        return []
+        logger.error(f"Error toggling human mode: {e}")
+        return False
 
 def get_market_context(zone: str):
     """
@@ -415,17 +414,16 @@ def get_market_context(zone: str):
 
 def resume_ai_mode(customer_phone):
     """
-    Resumes AI control by logging a RESUMED status event.
+    Resumes AI control by resetting the status.
     """
     try:
         data = {
-            "customer_name": "System",
-            "customer_phone": customer_phone,
             "last_message": "[SYSTEM] AI Control Resumed",
             "ai_summary": "Human released control back to AI",
-            "status": "RESUMED",
+            "status": "active",
+            "updated_at": datetime.now().isoformat()
         }
-        supabase.table("lead_conversations").insert(data).execute()
+        supabase.table("lead_conversations").update(data).eq("customer_phone", customer_phone).execute()
         logger.info(f"AI control resumed for {customer_phone}")
         return True
     except Exception as e:
