@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 import os
 import logging
 from thefuzz import fuzz
-from dotenv import load_dotenv
+from config import config
 from supabase import create_client
 from mistralai import Mistral
 from twilio.rest import Client
@@ -15,13 +15,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-# Initialize everything
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
-mistral = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+# Initialize everything via config
+supabase = create_client(config.SUPABASE_URL, config.SUPABASE_KEY)
+mistral = Mistral(api_key=config.MISTRAL_API_KEY)
 
-# Initialize Twilio client (credentials loaded from env)
-twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+# Initialize Twilio client
+twilio_client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
 
 def send_whatsapp_safe(to_number, body_text):
     """
@@ -31,7 +30,7 @@ def send_whatsapp_safe(to_number, body_text):
     
     if mock_mode:
         log_entry = f"\n[MOCK WHATSAPP] To: {to_number} | Body: {body_text}\n"
-        print(f"\033[93m{log_entry}\033[0m")
+        logger.info(f"\033[93m{log_entry}\033[0m")
         with open("mock_messages.log", "a") as f:
             f.write(f"{datetime.now().isoformat()} - {log_entry}")
         return "queued-mock"
@@ -39,12 +38,12 @@ def send_whatsapp_safe(to_number, body_text):
     try:
         msg = twilio_client.messages.create(
             body=body_text,
-            from_=os.getenv("TWILIO_PHONE_NUMBER"),
+            from_=config.TWILIO_PHONE_NUMBER,
             to=f"whatsapp:{to_number}"
         )
         return msg.sid
     except Exception as e:
-        logger.error(f"Failed to send WhatsApp to {to_number}: {e}")
+        logger.error(f"Failed to send WhatsApp to {to_number}: {e}", exc_info=True)
         return None
 
 

@@ -3,9 +3,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import sys
+import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 import time
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Centralized Configuration
+from config import config
+try:
+    config.validate()
+except EnvironmentError as e:
+    logger.error(str(e))
+    # In production, we might want to exit or continue with reduced functionality
+    # sys.exit(1)
 
 # Ensure lead_manager can be imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -13,7 +30,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 try:
     from lead_manager import handle_real_estate_lead
 except ImportError:
-    # Mocking for when lead_manager is not yet ready or missing dependencies
+    logger.warning("lead_manager not found. Using mock handler for handle_real_estate_lead.")
     def handle_real_estate_lead(phone, name, details):
         return f"Mock Success: Lead {name} processed."
 
@@ -39,6 +56,7 @@ def check_phone_rate_limit(phone: str):
     phone_limit_store[phone] = [t for t in phone_limit_store[phone] if now - t < 3600]
     
     if len(phone_limit_store[phone]) >= MAX_MSG_PER_HOUR:
+        logger.warning(f"Rate limit exceeded for {phone}")
         raise HTTPException(
             status_code=429, 
             detail=f"Rate limit exceeded for {phone}. Please wait before sending more messages."
@@ -64,6 +82,7 @@ async def rate_limit_middleware(request: Request, call_next):
     
     # Check limit
     if len(rate_limit_store[client_ip]) >= RATE_LIMIT_REQUESTS:
+        logger.warning(f"IP Rate limit hit: {client_ip}")
         return JSONResponse(
             status_code=429,
             content={"detail": "Too many requests. Try again later."}
@@ -76,7 +95,7 @@ async def rate_limit_middleware(request: Request, call_next):
         response = await call_next(request)
         return response
     except Exception as e:
-        print(f"🚨 Middleware caught unhandled error: {e}")
+        logger.error(f"🚨 Middleware caught unhandled error: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error"}
@@ -94,15 +113,12 @@ app.add_middleware(
 
 async def verify_webhook_key(x_webhook_key: str = Header(None)):
     """Security Layer: Verifies the X-Webhook-Key header."""
-    # Special case: Twilio might not send headers easily in some configurations, 
-    # but for portals it's mandatory.
-    EXPECTED_KEY = os.getenv("WEBHOOK_API_KEY")
+    EXPECTED_KEY = config.WEBHOOK_API_KEY
     if not EXPECTED_KEY:
-        # If no key is set, we are in open-dev mode (not recommended for prod)
         return
         
     if x_webhook_key != EXPECTED_KEY:
-        print(f"⚠️ Unauthorized Webhook Attempt: {x_webhook_key}")
+        logger.warning(f"⚠️ Unauthorized Webhook Attempt: {x_webhook_key}")
         raise HTTPException(status_code=401, detail="Unauthorized: Invalid Webhook API Key")
 
 
@@ -127,7 +143,7 @@ class LeadRequest(BaseModel):
 
 @app.post("/api/leads")
 async def create_lead(lead: LeadRequest):
-    print(f"🔔 New Lead Received: {lead.name} from {lead.agency}")
+    logger.info(f"🔔 New Lead Received: {lead.name} from {lead.agency}")
     
     # Validate phone number
     if not validate_phone(lead.phone):
@@ -151,7 +167,7 @@ async def create_lead(lead: LeadRequest):
             "ai_response": result,
         }
     except Exception as e:
-        print(f"❌ Error processing lead: {e}")
+        logger.error(f"❌ Error processing lead: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -178,7 +194,7 @@ async def portal_webhook(lead: PortalLead, _=Depends(verify_webhook_key)):
     Universal webhook for real estate portals.
     Accepts leads from Immobiliare.it, Casa.it, Idealista, etc.
     """
-    print(f"📡 Portal Lead from {lead.source}: {lead.name} - {lead.phone}")
+    logger.info(f"📡 Portal Lead from {lead.source}: {lead.name} - {lead.phone}")
     
     # Validate phone
     if lead.phone and not validate_phone(lead.phone):
@@ -200,7 +216,7 @@ async def portal_webhook(lead: PortalLead, _=Depends(verify_webhook_key)):
             "message": f"Lead {customer_name} processed via AI",
         }
     except Exception as e:
-        print(f"❌ Portal webhook error: {e}")
+        logger.error(f"❌ Portal webhook error: {e}", exc_info=True)
         return {"status": "error", "detail": str(e)}
 
 
@@ -226,7 +242,7 @@ async def immobiliare_webhook(request: Request, _=Depends(verify_webhook_key)):
         return await portal_webhook(lead)
         
     except Exception as e:
-        print(f"❌ Immobiliare webhook error: {e}")
+        logger.error(f"❌ Immobiliare webhook error: {e}", exc_info=True)
         return {"status": "error", "detail": str(e)}
 
 
@@ -252,7 +268,7 @@ async def email_parser_webhook(request: Request, _=Depends(verify_webhook_key)):
         return await portal_webhook(lead)
         
     except Exception as e:
-        print(f"❌ Email parser webhook error: {e}")
+        logger.error(f"❌ Email parser webhook error: {e}", exc_info=True)
         return {"status": "error", "detail": str(e)}
 
 
@@ -274,7 +290,7 @@ async def twilio_webhook(request: Request, background_tasks: BackgroundTasks, x_
         incoming_msg = form_data.get("Body", "")
         from_number = form_data.get("From", "").replace("whatsapp:", "")
 
-        print(f"📩 New Message from {from_number}: {incoming_msg}")
+        logger.info(f"📩 New Message from {from_number}: {incoming_msg}")
 
         # SECRECY: Phone-based rate limiting
         check_phone_rate_limit(from_number)
@@ -290,7 +306,7 @@ async def twilio_webhook(request: Request, background_tasks: BackgroundTasks, x_
         return {"status": "replied", "message": response_text}
 
     except Exception as e:
-        print(f"❌ Error webhook: {e}")
+        logger.error(f"❌ Error webhook: {e}", exc_info=True)
         return {"status": "error", "detail": str(e)}
 
 
@@ -347,7 +363,7 @@ async def send_outbound_message(req: MessageRequest):
         return {"status": "sent", "sid": sid}
         
     except Exception as e:
-        print(f"❌ Database Log Error: {e}")
+        logger.error(f"❌ Database Log Error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Message sent but failed to log: {e}")
 
 class TakeoverRequest(BaseModel):
