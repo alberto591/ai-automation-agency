@@ -1,0 +1,40 @@
+INFO:     Started server process [70261]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53124 - "OPTIONS /api/leads HTTP/1.1" 200 OK
+2025-12-20 12:59:14,444 - __main__ - INFO - 🔔 New Lead Received: AI Appraisal Lead from Appraisal Tool
+2025-12-20 12:59:14,845 - httpx - INFO - HTTP Request: GET https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/market_data?select=price_per_mq&zone=ilike.%25Milano%25 "HTTP/2 200 OK"
+2025-12-20 12:59:15,014 - httpx - INFO - HTTP Request: GET https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/lead_conversations?select=messages&customer_phone=eq.%2B34625852546 "HTTP/2 200 OK"
+2025-12-20 12:59:15,201 - httpx - INFO - HTTP Request: POST https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/lead_conversations?on_conflict=customer_phone "HTTP/2 200 OK"
+2025-12-20 12:59:15,203 - lead_manager - INFO - Lead AI Appraisal Lead consolidated in Dashboard (History: 12 msgs)
+2025-12-20 12:59:15,256 - twilio.http_client - INFO - -- BEGIN Twilio API Request --
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - POST Request: https://api.twilio.com/2010-04-01/Accounts/AC09c132dca2223eb439efd2ecfa330cb7/Messages.json
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - Headers:
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - Content-Type : application/x-www-form-urlencoded
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - Accept : application/json
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - User-Agent : twilio-python/9.9.0 (Darwin arm64) Python/3.14.2
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - X-Twilio-Client : python-9.9.0
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - Accept-Charset : utf-8
+2025-12-20 12:59:15,257 - twilio.http_client - INFO - -- END Twilio API Request --
+2025-12-20 12:59:15,717 - twilio.http_client - INFO - Response Status Code: 201
+2025-12-20 12:59:15,717 - twilio.http_client - INFO - Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1387', 'Connection': 'keep-alive', 'Date': 'Sat, 20 Dec 2025 11:59:15 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQ64d6035fac14860d96119fdd3eb08a9d', 'Twilio-Request-Duration': '0.100', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 9554141dd7ec5f93f528630173a9e6a8.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'MXP53-P8', 'X-Amz-Cf-Id': 'diD__UUqYgJJR3TWIMaayh0uIMmDslLMhKpOuMF88NP4H9uo5tAZtg==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+INFO:     127.0.0.1:53124 - "POST /api/leads HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53323 - "OPTIONS /api/leads HTTP/1.1" 200 OK
+2025-12-20 13:08:08,398 - __main__ - INFO - 🔔 New Lead Received: AI Appraisal Lead from Appraisal Tool
+2025-12-20 13:08:08,736 - httpx - INFO - HTTP Request: GET https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/market_data?select=price_per_mq&zone=ilike.%25Milano%25 "HTTP/2 200 OK"
+2025-12-20 13:08:08,898 - httpx - INFO - HTTP Request: GET https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/lead_conversations?select=messages&customer_phone=eq.%2B34625852546 "HTTP/2 200 OK"
+2025-12-20 13:08:09,046 - httpx - INFO - HTTP Request: POST https://zozgvcdnkwtyioyazgmx.supabase.co/rest/v1/lead_conversations?on_conflict=customer_phone "HTTP/2 200 OK"
+2025-12-20 13:08:09,048 - lead_manager - INFO - Lead AI Appraisal Lead consolidated in Dashboard (History: 13 msgs)
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - -- BEGIN Twilio API Request --
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - POST Request: https://api.twilio.com/2010-04-01/Accounts/AC09c132dca2223eb439efd2ecfa330cb7/Messages.json
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - Headers:
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - Content-Type : application/x-www-form-urlencoded
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - Accept : application/json
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - User-Agent : twilio-python/9.9.0 (Darwin arm64) Python/3.14.2
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - X-Twilio-Client : python-9.9.0
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - Accept-Charset : utf-8
+2025-12-20 13:08:09,049 - twilio.http_client - INFO - -- END Twilio API Request --
+2025-12-20 13:08:09,543 - twilio.http_client - INFO - Response Status Code: 201
+2025-12-20 13:08:09,543 - twilio.http_client - INFO - Response Headers: {'Content-Type': 'application/json;charset=utf-8', 'Content-Length': '1387', 'Connection': 'keep-alive', 'Date': 'Sat, 20 Dec 2025 12:08:09 GMT', 'Twilio-Concurrent-Requests': '1', 'Twilio-Request-Id': 'RQd31cfb1d70c7e7152247776db4e8116c', 'Twilio-Request-Duration': '0.092', 'X-Home-Region': 'us1', 'X-API-Domain': 'api.twilio.com', 'Strict-Transport-Security': 'max-age=31536000', 'X-Cache': 'Miss from cloudfront', 'Via': '1.1 2478ce31ef26e7b89dad036bcc8aea12.cloudfront.net (CloudFront)', 'X-Amz-Cf-Pop': 'MXP53-P8', 'X-Amz-Cf-Id': 'h7FMBIG8PGa31gLnBssQx2KKJmfAiB9dMU9pgw18x1KjXkc-gxrUEA==', 'X-Powered-By': 'AT-5000', 'X-Shenanigans': 'none', 'Vary': 'Origin'}
+INFO:     127.0.0.1:53323 - "POST /api/leads HTTP/1.1" 200 OK

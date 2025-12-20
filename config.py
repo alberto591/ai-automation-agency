@@ -19,6 +19,7 @@ class Config:
     
     # --- Security ---
     WEBHOOK_API_KEY = os.getenv("WEBHOOK_API_KEY", "prod_dev_secret_key_2025")
+    RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
     
     # --- Agency Settings ---
     AGENCY_OWNER_PHONE = os.getenv("AGENCY_OWNER_PHONE", "+39000000000")

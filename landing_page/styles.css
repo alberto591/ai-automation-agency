@@ -204,6 +204,10 @@ p {
     width: 100%;
 }
 
+.nav-links .btn-primary {
+    color: var(--crisp-white) !important;
+}
+
 .nav-toggle {
     display: none;
     cursor: pointer;
@@ -1242,7 +1246,8 @@ p {
     padding: 2rem;
 }
 
-.dashboard-stats {
+.dashboard-stats,
+.stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;

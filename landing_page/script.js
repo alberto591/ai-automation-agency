@@ -1,5 +1,14 @@
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function () {
+    // Dynamic API URL: Use localhost for dev, relative path for prod
+    const API_BASE = (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.protocol === 'file:' ||
+        !window.location.hostname)
+        ? 'http://localhost:8000'
+        : '';
+    console.log('🚀 AI Backend targeting:', API_BASE || 'Production (Relative)');
+
 
     // Mobile Navigation Toggle
     const navToggle = document.querySelector('.nav-toggle');
@@ -105,8 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Phone validation (Italian format)
-            const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+            // Phone validation (Italy +39 and Spain +34)
+            const phoneRegex = /^(\+39|0039|\+34|0034|0)?[0-9]{9,10}$/;
             if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
                 showNotification('Per favore inserisci un numero di telefono valido', 'error');
                 return;
@@ -123,11 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 properties: formData.get('properties')
             };
 
-            // Dynamic API URL: Use localhost for dev, relative path for prod
-            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:8000'
-                : '';
-
             fetch(`${API_BASE}/api/leads`, {
                 method: 'POST',
                 headers: {
@@ -135,7 +139,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: JSON.stringify(payload)
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(data => {
                     // Success
                     const currentLang = document.documentElement.lang;
@@ -153,8 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     contactForm.reset();
                     this.innerHTML = '<i class="ph ph-check-circle"></i> Inviato!';
 
-                    // Open Calendly as secondary step
-                    setTimeout(() => openCalendly(), 2000);
+                    // Open Setmore as secondary step
+                    setTimeout(() => openBooking(), 2000);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -174,13 +181,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Calendly Integration
-    function openCalendly() {
-        // Your specific Calendly scheduling URL
-        const calendlyUrl = 'https://calendly.com/albertocalvorivas';
+    // Setmore Integration
+    function openBooking() {
+        // Your specific Setmore scheduling URL
+        const setmoreUrl = 'https://vino5493.setmore.com';
 
-        // Open Calendly in a new tab to avoid frame options issues
-        window.open(calendlyUrl, '_blank');
+        // Open Setmore in a new tab
+        window.open(setmoreUrl, '_blank');
 
         // Return false to prevent default behavior
         return false;
@@ -192,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (button.textContent.includes('Demo') || button.textContent.includes('Prenota') || button.textContent.includes('Book')) {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                openCalendly();
+                openBooking();
             });
         }
     });
@@ -253,15 +260,16 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
             const address = document.getElementById('appraisal-address').value;
+            const postcode = document.getElementById('appraisal-postcode').value;
             const phone = document.getElementById('appraisal-phone').value;
 
-            if (!address || !phone) {
-                showNotification('Inserisci indirizzo e numero WhatsApp', 'error');
+            if (!address || !postcode || !phone) {
+                showNotification('Inserisci indirizzo, CAP e numero WhatsApp', 'error');
                 return;
             }
 
-            // Simple phone validation
-            const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+            // Validazione telefono (Italia +39, Spagna +34)
+            const phoneRegex = /^(\+39|0039|\+34|0034|0)?[0-9]{9,10}$/;
             if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
                 showNotification('Numero di telefono non valido', 'error');
                 return;
@@ -270,14 +278,11 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.innerHTML = '<i class="ph ph-spinner"></i> Analisi...';
             submitBtn.disabled = true;
 
-            const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                ? 'http://localhost:8000'
-                : '';
-
             const payload = {
                 name: "AI Appraisal Lead",
                 agency: "Appraisal Tool",
                 phone: phone,
+                postcode: postcode,
                 properties: "RICHIESTA VALUTAZIONE: " + address
             };
 
@@ -689,7 +694,7 @@ function isValidEmail(email) {
 }
 
 function isValidPhone(phone) {
-    const phoneRegex = /^(\+39|0039|0)?[0-9]{9,10}$/;
+    const phoneRegex = /^(\+39|0039|\+34|0034|0)?[0-9]{9,10}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
 }
 
@@ -733,19 +738,7 @@ const translations = {
         'problem-scenario-2-desc': 'Coppia vuole vedere 3 appartamenti. Chiami lunedì: "Abbiamo già comprato".',
         'chart-title': 'Lead Persi nel Tempo',
 
-        // Solution Section
-        'solution-tag': 'La Soluzione',
-        'solution-title': 'Il tuo primo Dipendente AI',
-        'solution-subtitle': 'Un assistente virtuale che lavora 24/7, parla con i clienti come un agente umano e trasforma ogni contatto in un\'opportunità.',
-        'benefit-conversation-1': 'Dialetto locale e espressioni italiane',
-        'benefit-conversation-2': 'Domande intelligenti per qualificare il budget',
-        'benefit-conversation-3': 'Gestione obiezioni e resistenze',
-        'benefit-rag-1': 'Matches precisi in 15 secondi',
-        'benefit-rag-2': 'Risposte basate solo sui tuoi dati',
-        'benefit-rag-3': 'Aggiornamento automatico inventario',
-        'benefit-calendar-1': 'Sincronizzazione con Google Calendar',
-        'benefit-calendar-2': 'Promemoria automatici SMS/Email',
-        'benefit-calendar-3': 'Gestione conflitti e rinvii',
+
 
         // Demo Live Section
         'demo-live-tag': 'Demo Live',
@@ -782,12 +775,6 @@ const translations = {
         'features-tag': 'Caratteristiche',
         'features-title': 'Tutto quello che ti serve per vendere di più',
         'features-subtitle': 'Una suite completa di strumenti AI progettata specificamente per le agenzie immobiliari italiane.',
-        'feature-conversazione': 'Conversa in Linguaggio Naturale',
-        'feature-conversazione-desc': 'L\'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande specifiche sul mercato immobiliare.',
-        'feature-rag': 'Ricerca nel Tuo Database (RAG)',
-        'feature-rag-desc': 'Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su preferenze, budget e zona geografica.',
-        'feature-prenotazioni': 'Prenota Appuntamenti Automaticamente',
-        'feature-prenotazioni-desc': 'Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e confermando l\'appuntamento.',
         'feature-item-language': 'Supporto multilingue (IT/EN)',
         'feature-item-tone': 'Tone of voice personalizzabile',
         'feature-item-takeover': 'Takeover umano immediato',
@@ -864,10 +851,7 @@ const translations = {
         'stat-disponibilita': 'Disponibilità',
         'stat-lead-qualificati': 'Lead qualificati',
 
-        // Testimonial
-        'testimonial-quote': '"In 3 mesi abbiamo aumentato le vendite del 340%. L\'AI risponde meglio di molti agenti umani."',
-        'testimonial-author': 'Roberto Anzevino',
-        'testimonial-title': 'Direttore, Milano Premium Real Estate',
+
 
         // Benefits
         'benefit-demo': 'Demo personalizzata in 30 minuti',
@@ -883,6 +867,7 @@ const translations = {
         'appraisal-f2': 'Risultato diretto su WhatsApp',
         'appraisal-f3': 'Precisione per quartiere',
         'appraisal-address-placeholder': 'Indirizzo dell\'immobile',
+        'appraisal-postcode-placeholder': 'CAP / Codice Postale',
         'appraisal-phone-placeholder': 'Tuo WhatsApp (+39 ...)',
         'appraisal-cta': 'Ottieni Valutazione AI',
         'appraisal-disclaimer': 'Zero spam. Solo i dati che ti servono.'
@@ -916,19 +901,7 @@ const translations = {
         'problem-scenario-2-desc': 'Couple wants to see 3 apartments. You call on Monday: "We already bought one".',
         'chart-title': 'Leads Lost Over Time',
 
-        // Solution Section
-        'solution-tag': 'The Solution',
-        'solution-title': 'Your First AI Employee',
-        'solution-subtitle': 'A virtual assistant that works 24/7, talks to customers like a human agent and turns every contact into an opportunity.',
-        'benefit-conversation-1': 'Local dialect and natural expressions',
-        'benefit-conversation-2': 'Smart questions to qualify budget',
-        'benefit-conversation-3': 'Objection and resistance handling',
-        'benefit-rag-1': 'Precise matches in 15 seconds',
-        'benefit-rag-2': 'Answers based strictly on your data',
-        'benefit-rag-3': 'Automatic inventory update',
-        'benefit-calendar-1': 'Google Calendar synchronization',
-        'benefit-calendar-2': 'Automatic SMS/Email reminders',
-        'benefit-calendar-3': 'Conflict and rescheduling management',
+
 
         // Demo Live Section
         'demo-live-tag': 'Live Demo',
@@ -965,12 +938,6 @@ const translations = {
         'features-tag': 'Features',
         'features-title': 'Everything you need to sell more',
         'features-subtitle': 'A complete suite of AI tools designed specifically for real estate agencies.',
-        'feature-conversazione': 'Natural Language Conversation',
-        'feature-conversazione-desc': 'The AI speaks like an expert agent, understands customer needs and answers specific questions about the real estate market.',
-        'feature-rag': 'Search Your Database (RAG)',
-        'feature-rag-desc': 'Instantly access your property archive and find precise matches based on preferences, budget and geographic area.',
-        'feature-prenotazioni': 'Book Appointments Automatically',
-        'feature-prenotazioni-desc': 'Integrate the company calendar and book visits directly, proposing available times and confirming the appointment.',
         'feature-item-language': 'Multilingual Support (IT/EN)',
         'feature-item-tone': 'Customizable Tone of Voice',
         'feature-item-takeover': 'Immediate Human Takeover',
@@ -1047,10 +1014,7 @@ const translations = {
         'stat-disponibilita': 'Availability',
         'stat-lead-qualificati': 'Qualified leads',
 
-        // Testimonial
-        'testimonial-quote': '"In 3 months we increased sales by 340%. AI responds better than many human agents."',
-        'testimonial-author': 'Roberto Anzevino',
-        'testimonial-title': 'Director, Milano Premium Real Estate',
+
 
         // Benefits
         'benefit-demo': 'Personalized demo in 30 minutes',
@@ -1066,6 +1030,7 @@ const translations = {
         'appraisal-f2': 'Direct results on WhatsApp',
         'appraisal-f3': 'Neighborhood precision',
         'appraisal-address-placeholder': 'Property address',
+        'appraisal-postcode-placeholder': 'CAP / Postcode',
         'appraisal-phone-placeholder': 'Your WhatsApp (+39 ...)',
         'appraisal-cta': 'Get AI Valuation',
         'appraisal-disclaimer': 'Zero spam. Only the data you need.'

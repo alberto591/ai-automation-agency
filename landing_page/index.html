@@ -38,10 +38,10 @@
                 <a href="#dashboard" data-translate="nav-dashboard">Dashboard</a>
                 <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
                 <a href="#contatto" data-translate="nav-contatto">Contatto</a>
-                <button class="btn-primary">
+                <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
                     <span data-translate="nav-prenota-demo">Prenota Demo</span>
-                </button>
+                </a>
             </div>
             <div class="language-toggle">
                 <button class="lang-btn active" data-lang="it">IT</button>
@@ -83,10 +83,10 @@
                     </div>
 
                     <div class="hero-cta">
-                        <button class="btn-primary btn-large">
+                        <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary btn-large">
                             <i class="ph ph-calendar-plus"></i>
                             <span data-translate="hero-cta-button">Prenota una Demo Gratuita</span>
-                        </button>
+                        </a>
                         <p class="cta-note" data-translate="hero-cta-note">Nessun impegno • Setup in 24 ore • Garanzia
                             risultati</p>
                     </div>
@@ -293,6 +293,11 @@
                                     data-translate="appraisal-address-placeholder">
                             </div>
                             <div class="form-group">
+                                <i class="ph ph-hash"></i>
+                                <input type="text" id="appraisal-postcode" name="postcode" required
+                                    placeholder="CAP / Postcode" data-translate="appraisal-postcode-placeholder">
+                            </div>
+                            <div class="form-group">
                                 <i class="ph ph-whatsapp-logo"></i>
                                 <input type="tel" id="appraisal-phone" name="phone" required
                                     placeholder="Tuo WhatsApp (+39 ...)" data-translate="appraisal-phone-placeholder">
@@ -311,143 +316,7 @@
     </section>
 
 
-    <!-- Solution Section -->
-    <section id="soluzione" class="solution-section">
-        <div class="container">
-            <div class="solution-content">
-                <div class="solution-intro">
-                    <span class="intro-tag" data-translate="solution-tag">La Soluzione</span>
-                    <h2><span data-translate="solution-title">Il tuo primo </span><span class="highlight"
-                            data-translate="solution-title-highlight">Dipendente AI</span></h2>
-                    <p class="solution-subtitle" data-translate="solution-subtitle">Un assistente virtuale che lavora
-                        24/7, parla con i clienti come un agente umano e trasforma ogni contatto in un'opportunità.</p>
-                </div>
 
-                <div class="employee-features">
-                    <div class="feature-card primary">
-                        <div class="feature-icon">
-                            <i class="ph ph-chat-circle-text"></i>
-                        </div>
-                        <h3>Conversa in Linguaggio Naturale</h3>
-                        <p>L'AI parla come un agente esperto, comprende le esigenze dei clienti e risponde alle domande
-                            specifiche sul mercato immobiliare.</p>
-                        <ul class="feature-benefits">
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-1">Dialetto
-                                    locale e espressioni italiane</span></li>
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-2">Domande
-                                    intelligenti per qualificare il budget</span></li>
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-conversation-3">Gestione
-                                    obiezioni e resistenze</span></li>
-                        </ul>
-                    </div>
-
-                    <div class="feature-card primary">
-                        <div class="feature-icon">
-                            <i class="ph ph-database"></i>
-                        </div>
-                        <h3>Ricerca nel Tuo Database (RAG)</h3>
-                        <p>Accede istantaneamente al tuo archivio proprietà e trova matches precisi basati su
-                            preferenze, budget e zona geografica.</p>
-                        <ul class="feature-benefits">
-                            <li><i class="ph ph-check"></i> Ricerca semantica nelle tue proprietà</li>
-                            <li><i class="ph ph-check"></i> Suggerimenti di alternative intelligenti</li>
-                            <li><i class="ph ph-check"></i> Aggiornamento automatico inventario</li>
-                        </ul>
-                    </div>
-
-                    <div class="feature-card primary">
-                        <div class="feature-icon">
-                            <i class="ph ph-calendar-plus"></i>
-                        </div>
-                        <h3>Prenota Appuntamenti Automaticamente</h3>
-                        <p>Integra il calendario aziendale e prenota visite direttamente, proponendo orari disponibili e
-                            confermando l'appuntamento.</p>
-                        <ul class="feature-benefits">
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-1">Sincronizzazione
-                                    con Google Calendar</span></li>
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-2">Promemoria
-                                    automatici SMS/Email</span></li>
-                            <li><i class="ph ph-check"></i> <span data-translate="benefit-calendar-3">Gestione conflitti
-                                    e rinvii</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="solution-demo">
-                    <div class="demo-container">
-                        <div class="demo-header">
-                            <h3>Esempio di Conversazione AI</h3>
-                            <div class="demo-controls">
-                                <div class="demo-status">
-                                    <div class="status-dot"></div>
-                                    <span>AI in azione</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="demo-conversation">
-                            <div class="conversation-step active" data-step="1">
-                                <div class="step-time">09:15</div>
-                                <div class="step-message from-client">
-                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
-                                        data-translate="demo-step-1-msg">Buongiorno, vorrei informazioni su appartamenti
-                                        a Milano
-                                        Porta Nuova</span>
-                                </div>
-                            </div>
-
-                            <div class="conversation-step" data-step="2">
-                                <div class="step-time">09:15</div>
-                                <div class="step-message from-ai">
-                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
-                                        data-translate="demo-step-2-msg">Buongiorno! Sono l'assistente virtuale
-                                        dell'agenzia.
-                                        Per aiutarti al meglio, mi puoi dire il budget disponibile e che tipologia stai
-                                        cercando?</span>
-                                </div>
-                            </div>
-
-                            <div class="conversation-step" data-step="3">
-                                <div class="step-time">09:16</div>
-                                <div class="step-message from-client">
-                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
-                                        data-translate="demo-step-3-msg">Budget 400k, vorrei un bilocale moderno</span>
-                                </div>
-                            </div>
-
-                            <div class="conversation-step" data-step="4">
-                                <div class="step-time">09:16</div>
-                                <div class="step-message from-ai">
-                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
-                                        data-translate="demo-step-4-msg">Perfetto! Ho trovato 3 bilocali in Porta Nuova
-                                        nel tuo
-                                        budget. Ti invio le planimetrie e organizziamo una visita per giovedì alle
-                                        16:00?</span>
-                                </div>
-                            </div>
-
-                            <div class="conversation-step" data-step="5">
-                                <div class="step-time">09:17</div>
-                                <div class="step-message from-client">
-                                    <strong data-translate="demo-client-label">Cliente:</strong> <span
-                                        data-translate="demo-step-5-msg">Sì, perfetto! A giovedì allora</span>
-                                </div>
-                            </div>
-
-                            <div class="conversation-step" data-step="6">
-                                <div class="step-time">09:17</div>
-                                <div class="step-message from-ai">
-                                    <strong data-translate="demo-ai-label">Anzevino AI:</strong> <span
-                                        data-translate="demo-step-6-msg">Confermato! Appuntamento giovedì 16:00 in Via
-                                        Dante
-                                        12. Riceverai un promemoria domani. Buona giornata!</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Video Demo Section -->
     <section class="video-section" style="padding: 6rem 0; background-color: #f8fafc; text-align: center;">
@@ -852,10 +721,11 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn-primary btn-full">
+                        <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary btn-full"
+                            style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="ph ph-calendar-plus"></i>
                             <span data-translate="form-submit">Prenota Demo Gratuita</span>
-                        </button>
+                        </a>
 
                         <p class="form-note">
                             <i class="ph ph-shield-check"></i>
@@ -894,23 +764,7 @@
         </div>
     </section>
 
-    <!-- Testimonial -->
-    <section class="testimonial-section">
-        <div class="container">
-            <div class="testimonial-content">
-                <div class="quote-icon"><i class="ph ph-quotes"></i></div>
-                <p class="quote-text" data-translate="testimonial-quote">"In 3 mesi abbiamo aumentato le vendite del
-                    340%. L'AI risponde meglio di molti agenti umani."</p>
-                <div class="author-info">
-                    <div class="author-avatar">RA</div>
-                    <div class="author-details">
-                        <h4 data-translate="testimonial-author">Roberto Anzevino</h4>
-                        <p data-translate="testimonial-title">Direttore, Milano Premium Real Estate</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -1000,8 +854,7 @@
         </div>
     </footer>
 
-    <!-- Calendly Integration -->
-    <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+    <!-- Booking Integration -->
     <script src="script.js"></script>
 </body>
 

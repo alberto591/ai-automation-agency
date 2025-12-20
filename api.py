@@ -138,6 +138,7 @@ class LeadRequest(BaseModel):
     name: str
     agency: str
     phone: str
+    postcode: str | None = None
     properties: str | None = None
 
 
@@ -159,7 +160,7 @@ async def create_lead(lead: LeadRequest):
         # Trigger the AI Logic (The Heart)
         # We pass the agency name/properties as context
         context = f"Agenzia: {lead.agency}. Gestione: {lead.properties}"
-        result = handle_real_estate_lead(lead.phone, lead.name, context)
+        result = handle_real_estate_lead(lead.phone, lead.name, context, postcode=lead.postcode)
 
         return {
             "status": "success",
@@ -185,6 +186,7 @@ class PortalLead(BaseModel):
     property_title: Optional[str] = None
     property_url: Optional[str] = None
     message: Optional[str] = None
+    postcode: Optional[str] = None
     source: str = "unknown"  # immobiliare, casa, idealista
 
 
@@ -200,15 +202,23 @@ async def portal_webhook(lead: PortalLead, _=Depends(verify_webhook_key)):
     if lead.phone and not validate_phone(lead.phone):
         # Try to fix common format issues
         if not lead.phone.startswith("+"):
-            lead.phone = "+39" + lead.phone.lstrip("0")
+            # Default to Italy if no prefix, but if it starts with 34 and is 9 digits, might be Spain
+            lead_phone_clean = re.sub(r'[\s\-\(\)]', '', lead.phone)
+            if lead_phone_clean.startswith("34") and len(lead_phone_clean) == 11: # 34 + 9 digits
+                 lead.phone = "+" + lead_phone_clean
+            else:
+                 lead.phone = "+39" + lead_phone_clean.lstrip("0")
     
     try:
         # Build property context
         property_query = lead.property_title or lead.message or "Generic inquiry"
         customer_name = lead.name or "Cliente Portale"
         
+        # Log lead source details
+        logger.info(f"📝 Processing lead from {lead.source} for {customer_name}")
+        
         # Process the lead
-        result = handle_real_estate_lead(lead.phone, customer_name, property_query)
+        result = handle_real_estate_lead(lead.phone, customer_name, property_query, postcode=lead.postcode)
         
         return {
             "status": "success",
