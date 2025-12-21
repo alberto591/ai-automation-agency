@@ -9,3 +9,4 @@ python-multipart
 thefuzz
 requests
 python-dotenv
+tenacity

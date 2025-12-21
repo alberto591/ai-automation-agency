@@ -1,6 +1,7 @@
 from typing import Any
 
 from supabase import create_client
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config.settings import settings
 from domain.errors import DatabaseError
@@ -32,6 +33,7 @@ class SupabaseAdapter(DatabasePort):
             )
             raise DatabaseError("Failed to save lead", cause=str(e)) from e
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_lead(self, phone: str) -> dict[str, Any] | None:
         try:
             result = (
@@ -45,6 +47,7 @@ class SupabaseAdapter(DatabasePort):
             logger.error("GET_LEAD_FAILED", context={"phone": phone, "error": str(e)})
             raise DatabaseError("Failed to retrieve lead", cause=str(e)) from e
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_properties(self, query: str, limit: int = 3) -> list[dict[str, Any]]:
         try:
             result = (

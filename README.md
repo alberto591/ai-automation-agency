@@ -11,6 +11,7 @@ All technical and user guides- **Deployment Guide**: See [PRODUCTION_DEPLOYMENT.
 - [🏠 Property CSV Import](docs/property-import.md)
 - [🛡️ Security & API](docs/api-security.md)
 - [🔄 How it Works (Flow)](docs/customer-flow.md)
+- [🏛️ Architectural Decisions (ADR)](docs/adr/001-hexagonal-architecture.md)
 
 ## 🛠️ Tech Stack
 - **Backend**: FastAPI (Python)

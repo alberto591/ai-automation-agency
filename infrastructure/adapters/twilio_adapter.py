@@ -1,4 +1,5 @@
 from twilio.rest import Client
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config.settings import settings
 from domain.errors import ExternalServiceError
@@ -12,6 +13,7 @@ class TwilioAdapter(MessagingPort):
     def __init__(self) -> None:
         self.client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def send_message(self, to: str, body: str) -> str:
         # 1. Clean numbers
         clean_to = "".join(to.split())

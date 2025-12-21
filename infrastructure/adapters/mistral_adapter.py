@@ -1,4 +1,5 @@
 from mistralai import Mistral
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config.settings import settings
 from domain.errors import ExternalServiceError
@@ -12,6 +13,7 @@ class MistralAdapter(AIPort):
     def __init__(self) -> None:
         self.client = Mistral(api_key=settings.MISTRAL_API_KEY)
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def generate_response(self, prompt: str) -> str:
         try:
             chat_response = self.client.chat.complete(

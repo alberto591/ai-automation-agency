@@ -9,7 +9,7 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
     const [searchQuery, setSearchQuery] = useState("");
 
     const filteredLeads = leads.filter(lead =>
-        lead.name?.toLowerCase().includes(searchQuery.toLowerCase())
+        (lead.name || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -33,7 +33,7 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
             {/* Search */}
             <div className="p-4 bg-white/30">
                 <div className="relative group">
-                    <Search className="absolute left-3 top-3 text-[hsl(var(--zen-text-muted))] w-4 h-4 transition-colors group-focus-within:text-[hsl(var(--zen-accent))]" />
+                    <Search className="absolute left-3 top-3 text-[hsl(var(--zen-text-muted))] w-4 h-4 transition-colors group-focus-within:text-[hsl(var(--zen-accent))] pointer-events-none" />
                     <input
                         type="text"
                         placeholder="Cerca conversazioni..."
