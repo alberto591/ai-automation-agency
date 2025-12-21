@@ -1683,16 +1683,20 @@ p {
 }
 
 .footer-content {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 3rem;
     margin-bottom: 3rem;
 }
 
 .footer-brand {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1.5rem;
+    max-width: 600px;
 }
 
 .footer-logo {
@@ -1729,6 +1733,7 @@ p {
 
 .footer-social {
     display: flex;
+    justify-content: center;
     gap: 1rem;
 }
 

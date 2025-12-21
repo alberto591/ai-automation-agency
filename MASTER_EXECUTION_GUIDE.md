@@ -73,6 +73,9 @@ source venv/bin/activate
 pytest tests/
 ```
 
+> [!IMPORTANT]
+> **UI Testing Policy**: Do NOT run any UI/browser-based tests (e.g., frontend integration tests that launch a browser) without explicit confirmation from the USER.
+
 ### Manual Lead Simulation
 Test the webhook ingestion manually:
 ```bash

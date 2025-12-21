@@ -1,0 +1,6 @@
+# AI Agent Rules - Agenzia AI
+
+## UI Testing Policy
+- **CRITICAL**: Do NOT perform any UI testing (automated or manual via browser tools) without explicit confirmation from the USER.
+- This includes using tools like `browser_subagent`, `open_browser_url`, or any action that interacts with the rendered UI.
+- Always ask for permission before initiating a test suite that involves browser interaction.

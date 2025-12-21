@@ -1,14 +1,81 @@
-import React from 'react';
-import { X, Mail, Phone, MapPin, Wallet, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function LeadDrawer({ lead, isOpen, onClose }) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        budget_max: '',
+        preferred_zones: ''
+    });
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Sync state with lead prop
+    useEffect(() => {
+        if (lead) {
+            setFormData({
+                name: lead.name || '',
+                email: lead.email || '',
+                budget_max: lead.budget_max || '',
+                preferred_zones: Array.isArray(lead.preferred_zones) ? lead.preferred_zones.join(', ') : (lead.preferred_zones || '')
+            });
+            setIsEditing(false);
+        }
+    }, [lead, isOpen]);
+
     if (!isOpen || !lead) return null;
 
-    // Data extraction with correct schema fields
     const budget = lead.budget_max || "N/A";
     const zone = lead.preferred_zones || "Analisi in corso...";
     const email = lead.email || "Non disponibile";
     const created = lead.created_at ? new Date(lead.created_at).toLocaleDateString() : "N/A";
+
+    async function handleArchive() {
+        if (!window.confirm("Sei sicuro di voler archiviare questa conversazione?")) return;
+
+        setIsSaving(true);
+        try {
+            const { error } = await supabase
+                .from('lead_conversations')
+                .update({ status: 'archived' })
+                .eq('id', lead.id);
+
+            if (error) throw error;
+            onClose();
+        } catch (error) {
+            alert("Errore durante l'archiviazione: " + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function handleSave() {
+        setIsSaving(true);
+        try {
+            const zonesArray = formData.preferred_zones.split(',').map(s => s.trim()).filter(Boolean);
+
+            const updatePayload = {
+                customer_name: formData.name,
+                budget_max: formData.budget_max ? parseInt(formData.budget_max) : null,
+                preferred_zones: zonesArray
+            };
+
+            const { error } = await supabase
+                .from('lead_conversations')
+                .update(updatePayload)
+                .eq('id', lead.id);
+
+            if (error) throw error;
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Save error:", error);
+            alert("Errore durante il salvataggio: " + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    }
 
     return (
         <div className={`absolute top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl border-l border-[hsl(var(--zen-border))] transform transition-transform duration-500 ease-in-out z-30 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
@@ -26,10 +93,24 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
                 {/* Profile Picture & Identity */}
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-gray-50 to-white flex items-center justify-center text-4xl text-[hsl(var(--zen-text-main))] font-black mb-4 shadow-xl border-4 border-white">
-                        {lead.name ? lead.name[0].toUpperCase() : "?"}
+                    <div className="relative group">
+                        <div className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-gray-50 to-white flex items-center justify-center text-4xl text-[hsl(var(--zen-text-main))] font-black mb-4 shadow-xl border-4 border-white">
+                            {formData.name ? formData.name[0].toUpperCase() : "?"}
+                        </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-[hsl(var(--zen-text-main))] text-center tracking-tight">{lead.name}</h3>
+
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="text-xl font-bold text-[hsl(var(--zen-text-main))] text-center tracking-tight border-b-2 border-[hsl(var(--zen-accent))] focus:outline-none bg-transparent w-full"
+                            placeholder="Nome Lead"
+                        />
+                    ) : (
+                        <h3 className="text-2xl font-bold text-[hsl(var(--zen-text-main))] text-center tracking-tight">{lead.name}</h3>
+                    )}
+
                     <div className="mt-2 px-3 py-1 bg-white rounded-full border border-[hsl(var(--zen-border))] text-[10px] font-bold text-[hsl(var(--zen-text-muted))] uppercase tracking-widest flex items-center">
                         <Phone className="w-3 h-3 mr-2" />
                         {lead.phone}
@@ -46,7 +127,22 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                             <div className="relative">
                                 <Wallet className="w-6 h-6 mb-3 text-[hsl(var(--zen-accent))]" />
                                 <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Budget Stimato</div>
-                                <div className="text-xl font-black text-[hsl(var(--zen-text-main))]">{budget !== "N/A" ? `${budget}€` : "Analisi in corso..."}</div>
+
+                                {isEditing ? (
+                                    <div className="flex items-center">
+                                        <input
+                                            type="number"
+                                            value={formData.budget_max}
+                                            onChange={(e) => setFormData({ ...formData, budget_max: e.target.value })}
+                                            className="text-xl font-black text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-200 w-full"
+                                        />
+                                        <span className="ml-1 text-xl font-black">€</span>
+                                    </div>
+                                ) : (
+                                    <div className="text-xl font-black text-[hsl(var(--zen-text-main))]">
+                                        {budget !== "N/A" ? `${budget.toLocaleString()}€` : "Analisi in corso..."}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -55,9 +151,20 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                             <div className="relative">
                                 <MapPin className="w-6 h-6 mb-3 text-blue-500" />
                                 <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Zone di Interesse</div>
-                                <div className="text-sm font-bold text-[hsl(var(--zen-text-main))] leading-relaxed italic">
-                                    {Array.isArray(zone) ? zone.join(" • ") : zone}
-                                </div>
+
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.preferred_zones}
+                                        onChange={(e) => setFormData({ ...formData, preferred_zones: e.target.value })}
+                                        className="text-sm font-bold text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-200 w-full"
+                                        placeholder="Milano, Brera, ..."
+                                    />
+                                ) : (
+                                    <div className="text-sm font-bold text-[hsl(var(--zen-text-main))] leading-relaxed italic">
+                                        {Array.isArray(zone) ? zone.join(" • ") : zone}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -70,7 +177,17 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                     <div className="space-y-3 bg-white/50 p-2 rounded-[2rem] border border-[hsl(var(--zen-border))]">
                         <div className="flex items-center text-[hsl(var(--zen-text-main))] bg-white p-4 rounded-2xl shadow-sm border border-[hsl(var(--zen-border))]">
                             <Mail className="w-5 h-5 mr-3 text-gray-400" />
-                            <span className="text-sm font-semibold truncate">{email}</span>
+                            {isEditing ? (
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="text-sm font-semibold truncate bg-transparent focus:outline-none w-full"
+                                    placeholder="Email"
+                                />
+                            ) : (
+                                <span className="text-sm font-semibold truncate">{email}</span>
+                            )}
                         </div>
                         <div className="flex items-center text-[hsl(var(--zen-text-main))] bg-white p-4 rounded-2xl shadow-sm border border-[hsl(var(--zen-border))]">
                             <Calendar className="w-5 h-5 mr-3 text-gray-400" />
@@ -81,18 +198,39 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
                 {/* Actions */}
                 <div className="pt-6 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-450">
-                    <button
-                        onClick={() => alert("Funzionalità in arrivo!")}
-                        className="w-full py-4 bg-[hsl(var(--zen-text-main))] text-white rounded-2xl text-sm font-bold shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
-                    >
-                        Modifica Profilo
-                    </button>
-                    <button
-                        onClick={() => alert("Lead Archiviato")}
-                        className="w-full py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-sm font-bold hover:bg-red-50 transition-all"
-                    >
-                        Archivia Conversazione
-                    </button>
+                    {isEditing ? (
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="py-4 bg-[hsl(var(--zen-accent))] text-white rounded-2xl text-sm font-bold shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center"
+                            >
+                                <Check className="w-4 h-4 mr-2" /> Salva
+                            </button>
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="py-4 bg-gray-100 text-[hsl(var(--zen-text-main))] rounded-2xl text-sm font-bold hover:bg-gray-200 transition-all"
+                            >
+                                Annulla
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="w-full py-4 bg-[hsl(var(--zen-text-main))] text-white rounded-2xl text-sm font-bold shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center"
+                            >
+                                <Edit2 className="w-4 h-4 mr-2" /> Modifica Profilo
+                            </button>
+                            <button
+                                onClick={handleArchive}
+                                disabled={isSaving}
+                                className="w-full py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-sm font-bold hover:bg-red-50 transition-all"
+                            >
+                                Archivia Conversazione
+                            </button>
+                        </>
+                    )}
                 </div>
 
             </div>

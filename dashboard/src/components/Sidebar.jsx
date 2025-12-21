@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, CircleUserRound } from 'lucide-react';
 import { useLeads } from '../hooks/useLeads';
+import ProfileDropdown from './ProfileDropdown';
 
 export default function Sidebar({ selectedLead, setSelectedLead }) {
     const { leads, loading } = useLeads();
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const filteredLeads = leads.filter(lead =>
+        lead.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="flex flex-col h-full bg-[hsl(var(--zen-sidebar))] border-r border-[hsl(var(--zen-border))] shadow-sm z-20">
             {/* Header */}
-            <div className="p-5 flex justify-between items-center border-b border-[hsl(var(--zen-border))] bg-white/50 backdrop-blur-sm">
+            <div className="p-5 flex justify-between items-center border-b border-[hsl(var(--zen-border))] bg-white/50 backdrop-blur-sm relative z-30">
                 <div className="font-bold text-[hsl(var(--zen-text-main))] text-xl tracking-tight">Inbox</div>
-                <div className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
-                    <CircleUserRound className="text-[hsl(var(--zen-text-muted))] w-6 h-6" />
+                <div
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className={`p-2 rounded-full transition-all duration-200 cursor-pointer ${isProfileOpen ? 'bg-[hsl(var(--zen-accent))/10] text-[hsl(var(--zen-accent))]' : 'hover:bg-gray-100 text-[hsl(var(--zen-text-muted))]'}`}
+                >
+                    <CircleUserRound className="w-6 h-6" />
                 </div>
+
+                <ProfileDropdown
+                    isOpen={isProfileOpen}
+                    onClose={() => setIsProfileOpen(false)}
+                />
             </div>
 
             {/* Search */}
@@ -22,6 +37,8 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                     <input
                         type="text"
                         placeholder="Cerca conversazioni..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-[hsl(var(--zen-bg))] border border-transparent rounded-xl text-sm focus:outline-none focus:border-[hsl(var(--zen-accent))] focus:bg-white transition-all shadow-inner"
                     />
                 </div>
@@ -36,19 +53,19 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                     </div>
                 )}
 
-                {!loading && leads.length === 0 && (
+                {!loading && filteredLeads.length === 0 && (
                     <div className="p-8 text-center text-[hsl(var(--zen-text-muted))] text-sm italic">
-                        Nessuna chat trovata.
+                        {leads.length === 0 ? "Nessuna chat trovata." : "Nessun risultato."}
                     </div>
                 )}
 
-                {leads.map((lead) => (
+                {filteredLeads.map((lead) => (
                     <div
                         key={lead.id}
                         onClick={() => setSelectedLead(lead)}
                         className={`flex items-center p-4 cursor-pointer transition-all duration-200 border-l-4 ${selectedLead?.id === lead.id
-                                ? 'bg-[hsl(var(--zen-bg))] border-[hsl(var(--zen-accent))] shadow-inner'
-                                : 'bg-transparent border-transparent hover:bg-gray-50/80 hover:border-gray-100'
+                            ? 'bg-[hsl(var(--zen-bg))] border-[hsl(var(--zen-accent))] shadow-inner'
+                            : 'bg-transparent border-transparent hover:bg-gray-50/80 hover:border-gray-100'
                             }`}
                     >
                         {/* Avatar */}

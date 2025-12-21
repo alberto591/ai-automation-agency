@@ -27,6 +27,7 @@ export function useLeads() {
             const { data, error } = await supabase
                 .from('lead_conversations')
                 .select('*')
+                .neq('status', 'archived')
                 .order('updated_at', { ascending: false })
 
             if (error) throw error
@@ -37,7 +38,13 @@ export function useLeads() {
                 let lastMsgText = "Nuova conversazione"
                 if (l.messages && l.messages.length > 0) {
                     const last = l.messages[l.messages.length - 1]
-                    lastMsgText = last.content || "Media/System Message"
+                    lastMsgText = last.content || last.user || last.ai || "Media/System Message"
+
+                    // Cleanup: if it's a legacy object, we might want to prioritize the response
+                    if (!last.content && last.ai && last.user) {
+                        // If both exist, the 'user' field in legacy often contained the AI's actual WhatsApp response
+                        lastMsgText = last.user.includes('Anzevino AI') ? last.user : last.ai
+                    }
                 } else if (l.last_message) {
                     lastMsgText = l.last_message
                 }
