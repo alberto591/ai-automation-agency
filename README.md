@@ -11,7 +11,9 @@ All technical and user guides- **Deployment Guide**: See [PRODUCTION_DEPLOYMENT.
 - [🏠 Property CSV Import](docs/property-import.md)
 - [🛡️ Security & API](docs/api-security.md)
 - [🔄 How it Works (Flow)](docs/customer-flow.md)
-- [🏛️ Architectural Decisions (ADR)](docs/adr/001-hexagonal-architecture.md)
+- [🏛️ Architectural Decision Records (ADRs)](docs/adr/ADR-001-genesis-brain-architecture.md)
+- [📱 Mobile Strategy](docs/adr/ADR-015-mobile-strategy-standardization.md)
+- [☁️ Mobile Direct Uploads](docs/adr/ADR-029-mobile-direct-uploads.md)
 
 ## 🛠️ Tech Stack
 - **Backend**: FastAPI (Python)

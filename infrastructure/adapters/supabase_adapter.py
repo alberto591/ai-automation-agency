@@ -14,7 +14,8 @@ logger = get_logger(__name__)
 class SupabaseAdapter(DatabasePort):
     def __init__(self) -> None:
         try:
-            self.client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+            key = settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_KEY
+            self.client = create_client(settings.SUPABASE_URL, key)
         except Exception as e:
             logger.error("FAILED_TO_INIT_SUPABASE", context={"error": str(e)})
             raise DatabaseError("Supabase client initialization failed", cause=str(e)) from e
@@ -70,3 +71,10 @@ class SupabaseAdapter(DatabasePort):
         except Exception as e:
             logger.error("UPDATE_LEAD_STATUS_FAILED", context={"phone": phone, "error": str(e)})
             raise DatabaseError("Failed to update lead status", cause=str(e)) from e
+
+    def update_property(self, property_id: str, data: dict[str, Any]) -> None:
+        try:
+            self.client.table("properties").update(data).eq("id", property_id).execute()
+        except Exception as e:
+            logger.error("UPDATE_PROPERTY_FAILED", context={"id": property_id, "error": str(e)})
+            raise DatabaseError("Failed to update property", cause=str(e)) from e

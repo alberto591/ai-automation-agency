@@ -102,6 +102,31 @@ async def send_manual_message(req: ManualMessageRequest) -> dict[str, str]:
         raise HTTPException(status_code=500, detail="Failed to send message") from None
 
 
+class LeadUpdate(BaseModel):
+    phone: str
+    name: str | None = None
+    budget: int | None = None
+    zones: list[str] | None = None
+    status: str | None = None
+
+
+@app.patch("/api/leads")
+async def update_lead(req: LeadUpdate) -> dict[str, str]:
+    try:
+        # Use lead_processor to update domain record
+        container.lead_processor.update_lead_details(
+            phone=req.phone,
+            name=req.name,
+            budget=req.budget,
+            zones=req.zones,
+            status=req.status
+        )
+        return {"status": "success", "message": "Lead updated."}
+    except Exception as e:
+        logger.error("LEAD_UPDATE_FAILED", context={"phone": req.phone, "error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to update lead") from None
+
+
 @app.get("/api/user/profile")
 async def get_user_profile() -> dict[str, Any]:
     return {

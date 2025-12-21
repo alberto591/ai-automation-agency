@@ -98,6 +98,30 @@ class LeadProcessor:
         logger.info("LEAD_RESUME", context={"phone": phone})
         self.db.update_lead_status(phone, "active")
 
+    def update_lead_details(
+        self,
+        phone: str,
+        name: str | None = None,
+        budget: int | None = None,
+        zones: list[str] | None = None,
+        status: str | None = None,
+    ) -> None:
+        phone = re.sub(r"\s+", "", phone)
+        logger.info("UPDATING_LEAD_DETAILS", context={"phone": phone})
+        
+        lead_data = {"customer_phone": phone}
+        if name:
+            lead_data["customer_name"] = name
+        if budget:
+            lead_data["budget_max"] = budget
+        if zones:
+            lead_data["zones"] = zones
+        if status:
+            lead_data["status"] = status
+        
+        lead_data["updated_at"] = datetime.now(UTC).isoformat()
+        self.db.save_lead(lead_data)
+
     def send_manual_message(self, phone: str, message: str) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("SENDING_MANUAL_MESSAGE", context={"phone": phone})

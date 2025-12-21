@@ -1,4 +1,4 @@
-# 1. Adoption of Hexagonal Architecture
+# ADR-009: chatbot-api-decomposition
 
 * Status: Accepted
 * Deciders: Engineering Team, Antigravity Agent

@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     # Supabase
     SUPABASE_URL: str = Field(default="")
     SUPABASE_KEY: str = Field(default="")
+    SUPABASE_SERVICE_ROLE_KEY: str | None = Field(default=None)
 
     # Mistral AI
     MISTRAL_API_KEY: str = Field(default="")

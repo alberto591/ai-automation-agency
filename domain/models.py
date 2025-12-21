@@ -15,6 +15,16 @@ class Property:
     price_per_mq: float
     zone: str
     city: str
+    has_terrace: bool = False
+    has_garden: bool = False
+    has_parking: bool = False
+    has_air_conditioning: bool = False
+    has_elevator: bool = False
+    condition: str | None = None  # e.g., "Ristrutturato", "Nuova costruzione"
+    heating_type: str | None = None  # e.g., "Autonomo", "Centralizzato"
+    construction_year: int | None = None
+    image_url: str | None = None
+    images: list[str] = field(default_factory=list)
     portal_url: str | None = None
     id: str | None = None
 

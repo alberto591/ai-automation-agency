@@ -10,3 +10,4 @@ thefuzz
 requests
 python-dotenv
 tenacity
+fpdf2

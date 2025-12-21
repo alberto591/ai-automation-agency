@@ -37,9 +37,15 @@ class ImmobiliareScraper(Scraper):
 
             soup = BeautifulSoup(resp.text, "html.parser")
 
+            # Extract basic fields
+            description = self._find_text(soup, "div", "nd-readMore") or self._find_text(soup, "div", "im-description__content") or ""
+            image_url = self._extract_image(soup)
+
             data = {
                 "portal_url": url,
                 "title": self._find_text(soup, "h1", "nd-title") or "Appartamento",
+                "description": description,
+                "image_url": image_url,
                 "price": self._extract_numeric(
                     soup, ["div", "li"], "nd-list__item nd-list__item--main nd-list__item--price"
                 ),
@@ -54,17 +60,48 @@ class ImmobiliareScraper(Scraper):
                 )
                 or "N/A",
                 "zone": self._find_text(soup, "span", "nd-title__sub-title") or "Milano",
-                "city": "Milano",
+                "city": "Milano", # Default, could be extracted from title/zone
+                
+                # Premium Fields Detection
+                "has_terrace": self._check_keywords(description, ["terrazzo", "terrazza", "balcone"]),
+                "has_garden": self._check_keywords(description, ["giardino", "verde privato"]),
+                "has_parking": self._check_keywords(description, ["box", "garage", "posto auto"]),
+                "has_air_conditioning": self._check_keywords(description, ["aria condizionata", "climatizzatore", "split"]),
+                "has_elevator": self._check_keywords(description, ["ascensore"]),
+                "condition": "Buono", # Default, AI will refine later
+                "heating_type": "Autonomo" if self._check_keywords(description, ["autonomo"]) else "Centralizzato"
             }
+            
+            # Calculate price_per_mq
             p_val = data.get("price")
             s_val = data.get("sqm")
             price = float(p_val) if isinstance(p_val, (int, float, str)) else 0.0
             sqm = float(s_val) if isinstance(s_val, (int, float, str)) else 0.0
             data["price_per_mq"] = round(price / sqm, 2) if sqm > 0 else 0.0
+            
             return data
         except Exception as e:
             logger.error(f"Scraper Error: {e}")
             return None
+
+    def _extract_image(self, soup: BeautifulSoup) -> str | None:
+        # Search for main image in common containers
+        img = soup.find("img", class_="nd-figure__image")
+        if img and img.get("src"):
+            return str(img.get("src"))
+        
+        # Fallback to meta image
+        meta_img = soup.find("meta", property="og:image")
+        if meta_img and meta_img.get("content"):
+            return str(meta_img.get("content"))
+            
+        return None
+
+    def _check_keywords(self, text: str, keywords: list[str]) -> bool:
+        if not text:
+            return False
+        text_lower = text.lower()
+        return any(k in text_lower for k in keywords)
 
     def _find_text(self, soup: BeautifulSoup, tag: str, cls: str) -> str | None:
         el = soup.find(tag, class_=cls)
@@ -102,7 +139,10 @@ class MarketDataManager:
 
     def save_to_db(self, data: dict[str, Any]) -> Any:
         try:
-            return self.db.table("market_data").upsert(data, on_conflict="portal_url").execute()
+            # We are now saving to the main inventory
+            # Remove any fields that might not match if strict scheme, 
+            # but generally upsert is fine if the schema matches.
+            return self.db.table("properties").upsert(data, on_conflict="portal_url").execute()
         except Exception as e:
             logger.error(f"DB Error: {e}")
             return None
