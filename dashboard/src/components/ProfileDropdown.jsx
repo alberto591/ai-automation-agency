@@ -14,8 +14,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const fetchProfile = async () => {
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-            const response = await fetch(`${API_URL}/api/user/profile`);
+            const response = await fetch('/api/user/profile');
             if (response.ok) {
                 const data = await response.json();
                 setProfile(data);

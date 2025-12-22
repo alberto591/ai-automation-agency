@@ -29,9 +29,7 @@ export default function ChatWindow({ selectedLead }) {
         const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-            const response = await fetch(`${API_URL}/api/leads/message`, {
+            const response = await fetch('/api/leads/message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -68,10 +66,8 @@ export default function ChatWindow({ selectedLead }) {
 
         const endpoint = isAiActive ? '/api/leads/takeover' : '/api/leads/resume';
 
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
         try {
-            const response = await fetch(`${API_URL}${endpoint}`, {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: selectedLead.phone })
