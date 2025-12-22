@@ -1,5 +1,10 @@
 # 🏠 Project Documentation
 
+> [!IMPORTANT]
+> **ADR Policy**: Every new feature or architectural change MUST be preceded by an **Architectural Decision Record (ADR)**.
+> This document explains *why* a decision was made, the options considered, and the chosen implementation path.
+> See `docs/adr/template.md` for the format. Code reviews will fail without a corresponding ADR.
+
 Welcome to the **Anzevino AI Real Estate Agent** documentation. This folder contains all the technical and operational guides for the system.
 
 ## 📂 Documentation Sections
@@ -30,7 +35,7 @@ Welcome to the **Anzevino AI Real Estate Agent** documentation. This folder cont
 - [Market Data SQL Migration](file:///Users/lycanbeats/Desktop/agenzia-ai/sql/market-data-migration.sql) - Schema for the competitive data table.
 
 ### 🎨 Frontend
-- [Landing Page Architecture](landing-page-architecture.md) - Technical details on the bilingual translation system.
+- [Appraisal Tool Architecture](appraisal-tool-architecture.md) - Technical details on the appraisal tool structure.
 
 ---
 *Created by Antigravity AI Assistant.*
