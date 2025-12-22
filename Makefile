@@ -35,7 +35,7 @@ clean:
 	find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
 
 run:
-	uvicorn presentation.api.main:app --reload --host 0.0.0.0 --port 8000
+	./venv/bin/uvicorn presentation.api.api:app --reload --host 0.0.0.0 --port 8000
 
 check-all: lint typecheck test
 	@echo "✅ All checks passed!"
