@@ -5,6 +5,7 @@ from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.adapters.twilio_adapter import TwilioAdapter
 from infrastructure.adapters.google_calendar_adapter import GoogleCalendarAdapter
 from infrastructure.adapters.document_adapter import DocumentAdapter
+from infrastructure.adapters.scraper_adapter import ImmobiliareScraperAdapter
 
 
 class Container:
@@ -15,6 +16,7 @@ class Container:
         self.msg: TwilioAdapter = TwilioAdapter()
         self.calendar: GoogleCalendarAdapter = GoogleCalendarAdapter()
         self.doc_gen: DocumentAdapter = DocumentAdapter()
+        self.scraper: ImmobiliareScraperAdapter = ImmobiliareScraperAdapter()
 
         # Domain/Application Services
         self.journey: JourneyManager = JourneyManager(
@@ -29,7 +31,8 @@ class Container:
             ai=self.ai, 
             msg=self.msg, 
             scorer=self.scorer,
-            journey=self.journey
+            journey=self.journey,
+            scraper=self.scraper
         )
 
 

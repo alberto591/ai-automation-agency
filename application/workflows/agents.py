@@ -46,12 +46,15 @@ class AgentState(TypedDict):
     preferences: PropertyPreferences
     sentiment: SentimentAnalysis
     retrieved_properties: list[dict[str, Any]]
+    market_data: dict[str, Any]
     status_msg: str
     ai_response: str
+    source: Literal["WEB_APPRAISAL", "PORTAL", "WHATSAPP", "UNKNOWN"]
+    context_data: dict[str, Any]
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
 
 
-def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPort, journey: Any = None):
+def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPort, journey: Any = None, scraper: Any = None):
     
     def ingest_node(state: AgentState) -> dict[str, Any]:
         """Fetch lead data and prepare basic state."""
@@ -91,6 +94,20 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
         history = lead.get("messages", [])[-settings.MAX_CONTEXT_MESSAGES:]
         history_text = "\n".join([f"{m.get('role')}: {m.get('content')}" for m in history])
         
+        # Detect Source
+        source = "WHATSAPP"
+        context_data = {}
+        
+        query_lower = state["user_input"].lower()
+        if "valutazione" in query_lower or "appraisal" in query_lower:
+            source = "WEB_APPRAISAL"
+        elif "immobiliare" in query_lower or "idealista" in query_lower or "agency:" in query_lower:
+            source = "PORTAL"
+            # Try to extract property context if present
+            prop_match = re.search(r"immobile:\s*(.*)", query_lower)
+            if prop_match:
+                context_data["property_id"] = prop_match.group(1).strip()
+
         return {
             "lead_data": lead, 
             "history_text": history_text, 
@@ -102,8 +119,11 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
             "preferences": PropertyPreferences(),
             "sentiment": SentimentAnalysis(sentiment="NEUTRAL", urgency="LOW", notes="Init"),
             "retrieved_properties": [],
+            "market_data": {},
             "status_msg": "",
-            "ai_response": ""
+            "ai_response": "",
+            "source": source,
+            "context_data": context_data
         }
 
     def intent_node(state: AgentState) -> dict[str, Any]:
@@ -137,11 +157,17 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
             
             # Journey Transition
             current_state = lead.get("journey_state") or LeadStatus.ACTIVE
+            
+            # Phase 1.1: Appraisal -> captured as HOT lead with Tag
+            if state["source"] == "WEB_APPRAISAL":
+                 if current_state == LeadStatus.ACTIVE:
+                     journey.transition_to(phone, LeadStatus.HOT)
+            
             if journey and extraction.intent == "VISIT":
                 if current_state != LeadStatus.APPOINTMENT_REQUESTED:
                     journey.transition_to(phone, LeadStatus.APPOINTMENT_REQUESTED)
             elif journey and extraction.intent == "PURCHASE":
-                 if current_state == LeadStatus.ACTIVE:
+                 if current_state == LeadStatus.ACTIVE or current_state == LeadStatus.HOT:
                      journey.transition_to(phone, LeadStatus.QUALIFIED)
 
             return {
@@ -199,6 +225,22 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
         except Exception as e:
             logger.error("SENTIMENT_ANALYSIS_FAILED", context={"error": str(e)})
             return {"sentiment": state["sentiment"]}
+            
+    def market_analysis_node(state: AgentState) -> dict[str, Any]:
+        """Fetch market data for negotiation context (Phase 5)."""
+        if not scraper or state["intent"] != "PURCHASE":
+            return {"market_data": {}}
+        
+        # In a real scenario, we'd use the scraped data to provide context.
+        # For now, we simulate market context if a property is in context.
+        prop_id = state["context_data"].get("property_id")
+        if prop_id:
+            logger.info("FETCHING_MARKET_DATA", context={"property": prop_id})
+            # Mocking or calling scraper if we had a URL. 
+            # If we don't have a URL, we provide generic market trends.
+            return {"market_data": {"trend": "stable", "avg_price_sqm": 4500, "area": "Milano"}}
+            
+        return {"market_data": {}}
 
     def cache_check_node(state: AgentState) -> dict[str, Any]:
         """Check semantic cache."""
@@ -240,7 +282,14 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                 "Context History:\n{history}\n"
                 "User Sentiment: {sentiment} (Urgency: {urgency})\n"
                 "User Preferences: {preferences}\n"
-                "Available Properties Data: {properties}\n"
+                "Lead Source: {source}\n"
+                "Property Context: {context_data}\n"
+                "Market Insights: {market_data}\n"
+                "Available Properties Data: {properties}\n\n"
+                "PHASE SPECIFIC INSTRUCTIONS:\n"
+                "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately.\n"
+                "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
+                "3. If Journey Stage is APPOINTMENT_REQUESTED: Propose a viewing and provide this scheduling link: https://calendly.com/anzevino/viewing\n"
                 "Keep it native for WhatsApp (short, friendly, in Italian unless user speaks English)."
             )),
             ("human", "{input}. {status_msg}"),
@@ -257,6 +306,9 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                 urgency=state["sentiment"].urgency,
                 preferences=state["preferences"].model_dump_json(),
                 properties=details,
+                source=state["source"],
+                context_data=state["context_data"],
+                market_data=state["market_data"],
                 input=state["user_input"],
                 status_msg=state["status_msg"]
             )
@@ -272,6 +324,9 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                 urgency=state["sentiment"].urgency,
                 preferences=state["preferences"].model_dump_json(),
                 properties=details,
+                source=state["source"],
+                context_data=state["context_data"],
+                market_data=state["market_data"],
                 input=state["user_input"],
                 status_msg=state["status_msg"]
              )
@@ -312,8 +367,11 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
         metadata = {
             "preferences": state["preferences"].model_dump(),
             "sentiment": state["sentiment"].model_dump(),
-            "last_intent": state["intent"]
+            "last_intent": state["intent"],
+            "source": state["source"],
+            "context_data": state["context_data"]
         }
+        logger.info("FINALIZING_METADATA", context={"metadata": metadata})
         
         update_payload = {
             "customer_phone": phone,
@@ -333,6 +391,7 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
     workflow.add_node("intent", intent_node)
     workflow.add_node("preferences", preference_extraction_node)
     workflow.add_node("sentiment", sentiment_analysis_node)
+    workflow.add_node("market_analysis", market_analysis_node)
     workflow.add_node("cache_check", cache_check_node)
     workflow.add_node("retrieval", retrieval_node)
     workflow.add_node("generation", generation_node)
@@ -351,7 +410,8 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
     
     workflow.add_edge("intent", "preferences")
     workflow.add_edge("preferences", "sentiment")
-    workflow.add_edge("sentiment", "cache_check")
+    workflow.add_edge("sentiment", "market_analysis")
+    workflow.add_edge("market_analysis", "cache_check")
     
     # Conditional edge from cache_check
     def route_after_cache(state: AgentState):

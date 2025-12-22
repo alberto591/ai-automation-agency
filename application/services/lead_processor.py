@@ -53,18 +53,20 @@ class LeadProcessor:
         ai: AIPort, 
         msg: MessagingPort, 
         scorer: LeadScorer,
-        journey: JourneyManager = None
+        journey: JourneyManager = None,
+        scraper: Any = None
     ):
         self.db = db
         self.ai = ai
         self.msg = msg
         self.scorer = scorer
         self.journey = journey
+        self.scraper = scraper
         
         # Ensure we use the best available AI port for the graph
         from infrastructure.adapters.langchain_adapter import LangChainAdapter
         graph_ai = ai if isinstance(ai, LangChainAdapter) else LangChainAdapter()
-        self.graph = create_lead_processing_graph(db, graph_ai, msg, journey)
+        self.graph = create_lead_processing_graph(db, graph_ai, msg, journey, scraper)
 
     SIMILARITY_THRESHOLD = 0.78
 
