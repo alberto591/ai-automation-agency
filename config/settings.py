@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     # Mistral AI
     MISTRAL_API_KEY: str = Field(default="")
     MISTRAL_MODEL: str = Field(default="mistral-large-latest")
+    MISTRAL_EMBEDDING_MODEL: str = Field(default="mistral-embed")
 
     # Twilio
     TWILIO_ACCOUNT_SID: str = Field(default="")
@@ -19,6 +20,13 @@ class Settings(BaseSettings):
 
     # Security
     WEBHOOK_API_KEY: str = Field(default="")
+    
+    # LLM Context
+    MAX_CONTEXT_MESSAGES: int = Field(default=10)
+
+    # Google Calendar
+    GOOGLE_CALENDAR_ID: str = Field(default="")
+    GOOGLE_SERVICE_ACCOUNT_JSON: str = Field(default="")
 
     # Agency Details
     AGENCY_OWNER_PHONE: str = Field(default="")

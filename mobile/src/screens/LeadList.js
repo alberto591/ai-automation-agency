@@ -33,11 +33,12 @@ export default function LeadList({ navigation }) {
             setFilteredLeads(leads);
         } else {
             const query = searchQuery.toLowerCase();
-            const filtered = leads.filter(lead =>
-                (lead.customer_name?.toLowerCase().includes(query)) ||
-                (lead.customer_phone?.toLowerCase().includes(query)) ||
-                (lead.last_message?.toLowerCase().includes(query))
-            );
+            const filtered = leads.filter(lead => {
+                const name = lead.customer_name?.toLowerCase() || '';
+                const phone = lead.customer_phone?.toLowerCase() || '';
+                const msg = lead.last_message?.toLowerCase() || '';
+                return name.includes(query) || phone.includes(query) || msg.includes(query);
+            });
             setFilteredLeads(filtered);
         }
     }, [searchQuery, leads]);

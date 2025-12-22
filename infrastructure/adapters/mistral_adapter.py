@@ -27,3 +27,17 @@ class MistralAdapter(AIPort):
         except Exception as e:
             logger.error("MISTRAL_GENERATE_FAILED", context={"error": str(e)})
             raise ExternalServiceError("Failed to generate AI response", cause=str(e)) from e
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+    def get_embedding(self, text: str) -> list[float]:
+        try:
+            response = self.client.embeddings.create(
+                model=settings.MISTRAL_EMBEDDING_MODEL,
+                inputs=[text]
+            )
+            if response and response.data:
+                return response.data[0].embedding # type: ignore
+            return []
+        except Exception as e:
+            logger.error("MISTRAL_EMBED_FAILED", context={"error": str(e)})
+            raise ExternalServiceError("Failed to generate embedding", cause=str(e)) from e

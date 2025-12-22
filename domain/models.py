@@ -38,6 +38,9 @@ class Lead:
     interest: str | None = None
     score: int = 0
     status: str | None = None
+    journey_state: str | None = None
+    scheduled_at: datetime | None = None
+    contract_url: str | None = None
     messages: list[dict[str, Any]] = field(default_factory=list)
     last_msg: str | None = None
     ai_notes: str | None = None

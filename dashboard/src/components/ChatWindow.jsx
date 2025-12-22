@@ -25,6 +25,9 @@ export default function ChatWindow({ selectedLead }) {
         if (!inputText.trim() || !selectedLead) return;
         setSending(true);
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -34,14 +37,21 @@ export default function ChatWindow({ selectedLead }) {
                 body: JSON.stringify({
                     phone: selectedLead.phone,
                     message: inputText
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) throw new Error("Failed to send");
 
             setInputText(""); // Clear input on success
         } catch (error) {
-            alert("Errore nell'invio: " + error.message);
+            if (error.name === 'AbortError') {
+                alert("Errore: Il server non risponde (Timeout).");
+            } else {
+                alert("Errore nell'invio: " + error.message);
+            }
         } finally {
             setSending(false);
         }
@@ -138,8 +148,8 @@ export default function ChatWindow({ selectedLead }) {
                     <button
                         onClick={() => setDrawerOpen(!drawerOpen)}
                         className={`p-2.5 rounded-xl transition-all ${drawerOpen
-                                ? 'bg-green-50 text-[hsl(var(--zen-accent))] shadow-inner'
-                                : 'hover:bg-gray-50 text-[hsl(var(--zen-text-muted))]'
+                            ? 'bg-green-50 text-[hsl(var(--zen-accent))] shadow-inner'
+                            : 'hover:bg-gray-50 text-[hsl(var(--zen-text-muted))]'
                             }`}
                     >
                         <Info className="w-5.5 h-5.5" />
@@ -189,8 +199,8 @@ export default function ChatWindow({ selectedLead }) {
                             onClick={sendMessage}
                             disabled={sending || !inputText.trim()}
                             className={`p-3.5 rounded-2xl transition-all flex items-center justify-center shadow-lg ${sending
-                                    ? 'bg-gray-100 text-gray-300'
-                                    : 'bg-[hsl(var(--zen-accent))] text-white hover:shadow-green-200 hover:-translate-y-0.5 active:translate-y-0'
+                                ? 'bg-gray-100 text-gray-300'
+                                : 'bg-[hsl(var(--zen-accent))] text-white hover:shadow-green-200 hover:-translate-y-0.5 active:translate-y-0'
                                 }`}
                         >
                             <Send className="w-5 h-5" />
@@ -215,8 +225,8 @@ function MessageBubble({ isAi, text, time, isHuman }) {
         <div className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
             <div
                 className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all ${isAi
-                        ? (isHuman ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100' : 'bubble-ai')
-                        : 'bubble-user'
+                    ? (isHuman ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100' : 'bubble-ai')
+                    : 'bubble-user'
                     }`}
             >
                 <div className="whitespace-pre-wrap font-medium">{text}</div>

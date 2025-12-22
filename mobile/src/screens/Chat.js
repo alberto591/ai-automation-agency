@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 import { COLORS, SPACING } from '../theme/constants';
@@ -37,14 +38,6 @@ export default function Chat({ route, navigation }) {
     useEffect(() => {
         fetchLeadData();
 
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.navigate('LeadDetail', { lead: leadRecord })} disabled={!leadRecord}>
-                    <Info color={COLORS.primary} size={24} style={{ marginRight: 15 }} />
-                </TouchableOpacity>
-            ),
-        });
-
         const channel = supabase
             .channel(`public: lead_conversations: id = eq.${leadId} `)
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lead_conversations', filter: `id = eq.${leadId} ` }, (payload) => {
@@ -55,7 +48,17 @@ export default function Chat({ route, navigation }) {
             .subscribe();
 
         return () => supabase.removeChannel(channel);
-    }, [leadId, leadRecord, navigation]);
+    }, [leadId]);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('LeadDetail', { lead: leadRecord })} disabled={!leadRecord}>
+                    <Info color={COLORS.primary} size={24} style={{ marginRight: 15 }} />
+                </TouchableOpacity>
+            ),
+        });
+    }, [leadRecord, navigation]);
 
     async function fetchLeadData() {
         const { data, error } = await supabase
@@ -117,16 +120,28 @@ export default function Chat({ route, navigation }) {
             const { durationMillis } = await recording.getStatusAsync();
             setRecording(undefined);
 
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = async () => {
-                const base64data = reader.result.split(',')[1];
+            let publicUrl;
+            if (Platform.OS === 'web') {
+                const response = await fetch(uri);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                const base64Promise = new Promise((resolve) => {
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                });
+                reader.readAsDataURL(blob);
+                const base64data = await base64Promise;
                 const fileName = `voice-${Date.now()}.m4a`;
-                const publicUrl = await api.uploadFile(base64data, fileName, 'audio/m4a');
-                await api.sendMessage(phone, `[AUDIO:${durationMillis}]${publicUrl}`);
+                publicUrl = await api.uploadFile(base64data, fileName, 'audio/m4a');
+            } else {
+                const base64data = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+                const fileName = `voice-${Date.now()}.m4a`;
+                publicUrl = await api.uploadFile(base64data, fileName, 'audio/m4a');
             }
+
+            await api.sendMessage(phone, `[AUDIO:${durationMillis}]${publicUrl}`);
+
         } catch (err) {
             console.error('Failed to stop recording', err);
             Alert.alert("Errore", "Impossibile inviare la nota vocale");

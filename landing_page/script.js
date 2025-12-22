@@ -716,6 +716,7 @@ const translations = {
         'nav-caratteristiche': 'Caratteristiche',
         'nav-contatto': 'Contatto',
         'nav-prenota-demo': 'Prenota Demo',
+        'nav-valutazione': 'Valutazione AI',
 
         // Hero Section
         'hero-subtitle': 'Il Futuro dell\'Immobiliare',
@@ -879,6 +880,7 @@ const translations = {
         'nav-caratteristiche': 'Features',
         'nav-contatto': 'Contact',
         'nav-prenota-demo': 'Book Demo',
+        'nav-valutazione': 'AI Valuation',
 
         // Hero Section
         'hero-subtitle': 'The Future of Real Estate',

@@ -145,6 +145,7 @@ p {
     display: flex;
     align-items: center;
     gap: 1rem;
+    margin-right: 4rem;
 }
 
 .brand-logo {
@@ -165,11 +166,7 @@ p {
     color: var(--navy-blue);
 }
 
-.brand-tagline {
-    font-size: 0.875rem;
-    color: var(--slate-gray);
-    font-weight: 500;
-}
+
 
 .nav-links {
     display: flex;
@@ -1859,6 +1856,10 @@ p {
 }
 
 @media (max-width: 768px) {
+    .nav-brand {
+        margin-right: 0;
+    }
+
     .nav-links {
         display: none;
     }
