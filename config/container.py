@@ -1,6 +1,6 @@
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from application.services.journey_manager import JourneyManager
-from infrastructure.adapters.mistral_adapter import MistralAdapter
+from infrastructure.adapters.langchain_adapter import LangChainAdapter
 from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.adapters.twilio_adapter import TwilioAdapter
 from infrastructure.adapters.google_calendar_adapter import GoogleCalendarAdapter
@@ -11,7 +11,7 @@ class Container:
     def __init__(self) -> None:
         # Infrastructure Adapters
         self.db: SupabaseAdapter = SupabaseAdapter()
-        self.ai: MistralAdapter = MistralAdapter()
+        self.ai: LangChainAdapter = LangChainAdapter()
         self.msg: TwilioAdapter = TwilioAdapter()
         self.calendar: GoogleCalendarAdapter = GoogleCalendarAdapter()
         self.doc_gen: DocumentAdapter = DocumentAdapter()

@@ -33,6 +33,11 @@ class SupabaseAdapter(DatabasePort):
             lead_profile.pop("last_message", None)  # Computed or stored elsewhere usually
             
             # 2. Upsert Lead Profile
+            # Ensure metadata is handled if provided
+            if "metadata" in lead_profile and isinstance(lead_profile["metadata"], (dict, list)):
+                # metadata is JSONB, serializable by supabase-py
+                pass
+
             res = self.client.table("leads").upsert(lead_profile, on_conflict="customer_phone").execute()
             if not res.data:
                 raise DatabaseError("Failed to save lead profile")
