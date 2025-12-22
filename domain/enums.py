@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+
 class LeadStatus(StrEnum):
     ACTIVE = "active"
     HOT = "hot"

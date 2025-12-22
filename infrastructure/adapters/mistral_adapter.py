@@ -32,11 +32,10 @@ class MistralAdapter(AIPort):
     def get_embedding(self, text: str) -> list[float]:
         try:
             response = self.client.embeddings.create(
-                model=settings.MISTRAL_EMBEDDING_MODEL,
-                inputs=[text]
+                model=settings.MISTRAL_EMBEDDING_MODEL, inputs=[text]
             )
             if response and response.data:
-                return response.data[0].embedding # type: ignore
+                return response.data[0].embedding  # type: ignore
             return []
         except Exception as e:
             logger.error("MISTRAL_EMBED_FAILED", context={"error": str(e)})

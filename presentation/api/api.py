@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from fastapi import FastAPI, Header, HTTPException, BackgroundTasks, Request, Form
+from fastapi import BackgroundTasks, FastAPI, Form, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -98,38 +98,38 @@ async def twilio_webhook(
     background_tasks: BackgroundTasks,
     request: Request,
     From: str = Form(...),
-    Body: str = Form(...)
+    Body: str = Form(...),
 ) -> str:
     """
     Receives webhooks from Twilio for incoming WhatsApp messages.
     """
     logger.info("WEBHOOK_RECEIVED", context={"from": From, "body": Body})
-    
+
     # Process in background to ensure 200 OK is returned to Twilio immediately
     background_tasks.add_task(
-        container.lead_processor.process_incoming_message,
-        phone=From,
-        text=Body
+        container.lead_processor.process_incoming_message, phone=From, text=Body
     )
-    
+
     return "OK"
 
 
 @app.post("/api/leads/message")
-async def send_manual_message(req: ManualMessageRequest, background_tasks: BackgroundTasks) -> dict[str, str]:
+async def send_manual_message(
+    req: ManualMessageRequest, background_tasks: BackgroundTasks
+) -> dict[str, str]:
     try:
         # 1. Send message immediately (fast)
         container.lead_processor.send_manual_message(req.phone, req.message, skip_history=True)
-        
+
         # 2. Schedule history update in background (slower DB op)
         background_tasks.add_task(
-            container.lead_processor.add_message_history, 
-            req.phone, 
-            "assistant", 
-            req.message, 
-            metadata={"by": "human_agent"}
+            container.lead_processor.add_message_history,
+            req.phone,
+            "assistant",
+            req.message,
+            metadata={"by": "human_agent"},
         )
-        
+
         return {"status": "success", "message": "Message queued."}
     except Exception as e:
         logger.error("MANUAL_MESSAGE_FAILED", context={"phone": req.phone, "error": str(e)})
@@ -143,7 +143,7 @@ class LeadUpdate(BaseModel):
     zones: list[str] | None = None
     status: str | None = None
     journey_state: str | None = None
-    scheduled_at: str | None = None # Receive as ISO string
+    scheduled_at: str | None = None  # Receive as ISO string
 
 
 @app.patch("/api/leads")
@@ -157,7 +157,7 @@ async def update_lead(req: LeadUpdate) -> dict[str, str]:
             zones=req.zones,
             status=req.status,
             journey_state=req.journey_state,
-            scheduled_at=req.scheduled_at
+            scheduled_at=req.scheduled_at,
         )
         return {"status": "success", "message": "Lead updated."}
     except Exception as e:
@@ -167,18 +167,14 @@ async def update_lead(req: LeadUpdate) -> dict[str, str]:
 
 class ScheduleRequest(BaseModel):
     phone: str
-    start_time: str # ISO string
+    start_time: str  # ISO string
 
 
 @app.post("/api/leads/schedule")
 async def schedule_viewing(req: ScheduleRequest) -> dict[str, str]:
     try:
         dt = datetime.fromisoformat(req.start_time.replace("Z", "+00:00"))
-        container.journey.transition_to(
-            req.phone, 
-            LeadStatus.SCHEDULED, 
-            context={"start_time": dt}
-        )
+        container.journey.transition_to(req.phone, LeadStatus.SCHEDULED, context={"start_time": dt})
         return {"status": "success", "message": "Viewing scheduled."}
     except Exception as e:
         logger.error("SCHEDULE_FAILED", context={"phone": req.phone, "error": str(e)})
@@ -194,9 +190,7 @@ class ContractRequest(BaseModel):
 async def generate_contract(req: ContractRequest) -> dict[str, str]:
     try:
         container.journey.transition_to(
-            req.phone, 
-            LeadStatus.CONTRACT_PENDING, 
-            context={"offered_price": req.offered_price}
+            req.phone, LeadStatus.CONTRACT_PENDING, context={"offered_price": req.offered_price}
         )
         return {"status": "success", "message": "Contract generation triggered."}
     except Exception as e:
@@ -207,7 +201,11 @@ async def generate_contract(req: ContractRequest) -> dict[str, str]:
 @app.get("/api/user/profile")
 async def get_user_profile() -> dict[str, Any]:
     return {
-        "name": (settings.AGENCY_OWNER_PHONE.split("@")[0] if settings.AGENCY_OWNER_PHONE else "Agency Owner"),
+        "name": (
+            settings.AGENCY_OWNER_PHONE.split("@")[0]
+            if settings.AGENCY_OWNER_PHONE
+            else "Agency Owner"
+        ),
         "email": settings.AGENCY_OWNER_EMAIL or "info@anzevino.ai",
         "phone": settings.AGENCY_OWNER_PHONE or "+39 123 456 7890",
         "agency_name": "Anzevino AI",

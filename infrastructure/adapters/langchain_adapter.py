@@ -1,5 +1,5 @@
-from typing import Any
 from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
+
 from config.settings import settings
 from domain.errors import ExternalServiceError
 from domain.ports import AIPort
@@ -25,7 +25,9 @@ class LangChainAdapter(AIPort):
             return str(response.content)
         except Exception as e:
             logger.error("LANGCHAIN_GENERATE_FAILED", context={"error": str(e)})
-            raise ExternalServiceError("Failed to generate AI response via LangChain", cause=str(e)) from e
+            raise ExternalServiceError(
+                "Failed to generate AI response via LangChain", cause=str(e)
+            ) from e
 
     def get_embedding(self, text: str) -> list[float]:
         try:
@@ -33,4 +35,6 @@ class LangChainAdapter(AIPort):
             return embedding
         except Exception as e:
             logger.error("LANGCHAIN_EMBED_FAILED", context={"error": str(e)})
-            raise ExternalServiceError("Failed to generate embedding via LangChain", cause=str(e)) from e
+            raise ExternalServiceError(
+                "Failed to generate embedding via LangChain", cause=str(e)
+            ) from e

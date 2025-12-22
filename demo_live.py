@@ -1,7 +1,8 @@
-import requests
-import time
 import os
 import sys
+import time
+
+import requests
 
 BASE_URL = "http://localhost:8000"
 PHONE = "+39888999000"

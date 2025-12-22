@@ -1,10 +1,11 @@
-import os
 from typing import Annotated, TypedDict
 
 from langchain_mistralai import ChatMistralAI
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
+
 from config.settings import settings
+
 
 class State(TypedDict):
     # Messages have the type "list". The `add_messages` function
@@ -38,6 +39,7 @@ def create_lead_processing_graph():
 
     # Compile the graph
     return workflow.compile()
+
 
 # Example usage (uncomment to test manually if needed)
 # if __name__ == "__main__":

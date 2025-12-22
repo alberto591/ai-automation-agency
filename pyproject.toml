@@ -30,6 +30,14 @@ target-version = "py311"
 select = ["E", "F", "B", "I", "N", "UP", "PL"]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E501", "PLR2004", "PLC0415"]  # Allow long lines, magic numbers, imports in functions for tests
+"upload_data.py" = ["E501", "E701", "PLR1722"]  # Legacy script - allow long lines and inline statements
+"**/test_*.py" = ["E501", "PLR2004"]  # Allow long lines and magic numbers in test files
+"scripts/**" = ["E501", "PLR2004", "PLC0415", "E722", "F841"]  # Scripts: allow long lines, magic numbers, local imports, bare excepts, unused vars
+"simulate_reply.py" = ["PLR2004"]  # Allow magic numbers for HTTP status codes
+"demo_*.py" = ["E501"]  # Demo scripts can have long lines
+
 [tool.mypy]
 python_version = "3.11"
 strict = true

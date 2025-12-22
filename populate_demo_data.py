@@ -11,7 +11,8 @@ Usage:
 
 import os
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -78,11 +79,11 @@ def clear_existing_data():
     """WARNING: Deletes all lead_conversations data"""
     print("⚠️  WARNING: This will delete ALL existing lead data!")
     confirm = input("Type 'DELETE' to confirm: ")
-    
+
     if confirm != "DELETE":
         print("❌ Cancelled")
         return False
-    
+
     try:
         # Delete all records (be careful with this in production!)
         supabase.table("lead_conversations").delete().neq("id", 0).execute()
@@ -95,13 +96,13 @@ def clear_existing_data():
 
 def populate_demo_conversations():
     """Adds realistic conversations for demo purposes"""
-    
+
     print("📝 Populating demo conversations...")
-    
+
     for conv in DEMO_CONVERSATIONS:
         # Calculate timestamp based on days_ago
-        timestamp = (datetime.now(timezone.utc) - timedelta(days=conv["days_ago"])).isoformat()
-        
+        timestamp = (datetime.now(UTC) - timedelta(days=conv["days_ago"])).isoformat()
+
         data = {
             "customer_name": conv["customer_name"],
             "customer_phone": conv["customer_phone"],
@@ -110,13 +111,13 @@ def populate_demo_conversations():
             "status": conv["status"],
             "created_at": timestamp,
         }
-        
+
         try:
             supabase.table("lead_conversations").insert(data).execute()
             print(f"  ✅ Added: {conv['customer_name']} ({conv['status']})")
         except Exception as e:
             print(f"  ❌ Failed to add {conv['customer_name']}: {e}")
-    
+
     print("\n✅ Demo data populated!")
     print("\n📊 Summary:")
     print(f"   Total conversations: {len(DEMO_CONVERSATIONS)}")
@@ -127,11 +128,11 @@ def populate_demo_conversations():
 
 if __name__ == "__main__":
     import sys
-    
-    print("\n" + "="*50)
+
+    print("\n" + "=" * 50)
     print("🎭 DEMO DATA GENERATOR")
-    print("="*50 + "\n")
-    
+    print("=" * 50 + "\n")
+
     if "--clear" in sys.argv:
         # Dangerous option: clear then populate
         if clear_existing_data():

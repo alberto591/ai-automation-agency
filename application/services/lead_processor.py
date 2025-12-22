@@ -2,11 +2,10 @@ import re
 from datetime import UTC, datetime
 from typing import Any
 
-from config.settings import settings
+from application.workflows.agents import create_lead_processing_graph
 from domain.enums import LeadStatus
 from domain.ports import AIPort, DatabasePort, MessagingPort
 from infrastructure.logging import get_logger
-from application.workflows.agents import create_lead_processing_graph
 
 logger = get_logger(__name__)
 
@@ -46,16 +45,17 @@ class LeadScorer:
 
 from application.services.journey_manager import JourneyManager
 
+
 class LeadProcessor:
     def __init__(
-        self, 
-        db: DatabasePort, 
-        ai: AIPort, 
-        msg: MessagingPort, 
+        self,
+        db: DatabasePort,
+        ai: AIPort,
+        msg: MessagingPort,
         scorer: LeadScorer,
         journey: JourneyManager = None,
         scraper: Any = None,
-        market: Any = None
+        market: Any = None,
     ):
         self.db = db
         self.ai = ai
@@ -64,9 +64,10 @@ class LeadProcessor:
         self.journey = journey
         self.scraper = scraper
         self.market = market
-        
+
         # Ensure we use the best available AI port for the graph
         from infrastructure.adapters.langchain_adapter import LangChainAdapter
+
         graph_ai = ai if isinstance(ai, LangChainAdapter) else LangChainAdapter()
         self.graph = create_lead_processing_graph(db, graph_ai, msg, journey, scraper, market)
 
@@ -78,42 +79,43 @@ class LeadProcessor:
         logger.info("PROCESSING_LEAD", context={"phone": phone, "name": name})
 
         # Use LangGraph
-        inputs = {
-            "phone": phone, 
-            "user_input": query, 
-            "name": name, 
-            "postcode": postcode
-        }
-        
+        inputs = {"phone": phone, "user_input": query, "name": name, "postcode": postcode}
+
         try:
             result = self.graph.invoke(inputs)
             # Side effects (messaging, persistence) are handled by finalize_node in agents.py
             return result.get("ai_response", "")
         except Exception as e:
             logger.error("PROCESS_LEAD_GRAPH_FAILED", context={"phone": phone, "error": str(e)})
-            return "Mi dispiace, si è verificato un errore durante l'elaborazione della tua richiesta."
+            return (
+                "Mi dispiace, si è verificato un errore durante l'elaborazione della tua richiesta."
+            )
 
     def takeover(self, phone: str) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("LEAD_TAKEOVER", context={"phone": phone})
         # self.db.update_lead_status(phone, "human_mode")
-        self.db.save_lead({
-            "customer_phone": phone,
-            "status": LeadStatus.HUMAN_MODE,
-            "is_ai_active": False,
-            "updated_at": datetime.now(UTC).isoformat(),
-        })
+        self.db.save_lead(
+            {
+                "customer_phone": phone,
+                "status": LeadStatus.HUMAN_MODE,
+                "is_ai_active": False,
+                "updated_at": datetime.now(UTC).isoformat(),
+            }
+        )
 
     def resume(self, phone: str) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("LEAD_RESUME", context={"phone": phone})
         # self.db.update_lead_status(phone, "active")
-        self.db.save_lead({
-            "customer_phone": phone,
-            "status": LeadStatus.ACTIVE,
-            "is_ai_active": True,
-            "updated_at": datetime.now(UTC).isoformat(),
-        })
+        self.db.save_lead(
+            {
+                "customer_phone": phone,
+                "status": LeadStatus.ACTIVE,
+                "is_ai_active": True,
+                "updated_at": datetime.now(UTC).isoformat(),
+            }
+        )
 
     def update_lead_details(
         self,
@@ -127,7 +129,7 @@ class LeadProcessor:
     ) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("UPDATING_LEAD_DETAILS", context={"phone": phone})
-        
+
         lead_data = {"customer_phone": phone}
         if name:
             lead_data["customer_name"] = name
@@ -141,24 +143,27 @@ class LeadProcessor:
             lead_data["journey_state"] = journey_state
         if scheduled_at:
             lead_data["scheduled_at"] = scheduled_at
-        
+
         lead_data["updated_at"] = datetime.now(UTC).isoformat()
         self.db.save_lead(lead_data)
 
     def send_manual_message(self, phone: str, message: str, skip_history: bool = False) -> None:
         phone = re.sub(r"\s+", "", phone)
-        logger.info("SENDING_MANUAL_MESSAGE", context={"phone": phone, "skip_history": skip_history})
+        logger.info(
+            "SENDING_MANUAL_MESSAGE", context={"phone": phone, "skip_history": skip_history}
+        )
         # 1. Send via messaging port
         self.msg.send_message(phone, message)
 
         # 2. Update history (optional, can be done in background)
         if not skip_history:
             try:
-                self.add_message_history(phone, "assistant", message, metadata={"by": "human_agent"})
+                self.add_message_history(
+                    phone, "assistant", message, metadata={"by": "human_agent"}
+                )
             except Exception as e:
                 logger.error(
-                    "MANUAL_MESSAGE_HISTORY_FAILED",
-                    context={"phone": phone, "error": str(e)}
+                    "MANUAL_MESSAGE_HISTORY_FAILED", context={"phone": phone, "error": str(e)}
                 )
 
     def add_message_history(
@@ -192,7 +197,7 @@ class LeadProcessor:
         phone = re.sub(r"\s+", "", phone)
         if phone.startswith("whatsapp:"):
             phone = phone.replace("whatsapp:", "")
-            
+
         logger.info("INCOMING_MESSAGE", context={"phone": phone, "text": text})
 
         # Logic delegated to LangGraph
@@ -202,4 +207,3 @@ class LeadProcessor:
             self.graph.invoke(inputs)
         except Exception as e:
             logger.error("GRAPH_INVOCATION_FAILED", context={"phone": phone, "error": str(e)})
-

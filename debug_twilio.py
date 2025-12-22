@@ -1,6 +1,7 @@
 import os
-from twilio.rest import Client
+
 from dotenv import load_dotenv
+from twilio.rest import Client
 
 load_dotenv()
 
@@ -11,7 +12,7 @@ to_number = "+34625852546"
 
 client = Client(account_sid, auth_token)
 
-print(f"📡 TESTING DIRECT TWILIO CONNECTION")
+print("📡 TESTING DIRECT TWILIO CONNECTION")
 print(f"FROM: {from_number}")
 print(f"TO:   {to_number}")
 
@@ -19,7 +20,7 @@ try:
     message = client.messages.create(
         body="🤖 Debug Test: Ciao! Se leggi questo, la connessione è OK.",
         from_=from_number,
-        to=f"whatsapp:{to_number}"
+        to=f"whatsapp:{to_number}",
     )
     print(f"✅ Message sent! SID: {message.sid}")
     print(f"Status: {message.status}")

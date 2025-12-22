@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 # Load root .env
@@ -14,4 +15,4 @@ VITE_SUPABASE_ANON_KEY={key}
 with open(".env", "w") as f:
     f.write(env_content)
 
-print(f"✅ Created dashboard/.env with Supabase keys.")
+print("✅ Created dashboard/.env with Supabase keys.")

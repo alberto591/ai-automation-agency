@@ -14,7 +14,8 @@ Follow-up schedule:
 
 import os
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime
+
 from dotenv import load_dotenv
 from supabase import create_client
 from twilio.rest import Client
@@ -44,23 +45,25 @@ def get_leads_needing_followup():
     2. Status is NOT 'TAKEOVER' or 'CLOSED'
     3. Haven't received a follow-up for this tier yet
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     leads_to_contact = []
-    
+
     try:
         # Get all unique phone numbers with their last interaction
-        response = supabase.table("lead_conversations")\
-            .select("customer_phone,customer_name,created_at,status")\
-            .order("created_at", desc=True)\
+        response = (
+            supabase.table("lead_conversations")
+            .select("customer_phone,customer_name,created_at,status")
+            .order("created_at", desc=True)
             .execute()
-        
+        )
+
         # Group by phone, get latest record per phone
         latest_by_phone = {}
         for record in response.data:
             phone = record["customer_phone"]
             if phone not in latest_by_phone:
                 latest_by_phone[phone] = record
-        
+
         # Check which ones need follow-up
         for phone, record in latest_by_phone.items():
             # Skip if in takeover or system messages
@@ -68,30 +71,32 @@ def get_leads_needing_followup():
                 continue
             if record.get("customer_name") == "System":
                 continue
-            
+
             # Calculate days since last interaction
             created_str = record.get("created_at", "")
             if not created_str:
                 continue
-                
+
             try:
                 created_at = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
                 days_since = (now - created_at).days
-                
+
                 # Check if eligible for follow-up
                 if days_since in FOLLOW_UP_TEMPLATES:
-                    leads_to_contact.append({
-                        "phone": phone,
-                        "name": record.get("customer_name", "Cliente"),
-                        "days_since": days_since,
-                        "template": FOLLOW_UP_TEMPLATES[days_since]
-                    })
+                    leads_to_contact.append(
+                        {
+                            "phone": phone,
+                            "name": record.get("customer_name", "Cliente"),
+                            "days_since": days_since,
+                            "template": FOLLOW_UP_TEMPLATES[days_since],
+                        }
+                    )
             except Exception:
                 continue
-                
+
     except Exception as e:
         print(f"❌ Error fetching leads: {e}")
-    
+
     return leads_to_contact
 
 
@@ -99,21 +104,21 @@ def send_follow_up(lead):
     """Sends a follow-up message to the lead."""
     try:
         twilio_client.messages.create(
-            body=lead["template"],
-            from_=TWILIO_PHONE,
-            to=f"whatsapp:{lead['phone']}"
+            body=lead["template"], from_=TWILIO_PHONE, to=f"whatsapp:{lead['phone']}"
         )
         print(f"✅ Follow-up sent to {lead['phone']} (Day {lead['days_since']})")
-        
+
         # Log the follow-up in database
-        supabase.table("lead_conversations").insert({
-            "customer_name": "System",
-            "customer_phone": lead["phone"],
-            "last_message": f"[AUTO] Follow-up Day {lead['days_since']}",
-            "ai_summary": lead["template"],
-            "status": "FOLLOW_UP"
-        }).execute()
-        
+        supabase.table("lead_conversations").insert(
+            {
+                "customer_name": "System",
+                "customer_phone": lead["phone"],
+                "last_message": f"[AUTO] Follow-up Day {lead['days_since']}",
+                "ai_summary": lead["template"],
+                "status": "FOLLOW_UP",
+            }
+        ).execute()
+
         return True
     except Exception as e:
         print(f"❌ Failed to send follow-up to {lead['phone']}: {e}")
@@ -123,15 +128,15 @@ def send_follow_up(lead):
 def run_follow_up_job():
     """Main function to run the follow-up automation."""
     print(f"🔄 Running follow-up job at {datetime.now()}")
-    
+
     leads = get_leads_needing_followup()
     print(f"📋 Found {len(leads)} leads needing follow-up")
-    
+
     success_count = 0
     for lead in leads:
         if send_follow_up(lead):
             success_count += 1
-    
+
     print(f"✅ Sent {success_count}/{len(leads)} follow-ups")
     return success_count
 

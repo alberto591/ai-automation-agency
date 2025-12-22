@@ -1,7 +1,8 @@
-from fastapi.testclient import TestClient
-from unittest.mock import patch
-import sys
 import os
+import sys
+from unittest.mock import patch
+
+from fastapi.testclient import TestClient
 
 # Create a dummy .env file if it doesn't exist
 if not os.path.exists(".env"):
@@ -107,11 +108,7 @@ def test_takeover_failure(mock_toggle):
 def test_portal_webhook_success(mock_handle_lead):
     """Test the universal /webhooks/portal endpoint."""
     mock_handle_lead.return_value = "AI Response"
-    payload = {
-        "name": "Portal Lead",
-        "phone": "+393330001111",
-        "source": "idealista"
-    }
+    payload = {"name": "Portal Lead", "phone": "+393330001111", "source": "idealista"}
     response = client.post("/webhooks/portal", json=payload, headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "success"
@@ -132,7 +129,7 @@ def test_immobiliare_webhook_success(mock_handle_lead):
     payload = {
         "contact_name": "Immo Client",
         "contact_phone": "3331234567",  # Testing auto-fix +39
-        "listing_title": "Modern Loft"
+        "listing_title": "Modern Loft",
     }
     response = client.post("/webhooks/immobiliare", json=payload, headers=HEADERS)
     assert response.status_code == 200
@@ -145,11 +142,7 @@ def test_immobiliare_webhook_success(mock_handle_lead):
 def test_email_parser_webhook_success(mock_handle_lead):
     """Test the /webhooks/email-parser endpoint from Make.com."""
     mock_handle_lead.return_value = "AI Response"
-    payload = {
-        "parsed_name": "Email Client",
-        "parsed_phone": "+393339998888",
-        "property": "Villa"
-    }
+    payload = {"parsed_name": "Email Client", "parsed_phone": "+393339998888", "property": "Villa"}
     response = client.post("/webhooks/email-parser", json=payload, headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["status"] == "success"

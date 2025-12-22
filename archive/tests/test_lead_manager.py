@@ -1,6 +1,6 @@
-from unittest.mock import patch, MagicMock
 import os
 import sys
+from unittest.mock import MagicMock, patch
 
 # Ensure we can import the module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -10,9 +10,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # We will rely on patching the INSTANCES after import, or patching the classes.
 
 from lead_manager import (
-    handle_real_estate_lead,
-    handle_incoming_message,
     check_if_human_mode,
+    handle_incoming_message,
+    handle_real_estate_lead,
 )
 
 
@@ -29,9 +29,7 @@ def test_handle_real_estate_lead_happy_path(mock_twilio, mock_mistral, mock_supa
 
     # Mocking get_matching_properties internal call:
     # It does: response = supabase.table("properties").select("*").ilike("title", ...).limit(3).execute()
-    mock_supabase_query = (
-        mock_supabase.table.return_value.select.return_value.ilike.return_value.limit.return_value.execute
-    )
+    mock_supabase_query = mock_supabase.table.return_value.select.return_value.ilike.return_value.limit.return_value.execute
     mock_supabase_query.return_value.data = [
         {
             "title": "Mock Villa",
@@ -106,21 +104,22 @@ def test_handle_incoming_message_muted(mock_history, mock_check_mode):
     # The code calls check_if_human_mode first.
     mock_history.assert_not_called()
 
-@patch('lead_manager.notify_owner_urgent')
-@patch('lead_manager.toggle_human_mode')
-@patch('lead_manager.check_if_human_mode')
+
+@patch("lead_manager.notify_owner_urgent")
+@patch("lead_manager.toggle_human_mode")
+@patch("lead_manager.check_if_human_mode")
 def test_handle_incoming_message_keyword_trigger(mock_check_mode, mock_toggle, mock_notify):
     """Test that TIER1 keywords trigger the takeover protocol."""
     mock_check_mode.return_value = False
-    
+
     # User asks for human (TIER1 keyword)
     msg = "Voglio parlare con un umano subito"
-    
+
     response = handle_incoming_message("+39123", msg)
-    
+
     # Check that AI response is the standard 'Wait for boss' message
     assert "responsabile" in response
-    
+
     # Check side effects
     mock_toggle.assert_called_once_with("+39123")
     mock_notify.assert_called_once()

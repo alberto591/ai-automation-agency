@@ -28,35 +28,39 @@ class SupabaseAdapter(DatabasePort):
             # We must COPY lead_data to avoid modifying it in place which might affect caller
             lead_profile = lead_data.copy()
             messages = lead_profile.pop("messages", [])
-            
+
             # Remove keys that shouldn't be in LEADS table if present
             lead_profile.pop("last_message", None)  # Computed or stored elsewhere usually
-            
+
             # 2. Upsert Lead Profile
             # Ensure metadata is handled if provided
             if "metadata" in lead_profile and isinstance(lead_profile["metadata"], (dict, list)):
                 # metadata is JSONB, serializable by supabase-py
                 pass
 
-            res = self.client.table("leads").upsert(lead_profile, on_conflict="customer_phone").execute()
+            res = (
+                self.client.table("leads")
+                .upsert(lead_profile, on_conflict="customer_phone")
+                .execute()
+            )
             if not res.data:
                 raise DatabaseError("Failed to save lead profile")
-            
+
             lead_id = res.data[0]["id"]
-            
+
             # 3. Insert Messages
             # Only if we have explicit new messages structure.
             # Domain often sends [{"role": "user", "content": ...}]
             if messages:
                 for msg in messages:
-                     # Check if message already likely exists? 
-                     # For MVP Phase 2, we might just append if it's a new flow. 
-                     # But simple append is safest for now.
+                    # Check if message already likely exists?
+                    # For MVP Phase 2, we might just append if it's a new flow.
+                    # But simple append is safest for now.
                     msg_data = {
                         "lead_id": lead_id,
                         "role": msg.get("role"),
                         "content": msg.get("content"),
-                        "created_at": msg.get("timestamp") or datetime.now(UTC).isoformat()
+                        "created_at": msg.get("timestamp") or datetime.now(UTC).isoformat(),
                     }
                     self.client.table("messages").insert(msg_data).execute()
 
@@ -80,9 +84,9 @@ class SupabaseAdapter(DatabasePort):
             )
             if not res_lead.data:
                 return None
-            
+
             lead = res_lead.data[0]
-            
+
             # 2. Fetch Messages
             res_msgs = (
                 self.client.table("messages")
@@ -91,39 +95,41 @@ class SupabaseAdapter(DatabasePort):
                 .order("created_at")
                 .execute()
             )
-            
+
             # 3. Assemble
             lead["messages"] = res_msgs.data if res_msgs.data else []
             return lead
-            
+
         except Exception as e:
             logger.error("GET_LEAD_FAILED", context={"phone": phone, "error": str(e)})
             raise DatabaseError("Failed to retrieve lead", cause=str(e)) from e
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_properties(
-        self, 
-        query: str, 
-        limit: int = 3, 
+        self,
+        query: str,
+        limit: int = 3,
         use_mock_table: bool = False,
         embedding: list[float] | None = None,
-        filters: dict[str, Any] | None = None
+        filters: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         try:
             table = "mock_properties" if use_mock_table else "properties"
-            
+
             # Hybrid Search if embedding is provided
             if embedding:
                 rpc_name = "match_mock_properties" if use_mock_table else "match_properties"
                 # Prepare filters for RPC
                 rpc_params = {
                     "p_query_embedding": embedding,
-                    "match_threshold": 0.5, # Default threshold
-                    "match_count": limit
+                    "match_threshold": 0.5,  # Default threshold
+                    "match_count": limit,
                 }
                 if filters:
-                    if "min_price" in filters: rpc_params["min_price"] = filters["min_price"]
-                    if "max_price" in filters: rpc_params["max_price"] = filters["max_price"]
+                    if "min_price" in filters:
+                        rpc_params["min_price"] = filters["min_price"]
+                    if "max_price" in filters:
+                        rpc_params["max_price"] = filters["max_price"]
 
                 result = self.client.rpc(rpc_name, rpc_params).execute()
                 return list(result.data) if result.data else []
@@ -143,9 +149,7 @@ class SupabaseAdapter(DatabasePort):
 
     def update_lead(self, phone: str, data: dict[str, Any]) -> None:
         try:
-            self.client.table("leads").update(data).eq(
-                "customer_phone", phone
-            ).execute()
+            self.client.table("leads").update(data).eq("customer_phone", phone).execute()
         except Exception as e:
             logger.error("UPDATE_LEAD_FAILED", context={"phone": phone, "error": str(e)})
             raise DatabaseError("Failed to update lead", cause=str(e)) from e
@@ -162,11 +166,10 @@ class SupabaseAdapter(DatabasePort):
 
     def get_cached_response(self, embedding: list[float], threshold: float = 0.9) -> str | None:
         try:
-            res = self.client.rpc("match_cache", {
-                "p_query_embedding": embedding,
-                "match_threshold": threshold,
-                "match_count": 1
-            }).execute()
+            res = self.client.rpc(
+                "match_cache",
+                {"p_query_embedding": embedding, "match_threshold": threshold, "match_count": 1},
+            ).execute()
             if res.data:
                 return str(res.data[0]["response_text"])
             return None
@@ -176,11 +179,14 @@ class SupabaseAdapter(DatabasePort):
 
     def save_to_cache(self, query: str, embedding: list[float], response: str) -> None:
         try:
-            self.client.table("semantic_cache").upsert({
-                "query_text": query,
-                "query_embedding": embedding,
-                "response_text": response,
-                "updated_at": datetime.now(UTC).isoformat()
-            }, on_conflict="query_text").execute()
+            self.client.table("semantic_cache").upsert(
+                {
+                    "query_text": query,
+                    "query_embedding": embedding,
+                    "response_text": response,
+                    "updated_at": datetime.now(UTC).isoformat(),
+                },
+                on_conflict="query_text",
+            ).execute()
         except Exception as e:
             logger.error("SAVE_CACHE_FAILED", context={"error": str(e)})

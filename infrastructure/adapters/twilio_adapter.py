@@ -1,5 +1,5 @@
-from twilio.rest import Client
 from tenacity import retry, stop_after_attempt, wait_exponential
+from twilio.rest import Client
 
 from config.settings import settings
 from domain.errors import ExternalServiceError

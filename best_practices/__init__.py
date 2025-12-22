@@ -25,5 +25,5 @@ CODE_PATTERNS = {
         "id": "ARCH_HEX_001",
         "name": "Strict Layer Boundaries",
         "description": "Domain layer must not import from Infrastructure or Presentation layers.",
-    }
+    },
 }

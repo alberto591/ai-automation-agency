@@ -1,6 +1,7 @@
-import requests
-import time
 import sys
+import time
+
+import requests
 
 BASE_URL = "http://localhost:8000"
 PHONE = "+39555000111"
@@ -82,9 +83,7 @@ wait(4)
 # ACT 3: THE TAKEOVER
 # -------------------------------------------------------------
 print_step("ACT 3: The Owner Panics & Takes Over")
-print(
-    "📢 AGENCY OWNER: 'Whoa, 1.1M in cash? I need to handle this guy personally. Stop the bot!'"
-)
+print("📢 AGENCY OWNER: 'Whoa, 1.1M in cash? I need to handle this guy personally. Stop the bot!'")
 wait(1)
 
 try:

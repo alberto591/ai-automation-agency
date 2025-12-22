@@ -3,10 +3,11 @@
 Debug Everything Protocol Script
 Run this to validate system health and catch common issues.
 """
+
 import os
 import re
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # Colors for output
@@ -15,6 +16,7 @@ RED = "\033[91m"
 RESET = "\033[0m"
 
 APP_ROOT = Path(__file__).parent.parent
+
 
 def check_env_vars():
     """Verify essential environment variables are set."""
@@ -35,16 +37,17 @@ def check_env_vars():
                 if "=" in line and not line.startswith("#"):
                     k, v = line.strip().split("=", 1)
                     os.environ[k] = v
-    
+
     for var in required_vars:
         if not os.getenv(var):
             missing.append(var)
-    
+
     if missing:
         print(f"{RED}[FAIL] Missing variables: {', '.join(missing)}{RESET}")
         return False
     print(f"{GREEN}[PASS] All required variables present.{RESET}")
     return True
+
 
 def static_analysis_checks():
     """Run grep checks for dangerous patterns."""
@@ -55,7 +58,7 @@ def static_analysis_checks():
         (r"print\(", "Leftover print statements (use logger)"),
         (r"except.*:\s*pass", "Bare except pass"),
     ]
-    
+
     issues_found = False
     for root, _, files in os.walk(APP_ROOT):
         if "venv" in root or "__pycache__" in root or ".git" in root:
@@ -65,19 +68,22 @@ def static_analysis_checks():
                 continue
             path = Path(root) / file
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     content = f.read()
                     for pattern, desc in patterns:
                         if re.search(pattern, content):
-                            print(f"{RED}[WARN] {desc} found in {path.relative_to(APP_ROOT)}{RESET}")
+                            print(
+                                f"{RED}[WARN] {desc} found in {path.relative_to(APP_ROOT)}{RESET}"
+                            )
                             issues_found = True
             except:
                 pass
-                
+
     if not issues_found:
         print(f"{GREEN}[PASS] No critical static patterns found.{RESET}")
     else:
         print(f"{RED}[WARN] Issues found. Please review above.{RESET}")
+
 
 def run_tests():
     """Run unit tests using pytest."""
@@ -87,6 +93,7 @@ def run_tests():
         print(f"{GREEN}[PASS] Unit tests passed.{RESET}")
     except subprocess.CalledProcessError:
         print(f"{RED}[FAIL] Unit tests failed.{RESET}")
+
 
 if __name__ == "__main__":
     print(f"{GREEN}=== ANZEVINO AI DEBUG PROTOCOL ==={RESET}")

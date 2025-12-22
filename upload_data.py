@@ -1,8 +1,9 @@
-import os
-import csv
 import argparse
-from supabase import create_client, Client
+import csv
+import os
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +32,7 @@ DEFAULT_PORTFOLIO = [
         "energy_class": "A+",
         "floor": 5,
         "has_elevator": True,
-        "status": "available"
+        "status": "available",
     },
     {
         "title": "Trilocale Via Roma",
@@ -43,7 +44,7 @@ DEFAULT_PORTFOLIO = [
         "energy_class": "C",
         "floor": 2,
         "has_elevator": True,
-        "status": "available"
+        "status": "available",
     },
     {
         "title": "Bilocale Moderno Porta Nuova",
@@ -55,9 +56,10 @@ DEFAULT_PORTFOLIO = [
         "energy_class": "A",
         "floor": 12,
         "has_elevator": True,
-        "status": "available"
+        "status": "available",
     },
 ]
+
 
 def load_from_csv(file_path):
     """Loads properties from a CSV file with Data 2.0 support."""
@@ -65,32 +67,42 @@ def load_from_csv(file_path):
     if not os.path.exists(file_path):
         print(f"❌ Error: File not found {file_path}")
         return []
-    
+
     try:
-        with open(file_path, mode='r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 # Basic validation
-                if 'title' in row and 'description' in row:
+                if "title" in row and "description" in row:
                     try:
                         # Required conversion
-                        row['price'] = int(row['price']) if row.get('price') else 0
-                        
+                        row["price"] = int(row["price"]) if row.get("price") else 0
+
                         # Data 2.0 optional fields (auto-conversion)
-                        if row.get('sqm'): row['sqm'] = int(row['sqm'])
-                        if row.get('rooms'): row['rooms'] = int(row['rooms'])
-                        if row.get('bathrooms'): row['bathrooms'] = int(row['bathrooms'])
-                        if row.get('floor'): row['floor'] = int(row['floor'])
-                        if row.get('has_elevator'): 
-                            row['has_elevator'] = row['has_elevator'].lower() in ['true', '1', 'si', 'yes']
-                        
+                        if row.get("sqm"):
+                            row["sqm"] = int(row["sqm"])
+                        if row.get("rooms"):
+                            row["rooms"] = int(row["rooms"])
+                        if row.get("bathrooms"):
+                            row["bathrooms"] = int(row["bathrooms"])
+                        if row.get("floor"):
+                            row["floor"] = int(row["floor"])
+                        if row.get("has_elevator"):
+                            row["has_elevator"] = row["has_elevator"].lower() in [
+                                "true",
+                                "1",
+                                "si",
+                                "yes",
+                            ]
+
                         properties.append(row)
                     except ValueError as ve:
                         print(f"   ⚠️ Skipping {row['title']}: Data conversion error: {ve}")
     except Exception as e:
         print(f"❌ Error reading CSV: {e}")
-        
+
     return properties
+
 
 def upload_portfolio(portfolio_data):
     print(f"🏠 [Agency Database] Updating Portfolio with {len(portfolio_data)} items...")
@@ -104,6 +116,7 @@ def upload_portfolio(portfolio_data):
 
     print("✅ [Success] Sync completed!")
     print("   The RAG Brain now knows about these houses.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Upload property portfolio to Supabase.")

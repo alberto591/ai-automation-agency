@@ -1,7 +1,8 @@
-import os
 import logging
-from supabase import create_client, Client
+import os
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +12,11 @@ load_dotenv()
 
 # Supabase Setup
 url: str = os.getenv("SUPABASE_URL")
-key: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+key: str = (
+    os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    or os.getenv("SUPABASE_KEY")
+    or os.getenv("SUPABASE_ANON_KEY")
+)
 supabase: Client = create_client(url, key)
 
 # Tuscany Market Data (Avg Price/mq - 2024/2025 Estimates)
@@ -31,14 +36,15 @@ TUSCANY_MARKET_DATA = [
     {"zone": "Scandicci", "price_per_mq": 3100, "city": "Firenze"},
 ]
 
+
 def seed_tuscany():
     logger.info("📍 Starting Tuscany Market Data Seeding...")
-    
+
     for item in TUSCANY_MARKET_DATA:
         try:
             # Check if exists
             existing = supabase.table("market_data").select("*").eq("zone", item["zone"]).execute()
-            
+
             if not existing.data:
                 supabase.table("market_data").insert(item).execute()
                 logger.info(f"✅ Inserted: {item['zone']} - €{item['price_per_mq']}/mq")
@@ -47,6 +53,7 @@ def seed_tuscany():
                 logger.info(f"🔄 Updated: {item['zone']} - €{item['price_per_mq']}/mq")
         except Exception as e:
             logger.error(f"❌ Error seeding {item['zone']}: {e}")
+
 
 if __name__ == "__main__":
     seed_tuscany()

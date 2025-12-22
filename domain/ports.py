@@ -14,12 +14,12 @@ class DatabasePort(ABC):
 
     @abstractmethod
     def get_properties(
-        self, 
-        query: str, 
-        limit: int = 3, 
+        self,
+        query: str,
+        limit: int = 3,
         use_mock_table: bool = False,
         embedding: list[float] | None = None,
-        filters: dict[str, Any] | None = None
+        filters: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         pass
 
@@ -53,11 +53,7 @@ class AIPort(ABC):
 class CalendarPort(ABC):
     @abstractmethod
     def create_event(
-        self, 
-        summary: str, 
-        start_time: datetime, 
-        end_time: datetime, 
-        attendees: list[str]
+        self, summary: str, start_time: datetime, end_time: datetime, attendees: list[str]
     ) -> str:
         """Creates a calendar event and returns the event link."""
         pass

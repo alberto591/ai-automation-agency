@@ -11,10 +11,10 @@ Usage:
     python scripts/seed_properties.py --clear-mock   # Delete ONLY mock data
 """
 
-import csv
-import sys
-import os
 import argparse
+import csv
+import os
+import sys
 from typing import Any
 
 # Add root to path
@@ -25,14 +25,16 @@ from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 def load_csv(filepath: str) -> list[dict[str, Any]]:
     if not os.path.exists(filepath):
         print(f"❌ File not found: {filepath}")
         return []
-    
-    with open(filepath, mode='r', encoding='utf-8') as f:
+
+    with open(filepath, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         return list(reader)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Seed properties into Supabase")
@@ -40,7 +42,7 @@ def main():
     parser.add_argument("--prod", action="store_true", help="Flag data as production")
     parser.add_argument("--clear-mock", action="store_true", help="Delete all mock data")
     parser.add_argument("--file", default="properties_sample.csv", help="CSV file to load")
-    
+
     args = parser.parse_args()
     db = SupabaseAdapter()
 
@@ -48,7 +50,9 @@ def main():
     if args.clear_mock:
         print("🗑️  Clearing mock data...")
         try:
-            db.client.table("mock_properties").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+            db.client.table("mock_properties").delete().neq(
+                "id", "00000000-0000-0000-0000-000000000000"
+            ).execute()
             print("✅ Mock data cleared.")
         except Exception as e:
             print(f"❌ Error clearing data: {e}")
@@ -82,15 +86,15 @@ def main():
                 "bathrooms": int(row.get("bathrooms", 0)) if row.get("bathrooms") else None,
                 "floor": int(row.get("floor", 0)) if row.get("floor") else None,
                 "energy_class": row.get("energy_class"),
-                "has_elevator": str(row.get("has_elevator", "")).lower() == 'true',
+                "has_elevator": str(row.get("has_elevator", "")).lower() == "true",
                 "status": row.get("status", "available"),
                 "image_url": row.get("image_url"),
                 # is_mock removed as it's no longer a column
             }
-            
+
             # Remove keys that might not exist in target schema if CSV is messy
             # (Assuming supabase_adapter handles upsert logic or we use raw client here)
-            
+
             # Using raw client for bulk/batch might be better, but loop is safer for validation
             db.client.table(target_table).insert(data).execute()
             count += 1
@@ -99,6 +103,7 @@ def main():
             print(f"  ❌ Failed to add {row.get('title', 'Unknown')}: {e}")
 
     print(f"\n✨ Done! Added {count} properties.")
+
 
 if __name__ == "__main__":
     main()
