@@ -7,6 +7,13 @@
         {
             "src": "landing_page/**",
             "use": "@vercel/static"
+        },
+        {
+            "src": "dashboard/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dashboard/dist"
+            }
         }
     ],
     "routes": [
@@ -21,6 +28,14 @@
         {
             "src": "/webhooks/(.*)",
             "dest": "presentation/api/api.py"
+        },
+        {
+            "src": "/dashboard/(.*)",
+            "dest": "/dashboard/$1"
+        },
+        {
+            "src": "/dashboard",
+            "dest": "/dashboard/index.html"
         },
         {
             "src": "/(.*)",
