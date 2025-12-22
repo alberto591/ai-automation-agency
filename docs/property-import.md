@@ -17,16 +17,23 @@ The importer expects a file named `properties_sample.csv` (or any other `.csv` f
 
 ## 🚀 How to Run the Import
 
-The import is performed using the `upload_data.py` script. You must use the project's virtual environment.
+The import is performed using the `scripts/seed_properties.py` script. You must use the project's virtual environment.
 
-### Option A: Use the Sample File
+### Option A: Upload to PRODUCTION
+This will add properties to your live database used by the AI.
 ```bash
-venv/bin/python3 upload_data.py --csv properties_sample.csv
+./venv/bin/python3 scripts/seed_properties.py --prod --file your_properties.csv
 ```
 
-### Option B: Use your own CSV
+### Option B: Upload to MOCK (Testing)
+Safe for testing new data without affecting the live customer experience.
 ```bash
-venv/bin/python3 upload_data.py --csv /path/to/your_file.csv
+./venv/bin/python3 scripts/seed_properties.py --mock --file your_properties.csv
+```
+
+### Option C: Clear Mock data
+```bash
+./venv/bin/python3 scripts/seed_properties.py --clear-mock
 ```
 
 ## ✅ Verification

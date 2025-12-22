@@ -1,6 +1,6 @@
-# 🎨 Landing Page Architecture
+# 🏗️ AI Appraisal Tool Architecture
 
-The landing page is designed for high performance, visual impact (glassmorphism), and full bilingual support.
+The appraisal tool is designed for high performance, visual impact (glassmorphism), and full bilingual support. It is a standalone product for property acquisition.
 
 ## 🌍 Translation System
 

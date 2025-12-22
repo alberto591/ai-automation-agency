@@ -58,7 +58,7 @@ venv/bin/python3 interactive_demo_relay.py
 **Purpose**: A visual, browser-based way to test inbound messages.
 
 ### How to use
-1.  Ensure the Landing Page server is running: `python3 -m http.server 8080` inside `landing_page/` folder.
+1.  Ensure the Appraisal Tool server is running: `python3 -m http.server 8080` inside `appraisal-tool/` folder.
 2.  Open: [http://localhost:8080/test_interface.html](http://localhost:8080/test_interface.html)
 3.  Enter a phone number and message.
 4.  Click **"Invia all'AI"**.

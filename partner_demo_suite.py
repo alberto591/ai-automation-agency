@@ -37,7 +37,7 @@ time.sleep(1)
 payload_1 = {
     "name": "Marco Venditore",
     "phone": PHONE,
-    "agency": "Landing Page",
+    "agency": "Appraisal Tool",
     "properties": "VALUTAZIONE: Via Roma 1, Milano",
 }
 resp = requests.post(f"{BASE_URL}/api/leads", json=payload_1).json()

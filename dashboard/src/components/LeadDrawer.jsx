@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2 } from 'lucide-react';
+import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function LeadDrawer({ lead, isOpen, onClose }) {
@@ -122,42 +122,50 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                     <h4 className="text-[10px] uppercase font-black text-[hsl(var(--zen-text-muted))] tracking-[0.2em] ml-1">AI Intelligence</h4>
 
                     <div className="grid grid-cols-1 gap-3">
-                        <div className="bg-white p-5 rounded-3xl border border-[hsl(var(--zen-border))] shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition-transform"></div>
-                            <div className="relative">
-                                <Wallet className="w-6 h-6 mb-3 text-[hsl(var(--zen-accent))]" />
-                                <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Budget Stimato</div>
-
-                                {isEditing ? (
-                                    <div className="flex items-center">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white p-5 rounded-3xl border border-[hsl(var(--zen-border))] shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-green-50 rounded-full -mr-4 -mt-4 opacity-50"></div>
+                                <div className="relative">
+                                    <Wallet className="w-5 h-5 mb-2 text-[hsl(var(--zen-accent))]" />
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Budget</div>
+                                    {isEditing ? (
                                         <input
                                             type="number"
                                             value={formData.budget_max}
                                             onChange={(e) => setFormData({ ...formData, budget_max: e.target.value })}
-                                            className="text-xl font-black text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-200 w-full"
+                                            className="text-lg font-black text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-100 w-full"
                                         />
-                                        <span className="ml-1 text-xl font-black">€</span>
+                                    ) : (
+                                        <div className="text-lg font-black text-[hsl(var(--zen-text-main))]">
+                                            {budget !== "N/A" ? `${budget.toLocaleString()}€` : "Analisi..."}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-5 rounded-3xl border border-[hsl(var(--zen-border))] shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-full -mr-4 -mt-4 opacity-50"></div>
+                                <div className="relative">
+                                    <Sparkles className="w-5 h-5 mb-2 text-purple-500" />
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Sentiment</div>
+                                    <div className="text-sm font-bold text-[hsl(var(--zen-text-main))] capitalize">
+                                        {lead.metadata?.sentiment?.sentiment?.toLowerCase() || "Neutrale"}
                                     </div>
-                                ) : (
-                                    <div className="text-xl font-black text-[hsl(var(--zen-text-main))]">
-                                        {budget !== "N/A" ? `${budget.toLocaleString()}€` : "Analisi in corso..."}
-                                    </div>
-                                )}
+                                </div>
                             </div>
                         </div>
 
                         <div className="bg-white p-5 rounded-3xl border border-[hsl(var(--zen-border))] shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition-transform"></div>
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 opacity-50"></div>
                             <div className="relative">
-                                <MapPin className="w-6 h-6 mb-3 text-blue-500" />
+                                <MapPin className="w-5 h-5 mb-2 text-blue-500" />
                                 <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Zone di Interesse</div>
-
                                 {isEditing ? (
                                     <input
                                         type="text"
                                         value={formData.preferred_zones}
                                         onChange={(e) => setFormData({ ...formData, preferred_zones: e.target.value })}
-                                        className="text-sm font-bold text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-200 w-full"
+                                        className="text-sm font-bold text-[hsl(var(--zen-text-main))] bg-transparent focus:outline-none border-b border-gray-100 w-full"
                                         placeholder="Milano, Brera, ..."
                                     />
                                 ) : (
@@ -165,6 +173,27 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                         {Array.isArray(zone) ? zone.join(" • ") : zone}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
+                                <div className="relative">
+                                    <ShieldCheck className="w-4 h-4 mb-2 text-emerald-500" />
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Origine</div>
+                                    <div className="text-[11px] font-black text-[hsl(var(--zen-text-main))] truncate">
+                                        {lead.metadata?.source?.replace('_', ' ') || "WhatsApp"}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
+                                <div className="relative">
+                                    <Zap className="w-4 h-4 mb-2 text-amber-500" />
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Intento</div>
+                                    <div className="text-[11px] font-black text-[hsl(var(--zen-text-main))] truncate capitalize">
+                                        {lead.metadata?.last_intent?.toLowerCase().replace('_', ' ') || "Ingaggio"}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
