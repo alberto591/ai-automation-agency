@@ -6,6 +6,13 @@ export function useLeads() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        // Check if supabase is initialized
+        if (!supabase) {
+            console.error("Supabase client not initialized. Check Env Vars.")
+            setLoading(false)
+            return
+        }
+
         fetchLeads()
 
         // Real-time subscription
@@ -23,6 +30,8 @@ export function useLeads() {
     }, [])
 
     async function fetchLeads() {
+        if (!supabase) return
+
         try {
             const { data, error } = await supabase
                 .from('lead_conversations')

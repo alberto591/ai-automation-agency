@@ -8,4 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.warn("Supabase keys missing in .env")
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "")
+// Export null if keys are missing to prevent crash
+export const supabase = (supabaseUrl && supabaseAnonKey)
+    ? createClient(supabaseUrl, supabaseAnonKey)
+    : null;
