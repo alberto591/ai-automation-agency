@@ -10,9 +10,9 @@ thefuzz
 requests
 python-dotenv
 tenacity
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
+tenacity
+google-auth
+requests
 fpdf2
 langchain-core
 langchain-mistralai

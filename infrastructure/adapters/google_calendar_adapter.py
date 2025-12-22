@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Any
 
 from google.oauth2 import service_account
-from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+import requests
 
 from config.settings import settings
 from domain.ports import CalendarPort
@@ -27,7 +28,7 @@ class GoogleCalendarAdapter(CalendarPort):
                 creds_dict, 
                 scopes=['https://www.googleapis.com/auth/calendar']
             )
-            return build('calendar', 'v3', credentials=creds)
+            return creds
         except Exception as e:
             logger.error("GOOGLE_CALENDAR_INIT_FAILED", context={"error": str(e)})
             return None
@@ -57,10 +58,20 @@ class GoogleCalendarAdapter(CalendarPort):
         }
 
         try:
-            event_result = self.service.events().insert(
-                calendarId=self.calendar_id, 
-                body=event
-            ).execute()
+            # Refresh token if needed
+            if self.service.expired:
+                self.service.refresh(Request())
+            
+            headers = {
+                "Authorization": f"Bearer {self.service.token}",
+                "Content-Type": "application/json"
+            }
+            
+            url = f"https://www.googleapis.com/calendar/v3/calendars/{self.calendar_id}/events"
+            
+            response = requests.post(url, headers=headers, json=event)
+            response.raise_for_status()
+            event_result = response.json()
             logger.info("CALENDAR_EVENT_CREATED", context={"id": event_result.get('id')})
             return event_result.get('htmlLink', "")
         except Exception as e:

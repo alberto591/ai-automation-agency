@@ -16,9 +16,7 @@ dependencies = [
     "python-dotenv",
     "tenacity",
     "fpdf2",
-    "google-api-python-client",
-    "google-auth-httplib2",
-    "google-auth-oauthlib",
+    "google-auth",
     "langchain-core",
     "langchain-mistralai",
     "langgraph"
