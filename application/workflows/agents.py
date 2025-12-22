@@ -163,17 +163,22 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                  if current_state == LeadStatus.ACTIVE:
                      journey.transition_to(phone, LeadStatus.HOT)
             
+            # Update lead_data in state so subsequent nodes see the change
+            updated_lead = lead.copy()
             if journey and extraction.intent == "VISIT":
                 if current_state != LeadStatus.APPOINTMENT_REQUESTED:
                     journey.transition_to(phone, LeadStatus.APPOINTMENT_REQUESTED)
+                    updated_lead["journey_state"] = LeadStatus.APPOINTMENT_REQUESTED
             elif journey and extraction.intent == "PURCHASE":
                  if current_state == LeadStatus.ACTIVE or current_state == LeadStatus.HOT:
                      journey.transition_to(phone, LeadStatus.QUALIFIED)
+                     updated_lead["journey_state"] = LeadStatus.QUALIFIED
 
             return {
                 "budget": extraction.budget or lead.get("budget_max"),
                 "intent": extraction.intent,
-                "entities": extraction.entities
+                "entities": extraction.entities,
+                "lead_data": updated_lead
             }
         except Exception as e:
             logger.error("INTENT_EXTRACTION_FAILED", context={"error": str(e)})
@@ -263,8 +268,9 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
         # Filter (ADR-004 logic: 0.78 threshold)
         valid_properties = [p for p in properties if p.get("similarity", 0) >= 0.78]
         status_msg = ""
-        if not valid_properties:
-             status_msg = "IMPORTANT: No exact matches found above 0.78 threshold. You MUST admit that you couldn't find a perfect match right now, but you are available to help."
+        # Only inject the "admit no matches" instruction if not specifically steering toward an appointment
+        if not valid_properties and state["intent"] != "VISIT":
+             status_msg = "No exact matches found above 0.78 threshold. Admit this politely but remain helpful."
         
         return {"retrieved_properties": valid_properties, "status_msg": status_msg}
 
@@ -286,18 +292,26 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                 "Property Context: {context_data}\n"
                 "Market Insights: {market_data}\n"
                 "Available Properties Data: {properties}\n\n"
-                "PHASE SPECIFIC INSTRUCTIONS:\n"
+                "### CRITICAL PHASE INSTRUCTIONS ###\n"
+                "You MUST follow these instructions based on current state (Stage: {stage}):\n"
                 "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately.\n"
                 "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
-                "3. If Journey Stage is APPOINTMENT_REQUESTED: Propose a viewing and provide this scheduling link: https://calendly.com/anzevino/viewing\n"
                 "Keep it native for WhatsApp (short, friendly, in Italian unless user speaks English)."
             )),
-            ("human", "{input}. {status_msg}"),
+            ("human", "{input}"),
         ])
         
         llm = getattr(ai, "llm", None)
         
         if llm:
+            # Final input assembly
+            final_input = state["user_input"]
+            if current_stage == "appointment_requested":
+                final_input += "\n\n(IMPORTANT: The user wants a visit. You MUST include this booking link in your response: https://anzevinoai.setmore.com)"
+            
+            if state["status_msg"]:
+                final_input += f"\n\n[ADMIN NOTE: {state['status_msg']}]"
+
             messages = prompt_template.format_messages(
                 name=nm,
                 stage=current_stage,
@@ -309,8 +323,7 @@ def create_lead_processing_graph(db: DatabasePort, ai: AIPort, msg: MessagingPor
                 source=state["source"],
                 context_data=state["context_data"],
                 market_data=state["market_data"],
-                input=state["user_input"],
-                status_msg=state["status_msg"]
+                input=final_input
             )
             response = llm.invoke(messages)
             return {"ai_response": str(response.content)}
