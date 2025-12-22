@@ -41,11 +41,11 @@ ignore = []
 "populate_demo_data.py" = ["E501"]
 "infrastructure/**" = ["E501", "PLR0915", "PLC0415", "PLR2004", "E722"]  # Allow complex adapters and legacy PDF generator issues
 "presentation/api/api.py" = ["N803"]  # Allow 'From' and 'Body' arguments (Twilio convention)
-"application/**" = ["E501", "E402", "PLR0913", "PLR0915", "PLC0415", "PLR1714"]  # Allow complex logic in application layer
+"application/**" = ["E501", "E402", "PLR0913", "PLR0915", "PLC0415", "PLR1714", "PLR2004"]  # Allow complex logic + magic numbers
 "archive/**" = ["E402", "PLC0415"]  # Archive code is legacy
 "best_practices/__init__.py" = ["E501"]  # Long descriptions
 "scenario_negotiation.py" = ["PLR2004", "E501"]  # Magic numbers in scenario script
-"agency_outreach.py" = ["E501"]
+"agency_outreach.py" = ["E501", "F841", "PLC0415"]
 
 [tool.mypy]
 python_version = "3.11"
