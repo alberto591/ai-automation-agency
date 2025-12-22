@@ -6,6 +6,7 @@ dependencies = [
     "uvicorn",
     "gunicorn",
     "pydantic",
+    "pydantic-settings",
     "supabase",
     "mistralai",
     "twilio",
