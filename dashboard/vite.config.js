@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/dashboard/',
   build: {
-    outDir: 'dist/dashboard',
+    outDir: 'dist',
     emptyOutDir: true
   }
 })
