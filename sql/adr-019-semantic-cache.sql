@@ -12,8 +12,10 @@ CREATE TABLE IF NOT EXISTS semantic_cache (
 );
 
 -- Function to match cached answers
+DROP FUNCTION IF EXISTS match_cache(vector, double precision, integer);
+
 CREATE OR REPLACE FUNCTION match_cache (
-  query_embedding vector(1024),
+  p_query_embedding vector(1024),
   match_threshold float,
   match_count int
 )
@@ -29,9 +31,9 @@ BEGIN
   SELECT
     c.query_text,
     c.response_text,
-    (1 - (c.query_embedding <=> query_embedding))::float AS similarity
+    (1 - (c.query_embedding <=> p_query_embedding))::float AS similarity
   FROM semantic_cache c
-  WHERE (1 - (c.query_embedding <=> query_embedding)) > match_threshold
+  WHERE (1 - (c.query_embedding <=> p_query_embedding)) > match_threshold
   ORDER BY similarity DESC
   LIMIT match_count;
 END;

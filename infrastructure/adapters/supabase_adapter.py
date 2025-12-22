@@ -112,7 +112,7 @@ class SupabaseAdapter(DatabasePort):
                 rpc_name = "match_mock_properties" if use_mock_table else "match_properties"
                 # Prepare filters for RPC
                 rpc_params = {
-                    "query_embedding": embedding,
+                    "p_query_embedding": embedding,
                     "match_threshold": 0.5, # Default threshold
                     "match_count": limit
                 }
@@ -158,7 +158,7 @@ class SupabaseAdapter(DatabasePort):
     def get_cached_response(self, embedding: list[float], threshold: float = 0.9) -> str | None:
         try:
             res = self.client.rpc("match_cache", {
-                "query_embedding": embedding,
+                "p_query_embedding": embedding,
                 "match_threshold": threshold,
                 "match_count": 1
             }).execute()
