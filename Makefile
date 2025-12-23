@@ -1,4 +1,4 @@
-.PHONY: help install lint format typecheck test clean run
+.PHONY: help install lint format typecheck test clean run pre-flight
 
 help:
 	@echo "Available commands:"
@@ -9,7 +9,11 @@ help:
 	@echo "  make test       - Run pytest"
 	@echo "  make clean      - Remove cache files"
 	@echo "  make run        - Start the FastAPI server"
+	@echo "  make pre-flight - Run comprehensive quality checks before pushing"
 	@echo "  make check-all  - Run all quality checks (lint + typecheck + test)"
+
+pre-flight:
+	./venv/bin/python scripts/pre_flight_check.py
 
 install:
 	pip install -r requirements.txt

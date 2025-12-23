@@ -8,11 +8,11 @@ Copy and paste the following SQL into your **Supabase SQL Editor**:
 
 ```sql
 -- 1. Add JSONB column for full chat history
-ALTER TABLE lead_conversations 
+ALTER TABLE lead_conversations
 ADD COLUMN IF NOT EXISTS messages JSONB DEFAULT '[]';
 
 -- 2. Add updated_at column for proper sorting
-ALTER TABLE lead_conversations 
+ALTER TABLE lead_conversations
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 3. [CLEANUP] Delete duplicate phone records (keeps only the most recent)
@@ -28,7 +28,7 @@ WHERE id NOT IN (
 );
 
 -- 4. Add the unique constraint to phone numbers
-ALTER TABLE lead_conversations 
+ALTER TABLE lead_conversations
 ADD CONSTRAINT unique_customer_phone UNIQUE (customer_phone);
 ```
 

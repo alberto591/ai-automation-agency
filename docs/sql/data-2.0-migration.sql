@@ -25,10 +25,10 @@ CREATE INDEX IF NOT EXISTS idx_properties_sqm ON properties(sqm);
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 
 -- 5. Create basic public read policy if not exists
-DO $$ 
+DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
+        SELECT 1 FROM pg_policies
         WHERE tablename = 'properties' AND policyname = 'Public read access'
     ) THEN
         CREATE POLICY "Public read access" ON properties FOR SELECT USING (true);

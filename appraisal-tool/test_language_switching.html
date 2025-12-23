@@ -42,26 +42,26 @@
 </head>
 <body>
     <h1>Language Switching Test</h1>
-    
+
     <div class="language-toggle">
         <button class="lang-btn active" data-lang="it">IT</button>
         <button class="lang-btn" data-lang="en">EN</button>
     </div>
-    
+
     <div class="test-section">
         <h2>Test Elements</h2>
-        
+
         <div>
             <span data-translate="hero-title">Vendi più case </span>
             <span class="highlight" data-translate="hero-title-highlight">mentre dormi</span>
         </div>
-        
+
         <p data-translate="hero-description">Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24. Trasforma ogni notturna in un'opportunità di vendita.</p>
-        
+
         <button class="btn-primary">
             <span data-translate="hero-cta-button">Prenota una Demo Gratuita</span>
         </button>
-        
+
         <div class="test-section">
             <h3>Form Elements</h3>
             <form>
@@ -69,12 +69,12 @@
                     <label data-translate="form-name">Nome *</label>
                     <input type="text" placeholder="Il tuo nome completo" data-translate="form-name-placeholder">
                 </div>
-                
+
                 <div>
                     <label data-translate="form-agency">Nome Agenzia *</label>
                     <input type="text" placeholder="Nome della tua agenzia" data-translate="form-agency-placeholder">
                 </div>
-                
+
                 <div>
                     <label data-translate="form-properties">Quante proprietà gestisci?</label>
                     <select data-translate="form-properties">
@@ -83,12 +83,12 @@
                         <option value="51-100" data-translate="form-properties-option-51-100">51-100 proprietà</option>
                     </select>
                 </div>
-                
+
                 <button type="submit" data-translate="form-submit">Prenota Demo Gratuita</button>
             </form>
         </div>
     </div>
-    
+
     <script>
         // Include the translations and language switching functions
         const translations = {
@@ -135,14 +135,14 @@
                     }
                 });
             }
-            
+
             document.documentElement.lang = language;
             localStorage.setItem('preferredLanguage', language);
         }
 
         function initializeLanguage() {
             const savedLang = localStorage.getItem('preferredLanguage') || 'it';
-            
+
             const langButtons = document.querySelectorAll('.lang-btn');
             langButtons.forEach(btn => {
                 btn.classList.remove('active');
@@ -150,26 +150,26 @@
                     btn.classList.add('active');
                 }
             });
-            
+
             switchLanguage(savedLang);
         }
 
         const languageToggle = document.querySelector('.language-toggle');
         if (languageToggle) {
             const langButtons = languageToggle.querySelectorAll('.lang-btn');
-            
+
             langButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     langButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     const selectedLang = this.getAttribute('data-lang');
                     switchLanguage(selectedLang);
-                    
+
                     alert(`Language changed to ${selectedLang === 'it' ? 'Italiano' : 'English'}`);
                 });
             });
-            
+
             initializeLanguage();
         }
     </script>

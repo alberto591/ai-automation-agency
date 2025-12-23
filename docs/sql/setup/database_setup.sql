@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS lead_conversations (
     budget_max INTEGER,
     preferred_zones TEXT[],
     lead_type TEXT DEFAULT 'buyer',
-    postcode TEXT, 
+    postcode TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -69,7 +69,7 @@ ALTER TABLE lead_conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE market_data ENABLE ROW LEVEL SECURITY;
 
 -- Basic Public Read Policies (Idempotent creation)
-DO $$ 
+DO $$
 BEGIN
     -- Properties
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'properties' AND policyname = 'Public read properties') THEN

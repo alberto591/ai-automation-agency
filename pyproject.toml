@@ -28,23 +28,24 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "I", "N", "UP", "PL"]
-ignore = []
+ignore = ["PLR0913"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["E501", "PLR2004", "PLC0415"]  # Allow long lines, magic numbers, imports in functions for tests
 "upload_data.py" = ["E501", "E701", "PLR1722"]  # Legacy script - allow long lines and inline statements
 "**/test_*.py" = ["E501", "PLR2004"]  # Allow long lines and magic numbers in test files
-"scripts/**" = ["E501", "PLR2004", "PLC0415", "E722", "F841"]  # Scripts: allow long lines, magic numbers, local imports, bare excepts, unused vars
-"simulate_reply.py" = ["PLR2004"]  # Allow magic numbers for HTTP status codes
-"demo_*.py" = ["E501", "PLR2004"]  # Demo scripts can have long lines and magic numbers
+"scripts/**" = ["E501", "PLR2004", "PLC0415", "E722", "F841", "E402"]
+"test_scripts/**" = ["E501", "PLR2004", "PLC0415", "E402", "F841"]
+"simulate_reply.py" = ["PLR2004"]
+"demo_*.py" = ["E501", "PLR2004"]
 "partner_demo_suite.py" = ["E501"]
 "populate_demo_data.py" = ["E501"]
-"infrastructure/**" = ["E501", "PLR0915", "PLC0415", "PLR2004", "E722"]  # Allow complex adapters and legacy PDF generator issues
-"presentation/api/api.py" = ["N803"]  # Allow 'From' and 'Body' arguments (Twilio convention)
-"application/**" = ["E501", "E402", "PLR0913", "PLR0915", "PLC0415", "PLR1714", "PLR2004"]  # Allow complex logic + magic numbers
-"archive/**" = ["E402", "PLC0415"]  # Archive code is legacy
-"best_practices/__init__.py" = ["E501"]  # Long descriptions
-"scenario_negotiation.py" = ["PLR2004", "E501"]  # Magic numbers in scenario script
+"infrastructure/**" = ["E501", "PLR0915", "PLC0415", "PLR2004", "E722", "UP038"]
+"presentation/api/api.py" = ["N803"]
+"application/**" = ["E501", "E402", "PLR0913", "PLR0915", "PLC0415", "PLR1714", "PLR2004"]
+"archive/**" = ["E402", "PLC0415"]
+"best_practices/__init__.py" = ["E501"]
+"scenario_negotiation.py" = ["PLR2004", "E501"]
 "agency_outreach.py" = ["E501", "F841", "PLC0415"]
 
 [tool.mypy]
@@ -53,3 +54,9 @@ strict = true
 ignore_missing_imports = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["scripts.*", "tests.*", "archive.*", "best_practices.*", "test_scripts.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+strict = false

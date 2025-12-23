@@ -7,7 +7,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^(dashboard/|mobile/|appraisal-tool/|archive/|venv/)
       - id: end-of-file-fixer
+        exclude: ^(dashboard/|mobile/|appraisal-tool/|archive/|venv/)
       - id: check-yaml
       - id: check-added-large-files
         args: ['--maxkb=1000']
@@ -21,11 +23,14 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+        exclude: ^(dashboard/|mobile/|appraisal-tool/|archive/|venv/)
       - id: ruff-format
+        exclude: ^(dashboard/|mobile/|appraisal-tool/|archive/|venv/)
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [types-requests]
-        args: [--ignore-missing-imports]
+        additional_dependencies: [types-requests, pydantic, fastapi, tenacity, supabase, pydantic-settings]
+        args: [--config-file=pyproject.toml]
+        exclude: ^(dashboard/|mobile/|appraisal-tool/|archive/|venv/|scripts/|tests/|test_scripts/)

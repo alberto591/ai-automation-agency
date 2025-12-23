@@ -19,18 +19,18 @@ CREATE TABLE IF NOT EXISTS leads (
     customer_name TEXT,
     status TEXT DEFAULT 'new', -- 'new', 'contacted', 'qualified', 'lost'
     is_ai_active BOOLEAN DEFAULT TRUE,
-    
+
     -- Preferences
     budget_max INTEGER,
     postcode TEXT,
     preferred_zones TEXT[], -- Array of strings
     lead_type TEXT DEFAULT 'buyer',
-    
+
     -- Metadata
     score INTEGER DEFAULT 0,
     ai_summary TEXT,
     assigned_agent_id UUID REFERENCES agents(id),
-    
+
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

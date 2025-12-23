@@ -52,7 +52,7 @@ BEGIN
     p.image_url,
     (1 - (p.embedding <=> p_query_embedding))::float AS similarity
   FROM properties p
-  WHERE p.price >= min_price 
+  WHERE p.price >= min_price
     AND p.price <= max_price
     AND (1 - (p.embedding <=> p_query_embedding)) > match_threshold
   ORDER BY similarity DESC
@@ -102,7 +102,7 @@ BEGIN
     p.image_url,
     (1 - (p.embedding <=> p_query_embedding))::float AS similarity
   FROM mock_properties p
-  WHERE p.price >= min_price 
+  WHERE p.price >= min_price
     AND p.price <= max_price
     AND (1 - (p.embedding <=> p_query_embedding)) > match_threshold
   ORDER BY similarity DESC

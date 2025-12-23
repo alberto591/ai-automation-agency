@@ -7,11 +7,11 @@
 
 -- A. Enforce Status Constraints
 ALTER TABLE properties DROP CONSTRAINT IF EXISTS check_prop_status;
-ALTER TABLE properties ADD CONSTRAINT check_prop_status 
+ALTER TABLE properties ADD CONSTRAINT check_prop_status
 CHECK (status IN ('available', 'reserved', 'sold', 'hidden'));
 
 ALTER TABLE mock_properties DROP CONSTRAINT IF EXISTS check_mock_status;
-ALTER TABLE mock_properties ADD CONSTRAINT check_mock_status 
+ALTER TABLE mock_properties ADD CONSTRAINT check_mock_status
 CHECK (status IN ('available', 'reserved', 'sold', 'hidden'));
 
 -- B. Performance Indexes
@@ -37,7 +37,7 @@ CREATE POLICY "Public Read Mock" ON mock_properties FOR SELECT USING (true);
 -- =============================================
 
 -- A. Data Integrity
-ALTER TABLE lead_conversations 
+ALTER TABLE lead_conversations
 ALTER COLUMN is_ai_active SET DEFAULT TRUE,
 ALTER COLUMN is_ai_active TYPE BOOLEAN USING is_ai_active::boolean;
 

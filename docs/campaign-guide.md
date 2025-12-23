@@ -5,7 +5,7 @@ This guide explains how to use your new growth tools to acquire B2B clients (Rea
 ---
 
 ## 🛠️ Step 1: Generate your Lead List
-Use the `agency_outreach.py` script to find agencies in any city. 
+Use the `agency_outreach.py` script to find agencies in any city.
 
 **Command:**
 ```bash
@@ -15,7 +15,7 @@ python3 agency_outreach.py --city "Milano" --output docs/outreach_milano.csv
 ---
 
 ## 📩 Step 2: The Pitch
-The script automatically generates a personalized "outreach_message" for each lead. 
+The script automatically generates a personalized "outreach_message" for each lead.
 
 **Recommended Message Strategy:**
 1. **The Hook**: Mention their physical location or a recent listing.
@@ -40,7 +40,7 @@ Monitor your Supabase `lead_conversations` table.
 ---
 
 ### 💡 Pro Tip: Competitive Advantage
-Before contacting a specific agency, use `market_scraper.py` on one of *their* current listings. 
+Before contacting a specific agency, use `market_scraper.py` on one of *their* current listings.
 Example:
 ```bash
 python3 market_scraper.py <URL-OF-THEIR-HOUSE>

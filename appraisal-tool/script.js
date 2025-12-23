@@ -603,13 +603,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 box-shadow: 0 8px 25px rgba(15, 23, 42, 0.15);
                 z-index: 999;
             }
-            
+
             .nav-links.active {
                 transform: translateY(0);
                 opacity: 1;
                 visibility: visible;
             }
-            
+
             .nav-links .btn-primary {
                 margin-top: 16px;
                 align-self: flex-start;

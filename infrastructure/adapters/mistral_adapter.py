@@ -1,3 +1,5 @@
+from typing import cast
+
 from mistralai import Mistral
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -18,7 +20,7 @@ class MistralAdapter(AIPort):
         try:
             chat_response = self.client.chat.complete(
                 model=settings.MISTRAL_MODEL,
-                messages=[{"role": "user", "content": prompt}],  # type: ignore
+                messages=[{"role": "user", "content": prompt}],
             )
             if chat_response and chat_response.choices:
                 content = chat_response.choices[0].message.content
@@ -35,7 +37,7 @@ class MistralAdapter(AIPort):
                 model=settings.MISTRAL_EMBEDDING_MODEL, inputs=[text]
             )
             if response and response.data:
-                return response.data[0].embedding  # type: ignore
+                return cast(list[float], response.data[0].embedding)
             return []
         except Exception as e:
             logger.error("MISTRAL_EMBED_FAILED", context={"error": str(e)})

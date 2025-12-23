@@ -33,7 +33,7 @@ This zip file contains a complete, professional landing page for **Anzevino AI R
 ### Interactive Elements
 - **Live WhatsApp chat simulation** with typing indicators
 - **Animated dashboard statistics** counters
-- **Conversation flow demonstration** 
+- **Conversation flow demonstration**
 - **Smooth scrolling navigation**
 - **Form validation** and success notifications
 - **Mobile-responsive** hamburger menu
@@ -63,7 +63,7 @@ Designed specifically for **Italian real estate agencies** (Agenzie Immobiliari)
 ### File Sizes
 - **Total package**: ~17.5 KB (compressed)
 - **HTML**: ~43 KB
-- **CSS**: ~31 KB  
+- **CSS**: ~31 KB
 - **JavaScript**: ~21 KB
 
 ## 📞 Support
@@ -74,6 +74,6 @@ For any customizations or technical questions, refer to the individual file comm
 
 ---
 
-**Created**: December 2025  
-**Technology**: HTML5, CSS3, Vanilla JavaScript  
+**Created**: December 2025
+**Technology**: HTML5, CSS3, Vanilla JavaScript
 **Design**: Premium, professional, conversion-optimized

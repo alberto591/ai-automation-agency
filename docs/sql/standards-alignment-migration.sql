@@ -14,7 +14,7 @@ ALTER TABLE properties
 DROP CONSTRAINT IF EXISTS check_status_valid;
 
 ALTER TABLE properties
-ADD CONSTRAINT check_status_valid 
+ADD CONSTRAINT check_status_valid
 CHECK (status IN ('available', 'reserved', 'sold', 'hidden'));
 
 -- Indexing for performance (Mobile App filters)
@@ -42,18 +42,18 @@ ALTER TABLE market_data ENABLE ROW LEVEL SECURITY;
 -- 4. POLICIES (Simple examples for prototype)
 -- Allow public read of available properties
 DROP POLICY IF EXISTS "Public View Properties" ON properties;
-CREATE POLICY "Public View Properties" 
-ON properties FOR SELECT 
+CREATE POLICY "Public View Properties"
+ON properties FOR SELECT
 USING (status = 'available' OR is_mock = TRUE);
 
 -- Allow anyone to insert leads (Webhooks/App usage)
 DROP POLICY IF EXISTS "Public Insert Leads" ON lead_conversations;
-CREATE POLICY "Public Insert Leads" 
-ON lead_conversations FOR INSERT 
+CREATE POLICY "Public Insert Leads"
+ON lead_conversations FOR INSERT
 WITH CHECK (true);
 
 -- Allow public read of own leads (demo mode - usually strict user check)
 DROP POLICY IF EXISTS "Public View Leads" ON lead_conversations;
-CREATE POLICY "Public View Leads" 
-ON lead_conversations FOR SELECT 
+CREATE POLICY "Public View Leads"
+ON lead_conversations FOR SELECT
 USING (true);

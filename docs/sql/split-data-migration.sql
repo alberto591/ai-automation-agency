@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS mock_properties (
 DROP POLICY IF EXISTS "Public View Properties" ON properties;
 
 -- Recreate policies for production properties (strict)
-CREATE POLICY "Public View Properties" 
-ON properties FOR SELECT 
+CREATE POLICY "Public View Properties"
+ON properties FOR SELECT
 USING (status = 'available');
 
 -- Now safe to drop the column

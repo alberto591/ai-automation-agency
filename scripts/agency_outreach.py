@@ -1,11 +1,11 @@
 import csv
 
-HEADERS = {
+HEADERS: dict[str, str] = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
 
 
-def search_agencies(city="Milano", pages=1):
+def search_agencies(city: str = "Milano", pages: int = 1) -> list[dict[str, str]]:
     """
     Simulates finding real estate agencies.
     In a real scenario, this would use Google Maps API or a targeted scraper.
@@ -44,7 +44,9 @@ def search_agencies(city="Milano", pages=1):
     return mock_data
 
 
-def generate_outreach_csv(agencies, filename="outreach_targets.csv"):
+def generate_outreach_csv(
+    agencies: list[dict[str, str]], filename: str = "outreach_targets.csv"
+) -> None:
     """
     Saves agencies to a CSV with suggested outreach messages.
     """
@@ -74,7 +76,7 @@ def generate_outreach_csv(agencies, filename="outreach_targets.csv"):
     print(f"✅ CSV Generated: {filename} ({len(agencies)} targets found)")
 
 
-def main():
+def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Find real estate agencies for B2B outreach.")

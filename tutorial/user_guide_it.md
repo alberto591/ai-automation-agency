@@ -5,7 +5,7 @@ Benvenuto! Questa guida ti aiuterà a capire come funziona il tuo nuovo sistema 
 ---
 
 ## 🌟 1. Cos'è questo sistema?
-Pensa a questo sistema come a una **segretaria digitale instancabile**. 
+Pensa a questo sistema come a una **segretaria digitale instancabile**.
 - Non dorme mai.
 - Risponde ai clienti in pochi secondi.
 - Ti avvisa solo quando c'è una persona davvero interessata.

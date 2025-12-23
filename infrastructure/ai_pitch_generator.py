@@ -23,7 +23,7 @@ class PitchGeneratorService:
         try:
             chat_response = self.client.chat.complete(
                 model="mistral-tiny",
-                messages=[{"role": "user", "content": prompt}],  # type: ignore
+                messages=[{"role": "user", "content": prompt}],
             )
             if chat_response and chat_response.choices:
                 content = chat_response.choices[0].message.content

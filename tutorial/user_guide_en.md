@@ -5,7 +5,7 @@ Welcome! This guide will help you understand how your new Anzevino AI system wor
 ---
 
 ## 🌟 1. What is this system?
-Think of this system as a **tireless digital secretary**. 
+Think of this system as a **tireless digital secretary**.
 - It never sleeps.
 - It responds to clients in seconds.
 - It only alerts you when someone is truly interested.

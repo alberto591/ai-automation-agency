@@ -2,9 +2,8 @@ import csv
 import os
 from unittest.mock import patch
 
-from market_scraper import save_to_market_data, scrape_immobiliare
-
 from agency_outreach import generate_outreach_csv
+from market_scraper import save_to_market_data, scrape_immobiliare
 
 
 def test_scrape_immobiliare_parsing():

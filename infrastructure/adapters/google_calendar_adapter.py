@@ -25,7 +25,7 @@ class GoogleCalendarAdapter(CalendarPort):
 
         try:
             creds_dict = json.loads(settings.GOOGLE_SERVICE_ACCOUNT_JSON)
-            creds = service_account.Credentials.from_service_account_info(  # type: ignore[no-untyped-call]
+            creds = service_account.Credentials.from_service_account_info(
                 creds_dict, scopes=["https://www.googleapis.com/auth/calendar"]
             )
             return creds
@@ -56,7 +56,7 @@ class GoogleCalendarAdapter(CalendarPort):
         try:
             # Refresh token if needed
             if self.service.expired:
-                self.service.refresh(Request())  # type: ignore[no-untyped-call]
+                self.service.refresh(Request())
 
             headers = {
                 "Authorization": f"Bearer {self.service.token}",

@@ -1,3 +1,5 @@
+from typing import cast
+
 from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
 from pydantic import SecretStr
 
@@ -13,7 +15,7 @@ class LangChainAdapter(AIPort):
     def __init__(self) -> None:
         self.llm = ChatMistralAI(
             api_key=SecretStr(settings.MISTRAL_API_KEY),
-            model=settings.MISTRAL_MODEL,  # type: ignore[call-arg]
+            model=settings.MISTRAL_MODEL,
         )
         self.embeddings = MistralAIEmbeddings(
             api_key=SecretStr(settings.MISTRAL_API_KEY),
@@ -33,7 +35,7 @@ class LangChainAdapter(AIPort):
     def get_embedding(self, text: str) -> list[float]:
         try:
             embedding = self.embeddings.embed_query(text)
-            return embedding
+            return cast(list[float], embedding)
         except Exception as e:
             logger.error("LANGCHAIN_EMBED_FAILED", context={"error": str(e)})
             raise ExternalServiceError(
