@@ -1,52 +1,28 @@
-# [Short Title of the Decision]
+# ADR [000X]: [Short Title of the Decision]
 
-* Status: [Proposed | Accepted | Deprecated | Superseded]
-* Deciders: [List everyone involved in the decision]
-* Date: [YYYY-MM-DD]
+**Status:** Proposed | Accepted | Superseded
+**Date:** 2025-XX-XX
+**Author:** [Your Name]
 
-## Context and Problem Statement
+## 1. Context (The "Why")
+What is the problem we are solving? 
+> *Example: The current Jito integration is throwing PermissionDenied errors because the Searcher Identity isn't whitelisted.*
 
-[Describe the context and problem statement, e.g., in free form using two to three sentences. You may want to articulate the problem in form of a question.]
+## 2. Decision
+What specific action are we taking?
+> *Example: We are implementing a dedicated Keypair for the Jito Searcher and submitting it to the whitelist form.*
 
-## Decision Drivers
+## 3. Rationale (The "Proof")
+Why is this the best way? Mention any "Measure Twice" research here.
+* Avoids "reinventing the wheel" by using Jito's standard auth flow.
+* Ensures zero dead code by wiring the new keypair directly into the `.env` setup.
 
-* [driver 1, e.g., a force, facing concern, ...]
-* [driver 2, e.g., a force, facing concern, ...]
+## 4. Consequences
+* **Positive:** Clearer logs, successful authentication.
+* **Negative/Trade-offs:** 24-48 hour wait time for whitelisting.
 
-## Considered Options
+## 5. Wiring Check (No Dead Code)
+- [ ] Logic implemented in `src/jito_client.ts`
+- [ ] Variables added to `.env`
+- [ ] Old unused keys deleted/archived
 
-* [option 1]
-* [option 2]
-* [option 3]
-
-## Decision Outcome
-
-Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | ... | comes out best (see below)].
-
-### Positive Consequences
-
-* [e.g., improvement of quality attribute satisfaction, follow-up decisions required, ...]
-* [e.g., improvement of quality attribute satisfaction, follow-up decisions required, ...]
-
-### Negative Consequences
-
-* [e.g., compromising quality attribute, follow-up decisions required, ...]
-* [e.g., compromising quality attribute, follow-up decisions required, ...]
-
-## Pros and Cons of the Options
-
-### [option 1]
-
-* Good, because [argument a]
-* Good, because [argument b]
-* Bad, because [argument c]
-
-### [option 2]
-
-* Good, because [argument a]
-* Good, because [argument b]
-* Bad, because [argument c]
-
-## Links
-
-* [Link type] [Link to ADR]

@@ -1,10 +1,10 @@
 import re
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 from application.workflows.agents import create_lead_processing_graph
 from domain.enums import LeadStatus
-from domain.ports import AIPort, DatabasePort, MessagingPort
+from domain.ports import AIPort, DatabasePort, MarketDataPort, MessagingPort, ScraperPort
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
@@ -53,9 +53,9 @@ class LeadProcessor:
         ai: AIPort,
         msg: MessagingPort,
         scorer: LeadScorer,
-        journey: JourneyManager = None,
-        scraper: Any = None,
-        market: Any = None,
+        journey: JourneyManager | None = None,
+        scraper: ScraperPort | None = None,
+        market: MarketDataPort | None = None,
     ):
         self.db = db
         self.ai = ai
@@ -65,11 +65,8 @@ class LeadProcessor:
         self.scraper = scraper
         self.market = market
 
-        # Ensure we use the best available AI port for the graph
-        from infrastructure.adapters.langchain_adapter import LangChainAdapter
-
-        graph_ai = ai if isinstance(ai, LangChainAdapter) else LangChainAdapter()
-        self.graph = create_lead_processing_graph(db, graph_ai, msg, journey, scraper, market)
+        # The graph creation expects the ports
+        self.graph = create_lead_processing_graph(db, ai, msg, journey, scraper, market)
 
     SIMILARITY_THRESHOLD = 0.78
 
@@ -84,7 +81,7 @@ class LeadProcessor:
         try:
             result = self.graph.invoke(inputs)
             # Side effects (messaging, persistence) are handled by finalize_node in agents.py
-            return result.get("ai_response", "")
+            return cast(str, result.get("ai_response", ""))
         except Exception as e:
             logger.error("PROCESS_LEAD_GRAPH_FAILED", context={"phone": phone, "error": str(e)})
             return (
@@ -134,9 +131,9 @@ class LeadProcessor:
         if name:
             lead_data["customer_name"] = name
         if budget:
-            lead_data["budget_max"] = budget
+            lead_data["budget_max"] = str(budget)
         if zones:
-            lead_data["zones"] = zones
+            lead_data["zones"] = ",".join(zones)
         if status:
             lead_data["status"] = status
         if journey_state:
@@ -173,8 +170,8 @@ class LeadProcessor:
         if not lead:
             return
 
-        messages = lead.get("messages") or []
-        new_msg = {
+        messages: list[dict[str, Any]] = lead.get("messages") or []
+        new_msg: dict[str, Any] = {
             "role": role,
             "content": content,
             "timestamp": datetime.now(UTC).isoformat(),

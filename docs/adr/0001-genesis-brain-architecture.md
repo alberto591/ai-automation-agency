@@ -1,4 +1,4 @@
-# ADR-009: chatbot-api-decomposition
+# ADR-001: chatbot-api-decomposition
 
 * Status: Accepted
 * Deciders: Engineering Team, Antigravity Agent
