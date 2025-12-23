@@ -3,7 +3,7 @@ from typing import Any
 
 from domain.enums import LeadStatus
 from domain.ports import CalendarPort, DatabasePort, DocumentPort, MessagingPort
-from infrastructure.logging import get_logger
+from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -18,7 +18,7 @@ class JourneyManager:
         self.msg = msg
 
     def transition_to(
-        self, phone: str, target_state: LeadStatus, context: dict[str, Any] = None
+        self, phone: str, target_state: LeadStatus, context: dict[str, Any] | None = None
     ) -> None:
         logger.info("JOURNEY_TRANSITION", context={"phone": phone, "to": target_state})
 
@@ -27,9 +27,9 @@ class JourneyManager:
             return
 
         # Execute side effects
-        if target_state == LeadStatus.SCHEDULED:
+        if target_state == LeadStatus.SCHEDULED and context is not None:
             self._handle_scheduling(lead, context)
-        elif target_state == LeadStatus.CONTRACT_PENDING:
+        elif target_state == LeadStatus.CONTRACT_PENDING and context is not None:
             self._handle_contract_generation(lead, context)
 
         # Update DB
@@ -49,12 +49,14 @@ class JourneyManager:
 
         end_time = start_time + timedelta(hours=1)
         summary = f"Visita Immobile - {lead.get('customer_name')}"
-        attendees = [lead.get("customer_phone") + "@wa.me"]  # Placeholder email logic
+        addr = str(lead.get("customer_phone") or "")
+        attendees = [addr + "@wa.me"]  # Placeholder email logic
 
         link = self.calendar.create_event(summary, start_time, end_time, attendees)
         if link:
+            phone = str(lead.get("customer_phone") or "")
             self.msg.send_message(
-                lead.get("customer_phone"),
+                phone,
                 f"Perfetto! Visita confermata. Ecco il link al calendario: {link}",
             )
 
@@ -66,7 +68,34 @@ class JourneyManager:
         }
         pdf_path = self.doc_gen.generate_pdf("proposta", data)
         if pdf_path:
+            phone = str(lead.get("customer_phone") or "")
             self.msg.send_message(
-                lead.get("customer_phone"),
+                phone,
                 "Ho generato la proposta d'acquisto per te. Una copia è stata salvata nel nostro sistema.",
             )
+
+    def send_property_brochure(self, phone: str, property_data: dict[str, Any]) -> str:
+        """
+        Generates a professional brochure and sends it to the lead.
+        Note: In production, the PDF should be uploaded to Supabase Storage
+        and the public URL passed as media_url to WhatsApp.
+        """
+        logger.info(
+            "SENDING_PROPERTY_BROCHURE",
+            context={"phone": phone, "property": property_data.get("id")},
+        )
+
+        pdf_path = self.doc_gen.generate_pdf("brochure", property_data)
+
+        if pdf_path:
+            # For now, we send the text and inform that the PDF is ready
+            # In a live environment with Supabase Storage, we would pass media_url
+            msg_body = f"Ti ho preparato una scheda dettagliata per: {property_data.get('title')}. Spero ti sia utile!"
+
+            # Placeholder for public URL (if we had storage implementation ready)
+            # media_url = f"https://your-storage.com/{os.path.basename(pdf_path)}"
+            media_url = None
+
+            self.msg.send_message(phone, msg_body, media_url=media_url)
+            return pdf_path
+        return ""

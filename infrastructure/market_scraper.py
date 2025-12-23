@@ -79,6 +79,7 @@ class ImmobiliareScraper(Scraper):
                 "heating_type": "Autonomo"
                 if self._check_keywords(description, ["autonomo"])
                 else "Centralizzato",
+                "days_on_market": self._extract_days_on_market(soup, description),
             }
 
             # Calculate price_per_mq
@@ -140,6 +141,16 @@ class ImmobiliareScraper(Scraper):
             return 0
         match = re.search(r"\d+", text)
         return int(match.group()) if match else 0
+
+    def _extract_days_on_market(self, soup: BeautifulSoup, description: str) -> int | None:
+        # 1. Try to find in description (common phrase: "pubblicato da X giorni")
+        match = re.search(r"pubblicato (?:da|circa) (\d+) giorni", description.lower())
+        if match:
+            return int(match.group(1))
+
+        # 2. Heuristic: If we find a date "pubblicato il DD/MM/YYYY" (simplified)
+        # For now return None as it requires complex date parsing for various formats
+        return None
 
 
 class MarketDataManager:

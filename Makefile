@@ -17,16 +17,16 @@ install:
 	pre-commit install
 
 lint:
-	ruff check .
+	./venv/bin/ruff check .
 
 format:
-	ruff format .
+	./venv/bin/ruff format .
 
 typecheck:
-	mypy --config-file pyproject.toml application/ domain/ infrastructure/ config/
+	./venv/bin/mypy --config-file pyproject.toml application/ domain/ infrastructure/ config/
 
 test:
-	pytest tests/ -v
+	./venv/bin/pytest tests/ -v
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true

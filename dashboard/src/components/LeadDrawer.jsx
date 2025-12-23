@@ -38,7 +38,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
         setIsSaving(true);
         try {
             const { error } = await supabase
-                .from('lead_conversations')
+                .from('leads')
                 .update({ status: 'archived' })
                 .eq('id', lead.id);
 
@@ -59,11 +59,12 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
             const updatePayload = {
                 customer_name: formData.name,
                 budget_max: formData.budget_max ? parseInt(formData.budget_max) : null,
-                preferred_zones: zonesArray
+                preferred_zones: zonesArray,
+                email: formData.email
             };
 
             const { error } = await supabase
-                .from('lead_conversations')
+                .from('leads')
                 .update(updatePayload)
                 .eq('id', lead.id);
 

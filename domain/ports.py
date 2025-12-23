@@ -58,23 +58,34 @@ class CalendarPort(ABC):
         """Creates a calendar event and returns the event link."""
         pass
 
+    @abstractmethod
+    def get_availability(self, staff_id: str, date: str) -> list[str]:
+        """Returns a list of available time slots for a specific staff and date."""
+        pass
+
 
 class DocumentPort(ABC):
     @abstractmethod
     def generate_pdf(self, template_name: str, data: dict[str, Any]) -> str:
-        """Generates a PDF from a template and returns the file URL."""
+        """Generates a PDF from a template and returns the local file path."""
         pass
 
 
 class MessagingPort(ABC):
     @abstractmethod
-    def send_message(self, to: str, body: str) -> str:
+    def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
+        """Sends a message, optionally with a media attachment."""
         pass
 
 
 class MarketDataPort(ABC):
     @abstractmethod
     def get_avg_price(self, zone: str, city: str = "") -> int | None:
+        pass
+
+    @abstractmethod
+    def get_market_insights(self, zone: str, city: str = "") -> dict[str, Any]:
+        """Returns structured insights like avg_price, trend, and liquidity."""
         pass
 
 

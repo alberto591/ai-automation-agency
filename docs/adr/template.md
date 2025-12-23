@@ -5,7 +5,7 @@
 **Author:** [Your Name]
 
 ## 1. Context (The "Why")
-What is the problem we are solving? 
+What is the problem we are solving?
 > *Example: The current Jito integration is throwing PermissionDenied errors because the Searcher Identity isn't whitelisted.*
 
 ## 2. Decision
@@ -25,4 +25,3 @@ Why is this the best way? Mention any "Measure Twice" research here.
 - [ ] Logic implemented in `src/jito_client.ts`
 - [ ] Variables added to `.env`
 - [ ] Old unused keys deleted/archived
-

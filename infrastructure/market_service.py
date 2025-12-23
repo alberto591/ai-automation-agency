@@ -39,21 +39,44 @@ class MarketDataService:
         )
 
     def get_avg_price(self, zone: str, city: str = "") -> int | None:
+        insights = self.get_market_insights(zone, city)
+        return insights.get("avg_price_sqm")
+
+    def get_market_insights(self, zone: str, city: str = "") -> dict[str, Any]:
         zone_upper = zone.upper()
+        expert_price = None
 
         # 1. Check Expert Fallbacks
         for t_zone, t_price in self.TUSCANY_EXPERT_DATA.items():
             if t_zone in zone_upper:
-                logger.info(f"📍 Expert Data used for {zone}: €{t_price}/mq")
-                return t_price
+                expert_price = t_price
+                break
 
-        if not self.api_key:
-            logger.warning("⚠️ RAPIDAPI_KEY not found. Skipping live lookup.")
-            return None
+        # 2. Try Live Lookup
+        live_price = None
+        if self.api_key:
+            location_id = self._resolve_location(zone)
+            live_price = self._fetch_live_price(zone, city, location_id)
 
-        # 2. Live API Lookup
-        location_id = self._resolve_location(zone)
-        return self._fetch_live_price(zone, city, location_id)
+        # 3. Consolidate Insights
+        final_price = live_price or expert_price
+
+        # Trend Inference: If live > expert + 5% -> Rising, if live < expert - 5% -> Falling
+        trend = "STABLE"
+        if live_price and expert_price:
+            diff = (live_price - expert_price) / expert_price
+            if diff > 0.05:
+                trend = "RISING"
+            elif diff < -0.05:
+                trend = "FALLING"
+
+        return {
+            "avg_price_sqm": final_price,
+            "trend": trend,
+            "area": zone,
+            "liquidity": "MEDIUM",  # Placeholder for now
+            "is_live": live_price is not None,
+        }
 
     def _resolve_location(self, zone: str) -> str | None:
         try:

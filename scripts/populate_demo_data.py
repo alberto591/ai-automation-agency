@@ -20,7 +20,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 load_dotenv()
 
-supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+supabase = create_client(
+    os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
+)
 
 # Realistic Italian lead data
 DEMO_CONVERSATIONS = [
@@ -76,17 +78,13 @@ DEMO_CONVERSATIONS = [
 
 
 def clear_existing_data():
-    """WARNING: Deletes all lead_conversations data"""
-    print("⚠️  WARNING: This will delete ALL existing lead data!")
-    confirm = input("Type 'DELETE' to confirm: ")
-
-    if confirm != "DELETE":
-        print("❌ Cancelled")
-        return False
-
     try:
-        # Delete all records (be careful with this in production!)
-        supabase.table("lead_conversations").delete().neq("id", 0).execute()
+        # Delete messages first due to FK
+        supabase.table("messages").delete().neq(
+            "id", "00000000-0000-0000-0000-000000000000"
+        ).execute()
+        # Delete leads
+        supabase.table("leads").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
         print("✅ Existing data cleared")
         return True
     except Exception as e:
@@ -103,18 +101,28 @@ def populate_demo_conversations():
         # Calculate timestamp based on days_ago
         timestamp = (datetime.now(UTC) - timedelta(days=conv["days_ago"])).isoformat()
 
-        data = {
+        lead_data = {
             "customer_name": conv["customer_name"],
             "customer_phone": conv["customer_phone"],
-            "last_message": conv["last_message"],
             "ai_summary": conv["ai_summary"],
             "status": conv["status"],
             "created_at": timestamp,
+            "updated_at": timestamp,
         }
 
         try:
-            supabase.table("lead_conversations").insert(data).execute()
-            print(f"  ✅ Added: {conv['customer_name']} ({conv['status']})")
+            res = supabase.table("leads").insert(lead_data).execute()
+            if res.data:
+                lead_id = res.data[0]["id"]
+                # Add the last message to messages table
+                msg_data = {
+                    "lead_id": lead_id,
+                    "role": "user",
+                    "content": conv["last_message"],
+                    "created_at": timestamp,
+                }
+                supabase.table("messages").insert(msg_data).execute()
+                print(f"  ✅ Added: {conv['customer_name']} ({conv['status']})")
         except Exception as e:
             print(f"  ❌ Failed to add {conv['customer_name']}: {e}")
 

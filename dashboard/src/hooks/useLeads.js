@@ -17,10 +17,10 @@ export function useLeads() {
 
         // Real-time subscription
         const channel = supabase
-            .channel('public:lead_conversations')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'lead_conversations' }, (payload) => {
-                console.log("Change received!", payload)
-                fetchLeads() // Simple re-fetch strategy for now
+            .channel('public:leads')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
+                console.log("Lead change received!", payload)
+                fetchLeads()
             })
             .subscribe()
 
@@ -34,8 +34,8 @@ export function useLeads() {
 
         try {
             const { data, error } = await supabase
-                .from('lead_conversations')
-                .select('*')
+                .from('leads')
+                .select('*, messages(*)')
                 .neq('status', 'archived')
                 .order('updated_at', { ascending: false })
 
@@ -46,16 +46,12 @@ export function useLeads() {
                 // Extract last message content safely
                 let lastMsgText = "Nuova conversazione"
                 if (l.messages && l.messages.length > 0) {
-                    const last = l.messages[l.messages.length - 1]
-                    lastMsgText = last.content || last.user || last.ai || "Media/System Message"
-
-                    // Cleanup: if it's a legacy object, we might want to prioritize the response
-                    if (!last.content && last.ai && last.user) {
-                        // If both exist, the 'user' field in legacy often contained the AI's actual WhatsApp response
-                        lastMsgText = last.user.includes('Anzevino AI') ? last.user : last.ai
-                    }
-                } else if (l.last_message) {
-                    lastMsgText = l.last_message
+                    // Sort descending to get last
+                    const sortedMsgs = [...l.messages].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                    const last = sortedMsgs[0]
+                    lastMsgText = last.content || "Media/Status update"
+                } else if (l.ai_summary) {
+                    lastMsgText = l.ai_summary
                 }
 
                 // Format time safely
@@ -78,6 +74,7 @@ export function useLeads() {
                     email: l.email,
                     created_at: l.created_at,
                     fullMessages: l.messages, // Keep raw messages for chat window
+                    metadata: l.metadata || {}, // Handle potential metadata
                     raw: l // Keep full object
                 }
             })

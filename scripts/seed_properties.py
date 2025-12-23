@@ -41,7 +41,9 @@ def main():
     parser.add_argument("--mock", action="store_true", help="Flag data as mock")
     parser.add_argument("--prod", action="store_true", help="Flag data as production")
     parser.add_argument("--clear-mock", action="store_true", help="Delete all mock data")
-    parser.add_argument("--file", default="properties_sample.csv", help="CSV file to load")
+    parser.add_argument(
+        "--file", default="scripts/data/properties_sample.csv", help="CSV file to load"
+    )
 
     args = parser.parse_args()
     db = SupabaseAdapter()

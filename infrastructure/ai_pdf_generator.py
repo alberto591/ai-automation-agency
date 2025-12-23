@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import Any
 
 from fpdf import FPDF
 
@@ -11,11 +12,13 @@ logger = get_logger(__name__)
 class PropertyPDFGenerator:
     """Service to generate professional PDF brochures for properties."""
 
-    def __init__(self, agency_name="Anzevino AI", agency_color=(44, 62, 80)):
+    def __init__(
+        self, agency_name: str = "Anzevino AI", agency_color: tuple[int, int, int] = (44, 62, 80)
+    ) -> None:
         self.agency_name = agency_name
         self.agency_color = agency_color  # Default: Elegant Dark Blue/Grey
 
-    def generate_property_pdf(self, property_data: dict, output_path: str) -> str:
+    def generate_property_pdf(self, property_data: dict[str, Any], output_path: str) -> str:
         """
         Creates a PDF brochure from property data.
 
@@ -99,7 +102,7 @@ class PropertyPDFGenerator:
             pdf.set_font("Helvetica", "", 12)
 
             # Helper to handle None or missing values
-            def format_val(val, suffix=""):
+            def format_val(val: Any, suffix: str = "") -> str:
                 if val is None or str(val).lower() == "none" or val == "":
                     return "Non specificato"
                 return f"{val}{suffix}"

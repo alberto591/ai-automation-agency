@@ -11,6 +11,7 @@ from config.settings import settings
 from domain.enums import LeadStatus
 from domain.errors import BaseAppError
 from infrastructure.logging import get_logger
+from presentation.api.webhooks import setmore_webhook
 
 logger = get_logger(__name__)
 
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(setmore_webhook.router, prefix="/api")
 
 
 async def verify_webhook_key(x_webhook_key: str = Header(None)) -> None:

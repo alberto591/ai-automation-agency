@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 import requests
 from google.auth.transport.requests import Request
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 
 
 class GoogleCalendarAdapter(CalendarPort):
-    def __init__(self):
+    def __init__(self) -> None:
         self.calendar_id = settings.GOOGLE_CALENDAR_ID
         self.service = self._init_service()
 
@@ -25,7 +25,7 @@ class GoogleCalendarAdapter(CalendarPort):
 
         try:
             creds_dict = json.loads(settings.GOOGLE_SERVICE_ACCOUNT_JSON)
-            creds = service_account.Credentials.from_service_account_info(
+            creds = service_account.Credentials.from_service_account_info(  # type: ignore[no-untyped-call]
                 creds_dict, scopes=["https://www.googleapis.com/auth/calendar"]
             )
             return creds
@@ -56,7 +56,7 @@ class GoogleCalendarAdapter(CalendarPort):
         try:
             # Refresh token if needed
             if self.service.expired:
-                self.service.refresh(Request())
+                self.service.refresh(Request())  # type: ignore[no-untyped-call]
 
             headers = {
                 "Authorization": f"Bearer {self.service.token}",
@@ -69,7 +69,11 @@ class GoogleCalendarAdapter(CalendarPort):
             response.raise_for_status()
             event_result = response.json()
             logger.info("CALENDAR_EVENT_CREATED", context={"id": event_result.get("id")})
-            return event_result.get("htmlLink", "")
+            return cast(str, event_result.get("htmlLink", ""))
         except Exception as e:
             logger.error("CALENDAR_EVENT_FAILED", context={"error": str(e)})
             return ""
+
+    def get_availability(self, staff_id: str, date: str) -> list[str]:
+        # Not implemented for Google Calendar yet
+        return []

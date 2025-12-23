@@ -5,22 +5,29 @@ from typing import Any
 from fpdf import FPDF
 
 from domain.ports import DocumentPort
+from infrastructure.ai_pdf_generator import PropertyPDFGenerator
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class DocumentAdapter(DocumentPort):
-    def __init__(self, output_dir: str = "temp/documents"):
+    def __init__(self, output_dir: str = "temp/documents") -> None:
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
     def generate_pdf(self, template_name: str, data: dict[str, Any]) -> str:
         """
-        Simplistic PDF generation. In production, this would use sophisticated
-        templates and upload to Supabase Storage.
+        Generates a professional PDF brochure or document based on the template.
         """
         try:
+            if template_name == "brochure":
+                generator = PropertyPDFGenerator()
+                filename = f"brochure_{data.get('id', 'unknown')}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+                filepath = os.path.join(self.output_dir, filename)
+                return generator.generate_property_pdf(data, filepath)
+
+            # Fallback to simplistic PDF for other templates (like 'proposta')
             pdf = FPDF()
             pdf.add_page()
 

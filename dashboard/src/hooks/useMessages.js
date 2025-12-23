@@ -57,40 +57,59 @@ export function useMessages(leadId) {
 
         setLoading(true)
         fetchMessages()
+        fetchLeadStatus()
 
-        // Subscribe to changes on this specific row
-        const channel = supabase
-            .channel(`public:lead_conversations:id=eq.${leadId}`)
+        // Subscribe to NEW messages for this lead
+        const msgChannel = supabase
+            .channel(`public:messages:lead_id=eq.${leadId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages',
+                filter: `lead_id=eq.${leadId}`
+            }, (payload) => {
+                if (payload.new) {
+                    setMessages(prev => [...prev, payload.new])
+                }
+            })
+            .subscribe()
+
+        // Subscribe to STATUS changes for this lead
+        const leadChannel = supabase
+            .channel(`public:leads:id=eq.${leadId}`)
             .on('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
-                table: 'lead_conversations',
+                table: 'leads',
                 filter: `id=eq.${leadId}`
             }, (payload) => {
-                if (payload.new) {
-                    if (payload.new.messages) setMessages(normalizeMessages(payload.new.messages))
-                    if (payload.new.status) setStatus(payload.new.status)
+                if (payload.new && payload.new.status) {
+                    setStatus(payload.new.status)
                 }
             })
             .subscribe()
 
         return () => {
-            supabase.removeChannel(channel)
+            supabase.removeChannel(msgChannel)
+            supabase.removeChannel(leadChannel)
         }
     }, [leadId])
+
+    async function fetchLeadStatus() {
+        const { data } = await supabase.from('leads').select('status').eq('id', leadId).single()
+        if (data) setStatus(data.status || "active")
+    }
 
     async function fetchMessages() {
         try {
             const { data, error } = await supabase
-                .from('lead_conversations')
-                .select('messages, status')
-                .eq('id', leadId)
-                .single()
+                .from('messages')
+                .select('*')
+                .eq('lead_id', leadId)
+                .order('created_at', { ascending: true })
 
             if (error) throw error
-
-            setMessages(normalizeMessages(data.messages))
-            setStatus(data.status || "active")
+            setMessages(data)
 
         } catch (error) {
             console.error("Error fetching messages:", error)

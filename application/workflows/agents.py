@@ -1,16 +1,16 @@
 import re
 from datetime import UTC, datetime
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal, TypedDict, cast
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_mistralai import ChatMistralAI
 from langgraph.graph import END, START, StateGraph
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 
 from config.settings import settings
 from domain.enums import LeadStatus
-from domain.ports import AIPort, DatabasePort, MessagingPort
-from infrastructure.logging import get_logger
+from domain.ports import AIPort, CalendarPort, DatabasePort, MessagingPort
+from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -70,11 +70,13 @@ class AgentState(TypedDict):
     sentiment: SentimentAnalysis
     retrieved_properties: list[dict[str, Any]]
     market_data: dict[str, Any]
+    negotiation_data: dict[str, Any]
     status_msg: str
     ai_response: str
     source: Literal["WEB_APPRAISAL", "PORTAL", "WHATSAPP", "UNKNOWN"]
     context_data: dict[str, Any]
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
+    language: Literal["it", "en"]
 
 
 def create_lead_processing_graph(
@@ -84,7 +86,8 @@ def create_lead_processing_graph(
     journey: Any = None,
     scraper: Any = None,
     market: Any = None,
-):
+    calendar: CalendarPort | None = None,
+) -> Any:
     def ingest_node(state: AgentState) -> dict[str, Any]:
         """Fetch lead data and prepare basic state."""
         phone = state["phone"]
@@ -123,21 +126,48 @@ def create_lead_processing_graph(
         history_text = "\n".join([f"{m.get('role')}: {m.get('content')}" for m in history])
 
         # Detect Source
-        source = "WHATSAPP"
-        context_data = {}
+        source = state.get("source") or "WHATSAPP"
+        context_data = state.get("context_data") or {}
 
         query_lower = state["user_input"].lower()
-        if "valutazione" in query_lower or "appraisal" in query_lower:
-            source = "WEB_APPRAISAL"
-        elif "immobiliare" in query_lower or "idealista" in query_lower or "agency:" in query_lower:
-            source = "PORTAL"
-            # Try to extract property context if present
-            prop_match = re.search(r"immobile:\s*(.*)", query_lower)
-            if prop_match:
-                context_data["property_id"] = prop_match.group(1).strip()
+        # Only run heuristic if source is still WHATSAPP (default)
+        if source == "WHATSAPP":
+            if "valutazione" in query_lower or "appraisal" in query_lower:
+                source = "WEB_APPRAISAL"
+            elif (
+                "immobiliare" in query_lower
+                or "idealista" in query_lower
+                or "agency:" in query_lower
+            ):
+                source = "PORTAL"
+                # Try to extract property context if present
+                prop_match = re.search(r"immobile:\s*(.*)", query_lower)
+                if prop_match:
+                    context_data["property_id"] = prop_match.group(1).strip()
+
+        # Language Detection
+        # 1. Grounding via phone (+39 is Italian, everything else defaults to English for Tourists)
+        is_italian_number = phone.startswith("+39") or phone.startswith("39")
+
+        # 2. Heuristic check on input
+        english_keywords = [
+            "hello",
+            "hi",
+            "info",
+            "details",
+            "property",
+            "house",
+            "buy",
+            "rent",
+            "price",
+        ]
+        is_english_input = any(word in query_lower for word in english_keywords)
+
+        language = "it" if is_italian_number and not is_english_input else "en"
 
         return {
             "lead_data": lead,
+            "language": language,
             "history_text": history_text,
             "checkpoint": "continue",
             "embedding": None,
@@ -148,6 +178,7 @@ def create_lead_processing_graph(
             "sentiment": SentimentAnalysis(sentiment="NEUTRAL", urgency="LOW", notes="Init"),
             "retrieved_properties": [],
             "market_data": {},
+            "negotiation_data": {},
             "status_msg": "",
             "ai_response": "",
             "source": source,
@@ -169,8 +200,8 @@ def create_lead_processing_graph(
             llm_to_use = llm.with_structured_output(IntentExtraction)
         else:
             llm_to_use = ChatMistralAI(
-                mistral_api_key=settings.MISTRAL_API_KEY,
-                model=settings.MISTRAL_MODEL,
+                api_key=SecretStr(settings.MISTRAL_API_KEY),
+                model_name=settings.MISTRAL_MODEL,
             ).with_structured_output(IntentExtraction)
 
         prompt = ChatPromptTemplate.from_messages(
@@ -223,8 +254,8 @@ def create_lead_processing_graph(
             llm_to_use = llm.with_structured_output(PropertyPreferences)
         else:
             llm_to_use = ChatMistralAI(
-                mistral_api_key=settings.MISTRAL_API_KEY,
-                model=settings.MISTRAL_MODEL,
+                api_key=SecretStr(settings.MISTRAL_API_KEY),
+                model_name=settings.MISTRAL_MODEL,
             ).with_structured_output(PropertyPreferences)
 
         prompt = ChatPromptTemplate.from_messages(
@@ -253,8 +284,8 @@ def create_lead_processing_graph(
             llm_to_use = llm.with_structured_output(SentimentAnalysis)
         else:
             llm_to_use = ChatMistralAI(
-                mistral_api_key=settings.MISTRAL_API_KEY,
-                model=settings.MISTRAL_MODEL,
+                api_key=SecretStr(settings.MISTRAL_API_KEY),
+                model_name=settings.MISTRAL_MODEL,
             ).with_structured_output(SentimentAnalysis)
 
         prompt = ChatPromptTemplate.from_messages(
@@ -296,9 +327,14 @@ def create_lead_processing_graph(
             prop_id = state["context_data"].get("property_id")
             if prop_id:
                 logger.info("FETCHING_NEGOTIATION_DATA", context={"property": prop_id})
-                market_results = {"trend": "stable", "avg_price_sqm": 4500, "area": "Milano"}
+                # In a real case, we might fetch the property from DB first to get the URL
+                # properties = db.get_property_by_id(prop_id)
+                # But for now, we'll simulate insights
+                market_results = market.get_market_insights(
+                    state["entities"][0] if state["entities"] else "Milano"
+                )
 
-        return {"market_data": market_results}
+        return {"market_data": market_results, "negotiation_data": market_results}
 
     def cache_check_node(state: AgentState) -> dict[str, Any]:
         """Check semantic cache."""
@@ -347,12 +383,21 @@ def create_lead_processing_graph(
                         "Lead Source: {source}\n"
                         "Property Context: {context_data}\n"
                         "Market Insights: {market_data}\n"
+                        "Negotiation Data: {negotiation_data}\n"
                         "Available Properties Data: {properties}\n\n"
+                        "Language: {language}\n\n"
+                        "If Language is 'it': Short, friendly Italian, local agency vibe.\n"
+                        "If Language is 'en': Act as a professional, welcoming guide for tourists. Focus on the charm of Tuscany. Explain Italian real estate terms clearly.\n\n"
+                        "### NEGOTIATION GUIDANCE ###\n"
+                        "If Negotiation Data is present and Stage is PURCHASE: \n"
+                        "- Compare the property price/mq with Area Average (Negotiation Data).\n"
+                        "- If property is above average, suggest a cautious offer or ask about the condition.\n"
+                        "- Be data-driven but diplomatic.\n\n"
                         "### CRITICAL PHASE INSTRUCTIONS ###\n"
                         "You MUST follow these instructions based on current state (Stage: {stage}):\n"
                         "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately.\n"
                         "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
-                        "Keep it native for WhatsApp (short, friendly, in Italian unless user speaks English)."
+                        "Keep it native for WhatsApp (short, friendly, max 1500 characters, in the detected language: {language})."
                     ),
                 ),
                 ("human", "{input}"),
@@ -365,7 +410,15 @@ def create_lead_processing_graph(
             # Final input assembly
             final_input = state["user_input"]
             if current_stage == "appointment_requested":
-                final_input += "\n\n(IMPORTANT: The user wants a visit. You MUST include this booking link in your response: https://anzevinoai.setmore.com)"
+                booking_link = settings.SETMORE_LINK
+                final_input += f"\n\n(IMPORTANT: The user wants a visit. Suggest booking via this link: {booking_link})"
+                if calendar:
+                    # In a real scenario, we'd fetch availability for the next few days
+                    # slots = calendar.get_availability(settings.SETMORE_STAFF_ID, datetime.now().strftime("%d-%m-%Y"))
+                    final_input += "\nNote: The system is ready to sync with your calendar for real-time availability."
+
+            if "foto" in state["user_input"].lower() or "dettagli" in state["user_input"].lower():
+                final_input += "\n(Note: The system will automatically generate and send a professional PDF brochure for this property if relevant.)"
 
             if state["status_msg"]:
                 final_input += f"\n\n[ADMIN NOTE: {state['status_msg']}]"
@@ -381,7 +434,9 @@ def create_lead_processing_graph(
                 source=state["source"],
                 context_data=state["context_data"],
                 market_data=state["market_data"],
+                negotiation_data=state["negotiation_data"],
                 input=final_input,
+                language=state["language"],
             )
             response = llm.invoke(messages)
             return {"ai_response": str(response.content)}
@@ -398,8 +453,9 @@ def create_lead_processing_graph(
                 source=state["source"],
                 context_data=state["context_data"],
                 market_data=state["market_data"],
+                negotiation_data=state["negotiation_data"],
                 input=state["user_input"],
-                status_msg=state["status_msg"],
+                language=state["language"],
             )
             response = ai.generate_response(prompt)
             return {"ai_response": response}
@@ -472,9 +528,9 @@ def create_lead_processing_graph(
     workflow.add_edge(START, "ingest")
 
     # Conditional edge from ingest (human mode vs continue)
-    def route_after_ingest(state: AgentState):
+    def route_after_ingest(state: AgentState) -> Literal["intent", "__end__"]:
         if state["checkpoint"] == "human_mode":
-            return END
+            return "__end__"
         return "intent"
 
     workflow.add_conditional_edges("ingest", route_after_ingest)
@@ -485,7 +541,7 @@ def create_lead_processing_graph(
     workflow.add_edge("market_analysis", "cache_check")
 
     # Conditional edge from cache_check
-    def route_after_cache(state: AgentState):
+    def route_after_cache(state: AgentState) -> Literal["finalize", "retrieval"]:
         if state["checkpoint"] == "cache_hit":
             return "finalize"
         return "retrieval"
@@ -496,7 +552,7 @@ def create_lead_processing_graph(
     workflow.add_edge("generation", "finalize")
     workflow.add_edge("finalize", END)
 
-    return workflow.compile()
+    return cast(StateGraph[AgentState], workflow.compile())
 
 
 # Helpers (Mirrored from LeadProcessor)

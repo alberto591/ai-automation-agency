@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 from supabase import create_client
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -46,7 +46,8 @@ class SupabaseAdapter(DatabasePort):
             if not res.data:
                 raise DatabaseError("Failed to save lead profile")
 
-            lead_id = res.data[0]["id"]
+            data = cast(list[dict[str, Any]], res.data)
+            lead_id = data[0]["id"]
 
             # 3. Insert Messages
             # Only if we have explicit new messages structure.
@@ -85,7 +86,8 @@ class SupabaseAdapter(DatabasePort):
             if not res_lead.data:
                 return None
 
-            lead = res_lead.data[0]
+            data = cast(list[dict[str, Any]], res_lead.data)
+            lead = data[0]
 
             # 2. Fetch Messages
             res_msgs = (
@@ -132,17 +134,22 @@ class SupabaseAdapter(DatabasePort):
                         rpc_params["max_price"] = filters["max_price"]
 
                 result = self.client.rpc(rpc_name, rpc_params).execute()
-                return list(result.data) if result.data else []
+                data = cast(list[dict[str, Any]], result.data)
+                return data if data else []
 
             # Fallback to ilike (Legacy)
-            result = (
-                self.client.table(table)
-                .select("*")
-                .ilike("description", f"%{query}%")
-                .limit(limit)
-                .execute()
+            result = cast(
+                Any,
+                (
+                    self.client.table(table)
+                    .select("*")
+                    .ilike("description", f"%{query}%")
+                    .limit(limit)
+                    .execute()
+                ),
             )
-            return list(result.data) if result.data else []
+            data = cast(list[dict[str, Any]], result.data)
+            return data if data else []
         except Exception as e:
             logger.error("GET_PROPERTIES_FAILED", context={"query": query, "error": str(e)})
             raise DatabaseError("Failed to retrieve properties", cause=str(e)) from e
@@ -170,8 +177,9 @@ class SupabaseAdapter(DatabasePort):
                 "match_cache",
                 {"p_query_embedding": embedding, "match_threshold": threshold, "match_count": 1},
             ).execute()
-            if res.data:
-                return str(res.data[0]["response_text"])
+            data = cast(list[dict[str, Any]], res.data)
+            if data:
+                return str(data[0]["response_text"])
             return None
         except Exception as e:
             logger.error("GET_CACHE_FAILED", context={"error": str(e)})

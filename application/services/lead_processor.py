@@ -4,8 +4,15 @@ from typing import Any, cast
 
 from application.workflows.agents import create_lead_processing_graph
 from domain.enums import LeadStatus
-from domain.ports import AIPort, DatabasePort, MarketDataPort, MessagingPort, ScraperPort
-from infrastructure.logging import get_logger
+from domain.ports import (
+    AIPort,
+    CalendarPort,
+    DatabasePort,
+    MarketDataPort,
+    MessagingPort,
+    ScraperPort,
+)
+from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -56,6 +63,7 @@ class LeadProcessor:
         journey: JourneyManager | None = None,
         scraper: ScraperPort | None = None,
         market: MarketDataPort | None = None,
+        calendar: CalendarPort | None = None,
     ):
         self.db = db
         self.ai = ai
@@ -64,9 +72,10 @@ class LeadProcessor:
         self.journey = journey
         self.scraper = scraper
         self.market = market
+        self.calendar = calendar
 
         # The graph creation expects the ports
-        self.graph = create_lead_processing_graph(db, ai, msg, journey, scraper, market)
+        self.graph = create_lead_processing_graph(db, ai, msg, journey, scraper, market, calendar)
 
     SIMILARITY_THRESHOLD = 0.78
 
@@ -189,7 +198,37 @@ class LeadProcessor:
         }
         self.db.save_lead(lead_data)
 
-    def process_incoming_message(self, phone: str, text: str) -> None:
+    def send_brochure_if_interested(self, phone: str, query: str) -> None:
+        """
+        If the lead is asking for details, fetch the best matching property
+        and send a professional PDF brochure.
+        """
+        if not self.journey:
+            return
+
+        # Simple heuristic: find properties if "scheda", "dettagli", or "foto" are mentioned
+        keywords = ["scheda", "dettagli", "informazioni", "foto", "brochure", "info"]
+        if not any(k in query.lower() for k in keywords):
+            return
+
+        logger.info("AUTO_BROCHURE_TRIGGERED", context={"phone": phone})
+
+        # 1. Fetch relevant properties (using the query or lead context)
+        properties = self.db.get_properties(query, limit=1)
+        if properties:
+            self.journey.send_property_brochure(phone, properties[0])
+            logger.info(
+                "BROCHURE_SENT_SUCCESS",
+                context={"phone": phone, "property": properties[0].get("id")},
+            )
+
+    def process_incoming_message(
+        self,
+        phone: str,
+        text: str,
+        source: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> str:
         # Clean phone
         phone = re.sub(r"\s+", "", phone)
         if phone.startswith("whatsapp:"):
@@ -199,8 +238,17 @@ class LeadProcessor:
 
         # Logic delegated to LangGraph
         # Graph handles: ingest, intent, preferences, sentiment, retrieval, generation, and finalize (persistence)
-        inputs = {"phone": phone, "user_input": text}
+        inputs: dict[str, Any] = {"phone": phone, "user_input": text}
+        if source:
+            inputs["source"] = source
+        if context:
+            inputs["context_data"] = context
+
         try:
-            self.graph.invoke(inputs)
+            result = self.graph.invoke(inputs)
+            # 3. Handle Side Effects (like sending brochures)
+            self.send_brochure_if_interested(phone, text)
+            return str(result.get("ai_response", ""))
         except Exception as e:
             logger.error("GRAPH_INVOCATION_FAILED", context={"phone": phone, "error": str(e)})
+            return ""

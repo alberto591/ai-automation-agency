@@ -1,3 +1,5 @@
+from typing import Any
+
 from tenacity import retry, stop_after_attempt, wait_exponential
 from twilio.rest import Client
 
@@ -14,7 +16,7 @@ class TwilioAdapter(MessagingPort):
         self.client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    def send_message(self, to: str, body: str) -> str:
+    def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
         # 1. Clean numbers
         clean_to = "".join(to.split())
         from_number = settings.TWILIO_PHONE_NUMBER
@@ -30,8 +32,15 @@ class TwilioAdapter(MessagingPort):
             return "skipped_self_send"
 
         try:
-            message = self.client.messages.create(from_=final_from, to=final_to, body=body)
-            logger.info("MESSAGE_SENT", context={"to": final_to, "sid": message.sid})
+            params: dict[str, Any] = {"from_": final_from, "to": final_to, "body": body}
+            if media_url:
+                params["media_url"] = [media_url]
+
+            message = self.client.messages.create(**params)
+            logger.info(
+                "MESSAGE_SENT",
+                context={"to": final_to, "sid": message.sid, "has_media": bool(media_url)},
+            )
             return str(message.sid)
         except Exception as e:
             logger.error("TWILIO_SEND_FAILED", context={"to": to, "error": str(e)})

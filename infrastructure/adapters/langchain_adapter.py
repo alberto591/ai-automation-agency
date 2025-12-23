@@ -1,4 +1,5 @@
 from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
+from pydantic import SecretStr
 
 from config.settings import settings
 from domain.errors import ExternalServiceError
@@ -11,11 +12,11 @@ logger = get_logger(__name__)
 class LangChainAdapter(AIPort):
     def __init__(self) -> None:
         self.llm = ChatMistralAI(
-            mistral_api_key=settings.MISTRAL_API_KEY,
-            model=settings.MISTRAL_MODEL,
+            api_key=SecretStr(settings.MISTRAL_API_KEY),
+            model=settings.MISTRAL_MODEL,  # type: ignore[call-arg]
         )
         self.embeddings = MistralAIEmbeddings(
-            mistral_api_key=settings.MISTRAL_API_KEY,
+            api_key=SecretStr(settings.MISTRAL_API_KEY),
             model=settings.MISTRAL_EMBEDDING_MODEL,
         )
 
