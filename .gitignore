@@ -5,7 +5,10 @@ venv/
 node_modules/
 
 # Ignore environment files
-# .env
+.env
+**/.env
+.env.local
+.env.*.local
 
 # Ignore IDE files
 .idea/

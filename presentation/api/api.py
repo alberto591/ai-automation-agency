@@ -15,7 +15,7 @@ from presentation.api.webhooks import setmore_webhook
 
 logger = get_logger(__name__)
 
-app = FastAPI(title="Agenzia AI API")
+app: FastAPI = FastAPI(title="Agenzia AI API")
 
 # Middleware / Security
 app.add_middleware(

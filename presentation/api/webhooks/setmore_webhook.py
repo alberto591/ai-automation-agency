@@ -9,7 +9,9 @@ router = APIRouter()
 
 
 @router.post("/webhooks/setmore")
-async def setmore_webhook(request: Request, x_setmore_signature: str = Header(None)):
+async def setmore_webhook(
+    request: Request, x_setmore_signature: str = Header(None)
+) -> dict[str, str]:
     """
     Receives booking confirmations from Setmore.
     Standardizes the lead status to APPOINTMENT_CONFIRMED.
@@ -29,7 +31,7 @@ async def setmore_webhook(request: Request, x_setmore_signature: str = Header(No
             return {"status": "ignored", "reason": "missing_phone"}
 
         db = SupabaseAdapter()
-        db.update_lead_status(phone, LeadStatus.APPOINTMENT_CONFIRMED)
+        db.update_lead_status(phone, LeadStatus.SCHEDULED)
 
         logger.info("LEAD_STATUS_UPDATED_BY_SETMORE", context={"phone": phone})
         return {"status": "success"}
