@@ -42,6 +42,15 @@ class MarketDataService:
         insights = self.get_market_insights(zone, city)
         return insights.get("avg_price_sqm")
 
+    def search_properties(self, zone: str, city: str = "") -> list[dict[str, Any]]:
+        if not self.api_key:
+            logger.warning("RAPIDAPI_KEY_MISSING")
+            return []
+
+        location_id = self._resolve_location(zone)
+        # Use locationName if ID not found, handled in _fetch_listings
+        return self._fetch_listings(zone, city, location_id)
+
     def get_market_insights(self, zone: str, city: str = "") -> dict[str, Any]:
         zone_upper = zone.upper()
         expert_price = None
@@ -91,38 +100,51 @@ class MarketDataService:
             logger.warning(f"⚠️ Autocomplete failed for {zone}: {e}")
         return None
 
-    def _fetch_live_price(self, zone: str, city: str, location_id: str | None) -> int | None:
+    def _fetch_listings(
+        self, zone: str, city: str, location_id: str | None
+    ) -> list[dict[str, Any]]:
         url = f"https://{self.host}/properties/list"
-        params = {"operation": "sale", "propertyType": "homes", "country": "it", "maxItems": "20"}
+        params = {
+            "operation": "sale",
+            "propertyType": "homes",
+            "country": "it",
+            # Request specific fields if API supports it, otherwise parsing JSON
+            "maxItems": "40",  # Increase for production data
+            "sort": "date",  # Get newest first
+        }
         if location_id:
             params["locationId"] = location_id
         else:
             params["locationName"] = f"{zone}, {city}".strip(", ")
 
         try:
-            resp = requests.get(url, headers=self.headers, params=params, timeout=10)
-            if resp.status_code != 200:  # noqa: PLR2004
-                return None
+            resp = requests.get(url, headers=self.headers, params=params, timeout=15)
+            if resp.status_code != 200:
+                logger.error(f"API_FAIL {resp.status_code}: {resp.text}")
+                return []
 
-            elements: list[dict[str, Any]] = resp.json().get("elementList", [])
-            prices_mq = []
-            for p in elements:
-                if p.get("isAuction"):
-                    continue
-                price, size = p.get("price"), p.get("size")
-                if price and size and size > 0:
-                    val = price / size
-                    if 800 < val < 20000:  # noqa: PLR2004
-                        prices_mq.append(val)
-
-            if not prices_mq:
-                return None
-            avg = sum(prices_mq) / len(prices_mq)
-            logger.info(f"🌐 Live API Data for {zone}: €{int(avg)}/mq")
-            return int(avg)
+            return list(resp.json().get("elementList", []))
         except Exception as e:
             logger.error(f"❌ API Error: {e}")
+            return []
+
+    def _fetch_live_price(self, zone: str, city: str, location_id: str | None) -> int | None:
+        elements = self._fetch_listings(zone, city, location_id)
+        prices_mq = []
+        for p in elements:
+            if p.get("isAuction"):
+                continue
+            price, size = p.get("price"), p.get("size")
+            if price and size and size > 0:
+                val = price / size
+                if 800 < val < 20000:
+                    prices_mq.append(val)
+
+        if not prices_mq:
             return None
+        avg = sum(prices_mq) / len(prices_mq)
+        logger.info(f"🌐 Live API Data for {zone}: €{int(avg)}/mq")
+        return int(avg)
 
 
 # Helper for backward compatibility
