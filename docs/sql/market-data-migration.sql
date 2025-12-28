@@ -15,5 +15,10 @@ CREATE TABLE IF NOT EXISTS market_data (
 -- Enable RLS
 ALTER TABLE market_data ENABLE ROW LEVEL SECURITY;
 
--- Simple policy for public read (optional, following existing pattern)
-CREATE POLICY "Allow public read on market_data" ON market_data FOR SELECT USING (true);
+-- 1. Idempotent Policy for public read
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'market_data' AND policyname = 'Allow public read on market_data') THEN
+        CREATE POLICY "Allow public read on market_data" ON market_data FOR SELECT USING (true);
+    END IF;
+END $$;

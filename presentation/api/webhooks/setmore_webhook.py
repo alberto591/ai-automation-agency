@@ -1,5 +1,9 @@
+import hashlib
+import hmac
+
 from fastapi import APIRouter, Header, HTTPException, Request
 
+from config.settings import settings
 from domain.enums import LeadStatus
 from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.logging import get_logger
@@ -13,10 +17,23 @@ async def setmore_webhook(
     request: Request, x_setmore_signature: str = Header(None)
 ) -> dict[str, str]:
     """
-    Receives booking confirmations from Setmore.
     Standardizes the lead status to APPOINTMENT_CONFIRMED.
     """
-    # TODO: Verify signature for security if provided by Setmore
+    body = await request.body()
+
+    # 1. Verify signature if secret is configured
+    if settings.SETMORE_WEBHOOK_SECRET:
+        if not x_setmore_signature:
+            logger.warning("SETMORE_WEBHOOK_MISSING_SIGNATURE")
+            raise HTTPException(status_code=401, detail="Missing signature")
+
+        expected_sig = hmac.new(
+            settings.SETMORE_WEBHOOK_SECRET.encode(), body, hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(expected_sig, x_setmore_signature):
+            logger.warning("SETMORE_WEBHOOK_INVALID_SIGNATURE")
+            raise HTTPException(status_code=401, detail="Invalid signature")
 
     try:
         data = await request.json()

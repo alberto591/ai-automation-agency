@@ -13,10 +13,17 @@ class Settings(BaseSettings):
     MISTRAL_MODEL: str = Field(default="mistral-large-latest")
     MISTRAL_EMBEDDING_MODEL: str = Field(default="mistral-embed")
 
+    # WhatsApp Messaging
+    WHATSAPP_PROVIDER: str = Field(default="twilio")  # or "meta"
+
     # Twilio
     TWILIO_ACCOUNT_SID: str = Field(default="")
     TWILIO_AUTH_TOKEN: str = Field(default="")
     TWILIO_PHONE_NUMBER: str = Field(default="")
+
+    # Meta Cloud API
+    META_ACCESS_TOKEN: str = Field(default="")
+    META_PHONE_ID: str = Field(default="")
 
     # Security
     WEBHOOK_API_KEY: str = Field(default="")
@@ -30,6 +37,7 @@ class Settings(BaseSettings):
     # Setmore
     SETMORE_API_KEY: str = Field(default="")
     SETMORE_STAFF_ID: str = Field(default="")
+    SETMORE_WEBHOOK_SECRET: str = Field(default="")
     SETMORE_LINK: str = Field(default="https://anzevinoai.setmore.com")
 
     # Agency Details

@@ -315,11 +315,15 @@ def create_lead_processing_graph(
 
             if zone and market:
                 avg = market.get_avg_price(zone)
-                if avg:
+                # Also fetch competitive stats from our own ingested data via DB
+                stats = db.get_market_stats(zone)
+
+                if avg or stats:
                     market_results = {
-                        "avg_price_sqm": avg,
+                        "avg_price_sqm": avg or stats.get("avg_price_sqm"),
                         "area": zone,
-                        "estimate_range": f"€{int(avg * 0.9):,} - €{int(avg * 1.1):,}",
+                        "competitive_stats": stats,
+                        "estimate_range": f"€{int((avg or stats.get('avg_price_sqm', 0)) * 0.9):,} - €{int((avg or stats.get('avg_price_sqm', 0)) * 1.1):,}",
                     }
 
         # Scenario 2: Negotiation (Phase 5)
@@ -357,9 +361,16 @@ def create_lead_processing_graph(
         # Filter (ADR-004 logic: 0.78 threshold)
         valid_properties = [p for p in properties if p.get("similarity", 0) >= 0.78]
         status_msg = ""
-        # Only inject the "admit no matches" instruction if not specifically steering toward an appointment
-        if not valid_properties and state["intent"] != "VISIT":
-            status_msg = "No exact matches found above 0.78 threshold. Admit this politely but remain helpful."
+
+        # Fallback Mechanism: If no exact matches, take the best ones with a warning
+        if not valid_properties:
+            # Take top 2 if they exist, even if below threshold
+            fallback_properties = properties[:2]
+            if fallback_properties:
+                valid_properties = fallback_properties
+                status_msg = "No exact matches found above 0.78. Showing closest alternatives. Mention these might not be perfect matches but are the best available."
+            elif state["intent"] != "VISIT":
+                status_msg = "No properties found at all. Admit this politely but remain helpful."
 
         return {"retrieved_properties": valid_properties, "status_msg": status_msg}
 
@@ -387,16 +398,18 @@ def create_lead_processing_graph(
                         "Available Properties Data: {properties}\n\n"
                         "Language: {language}\n\n"
                         "If Language is 'it': Short, friendly Italian, local agency vibe.\n"
-                        "If Language is 'en': Act as a professional, welcoming guide for tourists. Focus on the charm of Tuscany. Explain Italian real estate terms clearly.\n\n"
-                        "### NEGOTIATION GUIDANCE ###\n"
-                        "If Negotiation Data is present and Stage is PURCHASE: \n"
-                        "- Compare the property price/mq with Area Average (Negotiation Data).\n"
-                        "- If property is above average, suggest a cautious offer or ask about the condition.\n"
-                        "- Be data-driven but diplomatic.\n\n"
+                        "If Language is 'en': Act as a professional, welcoming guide for tourists. Focus on the charm of Tuscany. Explain local nuances like 'borgo', 'agriturismo', and the lifestyle. Use warm, descriptive language.\n\n"
+                        "### NEGOTIATION & MARKET INTELLIGENCE ###\n"
+                        "If Market Insights (Market Data) are present:\n"
+                        "- Explicitly mention the area average price if relevant (e.g., 'The average in {area_name} is €{avg_price_sqm}/sqm').\n"
+                        "- Compare the selected properties with the area average.\n"
+                        "- If a property is Significantly BELOW the area average, highlight it as a 'potential deal' or 'great value'.\n"
+                        "- If it's ABOVE, use data to justify why (e.g., premium features, renovation) or suggest it's a premium option.\n\n"
                         "### CRITICAL PHASE INSTRUCTIONS ###\n"
                         "You MUST follow these instructions based on current state (Stage: {stage}):\n"
-                        "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately.\n"
+                        "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately. Use the market average to ground your estimate.\n"
                         "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
+                        "3. If status_msg mentions 'closest alternatives': Be transparent that these might not match all criteria but are high-quality options in the desired area.\n"
                         "Keep it native for WhatsApp (short, friendly, max 1500 characters, in the detected language: {language})."
                     ),
                 ),
@@ -434,6 +447,8 @@ def create_lead_processing_graph(
                 source=state["source"],
                 context_data=state["context_data"],
                 market_data=state["market_data"],
+                area_name=state["market_data"].get("area", "this area"),
+                avg_price_sqm=state["market_data"].get("avg_price_sqm", "N/A"),
                 negotiation_data=state["negotiation_data"],
                 input=final_input,
                 language=state["language"],

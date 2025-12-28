@@ -85,14 +85,14 @@ export default function ChatWindow({ selectedLead }) {
 
     if (!selectedLead) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-[hsl(var(--zen-bg))] border-l border-[hsl(var(--zen-border))]">
-                <div className="text-center space-y-4 max-w-md p-8 animate-in fade-in zoom-in duration-700">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm border border-[hsl(var(--zen-border))]">
-                        <Bot className="w-10 h-10 text-[hsl(var(--zen-accent))]" />
+            <div className="flex-1 flex items-center justify-center bg-white/20">
+                <div className="text-center space-y-6 max-w-md p-10 animate-in fade-in zoom-in duration-1000">
+                    <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-indigo-500/20 animate-float">
+                        <Bot className="w-12 h-12 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-[hsl(var(--zen-text-main))] tracking-tight">Agenzia AI Dashboard</h2>
-                        <p className="text-[hsl(var(--zen-text-muted))] text-sm mt-2">Seleziona una conversazione per iniziare a gestire i tuoi lead con intelligenza.</p>
+                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Benvenuto</h2>
+                        <p className="text-slate-500 text-sm mt-3 leading-relaxed">Seleziona un lead dalla lista per gestire le conversazioni e le trattative in corso.</p>
                     </div>
                 </div>
             </div>
@@ -102,22 +102,22 @@ export default function ChatWindow({ selectedLead }) {
     return (
         <div className="flex flex-col h-full bg-white relative overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-4 bg-white/80 backdrop-blur-md flex justify-between items-center border-b border-[hsl(var(--zen-border))] z-10 shadow-sm">
+            <div className="px-6 py-5 bg-white/20 backdrop-blur-xl flex justify-between items-center z-10">
                 <div className="flex items-center cursor-pointer group" onClick={() => setDrawerOpen(!drawerOpen)}>
-                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-[hsl(var(--zen-text-main))] font-bold mr-4 shadow-sm border border-gray-100 group-hover:border-[hsl(var(--zen-accent))] transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center text-slate-800 font-bold mr-4 shadow-sm border border-white group-hover:border-indigo-500/30 transition-all">
                         {selectedLead.name[0]?.toUpperCase()}
                     </div>
                     <div>
-                        <div className="font-bold text-[hsl(var(--zen-text-main))] text-lg tracking-tight">{selectedLead.name}</div>
-                        <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-[hsl(var(--zen-text-muted))]">
+                        <div className="font-bold text-slate-800 text-xl tracking-tight">{selectedLead.name}</div>
+                        <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             {status === 'human_mode' ? (
                                 <>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                                    <span className="w-2 h-2 rounded-full bg-orange-500 mr-2 shadow-sm shadow-orange-500/40"></span>
                                     <span>Presa in carico</span>
                                 </>
                             ) : (
                                 <>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span>
+                                    <span className="w-2 h-2 rounded-full bg-indigo-500 mr-2 shadow-sm shadow-indigo-500/40 animate-pulse"></span>
                                     <span>AI Attiva</span>
                                 </>
                             )}
@@ -129,15 +129,15 @@ export default function ChatWindow({ selectedLead }) {
                     {/* Premium Toggle Switch */}
                     <div
                         onClick={toggleAiMode}
-                        className={`relative w-24 h-9 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 shadow-inner ${status === 'human_mode' ? 'bg-gray-200' : 'bg-green-100'
+                        className={`relative w-24 h-9 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 shadow-inner ${status === 'human_mode' ? 'bg-slate-200' : 'bg-indigo-100'
                             }`}
                     >
-                        <div className={`absolute text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${status === 'human_mode' ? 'right-3 text-gray-400' : 'left-8 text-green-700'}`}>
+                        <div className={`absolute text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${status === 'human_mode' ? 'right-3 text-slate-400' : 'left-8 text-indigo-700'}`}>
                             {status === 'human_mode' ? 'Manual' : 'Auto'}
                         </div>
-                        <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-300 flex items-center justify-center ${status === 'human_mode' ? 'translate-x-0' : 'translate-x-15'
+                        <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-500 flex items-center justify-center ${status === 'human_mode' ? 'translate-x-0' : 'translate-x-15'
                             }`}>
-                            {status === 'human_mode' ? <User className="w-3.5 h-3.5 text-gray-400" /> : <Bot className="w-3.5 h-3.5 text-green-600" />}
+                            {status === 'human_mode' ? <User className="w-3.5 h-3.5 text-slate-400" /> : <Bot className="w-3.5 h-3.5 text-indigo-600" />}
                         </div>
                     </div>
 
@@ -178,8 +178,8 @@ export default function ChatWindow({ selectedLead }) {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 bg-white/80 backdrop-blur-sm border-t border-[hsl(var(--zen-border))] flex items-center space-x-3">
-                        <div className="p-3 text-[hsl(var(--zen-text-muted))] hover:bg-gray-100 rounded-2xl cursor-not-allowed transition-colors">
+                    <div className="p-6 bg-white/10 backdrop-blur-md flex items-center space-x-4">
+                        <div className="p-3 text-slate-400 hover:bg-white/50 rounded-2xl cursor-not-allowed transition-colors">
                             <MoreVertical className="w-5 h-5" />
                         </div>
                         <input
@@ -188,15 +188,15 @@ export default function ChatWindow({ selectedLead }) {
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                             placeholder="Scrivi un messaggio..."
-                            className="flex-1 p-3.5 bg-[hsl(var(--zen-bg))] rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-[hsl(var(--zen-accent))] transition-all text-sm font-medium"
+                            className="flex-1 p-4 bg-white/50 rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all text-sm font-medium shadow-inner"
                             disabled={sending}
                         />
                         <button
                             onClick={sendMessage}
                             disabled={sending || !inputText.trim()}
-                            className={`p-3.5 rounded-2xl transition-all flex items-center justify-center shadow-lg ${sending
-                                ? 'bg-gray-100 text-gray-300'
-                                : 'bg-[hsl(var(--zen-accent))] text-white hover:shadow-green-200 hover:-translate-y-0.5 active:translate-y-0'
+                            className={`p-4 rounded-2xl transition-all flex items-center justify-center shadow-lg ${sending
+                                ? 'bg-slate-100 text-slate-300'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0'
                                 }`}
                         >
                             <Send className="w-5 h-5" />

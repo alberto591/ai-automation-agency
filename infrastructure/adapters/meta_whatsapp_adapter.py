@@ -1,0 +1,85 @@
+from typing import Any
+
+import requests
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+from config.settings import settings
+from domain.errors import ExternalServiceError
+from domain.ports import MessagingPort
+from infrastructure.logging import get_logger
+
+logger = get_logger(__name__)
+
+
+class MetaWhatsAppAdapter(MessagingPort):
+    """
+    Adapter for WhatsApp Cloud API (Meta).
+    """
+
+    def __init__(self) -> None:
+        self.access_token = settings.META_ACCESS_TOKEN
+        self.phone_id = settings.META_PHONE_ID
+        self.base_url = f"https://graph.facebook.com/v17.0/{self.phone_id}/messages"
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        reraise=True,
+    )
+    def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
+        # Clean number (Meta expects digits only, no prefix like 'whatsapp:')
+        clean_to = "".join(filter(str.isdigit, to))
+
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
+        }
+
+        payload: dict[str, Any] = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": clean_to,
+        }
+
+        if media_url:
+            # Note: Meta handles media differently (image, document, etc.)
+            # For simplicity, we assume image if media_url is provided.
+            # In a production scenario, we'd detect the file type.
+            payload["type"] = "image"
+            payload["image"] = {"link": media_url, "caption": body}
+        else:
+            payload["type"] = "text"
+            payload["text"] = {"preview_url": False, "body": body}
+
+        try:
+            response = requests.post(self.base_url, headers=headers, json=payload, timeout=15)
+            response_data = response.json()
+
+            if response.status_code != 200:
+                logger.error(
+                    "META_WHATSAPP_SEND_FAILED",
+                    context={
+                        "to": clean_to,
+                        "status": response.status_code,
+                        "error": response_data,
+                    },
+                )
+                raise ExternalServiceError(
+                    f"Meta API returned status {response.status_code}",
+                    cause=str(response_data),
+                )
+
+            message_id = response_data.get("messages", [{}])[0].get("id")
+            logger.info(
+                "MESSAGE_SENT_META",
+                context={"to": clean_to, "message_id": message_id, "has_media": bool(media_url)},
+            )
+            return str(message_id)
+
+        except Exception as e:
+            if isinstance(e, ExternalServiceError):
+                raise e
+            logger.error("META_WHATSAPP_HTTP_FAILED", context={"to": clean_to, "error": str(e)})
+            raise ExternalServiceError(
+                "Failed to connect to Meta WhatsApp API", cause=str(e)
+            ) from e

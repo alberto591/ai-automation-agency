@@ -37,28 +37,27 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             />
 
             {/* Dropdown Menu */}
-            <div className="absolute top-12 left-0 w-72 bg-white rounded-2xl shadow-2xl border border-[hsl(var(--zen-border))] z-[60] overflow-hidden animate-in fade-in zoom-in duration-200 origin-top-left">
-                {/* Header */}
-                <div className="p-5 bg-gradient-to-br from-gray-50 to-white border-b border-[hsl(var(--zen-border))]">
+            <div className="absolute top-14 left-0 w-80 glass-panel rounded-3xl z-[60] overflow-hidden animate-in fade-in zoom-in duration-300 origin-top-left">
+                <div className="p-6 bg-white/50">
                     {loading ? (
-                        <div className="flex items-center space-x-3 animate-pulse">
-                            <div className="w-12 h-12 bg-gray-200 rounded-full" />
+                        <div className="flex items-center space-x-4 animate-pulse">
+                            <div className="w-14 h-14 bg-slate-200 rounded-2xl" />
                             <div className="space-y-2">
-                                <div className="h-4 w-24 bg-gray-200 rounded" />
-                                <div className="h-3 w-32 bg-gray-200 rounded" />
+                                <div className="h-4 w-28 bg-slate-200 rounded" />
+                                <div className="h-3 w-36 bg-slate-200 rounded" />
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--zen-accent))] text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-[hsl(var(--zen-accent))/20]">
+                        <div className="flex items-center space-x-5">
+                            <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg shadow-indigo-500/20">
                                 {profile?.name?.[0]?.toUpperCase() || 'A'}
                             </div>
                             <div className="min-w-0">
-                                <div className="font-bold text-[hsl(var(--zen-text-main))] truncate tracking-tight">
+                                <div className="font-bold text-slate-800 text-lg truncate tracking-tight py-1">
                                     {profile?.name || "Agency Owner"}
                                 </div>
-                                <div className="text-xs text-[hsl(var(--zen-text-muted))] flex items-center mt-0.5">
-                                    <Building className="w-3 h-3 mr-1" />
+                                <div className="text-[11px] font-bold text-slate-400 flex items-center uppercase tracking-wider">
+                                    <Building className="w-3.5 h-3.5 mr-1.5 text-indigo-500/60" />
                                     {profile?.agency_name || "Anzevino AI"}
                                 </div>
                             </div>
@@ -68,15 +67,15 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
                 {/* Info Content */}
                 {!loading && profile && (
-                    <div className="p-2 space-y-1">
-                        <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Contatti</div>
-                        <div className="flex items-center px-4 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
-                            <Mail className="w-4 h-4 mr-3 text-gray-400" />
-                            <span className="truncate">{profile.email}</span>
+                    <div className="p-4 space-y-1 bg-white/30 backdrop-blur-md">
+                        <div className="px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contatti</div>
+                        <div className="flex items-center px-4 py-3 text-sm text-slate-600 rounded-2xl hover:bg-white/50 transition-colors">
+                            <Mail className="w-4 h-4 mr-3 text-indigo-500/50" />
+                            <span className="truncate font-medium">{profile.email}</span>
                         </div>
-                        <div className="flex items-center px-4 py-2.5 text-sm text-gray-600 rounded-xl hover:bg-gray-50 transition-colors">
-                            <Phone className="w-4 h-4 mr-3 text-gray-400" />
-                            <span>{profile.phone}</span>
+                        <div className="flex items-center px-4 py-3 text-sm text-slate-600 rounded-2xl hover:bg-white/50 transition-colors">
+                            <Phone className="w-4 h-4 mr-3 text-indigo-500/50" />
+                            <span className="font-medium">{profile.phone}</span>
                         </div>
                     </div>
                 )}

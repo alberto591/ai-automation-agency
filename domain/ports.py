@@ -39,6 +39,10 @@ class DatabasePort(ABC):
     def save_to_cache(self, query: str, embedding: list[float], response: str) -> None:
         pass
 
+    @abstractmethod
+    def get_market_stats(self, zone: str) -> dict[str, Any]:
+        pass
+
 
 class AIPort(ABC):
     @abstractmethod

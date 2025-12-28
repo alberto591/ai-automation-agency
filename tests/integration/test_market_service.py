@@ -3,9 +3,15 @@ from unittest.mock import MagicMock, patch
 from infrastructure.market_service import MarketDataService
 
 
+@patch("requests.get")
 @patch("config.settings.settings.RAPIDAPI_KEY", None)
-def test_market_price_tuscany_fallback():
-    """Verify fallback to TUSCANY_EXPERT_DATA when API key is missing."""
+def test_market_price_tuscany_fallback(mock_get):
+    """Verify fallback to TUSCANY_EXPERT_DATA when API key is missing or fails."""
+    # Mock API failure to force fallback
+    mock_resp = MagicMock()
+    mock_resp.status_code = 401
+    mock_get.return_value = mock_resp
+
     service = MarketDataService()
     price = service.get_avg_price("Firenze")
     assert price == 4546

@@ -198,3 +198,36 @@ class SupabaseAdapter(DatabasePort):
             ).execute()
         except Exception as e:
             logger.error("SAVE_CACHE_FAILED", context={"error": str(e)})
+
+    def get_market_stats(self, zone: str) -> dict[str, Any]:
+        """
+        Fetches competitive market stats for a given zone.
+        """
+        try:
+            # We fetch all listings in the zone to calculate accurate stats
+            # In a larger DB, we'd use a postgres function (RPC) for this.
+            res = (
+                self.client.table("market_data")
+                .select("price, sqm, price_per_mq")
+                .ilike("zone", f"%{zone}%")
+                .execute()
+            )
+            data = cast(list[dict[str, Any]], res.data)
+
+            if not data:
+                return {}
+
+            total_listings = len(data)
+            prices_per_mq = [d["price_per_mq"] for d in data if d.get("price_per_mq")]
+
+            avg_price_mq = sum(prices_per_mq) / len(prices_per_mq) if prices_per_mq else 0
+
+            return {
+                "zone": zone,
+                "avg_price_sqm": round(avg_price_mq, 2),
+                "listings_count": total_listings,
+                "sample_size": len(prices_per_mq),
+            }
+        except Exception as e:
+            logger.error("GET_MARKET_STATS_FAILED", context={"zone": zone, "error": str(e)})
+            return {}
