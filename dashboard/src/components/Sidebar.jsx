@@ -59,41 +59,44 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                 )}
 
                 {filteredLeads.map((lead) => (
-                    className = {`flex items-center p-5 mx-2 my-1 cursor-pointer transition-all duration-300 rounded-3xl ${selectedLead?.id === lead.id
-                        ? 'bg-white shadow-md shadow-indigo-100/50'
-                        : 'bg-transparent hover:bg-white/30'
-                        }`}
+                    <div
+                        key={lead.id}
+                        onClick={() => setSelectedLead(lead)}
+                        className={`flex items-center p-5 mx-2 my-1 cursor-pointer transition-all duration-300 rounded-3xl ${selectedLead?.id === lead.id
+                            ? 'bg-white shadow-md shadow-indigo-100/50'
+                            : 'bg-transparent hover:bg-white/30'
+                            }`}
                     >
-                {/* Avatar */}
-                <div className="relative mr-4 shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-[hsl(var(--zen-text-main))] font-bold text-lg shadow-sm">
-                        {lead.name[0]?.toUpperCase()}
-                    </div>
-                    {lead.status === 'human_mode' && (
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500 border-2 border-white"></span>
-                        </span>
-                    )}
-                </div>
+                        {/* Avatar */}
+                        <div className="relative mr-4 shrink-0">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-[hsl(var(--zen-text-main))] font-bold text-lg shadow-sm">
+                                {lead.name[0]?.toUpperCase()}
+                            </div>
+                            {lead.status === 'human_mode' && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500 border-2 border-white"></span>
+                                </span>
+                            )}
+                        </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-baseline mb-1">
-                        <span className={`font-bold truncate ${selectedLead?.id === lead.id ? 'text-[hsl(var(--zen-text-main))]' : 'text-gray-700'}`}>
-                            {lead.name}
-                        </span>
-                        <span className="text-[10px] font-medium text-[hsl(var(--zen-text-muted))] uppercase tracking-tighter shrink-0 ml-2">
-                            {lead.time}
-                        </span>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-baseline mb-1">
+                                <span className={`font-bold truncate ${selectedLead?.id === lead.id ? 'text-[hsl(var(--zen-text-main))]' : 'text-gray-700'}`}>
+                                    {lead.name}
+                                </span>
+                                <span className="text-[10px] font-medium text-[hsl(var(--zen-text-muted))] uppercase tracking-tighter shrink-0 ml-2">
+                                    {lead.time}
+                                </span>
+                            </div>
+                            <div className="text-sm text-[hsl(var(--zen-text-muted))] truncate font-medium">
+                                {lead.lastMsg}
+                            </div>
+                        </div>
                     </div>
-                    <div className="text-sm text-[hsl(var(--zen-text-muted))] truncate font-medium">
-                        {lead.lastMsg}
-                    </div>
-                </div>
-            </div>
                 ))}
+            </div>
         </div>
-        </div >
     );
 }
