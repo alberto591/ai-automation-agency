@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = Field(default="")
     ENVIRONMENT: str = Field(default="development")
 
+    # Google Sheets
+    GOOGLE_SHEET_ID: str = Field(default="")
+    GOOGLE_SHEETS_CREDENTIALS_JSON: str = Field(default="")
+
     # Agency Details
     AGENCY_OWNER_PHONE: str = Field(default="")
     AGENCY_OWNER_EMAIL: str = Field(default="")

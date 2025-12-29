@@ -524,6 +524,28 @@ def create_lead_processing_graph(
         }
         db.save_lead(update_payload)
 
+        # 5. Sync to Google Sheets (Operational Visibility)
+        try:
+            # Lazy import to avoid circular dependency
+            from config.container import container
+
+            # Prepare flattened data for sync
+            pref_zones = state["preferences"].zones if state.get("preferences") else []
+
+            sync_data = {
+                "phone": phone,
+                "name": lead.get("customer_name"),
+                "status": lead.get("journey_state") or lead.get("status"),
+                "intent": state.get("intent"),
+                "budget": state.get("budget"),
+                "zones": pref_zones,
+                "message_count": len(messages),
+            }
+            container.sheets.sync_lead(sync_data)
+        except Exception as e:
+            # Don't fail the flow for sheet sync
+            logger.warning("SHEET_SYNC_TRIGGER_FAILED", context={"error": str(e)})
+
         return {"checkpoint": "done"}
 
     # Define Graph

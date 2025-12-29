@@ -1,3 +1,5 @@
+from typing import Any
+
 from application.services.journey_manager import JourneyManager
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from config.settings import settings
@@ -27,6 +29,9 @@ class Container:
         self.scraper: ImmobiliareScraperAdapter = ImmobiliareScraperAdapter()
         self.market: IdealistaMarketAdapter = IdealistaMarketAdapter()
 
+        # Lazy loaded sheets adapter
+        self._sheets: Any | None = None
+
         # Domain/Application Services
         self.journey: JourneyManager = JourneyManager(
             db=self.db, calendar=self.calendar, doc_gen=self.doc_gen, msg=self.msg
@@ -42,6 +47,15 @@ class Container:
             market=self.market,
             calendar=self.calendar,
         )
+
+    @property
+    def sheets(self) -> Any:
+        """Lazy load Google Sheets adapter."""
+        if not self._sheets:
+            from infrastructure.adapters.google_sheets_adapter import GoogleSheetsAdapter
+
+            self._sheets = GoogleSheetsAdapter()
+        return self._sheets
 
 
 # Composition Root Instance
