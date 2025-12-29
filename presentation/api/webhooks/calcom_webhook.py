@@ -12,7 +12,7 @@ from typing import Any
 
 from fastapi import APIRouter, Header, HTTPException, Request
 
-from config.container import Container
+from config.container import container
 from config.settings import settings
 from domain.enums import LeadStatus
 from domain.services.logging import get_logger
@@ -75,10 +75,6 @@ async def calcom_webhook(
             logger.warning("CALCOM_WEBHOOK_MISSING_PHONE")
             return {"status": "ok", "message": "No phone number found"}
 
-        # Update lead status based on event type
-        container = Container()
-
-        if event_type == "BOOKING_CREATED":
             container.db.update_lead_status(phone, LeadStatus.SCHEDULED)
             logger.info(
                 "LEAD_STATUS_UPDATED_BY_CALCOM", context={"phone": phone, "status": "SCHEDULED"}

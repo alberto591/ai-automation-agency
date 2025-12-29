@@ -35,7 +35,9 @@ def mock_settings():
 @pytest.fixture(autouse=True)
 def mock_container():
     """Mocks the DI container components."""
-    # We patch it directly in the modules that use it to avoid early init issues
+    # We patch it directly in the modules that use it to avoid early init issues.
+    # Now that presentation/api/__init__.py has 'from . import api',
+    # this string should resolve correctly in all environments.
     with patch("presentation.api.api.container") as mock_cnt:
         # Define default successful mocks for lead_processor
         mock_cnt.lead_processor.process_lead.return_value = "AI Response"

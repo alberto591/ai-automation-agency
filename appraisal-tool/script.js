@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     contactForm.reset();
                     this.innerHTML = '<i class="ph ph-check-circle"></i> Inviato!';
 
-                    // Open Setmore as secondary step
+                    // Open Cal.com as secondary step
                     setTimeout(() => openBooking(), 2000);
                 })
                 .catch(error => {
@@ -181,15 +181,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Setmore Integration
+    // Cal.com Integration
     function openBooking() {
-        // Your specific Setmore scheduling URL
-        const setmoreUrl = 'https://vino5493.setmore.com';
-
-        // Open Setmore in a new tab
-        window.open(setmoreUrl, '_blank');
-
-        // Return false to prevent default behavior
+        if (window.Cal) {
+            window.Cal("modal", {
+                calLink: "anzevino-ai/demo",
+                config: { theme: 'light' }
+            });
+        } else {
+            window.open('https://cal.com/anzevino-ai/demo', '_blank');
+        }
         return false;
     }
 

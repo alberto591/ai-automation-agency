@@ -20,6 +20,33 @@
 
     <!-- Icons -->
     <script src="https://unpkg.com/phosphor-icons"></script>
+
+    <!-- Cal.com embed code -->
+    <script type="text/javascript">
+        (function (C, A, L) {
+            let p = function (a, ar) { a.q.push(ar); };
+            let d = C.document;
+            C.Cal = C.Cal || function () {
+                let cal = C.Cal;
+                let ar = arguments;
+                if (!cal.loaded) {
+                    cal.q = cal.q || [];
+                    cal.loaded = true;
+                }
+                if (ar[0] === L) {
+                    const api = function () { p(api, arguments); };
+                    const cand = d.createElement("script");
+                    cand.src = A;
+                    cand.async = true;
+                    d.head.appendChild(cand);
+                    return api;
+                }
+                p(cal, ar);
+            };
+        })(window, "https://app.cal.com/embed/embed.js", "init");
+        Cal("init", { origin: "https://cal.com" });
+        Cal("ui", { theme: "light", styles: { branding: { brandColor: "#0f172a" } }, hideEventTypeDetails: false, layout: "month_view" });
+    </script>
 </head>
 
 <body>
@@ -38,7 +65,7 @@
                 <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
                 <a href="#appraisal" data-translate="nav-valutazione">Valutazione AI</a>
                 <a href="#contatto" data-translate="nav-contatto">Contatto</a>
-                <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary">
+                <a href="https://cal.com/anzevino-ai/demo" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
                     <span data-translate="nav-prenota-demo">Prenota Demo</span>
                 </a>
@@ -83,7 +110,7 @@
                     </div>
 
                     <div class="hero-cta">
-                        <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary btn-large">
+                        <a href="https://cal.com/anzevino-ai/demo" target="_blank" class="btn-primary btn-large">
                             <i class="ph ph-calendar-plus"></i>
                             <span data-translate="hero-cta-button">Prenota una Demo Gratuita</span>
                         </a>
@@ -722,7 +749,7 @@
                             </select>
                         </div>
 
-                        <a href="https://vino5493.setmore.com" target="_blank" class="btn-primary btn-full"
+                        <a href="https://cal.com/anzevino-ai/demo" target="_blank" class="btn-primary btn-full"
                             style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="ph ph-calendar-plus"></i>
                             <span data-translate="form-submit">Prenota Demo Gratuita</span>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, CircleUserRound } from 'lucide-react';
+import { Search, CircleUserRound, MessageSquare } from 'lucide-react';
 import { useLeads } from '../hooks/useLeads';
 import ProfileDropdown from './ProfileDropdown';
 import LeadSkeleton from './LeadSkeleton';
