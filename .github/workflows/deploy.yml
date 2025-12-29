@@ -19,6 +19,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest httpx
     - name: Run Tests
       # We skip full integration tests that require live API keys
       run: |
