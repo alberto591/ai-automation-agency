@@ -53,7 +53,7 @@ class Container:
     def sheets(self) -> Any:
         """Lazy load Google Sheets adapter."""
         if not self._sheets:
-            from infrastructure.adapters.google_sheets_adapter import (
+            from infrastructure.adapters.google_sheets_adapter import (  # noqa: PLC0415
                 GoogleSheetsAdapter,
             )
 
@@ -63,7 +63,7 @@ class Container:
     @property
     def voice(self) -> Any:
         """Lazy load Voice adapter."""
-        from infrastructure.adapters.voice_adapter import (
+        from infrastructure.adapters.voice_adapter import (  # noqa: PLC0415
             TwilioVoiceAdapter,
         )
 
@@ -72,7 +72,7 @@ class Container:
     @property
     def email_ingestion(self) -> Any:
         """Lazy load Email service."""
-        from application.services.email_parser import (
+        from application.services.email_parser import (  # noqa: PLC0415
             EmailParserService,
         )
 
