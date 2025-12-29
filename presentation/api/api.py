@@ -12,7 +12,7 @@ from domain.enums import LeadStatus
 from domain.errors import BaseAppError
 from infrastructure.logging import get_logger
 from infrastructure.monitoring.sentry import init_sentry
-from presentation.api.webhooks import calcom_webhook
+from presentation.api.webhooks import calcom_webhook, portal_webhook
 
 logger = get_logger(__name__)
 
@@ -27,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(calcom_webhook.router, prefix="/api")
+app.include_router(portal_webhook.router, prefix="/api")
 
 
 @app.on_event("startup")
