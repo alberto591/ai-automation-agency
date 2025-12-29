@@ -7,8 +7,9 @@ from fastapi.testclient import TestClient
 # Ensure we can import the module from parent dir
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api import app
 from lead_manager import save_lead_to_dashboard
+
+from api import app
 
 client = TestClient(app)
 
