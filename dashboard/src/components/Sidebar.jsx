@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Search, CircleUserRound } from 'lucide-react';
 import { useLeads } from '../hooks/useLeads';
 import ProfileDropdown from './ProfileDropdown';
+import LeadSkeleton from './LeadSkeleton';
+import EmptyState from './EmptyState';
+import StatusBadge from './StatusBadge';
+import Tooltip from './Tooltip';
 
 export default function Sidebar({ selectedLead, setSelectedLead }) {
     const { leads, loading } = useLeads();
@@ -17,12 +21,14 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
             {/* Header */}
             <div className="p-6 flex justify-between items-center border-b border-white/20 bg-white/10 backdrop-blur-md relative z-30">
                 <div className="font-bold text-slate-800 text-2xl tracking-tight">Inbox</div>
-                <div
-                    onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className={`p-2 rounded-full transition-all duration-300 cursor-pointer ${isProfileOpen ? 'bg-indigo-500/10 text-indigo-600' : 'hover:bg-white/50 text-slate-400'}`}
-                >
-                    <CircleUserRound className="w-6 h-6" />
-                </div>
+                <Tooltip content="Profilo utente" position="bottom">
+                    <div
+                        onClick={() => setIsProfileOpen(!isProfileOpen)}
+                        className={`p-2 rounded-full transition-all duration-300 cursor-pointer ${isProfileOpen ? 'bg-indigo-500/10 text-indigo-600' : 'hover:bg-white/50 text-slate-400'}`}
+                    >
+                        <CircleUserRound className="w-6 h-6" />
+                    </div>
+                </Tooltip>
 
                 <ProfileDropdown
                     isOpen={isProfileOpen}
@@ -45,24 +51,20 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
 
             {/* Lead List */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                {loading && (
-                    <div className="p-8 text-center space-y-3">
-                        <div className="w-8 h-8 border-2 border-[hsl(var(--zen-accent))] border-t-transparent rounded-full animate-spin mx-auto"></div>
-                        <div className="text-xs font-medium text-[hsl(var(--zen-text-muted))]">Caricamento...</div>
-                    </div>
-                )}
+                {loading && <LeadSkeleton count={5} />}
 
                 {!loading && filteredLeads.length === 0 && (
-                    <div className="p-8 text-center text-[hsl(var(--zen-text-muted))] text-sm italic">
-                        {leads.length === 0 ? "Nessuna chat trovata." : "Nessun risultato."}
-                    </div>
+                    <EmptyState
+                        variant={searchQuery ? 'no-results' : 'no-leads'}
+                        searchQuery={searchQuery}
+                    />
                 )}
 
-                {filteredLeads.map((lead) => (
+                {!loading && filteredLeads.map((lead) => (
                     <div
                         key={lead.id}
                         onClick={() => setSelectedLead(lead)}
-                        className={`flex items-center p-5 mx-2 my-1 cursor-pointer transition-all duration-300 rounded-3xl ${selectedLead?.id === lead.id
+                        className={`flex items-center p-5 mx-2 my-1 cursor-pointer transition-all duration-300 rounded-3xl hover:scale-[1.02] ${selectedLead?.id === lead.id
                             ? 'bg-white shadow-md shadow-indigo-100/50'
                             : 'bg-transparent hover:bg-white/30'
                             }`}
@@ -73,10 +75,12 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                                 {lead.name[0]?.toUpperCase()}
                             </div>
                             {lead.status === 'human_mode' && (
-                                <span className="absolute -top-1 -right-1 flex h-4 w-4">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500 border-2 border-white"></span>
-                                </span>
+                                <Tooltip content="Modalità manuale attiva" position="right">
+                                    <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-500 border-2 border-white"></span>
+                                    </span>
+                                </Tooltip>
                             )}
                         </div>
 
@@ -90,8 +94,11 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                                     {lead.time}
                                 </span>
                             </div>
-                            <div className="text-sm text-[hsl(var(--zen-text-muted))] truncate font-medium">
-                                {lead.lastMsg}
+                            <div className="flex items-center gap-2">
+                                <div className="text-sm text-[hsl(var(--zen-text-muted))] truncate font-medium flex-1">
+                                    {lead.lastMsg}
+                                </div>
+                                <StatusBadge status={lead.status} size="sm" />
                             </div>
                         </div>
                     </div>

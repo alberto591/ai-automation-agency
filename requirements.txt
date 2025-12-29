@@ -17,3 +17,6 @@ fpdf2
 langchain-core
 langchain-mistralai
 langgraph
+
+# Monitoring
+sentry-sdk[fastapi]==1.40.0

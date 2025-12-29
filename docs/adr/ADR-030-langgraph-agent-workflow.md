@@ -1,8 +1,9 @@
 # ADR-030: LangGraph-based Agentic Workflow for Lead Processing
 
-* Status: Proposed
+* Status: Accepted
 * Deciders: Engineering Team, Antigravity Agent
 * Date: 2025-12-22
+* Implementation Date: 2025-12-22
 
 ## Context and Problem Statement
 

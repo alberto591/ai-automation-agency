@@ -11,7 +11,8 @@ from config.settings import settings
 from domain.enums import LeadStatus
 from domain.errors import BaseAppError
 from infrastructure.logging import get_logger
-from presentation.api.webhooks import setmore_webhook
+from infrastructure.monitoring.sentry import init_sentry
+from presentation.api.webhooks import calcom_webhook
 
 logger = get_logger(__name__)
 
@@ -25,7 +26,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(setmore_webhook.router, prefix="/api")
+app.include_router(calcom_webhook.router, prefix="/api")
+
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    """Initialize services on application startup."""
+    # Initialize Sentry for error monitoring
+    if settings.SENTRY_DSN:
+        init_sentry(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.ENVIRONMENT,
+            traces_sample_rate=1.0 if settings.ENVIRONMENT == "development" else 0.1,
+        )
+        logger.info("SENTRY_ENABLED", context={"environment": settings.ENVIRONMENT})
+    else:
+        logger.warning("SENTRY_DISABLED", context={"reason": "No DSN configured"})
 
 
 async def verify_webhook_key(x_webhook_key: str = Header(None)) -> None:

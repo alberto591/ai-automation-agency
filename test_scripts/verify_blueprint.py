@@ -78,7 +78,7 @@ def verify_blueprint_scenarios():
     print(f"AI Response Preview: {response[:150]}...")
 
     assert jstate == LeadStatus.APPOINTMENT_REQUESTED
-    assert "setmore.com" in response.lower()
+    assert "cal.com" in response.lower()
 
     print("\n✅ Verification Complete! All blueprint phases are correctly wired.")
 

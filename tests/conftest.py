@@ -21,7 +21,9 @@ def mock_settings():
         mock_set.MISTRAL_MODEL = "mistral-large-latest"
         mock_set.MISTRAL_EMBEDDING_MODEL = "mistral-embed"
         mock_set.MISTRAL_API_KEY = "mock_key"
-        mock_set.SETMORE_WEBHOOK_SECRET = "mock_secret"
+        mock_set.CALCOM_API_KEY = "mock_key"
+        mock_set.CALCOM_EVENT_TYPE_ID = "mock_event_type"
+        mock_set.CALCOM_WEBHOOK_SECRET = "mock_secret"
         mock_set.SUPABASE_URL = "https://mock.supabase.co"
         mock_set.SUPABASE_KEY = "mock_key"
         mock_set.RAPIDAPI_KEY = None  # Crucial for triggering fallbacks in MarketDataService tests

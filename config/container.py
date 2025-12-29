@@ -2,12 +2,12 @@ from application.services.journey_manager import JourneyManager
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from config.settings import settings
 from domain.ports import MessagingPort
+from infrastructure.adapters.calcom_adapter import CalComAdapter
 from infrastructure.adapters.document_adapter import DocumentAdapter
 from infrastructure.adapters.langchain_adapter import LangChainAdapter
 from infrastructure.adapters.market_adapter import IdealistaMarketAdapter
 from infrastructure.adapters.meta_whatsapp_adapter import MetaWhatsAppAdapter
 from infrastructure.adapters.scraper_adapter import ImmobiliareScraperAdapter
-from infrastructure.adapters.setmore_adapter import SetmoreAdapter
 from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.adapters.twilio_adapter import TwilioAdapter
 
@@ -22,7 +22,7 @@ class Container:
             self.msg = MetaWhatsAppAdapter()
         else:
             self.msg = TwilioAdapter()
-        self.calendar: SetmoreAdapter = SetmoreAdapter()
+        self.calendar: CalComAdapter = CalComAdapter()
         self.doc_gen: DocumentAdapter = DocumentAdapter()
         self.scraper: ImmobiliareScraperAdapter = ImmobiliareScraperAdapter()
         self.market: IdealistaMarketAdapter = IdealistaMarketAdapter()

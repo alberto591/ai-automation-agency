@@ -423,7 +423,7 @@ def create_lead_processing_graph(
             # Final input assembly
             final_input = state["user_input"]
             if current_stage == "appointment_requested":
-                booking_link = settings.SETMORE_LINK
+                booking_link = settings.CALCOM_BOOKING_LINK
                 final_input += f"\n\n(IMPORTANT: The user wants a visit. Suggest booking via this link: {booking_link})"
                 if calendar:
                     # In a real scenario, we'd fetch availability for the next few days

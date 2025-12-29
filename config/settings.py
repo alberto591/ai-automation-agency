@@ -34,11 +34,15 @@ class Settings(BaseSettings):
     # Google Calendar
     GOOGLE_CALENDAR_ID: str = Field(default="")
     GOOGLE_SERVICE_ACCOUNT_JSON: str = Field(default="")
-    # Setmore
-    SETMORE_API_KEY: str = Field(default="")
-    SETMORE_STAFF_ID: str = Field(default="")
-    SETMORE_WEBHOOK_SECRET: str = Field(default="")
-    SETMORE_LINK: str = Field(default="https://anzevinoai.setmore.com")
+    # Cal.com
+    CALCOM_API_KEY: str = Field(default="")
+    CALCOM_EVENT_TYPE_ID: str = Field(default="")  # Get from Cal.com dashboard
+    CALCOM_WEBHOOK_SECRET: str = Field(default="")
+    CALCOM_BOOKING_LINK: str = Field(default="https://cal.com/anzevino-ai")
+
+    # Monitoring (Sentry)
+    SENTRY_DSN: str = Field(default="")
+    ENVIRONMENT: str = Field(default="development")
 
     # Agency Details
     AGENCY_OWNER_PHONE: str = Field(default="")

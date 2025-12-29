@@ -1,7 +1,7 @@
 # ADR-033: Setmore Appointment Scheduling
 
 ## Status
-Accepted
+**Superseded by ADR-034** (Cal.com Migration - 2025-12-29)
 
 ## Context
 The Sales Journey (Phase 4) requires the AI to steer qualified leads to a booking. Initially, Calendly was proposed.
