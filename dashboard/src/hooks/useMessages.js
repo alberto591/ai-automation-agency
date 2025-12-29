@@ -118,5 +118,5 @@ export function useMessages(leadId) {
         }
     }
 
-    return { messages, status, setStatus, loading }
+    return { messages, setMessages, status, setStatus, loading }
 }

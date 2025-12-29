@@ -7,7 +7,7 @@ import EmptyState from './EmptyState';
 import Tooltip from './Tooltip';
 
 export default function ChatWindow({ selectedLead }) {
-    const { messages, status, setStatus, loading } = useMessages(selectedLead?.id);
+    const { messages, setMessages, status, setStatus, loading } = useMessages(selectedLead?.id);
     const bottomRef = useRef(null);
     const [inputText, setInputText] = useState("");
     const [sending, setSending] = useState(false);
@@ -30,6 +30,17 @@ export default function ChatWindow({ selectedLead }) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
+        const newMessage = {
+            role: 'assistant',
+            content: inputText,
+            metadata: { by: 'human_agent' },
+            created_at: new Date().toISOString()
+        };
+
+        // Optimistic Update
+        setMessages(prev => [...prev, newMessage]);
+        setInputText(""); // Clear input immediately
+
         try {
             const response = await fetch('/api/leads/message', {
                 method: 'POST',
@@ -43,9 +54,10 @@ export default function ChatWindow({ selectedLead }) {
 
             clearTimeout(timeoutId);
 
-            if (!response.ok) throw new Error("Failed to send");
-
-            setInputText(""); // Clear input on success
+            if (!response.ok) {
+                // Revert on failure (optional, or just alert)
+                throw new Error("Failed to send");
+            }
         } catch (error) {
             if (error.name === 'AbortError') {
                 alert("Errore: Il server non risponde (Timeout).");

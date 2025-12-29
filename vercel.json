@@ -1,45 +1,10 @@
 {
-    "builds": [
+    "buildCommand": "cd dashboard && npm install && npm run build",
+    "outputDirectory": "dashboard/dist",
+    "rewrites": [
         {
-            "src": "presentation/api/api.py",
-            "use": "@vercel/python"
-        },
-        {
-            "src": "appraisal-tool/**",
-            "use": "@vercel/static"
-        },
-        {
-            "src": "dashboard/package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
-        }
-    ],
-    "routes": [
-        {
-            "src": "/health",
-            "dest": "presentation/api/api.py"
-        },
-        {
-            "src": "/api/(.*)",
-            "dest": "presentation/api/api.py"
-        },
-        {
-            "src": "/webhooks/(.*)",
-            "dest": "presentation/api/api.py"
-        },
-        {
-            "src": "/dashboard/(.*)",
-            "dest": "/dashboard/$1"
-        },
-        {
-            "src": "/dashboard",
-            "dest": "/dashboard/index.html"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/appraisal-tool/$1"
+            "source": "/api/(.*)",
+            "destination": "/api/index.py"
         }
     ]
 }

@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     SMTP_USER: str = Field(default="")
     SMTP_PASSWORD: str = Field(default="")
 
+    # Email / IMAP (Ingestion)
+    IMAP_SERVER: str = Field(default="imap.gmail.com")
+    IMAP_EMAIL: str = Field(default="")
+    IMAP_PASSWORD: str = Field(default="")
+
     # External APIs
     RAPIDAPI_KEY: str | None = None
 

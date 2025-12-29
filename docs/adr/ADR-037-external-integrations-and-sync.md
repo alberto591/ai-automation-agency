@@ -27,6 +27,12 @@ To support these integrations, we refined the `Container` configuration.
 -   **Problem**: The `finalize_node` (in `agents.py`) needs access to `container.sheets` to perform the sync. However, `container` initializes `LeadProcessor`, which imports `agents`. This created a circular dependency.
 -   **Solution**: Implemented accessors for `sheets` in the `Container` using local imports (Lazy Loading). This allows the graph to access infrastructure adapters at runtime without import-time cycles.
 
+### 4. Observability via Sentry
+We integrated **Sentry** for full-stack error tracking.
+-   **Backend**: Initialized in `api.py` (FastAPI) to capture 500 errors and unhandled exceptions in the Agent flow.
+-   **Frontend**: Initialized in `main.jsx` (React) to capture client-side crashes.
+-   **Configuration**: DSN provided via environment variable; Sampling set to 1.0 in Dev, 0.1 in Prod to control costs.
+
 ## Consequences
 
 ### Positive

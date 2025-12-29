@@ -36,6 +36,7 @@ class Container:
         self.journey: JourneyManager = JourneyManager(
             db=self.db, calendar=self.calendar, doc_gen=self.doc_gen, msg=self.msg
         )
+
         self.scorer: LeadScorer = LeadScorer()
         self.lead_processor: LeadProcessor = LeadProcessor(
             db=self.db,
@@ -52,10 +53,34 @@ class Container:
     def sheets(self) -> Any:
         """Lazy load Google Sheets adapter."""
         if not self._sheets:
-            from infrastructure.adapters.google_sheets_adapter import GoogleSheetsAdapter
+            from infrastructure.adapters.google_sheets_adapter import (
+                GoogleSheetsAdapter,
+            )
 
             self._sheets = GoogleSheetsAdapter()
         return self._sheets
+
+    @property
+    def voice(self) -> Any:
+        """Lazy load Voice adapter."""
+        from infrastructure.adapters.voice_adapter import (
+            TwilioVoiceAdapter,
+        )
+
+        return TwilioVoiceAdapter()
+
+    @property
+    def email_ingestion(self) -> Any:
+        """Lazy load Email service."""
+        from application.services.email_parser import (
+            EmailParserService,
+        )
+
+        # noqa: PLC0415
+        from infrastructure.adapters.imap_adapter import IMAPAdapter  # noqa: PLC0415
+
+        adapter = IMAPAdapter()
+        return EmailParserService(email_port=adapter)
 
 
 # Composition Root Instance

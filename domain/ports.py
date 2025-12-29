@@ -97,3 +97,27 @@ class ScraperPort(ABC):
     @abstractmethod
     def scrape_url(self, url: str) -> dict[str, Any] | None:
         pass
+
+
+class VoicePort(ABC):
+    @abstractmethod
+    def get_greeting_twiml(self, webhook_url: str) -> str:
+        """Returns TwiML to greet and record user input."""
+        pass
+
+    @abstractmethod
+    def handle_transcription(self, transcription_text: str, from_phone: str) -> None:
+        """Processes the transcribed text as an inbound lead."""
+        pass
+
+
+class EmailPort(ABC):
+    @abstractmethod
+    def fetch_unread_emails(self, criteria: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        """Returns list of {subject, body, sender, date, id}"""
+        pass
+
+    @abstractmethod
+    def mark_as_processed(self, email_id: str) -> None:
+        """Marks email as read or moves to processed folder."""
+        pass

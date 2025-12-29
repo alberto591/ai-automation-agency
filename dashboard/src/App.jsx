@@ -1,10 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
+import LoginPage from './components/LoginPage'
+import { supabase } from './lib/supabase'
 
 function App() {
+  const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [selectedLead, setSelectedLead] = useState(null)
+
+  useEffect(() => {
+    // 1. Get initial session
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
+    })
+
+    // 2. Listen for changes (login, logout, auto-refresh)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-slate-50">
+        <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return <LoginPage />
+  }
 
   return (
     <div className="flex flex-col h-screen bg-slate-50/50">

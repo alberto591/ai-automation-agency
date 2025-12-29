@@ -1,9 +1,10 @@
-import { Sparkles } from 'lucide-react'
+import { LogOut } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 function Header() {
-    const handleAppraisalClick = () => {
-        // Open appraisal tool in new tab
-        window.open('/appraisal-tool/index.html', '_blank')
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
     }
 
     return (
@@ -32,25 +33,17 @@ function Header() {
                     </div>
                 </div>
 
-                {/* AI Appraisal CTA Button */}
-                <button
-                    onClick={handleAppraisalClick}
-                    className="appraisal-cta-button group relative overflow-hidden px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                    {/* Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-gradient-x"></div>
-
-                    {/* Shine Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-shine"></div>
-                    </div>
-
-                    {/* Button Content */}
-                    <div className="relative flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-                        <span className="text-sm md:text-base">Free AI Appraisal</span>
-                    </div>
-                </button>
+                {/* Right Actions */}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors text-sm font-medium"
+                        title="Sign Out"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        <span className="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
             </div>
         </header>
     )
