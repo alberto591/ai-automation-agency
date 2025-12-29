@@ -3,6 +3,8 @@ import { Send, Phone, MoreVertical, Info, Bot, User } from 'lucide-react';
 import { useMessages } from '../hooks/useMessages';
 
 import LeadDrawer from './LeadDrawer';
+import EmptyState from './EmptyState';
+import Tooltip from './Tooltip';
 
 export default function ChatWindow({ selectedLead }) {
     const { messages, status, setStatus, loading } = useMessages(selectedLead?.id);
@@ -86,7 +88,7 @@ export default function ChatWindow({ selectedLead }) {
     if (!selectedLead) {
         return (
             <div className="flex-1 flex items-center justify-center bg-white/20">
-                <div className="text-center space-y-6 max-w-md p-10 animate-in fade-in zoom-in duration-1000">
+                <div className="text-center space-y-6 max-w-md p-10 animate-fade-in">
                     <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl shadow-indigo-500/20 animate-float">
                         <Bot className="w-12 h-12 text-white" />
                     </div>
@@ -102,9 +104,9 @@ export default function ChatWindow({ selectedLead }) {
     return (
         <div className="flex flex-col h-full bg-white relative overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-5 bg-white/20 backdrop-blur-xl flex justify-between items-center z-10">
+            <div className="px-6 py-5 bg-white/20 backdrop-blur-xl flex justify-between items-center z-10 transition-all duration-300">
                 <div className="flex items-center cursor-pointer group" onClick={() => setDrawerOpen(!drawerOpen)}>
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center text-slate-800 font-bold mr-4 shadow-sm border border-white group-hover:border-indigo-500/30 transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center text-slate-800 font-bold mr-4 shadow-sm border border-white group-hover:border-indigo-500/30 transition-all duration-300 group-hover:scale-105">
                         {selectedLead.name[0]?.toUpperCase()}
                     </div>
                     <div>
@@ -127,29 +129,33 @@ export default function ChatWindow({ selectedLead }) {
 
                 <div className="flex items-center space-x-6">
                     {/* Premium Toggle Switch */}
-                    <div
-                        onClick={toggleAiMode}
-                        className={`relative w-24 h-9 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 shadow-inner ${status === 'human_mode' ? 'bg-slate-200' : 'bg-indigo-100'
-                            }`}
-                    >
-                        <div className={`absolute text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${status === 'human_mode' ? 'right-3 text-slate-400' : 'left-8 text-indigo-700'}`}>
-                            {status === 'human_mode' ? 'Manual' : 'Auto'}
+                    <Tooltip content={status === 'human_mode' ? "Riattiva AI Agent" : "Passa a Modalità Manuale"} position="bottom">
+                        <div
+                            onClick={toggleAiMode}
+                            className={`relative w-24 h-9 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 shadow-inner hover:scale-105 active:scale-95 ${status === 'human_mode' ? 'bg-slate-200' : 'bg-indigo-100'
+                                }`}
+                        >
+                            <div className={`absolute text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${status === 'human_mode' ? 'right-3 text-slate-400' : 'left-8 text-indigo-700'}`}>
+                                {status === 'human_mode' ? 'Manual' : 'Auto'}
+                            </div>
+                            <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-500 flex items-center justify-center ${status === 'human_mode' ? 'translate-x-0' : 'translate-x-15'
+                                }`}>
+                                {status === 'human_mode' ? <User className="w-3.5 h-3.5 text-slate-400" /> : <Bot className="w-3.5 h-3.5 text-indigo-600" />}
+                            </div>
                         </div>
-                        <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-500 flex items-center justify-center ${status === 'human_mode' ? 'translate-x-0' : 'translate-x-15'
-                            }`}>
-                            {status === 'human_mode' ? <User className="w-3.5 h-3.5 text-slate-400" /> : <Bot className="w-3.5 h-3.5 text-indigo-600" />}
-                        </div>
-                    </div>
+                    </Tooltip>
 
-                    <button
-                        onClick={() => setDrawerOpen(!drawerOpen)}
-                        className={`p-2.5 rounded-xl transition-all ${drawerOpen
-                            ? 'bg-green-50 text-[hsl(var(--zen-accent))] shadow-inner'
-                            : 'hover:bg-gray-50 text-[hsl(var(--zen-text-muted))]'
-                            }`}
-                    >
-                        <Info className="w-5.5 h-5.5" />
-                    </button>
+                    <Tooltip content="Dettagli Lead" position="bottom">
+                        <button
+                            onClick={() => setDrawerOpen(!drawerOpen)}
+                            className={`p-2.5 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 ${drawerOpen
+                                ? 'bg-green-50 text-[hsl(var(--zen-accent))] shadow-inner'
+                                : 'hover:bg-gray-50 text-[hsl(var(--zen-text-muted))]'
+                                }`}
+                        >
+                            <Info className="w-5.5 h-5.5" />
+                        </button>
+                    </Tooltip>
                 </div>
             </div>
 
@@ -158,11 +164,20 @@ export default function ChatWindow({ selectedLead }) {
 
                 {/* Messages Area */}
                 <div className="flex-1 flex flex-col min-w-0">
-                    <div className="flex-1 p-6 md:p-10 overflow-y-auto space-y-6 custom-scrollbar">
+                    <div className="flex-1 p-6 md:p-10 overflow-y-auto space-y-6 custom-scrollbar scroll-smooth">
                         {loading && (
-                            <div className="flex justify-center p-4">
-                                <div className="animate-pulse text-[10px] font-bold uppercase tracking-widest text-gray-400">Syncing History...</div>
+                            <div className="flex justify-center p-8 animate-fade-in">
+                                <div className="flex items-center space-x-2 text-indigo-600 bg-white/50 px-4 py-2 rounded-full shadow-sm">
+                                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                                    <span className="text-xs font-bold uppercase tracking-widest ml-2">Syncing</span>
+                                </div>
                             </div>
+                        )}
+
+                        {!loading && messages.length === 0 && (
+                            <EmptyState variant="no-messages" />
                         )}
 
                         {messages.map((msg, index) => (
@@ -172,6 +187,7 @@ export default function ChatWindow({ selectedLead }) {
                                 text={msg.content}
                                 isHuman={msg.metadata?.by === 'human_agent'}
                                 time=""
+                                index={index}
                             />
                         ))}
                         <div ref={bottomRef} />
@@ -179,28 +195,34 @@ export default function ChatWindow({ selectedLead }) {
 
                     {/* Input Area */}
                     <div className="p-6 bg-white/10 backdrop-blur-md flex items-center space-x-4">
-                        <div className="p-3 text-slate-400 hover:bg-white/50 rounded-2xl cursor-not-allowed transition-colors">
-                            <MoreVertical className="w-5 h-5" />
-                        </div>
+                        <Tooltip content="Opzioni (in arrivo)" position="top">
+                            <div className="p-3 text-slate-400 hover:bg-white/50 rounded-2xl cursor-not-allowed transition-all hover:scale-110">
+                                <MoreVertical className="w-5 h-5" />
+                            </div>
+                        </Tooltip>
+
                         <input
                             type="text"
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                             placeholder="Scrivi un messaggio..."
-                            className="flex-1 p-4 bg-white/50 rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all text-sm font-medium shadow-inner"
+                            className="flex-1 p-4 bg-white/50 rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all text-sm font-medium shadow-inner hover:bg-white/70"
                             disabled={sending}
                         />
-                        <button
-                            onClick={sendMessage}
-                            disabled={sending || !inputText.trim()}
-                            className={`p-4 rounded-2xl transition-all flex items-center justify-center shadow-lg ${sending
-                                ? 'bg-slate-100 text-slate-300'
-                                : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0'
-                                }`}
-                        >
-                            <Send className="w-5 h-5" />
-                        </button>
+
+                        <Tooltip content="Invia messaggio" position="top">
+                            <button
+                                onClick={sendMessage}
+                                disabled={sending || !inputText.trim()}
+                                className={`p-4 rounded-2xl transition-all duration-300 flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 ${sending
+                                    ? 'bg-slate-100 text-slate-300'
+                                    : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0'
+                                    }`}
+                            >
+                                <Send className={`w-5 h-5 ${sending ? 'animate-pulse' : ''}`} />
+                            </button>
+                        </Tooltip>
                     </div>
                 </div>
 
@@ -216,13 +238,18 @@ export default function ChatWindow({ selectedLead }) {
     );
 }
 
-function MessageBubble({ isAi, text, time, isHuman }) {
+function MessageBubble({ isAi, text, time, isHuman, index }) {
     return (
-        <div className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
+        <div
+            className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-scale-in origin-${isAi ? 'bottom-right' : 'bottom-left'}`}
+            style={{ animationDelay: `${index * 50}ms` }}
+        >
             <div
-                className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all ${isAi
-                    ? (isHuman ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100' : 'bubble-ai')
-                    : 'bubble-user'
+                className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all hover:shadow-md duration-300 ${isAi
+                    ? (isHuman
+                        ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100 hover:bg-orange-100'
+                        : 'bubble-ai hover:brightness-110')
+                    : 'bubble-user hover:bg-white'
                     }`}
             >
                 <div className="whitespace-pre-wrap font-medium">{text}</div>
