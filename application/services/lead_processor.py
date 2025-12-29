@@ -153,27 +153,41 @@ class LeadProcessor:
         lead_data["updated_at"] = datetime.now(UTC).isoformat()
         self.db.save_lead(lead_data)
 
-    def send_manual_message(self, phone: str, message: str, skip_history: bool = False) -> None:
+    def send_manual_message(self, phone: str, message: str, skip_history: bool = False) -> str:
         phone = re.sub(r"\s+", "", phone)
         logger.info(
             "SENDING_MANUAL_MESSAGE", context={"phone": phone, "skip_history": skip_history}
         )
         # 1. Send via messaging port
-        self.msg.send_message(phone, message)
+        sid = self.msg.send_message(phone, message)
 
         # 2. Update history (optional, can be done in background)
         if not skip_history:
             try:
                 self.add_message_history(
-                    phone, "assistant", message, metadata={"by": "human_agent"}
+                    phone,
+                    "assistant",
+                    message,
+                    sid=sid,
+                    status="sent",
+                    metadata={"by": "human_agent"},
                 )
             except Exception as e:
                 logger.error(
                     "MANUAL_MESSAGE_HISTORY_FAILED", context={"phone": phone, "error": str(e)}
                 )
+        return sid
 
     def add_message_history(
-        self, phone: str, role: str, content: str, metadata: dict[str, Any] | None = None
+        self,
+        phone: str,
+        role: str,
+        content: str,
+        sid: str | None = None,
+        status: str | None = None,
+        media_url: str | None = None,
+        channel: str = "whatsapp",
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         lead = self.db.get_lead(phone)
         if not lead:
@@ -183,6 +197,10 @@ class LeadProcessor:
         new_msg: dict[str, Any] = {
             "role": role,
             "content": content,
+            "sid": sid,
+            "status": status or "sent",
+            "media_url": media_url,
+            "channel": channel,
             "timestamp": datetime.now(UTC).isoformat(),
         }
         if metadata:
@@ -227,6 +245,8 @@ class LeadProcessor:
         phone: str,
         text: str,
         source: str | None = None,
+        media_url: str | None = None,
+        channel: str = "whatsapp",
         context: dict[str, Any] | None = None,
     ) -> str:
         # Clean phone
@@ -234,7 +254,7 @@ class LeadProcessor:
         if phone.startswith("whatsapp:"):
             phone = phone.replace("whatsapp:", "")
 
-        logger.info("INCOMING_MESSAGE", context={"phone": phone, "text": text})
+        logger.info("INCOMING_MESSAGE", context={"phone": phone, "text": text, "media": media_url})
 
         # Logic delegated to LangGraph
         # Graph handles: ingest, intent, preferences, sentiment, retrieval, generation, and finalize (persistence)
@@ -245,6 +265,13 @@ class LeadProcessor:
             inputs["context_data"] = context
 
         try:
+            # Pre-save message to history if it has media, even before graph runs
+            # This ensures it shows up in dashboard immediately
+            if media_url:
+                self.add_message_history(
+                    phone, "user", text or "Media received", media_url=media_url, channel=channel
+                )
+
             result = self.graph.invoke(inputs)
             # 3. Handle Side Effects (like sending brochures)
             self.send_brochure_if_interested(phone, text)

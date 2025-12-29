@@ -43,6 +43,10 @@ class DatabasePort(ABC):
     def get_market_stats(self, zone: str) -> dict[str, Any]:
         pass
 
+    @abstractmethod
+    def update_message_status(self, sid: str, status: str) -> None:
+        pass
+
 
 class AIPort(ABC):
     @abstractmethod

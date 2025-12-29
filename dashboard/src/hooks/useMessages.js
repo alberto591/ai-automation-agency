@@ -59,7 +59,7 @@ export function useMessages(leadId) {
         fetchMessages()
         fetchLeadStatus()
 
-        // Subscribe to NEW messages for this lead
+        // Subscribe to NEW messages and UPDATES for this lead
         const msgChannel = supabase
             .channel(`public:messages:lead_id=eq.${leadId}`)
             .on('postgres_changes', {
@@ -70,6 +70,16 @@ export function useMessages(leadId) {
             }, (payload) => {
                 if (payload.new) {
                     setMessages(prev => [...prev, payload.new])
+                }
+            })
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'messages',
+                filter: `lead_id=eq.${leadId}`
+            }, (payload) => {
+                if (payload.new) {
+                    setMessages(prev => prev.map(m => m.id === payload.new.id ? payload.new : m))
                 }
             })
             .subscribe()

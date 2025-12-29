@@ -15,7 +15,7 @@ class LangChainAdapter(AIPort):
     def __init__(self) -> None:
         self.llm = ChatMistralAI(
             api_key=SecretStr(settings.MISTRAL_API_KEY),
-            model=settings.MISTRAL_MODEL,
+            model_name=settings.MISTRAL_MODEL,
         )
         self.embeddings = MistralAIEmbeddings(
             api_key=SecretStr(settings.MISTRAL_API_KEY),

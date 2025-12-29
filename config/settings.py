@@ -27,6 +27,7 @@ class Settings(BaseSettings):
 
     # Security
     WEBHOOK_API_KEY: str = Field(default="")
+    WEBHOOK_BASE_URL: str = Field(default="")
 
     # LLM Context
     MAX_CONTEXT_MESSAGES: int = Field(default=10)

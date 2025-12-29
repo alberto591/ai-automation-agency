@@ -36,6 +36,13 @@ class TwilioAdapter(MessagingPort):
             if media_url:
                 params["media_url"] = [media_url]
 
+            # 3. Add Status Callback if configured
+            # In production, this should be the public URL
+            if settings.WEBHOOK_BASE_URL:
+                params[
+                    "status_callback"
+                ] = f"{settings.WEBHOOK_BASE_URL}/api/webhooks/twilio/status"
+
             message = self.client.messages.create(**params)
             logger.info(
                 "MESSAGE_SENT",

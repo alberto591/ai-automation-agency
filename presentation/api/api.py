@@ -118,18 +118,46 @@ async def resume_lead(req: PhoneRequest) -> dict[str, str]:
 async def twilio_webhook(
     background_tasks: BackgroundTasks,
     request: Request,
-    From: str = Form(...),
-    Body: str = Form(...),
 ) -> str:
     """
-    Receives webhooks from Twilio for incoming WhatsApp messages.
+    Receives webhooks from Twilio for incoming WhatsApp messages and media.
     """
-    logger.info("WEBHOOK_RECEIVED", context={"from": From, "body": Body})
+    form_data = await request.form()
+    # Cast to str to satisfy mypy since form_data can contain UploadFile
+    from_phone = str(form_data.get("From", ""))
+    body = str(form_data.get("Body", ""))
+    num_media_val = form_data.get("NumMedia", 0)
+    num_media = int(str(num_media_val)) if num_media_val is not None else 0
 
-    # Process in background to ensure 200 OK is returned to Twilio immediately
+    media_url_val = form_data.get("MediaUrl0")
+    media_url = str(media_url_val) if num_media > 0 and media_url_val else None
+
+    logger.info("WEBHOOK_RECEIVED", context={"from": from_phone, "body": body, "media": media_url})
+
+    # Process in background
     background_tasks.add_task(
-        container.lead_processor.process_incoming_message, phone=From, text=Body
+        container.lead_processor.process_incoming_message,
+        phone=from_phone,
+        text=body,
+        media_url=media_url,
     )
+
+    return "OK"
+
+
+@app.post("/api/webhooks/twilio/status")
+async def twilio_status_callback(
+    MessageSid: str = Form(...),  # noqa: N803
+    MessageStatus: str = Form(...),  # noqa: N803
+) -> str:
+    """
+    Receives delivery and read receipts from Twilio.
+    """
+    logger.info("TWILIO_STATUS_UPDATE", context={"sid": MessageSid, "status": MessageStatus})
+    try:
+        container.db.update_message_status(sid=MessageSid, status=MessageStatus)
+    except Exception as e:
+        logger.error("STATUS_UPDATE_FAILED", context={"sid": MessageSid, "error": str(e)})
 
     return "OK"
 
@@ -139,19 +167,23 @@ async def send_manual_message(
     req: ManualMessageRequest, background_tasks: BackgroundTasks
 ) -> dict[str, str]:
     try:
-        # 1. Send message immediately (fast)
-        container.lead_processor.send_manual_message(req.phone, req.message, skip_history=True)
+        # 1. Send message immediately
+        sid = container.lead_processor.send_manual_message(
+            req.phone, req.message, skip_history=True
+        )
 
-        # 2. Schedule history update in background (slower DB op)
+        # 2. Schedule history update in background
         background_tasks.add_task(
             container.lead_processor.add_message_history,
             req.phone,
             "assistant",
             req.message,
+            sid=sid,
+            status="sent",
             metadata={"by": "human_agent"},
         )
 
-        return {"status": "success", "message": "Message queued."}
+        return {"status": "success", "message": "Message queued.", "sid": sid}
     except Exception as e:
         logger.error("MANUAL_MESSAGE_FAILED", context={"phone": req.phone, "error": str(e)})
         raise HTTPException(status_code=500, detail="Failed to send message") from None

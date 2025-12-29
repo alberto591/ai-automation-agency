@@ -194,11 +194,14 @@ export default function ChatWindow({ selectedLead }) {
 
                         {messages.map((msg, index) => (
                             <MessageBubble
-                                key={index}
+                                key={msg.id || index}
                                 isAi={msg.role === 'assistant'}
                                 text={msg.content}
                                 isHuman={msg.metadata?.by === 'human_agent'}
-                                time=""
+                                status={msg.status}
+                                mediaUrl={msg.media_url}
+                                channel={msg.channel}
+                                time={new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 index={index}
                             />
                         ))}
@@ -217,7 +220,7 @@ export default function ChatWindow({ selectedLead }) {
                             type="text"
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                            onKeyPress={(e) => e.key === 'Enter' && !sending && sendMessage()}
                             placeholder="Scrivi un messaggio..."
                             className="flex-1 p-4 bg-white/50 rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all text-sm font-medium shadow-inner hover:bg-white/70"
                             disabled={sending}
@@ -250,7 +253,56 @@ export default function ChatWindow({ selectedLead }) {
     );
 }
 
-function MessageBubble({ isAi, text, time, isHuman, index }) {
+import { Check, CheckCheck, Clock, AlertCircle, FileText, Image as ImageIcon, MessageSquare } from 'lucide-react';
+
+function MessageBubble({ isAi, text, time, isHuman, status, mediaUrl, channel, index }) {
+    const renderStatus = () => {
+        if (!isAi) return null;
+        switch (status) {
+            case 'queued':
+            case 'sending':
+                return <Clock className="w-3 h-3 text-slate-400" />;
+            case 'sent':
+                return <Check className="w-3 h-3 text-slate-400" />;
+            case 'delivered':
+                return <CheckCheck className="w-3 h-3 text-slate-400" />;
+            case 'read':
+                return <CheckCheck className="w-3 h-3 text-indigo-500" />;
+            case 'failed':
+                return <AlertCircle className="w-3 h-3 text-red-500" />;
+            default:
+                return null;
+        }
+    };
+
+    const isImage = (url) => {
+        if (!url) return false;
+        return /\.(jpg|jpeg|png|webp|gif)$/i.test(url) || url.includes('image');
+    };
+
+    const renderMedia = () => {
+        if (!mediaUrl) return null;
+        if (isImage(mediaUrl)) {
+            return (
+                <div className="mb-2 rounded-lg overflow-hidden border border-white/20 shadow-sm max-w-full">
+                    <img src={mediaUrl} alt="Media" className="max-h-64 object-cover w-full hover:scale-105 transition-transform duration-500 cursor-pointer" />
+                </div>
+            )
+        }
+        return (
+            <a href={mediaUrl} target="_blank" rel="noreferrer" className="flex items-center space-x-2 p-2 mb-2 bg-black/5 rounded-lg border border-white/10 hover:bg-black/10 transition-colors">
+                <FileText className="w-5 h-5" />
+                <span className="text-xs font-bold truncate">Visualizza Documento</span>
+            </a>
+        )
+    };
+
+    const renderChannel = () => {
+        if (channel === 'voice') return <Phone className="w-2.5 h-2.5 opacity-50" />;
+        if (channel === 'email') return <FileText className="w-2.5 h-2.5 opacity-50" />;
+        return <MessageSquare className="w-2.5 h-2.5 opacity-50" />;
+    };
+
     return (
         <div
             className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-scale-in origin-${isAi ? 'bottom-right' : 'bottom-left'}`}
@@ -264,11 +316,15 @@ function MessageBubble({ isAi, text, time, isHuman, index }) {
                     : 'bubble-user hover:bg-white'
                     }`}
             >
-                <div className="whitespace-pre-wrap font-medium">{text}</div>
+                {renderMedia()}
+                {text && <div className="whitespace-pre-wrap font-medium">{text}</div>}
                 <div className={`text-[9px] font-bold uppercase tracking-tight flex items-center justify-end gap-1.5 mt-2 ${isAi && !isHuman ? 'text-white/60' : 'text-gray-400'
                     }`}>
+                    {renderChannel()}
                     {time}
-                    {isAi && (isHuman ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />)}
+                    <span className="mx-0.5">•</span>
+                    {isHuman ? <User className="w-3 h-3" /> : (isAi ? <Bot className="w-3 h-3" /> : null)}
+                    {renderStatus()}
                 </div>
             </div>
         </div>

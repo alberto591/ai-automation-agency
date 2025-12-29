@@ -39,9 +39,11 @@ def test_resume_lead(client, mock_container):
 
 
 def test_send_manual_message(client, mock_container):
+    mock_container.lead_processor.send_manual_message.return_value = "msg_123"
     payload = {"phone": "+393331234567", "message": "Hello manual"}
     response = client.post("/api/leads/message", json=payload)
     assert response.status_code == 200
+    assert response.json()["sid"] == "msg_123"
     mock_container.lead_processor.send_manual_message.assert_called()
 
 

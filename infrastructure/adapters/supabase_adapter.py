@@ -61,6 +61,10 @@ class SupabaseAdapter(DatabasePort):
                         "lead_id": lead_id,
                         "role": msg.get("role"),
                         "content": msg.get("content"),
+                        "sid": msg.get("sid"),
+                        "status": msg.get("status", "sent"),
+                        "media_url": msg.get("media_url"),
+                        "channel": msg.get("channel", "whatsapp"),
                         "created_at": msg.get("timestamp") or datetime.now(UTC).isoformat(),
                     }
                     self.client.table("messages").insert(msg_data).execute()
@@ -231,3 +235,11 @@ class SupabaseAdapter(DatabasePort):
         except Exception as e:
             logger.error("GET_MARKET_STATS_FAILED", context={"zone": zone, "error": str(e)})
             return {}
+
+    def update_message_status(self, sid: str, status: str) -> None:
+        try:
+            self.client.table("messages").update({"status": status}).eq("sid", sid).execute()
+            logger.info("MESSAGE_STATUS_UPDATED", context={"sid": sid, "status": status})
+        except Exception as e:
+            logger.error("UPDATE_MESSAGE_STATUS_FAILED", context={"sid": sid, "error": str(e)})
+            raise DatabaseError("Failed to update message status", cause=str(e)) from e

@@ -95,6 +95,7 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
+                                <MessageSquare className="w-3 h-3 text-slate-400 shrink-0" />
                                 <div className="text-sm text-[hsl(var(--zen-text-muted))] truncate font-medium flex-1">
                                     {lead.lastMsg}
                                 </div>

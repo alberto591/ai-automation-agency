@@ -65,10 +65,16 @@ class IMAPAdapter(EmailPort):
                             if msg.is_multipart():
                                 for part in msg.walk():
                                     if part.get_content_type() == "text/html":
-                                        body = part.get_payload(decode=True).decode()
+                                        payload = part.get_payload(decode=True)
+                                        if isinstance(payload, bytes):
+                                            body = payload.decode(
+                                                part.get_content_charset() or "utf-8"
+                                            )
                                         break
                             else:
-                                body = msg.get_payload(decode=True).decode()
+                                payload = msg.get_payload(decode=True)
+                                if isinstance(payload, bytes):
+                                    body = payload.decode(msg.get_content_charset() or "utf-8")
 
                             emails.append(
                                 {

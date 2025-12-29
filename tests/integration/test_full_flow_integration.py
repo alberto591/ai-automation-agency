@@ -19,9 +19,11 @@ def test_full_lead_cycle(client, mock_container):
     mock_container.lead_processor.takeover.assert_called_with("+390000000001")
 
     # 3. Human sends manual message
+    mock_container.lead_processor.send_manual_message.return_value = "mock_sid_123"
     payload_msg = {"phone": "+390000000001", "message": "Human here!"}
     response = client.post("/api/leads/message", json=payload_msg)
     assert response.status_code == 200
+    assert response.json()["sid"] == "mock_sid_123"
     mock_container.lead_processor.send_manual_message.assert_called()
 
 
