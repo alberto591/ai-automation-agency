@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cal.com Integration
     function openBooking() {
         // Direct link fallback for reliability
-        window.open('https://cal.com/anzevino-ai/demo', '_blank');
+        window.open('https://cal.com/anzevino-ai', '_blank');
     }
 
     // Demo Button Handling
