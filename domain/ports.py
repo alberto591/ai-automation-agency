@@ -9,6 +9,10 @@ class DatabasePort(ABC):
         pass
 
     @abstractmethod
+    def save_message(self, lead_id: str, message_data: dict[str, Any]) -> None:
+        pass
+
+    @abstractmethod
     def get_lead(self, phone: str) -> dict[str, Any] | None:
         pass
 

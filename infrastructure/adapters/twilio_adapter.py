@@ -4,9 +4,10 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from twilio.rest import Client
 
 from config.settings import settings
-from domain.errors import ExternalServiceError
+from domain.errors import ExternalServiceError, RateLimitError
 from domain.ports import MessagingPort
 from infrastructure.logging import get_logger
+from infrastructure.rate_limiter import RateLimiter
 
 logger = get_logger(__name__)
 
@@ -14,9 +15,22 @@ logger = get_logger(__name__)
 class TwilioAdapter(MessagingPort):
     def __init__(self) -> None:
         self.client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        self.rate_limiter = RateLimiter(
+            max_messages=settings.MESSAGE_RATE_LIMIT,
+            window_seconds=settings.MESSAGE_RATE_WINDOW_SECONDS,
+        )
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
+        # 0. Check rate limit
+        if not self.rate_limiter.check_rate_limit(to):
+            remaining = self.rate_limiter.get_remaining(to)
+            raise RateLimitError(
+                f"Rate limit exceeded for {to}",
+                cause=f"Exceeded {settings.MESSAGE_RATE_LIMIT} messages per {settings.MESSAGE_RATE_WINDOW_SECONDS}s",
+                remediation=f"Wait before sending more messages. Remaining: {remaining}",
+            )
+
         # 1. Clean numbers
         clean_to = "".join(to.split())
         from_number = settings.TWILIO_PHONE_NUMBER

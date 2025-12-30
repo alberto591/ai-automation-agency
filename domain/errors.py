@@ -16,3 +16,7 @@ class ValidationError(BaseAppError):
 
 class DatabaseError(BaseAppError):
     pass
+
+
+class RateLimitError(BaseAppError):
+    pass

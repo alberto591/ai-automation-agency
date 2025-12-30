@@ -193,7 +193,6 @@ class LeadProcessor:
         if not lead:
             return
 
-        messages: list[dict[str, Any]] = lead.get("messages") or []
         new_msg: dict[str, Any] = {
             "role": role,
             "content": content,
@@ -206,15 +205,7 @@ class LeadProcessor:
         if metadata:
             new_msg["metadata"] = metadata
 
-        messages.append(new_msg)
-
-        lead_data = {
-            "customer_phone": phone,
-            "messages": messages,
-            "last_message": content,
-            "updated_at": datetime.now(UTC).isoformat(),
-        }
-        self.db.save_lead(lead_data)
+        self.db.save_message(lead["id"], new_msg)
 
     def send_brochure_if_interested(self, phone: str, query: str) -> None:
         """

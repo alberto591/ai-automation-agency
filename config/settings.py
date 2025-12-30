@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     # LLM Context
     MAX_CONTEXT_MESSAGES: int = Field(default=10)
 
+    # Rate Limiting
+    MESSAGE_RATE_LIMIT: int = Field(default=20)  # Max messages per window
+    MESSAGE_RATE_WINDOW_SECONDS: int = Field(default=60)  # Time window in seconds
+
     # Google Calendar
     GOOGLE_CALENDAR_ID: str = Field(default="")
     GOOGLE_SERVICE_ACCOUNT_JSON: str = Field(default="")

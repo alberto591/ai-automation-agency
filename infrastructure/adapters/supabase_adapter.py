@@ -25,19 +25,14 @@ class SupabaseAdapter(DatabasePort):
     def save_lead(self, lead_data: dict[str, Any]) -> None:
         try:
             # 1. Separate Lead Profile vs Messages
-            # We must COPY lead_data to avoid modifying it in place which might affect caller
+            # We must COPY lead_data to avoid modifying it in place
             lead_profile = lead_data.copy()
             messages = lead_profile.pop("messages", [])
 
             # Remove keys that shouldn't be in LEADS table if present
-            lead_profile.pop("last_message", None)  # Computed or stored elsewhere usually
+            lead_profile.pop("last_message", None)
 
             # 2. Upsert Lead Profile
-            # Ensure metadata is handled if provided
-            if "metadata" in lead_profile and isinstance(lead_profile["metadata"], (dict, list)):
-                # metadata is JSONB, serializable by supabase-py
-                pass
-
             res = (
                 self.client.table("leads")
                 .upsert(lead_profile, on_conflict="customer_phone")
@@ -49,25 +44,14 @@ class SupabaseAdapter(DatabasePort):
             data = cast(list[dict[str, Any]], res.data)
             lead_id = data[0]["id"]
 
-            # 3. Insert Messages
-            # Only if we have explicit new messages structure.
-            # Domain often sends [{"role": "user", "content": ...}]
+            # 3. Handle Messages (if provided, but we prefer save_message now)
+            # Legacy support: if messages are passed, save them one by one if they are new
+            # However, for pure cleanup, we might want to encourage save_message.
             if messages:
                 for msg in messages:
-                    # Check if message already likely exists?
-                    # For MVP Phase 2, we might just append if it's a new flow.
-                    # But simple append is safest for now.
-                    msg_data = {
-                        "lead_id": lead_id,
-                        "role": msg.get("role"),
-                        "content": msg.get("content"),
-                        "sid": msg.get("sid"),
-                        "status": msg.get("status", "sent"),
-                        "media_url": msg.get("media_url"),
-                        "channel": msg.get("channel", "whatsapp"),
-                        "created_at": msg.get("timestamp") or datetime.now(UTC).isoformat(),
-                    }
-                    self.client.table("messages").insert(msg_data).execute()
+                    # If message doesn't have an ID, it's likely new
+                    if not msg.get("id"):
+                        self.save_message(lead_id, msg)
 
         except Exception as e:
             logger.error(
@@ -75,6 +59,27 @@ class SupabaseAdapter(DatabasePort):
                 context={"phone": lead_data.get("customer_phone"), "error": str(e)},
             )
             raise DatabaseError("Failed to save lead", cause=str(e)) from e
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+    def save_message(self, lead_id: str, msg: dict[str, Any]) -> None:
+        try:
+            msg_data = {
+                "lead_id": lead_id,
+                "role": msg.get("role"),
+                "content": msg.get("content"),
+                "sid": msg.get("sid"),
+                "status": msg.get("status", "sent"),
+                "media_url": msg.get("media_url"),
+                "channel": msg.get("channel", "whatsapp"),
+                "created_at": msg.get("timestamp")
+                or msg.get("created_at")
+                or datetime.now(UTC).isoformat(),
+                "metadata": msg.get("metadata", {}),
+            }
+            self.client.table("messages").insert(msg_data).execute()
+        except Exception as e:
+            logger.error("SAVE_MESSAGE_FAILED", context={"lead_id": lead_id, "error": str(e)})
+            raise DatabaseError("Failed to save message", cause=str(e)) from e
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def get_lead(self, phone: str) -> dict[str, Any] | None:

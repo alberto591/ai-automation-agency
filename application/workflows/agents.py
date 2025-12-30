@@ -483,11 +483,15 @@ def create_lead_processing_graph(
         embedding = state["embedding"]
         lead = state["lead_data"]
 
-        # 1. Update History State
-        # We append both user and assistant messages for full persistence
-        messages = lead.get("messages") or []
-        user_msg = {"role": "user", "content": text, "timestamp": datetime.now(UTC).isoformat()}
-        messages.append(user_msg)
+        # 1. Update History & Persist Messages
+        # We save messages one by one using the new save_message method
+        user_msg = {
+            "role": "user",
+            "content": text,
+            "timestamp": datetime.now(UTC).isoformat(),
+            "metadata": {"source": state["source"]},
+        }
+        db.save_message(lead["id"], user_msg)
 
         if response:
             assistant_msg = {
@@ -496,16 +500,16 @@ def create_lead_processing_graph(
                 "timestamp": datetime.now(UTC).isoformat(),
                 "metadata": {"by": "ai", "graph": "langgraph"},
             }
-            messages.append(assistant_msg)
+            db.save_message(lead["id"], assistant_msg)
 
-            # 2. Send Message
+            # 2. Send Message via Messaging Port
             msg.send_message(phone, response)
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:
             db.save_to_cache(text, embedding, response)
 
-        # 4. Persist Enriched State (Metadata) + New Messages
+        # 4. Persist Enriched Lead Metadata (Excluding full message history)
         metadata = {
             "preferences": state["preferences"].model_dump(),
             "sentiment": state["sentiment"].model_dump(),
@@ -518,11 +522,11 @@ def create_lead_processing_graph(
         update_payload = {
             "customer_phone": phone,
             "metadata": metadata,
-            "messages": messages,
+            # "messages" removal here is critical: save_message handled it
             "last_message": response or text,
             "updated_at": datetime.now(UTC).isoformat(),
         }
-        db.save_lead(update_payload)
+        db.update_lead(phone, update_payload)
 
         # 5. Sync to Google Sheets (Operational Visibility)
         try:
@@ -532,6 +536,9 @@ def create_lead_processing_graph(
             # Prepare flattened data for sync
             pref_zones = state["preferences"].zones if state.get("preferences") else []
 
+            # Get message count from lead data (messages were already persisted)
+            message_count = len(lead.get("messages", [])) + 2  # +2 for the new user and AI messages
+
             sync_data = {
                 "phone": phone,
                 "name": lead.get("customer_name"),
@@ -539,7 +546,7 @@ def create_lead_processing_graph(
                 "intent": state.get("intent"),
                 "budget": state.get("budget"),
                 "zones": pref_zones,
-                "message_count": len(messages),
+                "message_count": message_count,
             }
             container.sheets.sync_lead(sync_data)
         except Exception as e:
