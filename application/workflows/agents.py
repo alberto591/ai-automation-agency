@@ -7,9 +7,12 @@ from langchain_mistralai import ChatMistralAI
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field, SecretStr
 
+from application.services.lead_scoring_service import LeadScoringService
 from config.settings import settings
 from domain.enums import LeadStatus
+from domain.handoff import HandoffReason, HandoffRequest
 from domain.ports import AIPort, CalendarPort, DatabasePort, MessagingPort
+from domain.qualification import Intent, QualificationData
 from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
@@ -78,6 +81,8 @@ class AgentState(TypedDict):
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
     language: Literal["it", "en"]
     fifi_data: dict[str, Any]  # Appraisal results
+    qualification_data: dict[str, Any]  # Serialized QualificationData
+    lead_score: dict[str, Any]  # Serialized LeadScore
 
 
 def create_lead_processing_graph(
@@ -88,6 +93,7 @@ def create_lead_processing_graph(
     scraper: Any = None,
     market: Any = None,
     calendar: CalendarPort | None = None,
+    validation: Any = None,
 ) -> Any:
     def ingest_node(state: AgentState) -> dict[str, Any]:
         """Fetch lead data and prepare basic state."""
@@ -185,6 +191,8 @@ def create_lead_processing_graph(
             "source": source,
             "context_data": context_data,
             "fifi_data": {},
+            "qualification_data": lead.get("metadata", {}).get("qualification_data", {}),
+            "lead_score": lead.get("metadata", {}).get("lead_score", {}),
         }
 
     def fifi_appraisal_node(state: AgentState) -> dict[str, Any]:
@@ -222,7 +230,14 @@ def create_lead_processing_graph(
         confidence_high = int(prediction * (1 + uncertainty_score))
 
         # 5. Human oversight decision
-        status = "AUTO_APPROVED" if uncertainty_score < 0.15 else "HUMAN_REVIEW_REQUIRED"
+        status = "AUTO_APPROVED"
+        if uncertainty_score > 0.15:
+            status = "HUMAN_REVIEW_REQUIRED"
+
+        # High Value Trigger (Safety Check)
+        if prediction > 2000000:
+            status = "HUMAN_REVIEW_REQUIRED"
+            logger.warning("HIGH_VALUE_TRIGGER", context={"value": prediction})
 
         # 6. Calculate investment metrics
         investment_metrics = adapter.calculate_investment_metrics(
@@ -241,13 +256,181 @@ def create_lead_processing_graph(
             "investment_metrics": investment_metrics,
         }
 
+        # 7. Audit Trail Logging
+        if validation:
+            try:
+                validation.log_validation(
+                    predicted_value=int(prediction),
+                    actual_value=None,  # Not available yet for live audit
+                    metadata={
+                        "phone": state["phone"],
+                        "features": features.model_dump()
+                        if hasattr(features, "model_dump")
+                        else str(features),
+                        "source": "live_appraisal",
+                        "user_input": state["user_input"],
+                    },
+                    uncertainty_score=uncertainty_score,
+                    zone=features.zone_slug,
+                )
+                logger.info("AUDIT_LOG_SUCCESS", context={"phone": state["phone"]})
+            except Exception as e:
+                logger.error("AUDIT_LOG_FAILED", context={"error": str(e)})
+
         # Tag lead as HOT and add appraisal notes
         if journey and status == "AUTO_APPROVED":
             journey.transition_to(state["phone"], LeadStatus.HOT)
 
         return {"fifi_data": fifi_res}
 
-    def intent_node(state: AgentState) -> dict[str, Any]:
+    def handoff_node(state: AgentState) -> dict[str, Any]:
+        """
+        Handles the transfer of a lead to a human agent.
+        Notifies the agency and updates the lead status.
+        """
+        logger.info("HANDOFF_TRIGGERED", context={"phone": state["phone"]})
+
+        # Lazy import adapter
+        from infrastructure.adapters.notification_adapter import NotificationAdapter
+
+        notifier = NotificationAdapter()
+
+        # Determine Reason
+        reason = HandoffReason.UNCERTAINTY
+        priority = "normal"
+        fifi_data = state.get("fifi_data", {})
+
+        if fifi_data.get("predicted_value", 0) > 2000000:
+            reason = HandoffReason.HIGH_VALUE
+            priority = "urgent"
+        elif fifi_data.get("uncertainty_score", 0) > 0.15:
+            reason = HandoffReason.UNCERTAINTY
+        elif state["sentiment"].sentiment == "ANGRY":
+            reason = HandoffReason.SENTIMENT
+            priority = "urgent"
+        elif "agent" in state["user_input"].lower() or "human" in state["user_input"].lower():
+            reason = HandoffReason.USER_REQUEST
+
+        # Construct Request
+        req = HandoffRequest(
+            lead_id=state["lead_data"]["id"],  # Assuming ID is present
+            reason=reason,
+            priority=priority,
+            user_message=state["user_input"],
+            ai_analysis=f"Uncertainty: {fifi_data.get('uncertainty_score', 0):.2f}, Value: €{fifi_data.get('predicted_value', 0):,}",
+            metadata={"fifi_data": fifi_data},
+        )
+
+        # Notify
+        notifier.notify_agency(req)
+
+        # Generate User Message
+        msg = (
+            "⚠️ Per garantirti la massima precisione, ho inoltrato la tua richiesta a un nostro Senior Agent.\n"
+            "Il valore del tuo immobile richiede un'analisi approfondita.\n"
+            "Ti contatteremo entro 1 ora al numero fornito."
+        )
+
+        return {"ai_response": msg, "checkpoint": "done", "status_msg": "Handed off to human agent"}
+
+    def lead_qualification_node(state: AgentState) -> dict[str, Any]:  # noqa: PLR0912
+        """
+        Drives the 7-Step Lead Qualification conversational flow.
+        Uses LeadScoringService for logic and templates.
+        """
+        logger.info("LEAD_QUALIFICATION_START", context={"phone": state["phone"]})
+
+        # Hydrate domain object from state dict
+        valid_data = state["qualification_data"] or {}
+        # Ensure 'intent' is mapped correctly from string to Enum if needed
+        # Pydantic handles string->Enum conversion usually
+        try:
+            qual_data = QualificationData(**valid_data)
+        except Exception:
+            qual_data = QualificationData()
+
+        # 1. Check what the LAST question was (to parse answer)
+        # We assume the user has just answered the 'current' missing field.
+        # So we check what is missing essentially.
+        current_q_to_answer = LeadScoringService.get_next_question(qual_data)
+
+        if current_q_to_answer:
+            # We are mid-flow, so the user_input is the ANSWER to current_q_to_answer
+            field = current_q_to_answer["field_name"]
+            answer_text = state["user_input"]
+
+            logger.info("PARSING_QUALIFICATION_ANSWER", context={"field": field})
+
+            from pydantic import SecretStr
+
+            # Use LLM to extract structured answer
+            extracted_value = _extract_qualification_field(
+                field,
+                answer_text,
+                SecretStr(settings.MISTRAL_API_KEY),
+                settings.MISTRAL_MODEL,
+            )
+
+            # Update Domain Object
+            setattr(qual_data, field, extracted_value)
+
+            # If budget was just asked (<50k check)
+            if field == "budget" and extracted_value and extracted_value < 50000:
+                logger.warning("LOW_BUDGET_DETECTED", context={"budget": extracted_value})
+
+        # 2. Get NEXT question (after update)
+        next_q = LeadScoringService.get_next_question(qual_data)
+
+        if next_q:
+            # Ask the next question using strict template
+            return {
+                "ai_response": next_q["text"],
+                "qualification_data": qual_data.model_dump(),
+                "checkpoint": "done",  # Skip generation_node
+            }
+        else:
+            # Flow Complete -> Finalize
+            logger.info("QUALIFICATION_COMPLETE")
+            score = LeadScoringService.calculate_score(qual_data)
+
+            # Update Lead Status
+            new_status = LeadStatus.COLD
+            if score.category == "HOT":
+                new_status = LeadStatus.HOT
+            elif score.category == "WARM":
+                new_status = LeadStatus.ACTIVE  # WARM usually stays active/nurture
+            elif score.category == "DISQUALIFIED":
+                new_status = LeadStatus.ARCHIVED  # Or kept active but ignored
+
+            if journey:
+                try:
+                    journey.transition_to(state["phone"], new_status)
+                except Exception as e:
+                    logger.warning("JOURNEY_TRANSITION_FAILED", context={"error": str(e)})
+
+            # Generate Summary/Closing message
+            completion_msg = ""
+            if score.category == "HOT":
+                completion_msg = (
+                    "Grazie! ✅ Sei un lead HOT! 🔴\n"
+                    "Un nostro agente senior ti contatterà tra 5 minuti per mostrarti le migliori opportunità."
+                )
+            elif score.category == "WARM":
+                completion_msg = (
+                    "Grazie! Abbiamo registrato le tue preferenze. "
+                    "Ti invieremo a breve una selezione di immobili via email."
+                )
+            else:
+                completion_msg = "Grazie per le informazioni. Ti contatteremo se avremo immobili adatti alle tue esigenze."
+
+            return {
+                "ai_response": completion_msg,
+                "qualification_data": qual_data.model_dump(),
+                "lead_score": score.model_dump(),
+                "checkpoint": "done",
+            }
+
+    def intent_node(state: AgentState) -> dict[str, Any]:  # noqa: PLR0912
         """Structured extraction of intent and entities using LLM."""
         text = state["user_input"]
         phone = state["phone"]
@@ -289,14 +472,36 @@ def create_lead_processing_graph(
 
             # Update lead_data in state so subsequent nodes see the change
             updated_lead = lead.copy()
-            if journey and extraction.intent == "VISIT":
-                if current_state != LeadStatus.APPOINTMENT_REQUESTED:
-                    journey.transition_to(phone, LeadStatus.APPOINTMENT_REQUESTED)
-                    updated_lead["journey_state"] = LeadStatus.APPOINTMENT_REQUESTED
-            elif journey and extraction.intent == "PURCHASE":
-                if current_state == LeadStatus.ACTIVE or current_state == LeadStatus.HOT:
-                    journey.transition_to(phone, LeadStatus.QUALIFIED)
-                    updated_lead["journey_state"] = LeadStatus.QUALIFIED
+
+            # NEW LOGIC: Trigger Qualification Flow if Intent is BUY/SELL/RENT
+            # Map Extraction Literal to Domain Enum
+            domain_intent = None
+            if extraction.intent == "PURCHASE":
+                domain_intent = Intent.BUY
+            elif extraction.intent == "SALE":  # Future proofing
+                domain_intent = Intent.SELL
+            elif extraction.intent == "RENTAL":
+                domain_intent = Intent.RENT
+
+            if domain_intent in [Intent.BUY, Intent.SELL, Intent.RENT]:
+                # Only if not already done or in progress
+                if current_state == LeadStatus.ACTIVE:
+                    updated_lead["journey_state"] = LeadStatus.QUALIFICATION_IN_PROGRESS
+
+            # Populate qualification_data for conversational continuity
+            qual_update = state.get("qualification_data", {}).copy()
+            if domain_intent:
+                qual_update["intent"] = domain_intent.value
+            if extraction.budget:
+                qual_update["budget"] = extraction.budget
+
+            return {
+                "budget": extraction.budget or lead.get("budget_max"),
+                "intent": domain_intent.value if domain_intent else extraction.intent,
+                "entities": extraction.entities,
+                "lead_data": updated_lead,
+                "qualification_data": qual_update,
+            }
 
             return {
                 "budget": extraction.budget or lead.get("budget_max"),
@@ -531,6 +736,8 @@ def create_lead_processing_graph(
                 context_data=state["context_data"],
                 market_data=state["market_data"],
                 negotiation_data=state["negotiation_data"],
+                area_name=state["market_data"].get("area", "this area"),
+                avg_price_sqm=state["market_data"].get("avg_price_sqm", "N/A"),
                 input=state["user_input"],
                 language=state["language"],
             )
@@ -578,12 +785,16 @@ def create_lead_processing_graph(
             "last_intent": state["intent"],
             "source": state["source"],
             "context_data": state["context_data"],
+            "qualification_data": state.get("qualification_data"),
+            "lead_score": state.get("lead_score"),
         }
         logger.info("FINALIZING_METADATA", context={"metadata": metadata})
 
         update_payload = {
             "customer_phone": phone,
             "metadata": metadata,
+            "journey_state": lead.get("journey_state"),
+            "status": lead.get("status"),
             # "messages" removal here is critical: save_message handled it
             "last_message": response or text,
             "updated_at": datetime.now(UTC).isoformat(),
@@ -623,6 +834,7 @@ def create_lead_processing_graph(
     workflow.add_node("ingest", ingest_node)
     workflow.add_node("fifi_appraisal", fifi_appraisal_node)
     workflow.add_node("intent", intent_node)
+    workflow.add_node("lead_qual", lead_qualification_node)
     workflow.add_node("preferences", preference_extraction_node)
     workflow.add_node("sentiment", sentiment_analysis_node)
     workflow.add_node("market_analysis", market_analysis_node)
@@ -630,6 +842,7 @@ def create_lead_processing_graph(
     workflow.add_node("retrieval", retrieval_node)
     workflow.add_node("generation", generation_node)
     workflow.add_node("finalize", finalize_node)
+    workflow.add_node("handoff", handoff_node)
 
     workflow.add_edge(START, "ingest")
 
@@ -638,13 +851,43 @@ def create_lead_processing_graph(
             return str(END)
         if state["source"] == "FIFI_APPRAISAL":
             return "fifi_appraisal"
+        # If in Qualification Mode, route to it
+        status = state["lead_data"].get("journey_state")
+        if status == LeadStatus.QUALIFICATION_IN_PROGRESS:
+            return "lead_qual"
         return "intent"
 
     workflow.add_conditional_edges("ingest", route_after_ingest)
-    workflow.add_edge("fifi_appraisal", "intent")
-    workflow.add_edge("intent", "preferences")
+
+    def route_after_fifi(state: AgentState) -> str:
+        fifi_data = state.get("fifi_data", {})
+        if fifi_data.get("fifi_status") == "HUMAN_REVIEW_REQUIRED":
+            return "handoff"
+        return "intent"
+
+    workflow.add_conditional_edges("fifi_appraisal", route_after_fifi)
+
+    # Intent -> Check if we switched to Qual
+    def route_after_intent(state: AgentState) -> str:
+        status = state["lead_data"].get("journey_state")
+        if status == LeadStatus.QUALIFICATION_IN_PROGRESS:
+            return "lead_qual"
+        return "preferences"
+
+    workflow.add_conditional_edges("intent", route_after_intent)
+    workflow.add_edge("lead_qual", "finalize")
     workflow.add_edge("preferences", "sentiment")
-    workflow.add_edge("sentiment", "market_analysis")
+
+    def route_after_sentiment(state: AgentState) -> str:
+        # Trigger Handoff if user is ANGRY or explicitly asking for human
+        if state["sentiment"].sentiment == "ANGRY":
+            return "handoff"
+        # Simple keyword check backup
+        if "human" in state["user_input"].lower() or "agent" in state["user_input"].lower():
+            return "handoff"
+        return "market_analysis"
+
+    workflow.add_conditional_edges("sentiment", route_after_sentiment)
     workflow.add_edge("market_analysis", "cache_check")
 
     # Conditional edge from cache_check
@@ -652,6 +895,8 @@ def create_lead_processing_graph(
         if state["checkpoint"] == "cache_hit":
             return "finalize"
         return "retrieval"
+
+    workflow.add_edge("handoff", "finalize")
 
     workflow.add_conditional_edges("cache_check", route_after_cache)
 
@@ -689,3 +934,88 @@ def _format_properties(properties: list[dict[str, Any]]) -> str:
         price = p.get("price") or p.get("sale_price_eur") or 0
         res += f"- {p.get('title', 'Property')}: €{int(price):,}\n"
     return res
+
+
+def _extract_qualification_field(field: str, text: str, api_key: SecretStr, model: str) -> Any:  # noqa: PLR0911, PLR0912
+    """Helper to extract specific fields for lead qualification."""
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_mistralai import ChatMistralAI
+
+    from domain.qualification import FinancingStatus, Intent, Timeline
+
+    if field == "budget":
+        return _extract_budget(text)
+
+    # Generic extraction using LLM for Enums and other fields
+    llm = ChatMistralAI(api_key=api_key, model_name=model)
+
+    system_prompt = (
+        f"You are a data extraction assistant. Extract the value for the field '{field}' from the user text.\n"
+        "Return ONLY the extracted value. If strictly matching an Enum, return the Enum value.\n"
+    )
+
+    if field == "intent":
+        system_prompt += (
+            "Possible values: 'buy', 'sell', 'rent', 'info'.\n"
+            "Example: 'voglio comprare' -> 'buy'. 'cerco casa' -> 'buy'. 'voglio vendere' -> 'sell'."
+        )
+    elif field == "timeline":
+        system_prompt += (
+            "Possible values: 'urgent' (<30 days), 'medium' (2-3 months), 'long' (>6 months).\n"
+            "Example: 'subito' -> 'urgent'. 'entro l'anno' -> 'long'."
+        )
+    elif field == "financing":
+        system_prompt += (
+            "Possible values: 'approved' (yes/approved), 'processing' (in progress), 'todo' (no/will do).\n"
+            "Example: 'ho i soldi' -> 'approved'. 'devo chiedere' -> 'todo'."
+        )
+    elif (
+        field == "location_specific" or field == "property_specific" or field == "contact_complete"
+    ):
+        system_prompt += "Return 'True' if the user provided specific details, 'False' if generally open or vague."
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", system_prompt),
+            ("human", "{text}"),
+        ]
+    )
+
+    try:
+        result = llm.invoke(prompt.format(text=text)).content
+        clean_result = str(result).lower().strip().replace("'", "").replace('"', "")
+
+        # Mapping back to Enums
+        if field == "intent":
+            if "buy" in clean_result:
+                return Intent.BUY
+            if "sell" in clean_result:
+                return Intent.SELL
+            if "rent" in clean_result:
+                return Intent.RENT
+            if "info" in clean_result:
+                return Intent.INFO
+            return Intent.UNKNOWN
+        elif field == "timeline":
+            if "urgent" in clean_result:
+                return Timeline.URGENT
+            if "medium" in clean_result:
+                return Timeline.MEDIUM
+            if "long" in clean_result:
+                return Timeline.LONG
+            return Timeline.UNKNOWN
+        elif field == "financing":
+            if "approved" in clean_result:
+                return FinancingStatus.APPROVED
+            if "process" in clean_result:
+                return FinancingStatus.PROCESSING
+            if "todo" in clean_result:
+                return FinancingStatus.TODO
+            return FinancingStatus.UNKNOWN
+        elif field in ["location_specific", "property_specific", "contact_complete"]:
+            return "true" in clean_result
+
+        return clean_result
+    except Exception as e:
+        logger.error("QUALIFICATION_EXTRACTION_FAILED", context={"error": str(e)})
+        return None

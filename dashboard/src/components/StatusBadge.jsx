@@ -1,5 +1,5 @@
 import React from 'react';
-import { Circle, CheckCircle2, Clock, Calendar, XCircle } from 'lucide-react';
+import { Circle, CheckCircle2, Clock, Calendar, XCircle, AlertTriangle } from 'lucide-react';
 
 /**
  * Status badge component for lead statuses.
@@ -37,6 +37,13 @@ export default function StatusBadge({ status, size = 'md' }) {
             icon: Circle,
             color: 'bg-orange-100 text-orange-700 border-orange-200',
             dotColor: 'bg-orange-500',
+            pulse: true,
+        },
+        review_required: {
+            label: 'Revisione',
+            icon: AlertTriangle,
+            color: 'bg-red-100 text-red-700 border-red-200',
+            dotColor: 'bg-red-500',
             pulse: true,
         },
         closed: {

@@ -1,3 +1,4 @@
+import re
 from typing import Literal
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -35,8 +36,38 @@ def extract_property_features(description: str, address: str | None = None) -> P
     """
     Extracts structured features from a raw property description using LLM logic.
     Uses Mistral with structured output for reliable feature extraction.
+
+    Optimization:
+    Checks for structured "RICHIESTA VALUTAZIONE" pattern first to bypass LLM latency.
+    Pattern: RICHIESTA VALUTAZIONE: {address} (Condizione: {condition}) MQ: {sqm}
     """
     logger.info("EXTRACTING_FEATURES", context={"description_len": len(description)})
+
+    # FAST PATH: Regex Bypass for structured appraisal requests
+    # Example: "RICHIESTA VALUTAZIONE: Via Dante 12 (Condizione: good) MQ: 100"
+    regex_pattern = r"RICHIESTA VALUTAZIONE: (.+) \(Condizione: (.+)\) MQ: (\d+)"
+    match = re.search(regex_pattern, description)
+
+    if match:
+        logger.info("FEATURE_EXTRACTION_FAST_PATH_HIT")
+        extracted_address = match.group(1)
+        extracted_condition = match.group(2)
+        extracted_sqm = int(match.group(3))
+
+        # Determine zone slug from address
+        zone_slug = (
+            extracted_address.split(",")[0].lower().replace(" ", "-") if extracted_address else None
+        )
+
+        return PropertyFeatures(
+            sqm=extracted_sqm,
+            condition=extracted_condition,  # type: ignore
+            zone_slug=zone_slug,
+            # Reasonable defaults for other fields since we didn't ask the user
+            bedrooms=2 if extracted_sqm < 90 else 3,
+            bathrooms=1 if extracted_sqm < 90 else 2,
+            has_elevator=True,
+        )
 
     # Use Mistral with structured output
     llm = ChatMistralAI(

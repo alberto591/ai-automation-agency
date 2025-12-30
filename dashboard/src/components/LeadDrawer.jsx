@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, TrendingUp } from 'lucide-react';
+import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, TrendingUp, AlertTriangle, HelpingHand } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function LeadDrawer({ lead, isOpen, onClose }) {
@@ -168,6 +168,46 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar bg-[hsl(var(--zen-bg))]/30">
+
+                {/* Handoff Alert Banner */}
+                {(lead.status === 'review_required' || lead.metadata?.handoff_reason) && (
+                    <div className="bg-red-50 border border-red-200 rounded-3xl p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="flex items-start gap-4">
+                            <div className="bg-red-100 p-3 rounded-2xl">
+                                <AlertTriangle className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-bold text-red-900 mb-1">Richiesta Intervento Umano</h3>
+                                <div className="text-sm text-red-700 font-medium mb-3">
+                                    L'AI ha disattivato la modalità automatica per questo lead.
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="bg-white/60 p-3 rounded-xl border border-red-100">
+                                        <div className="text-[10px] uppercase font-bold text-red-400 tracking-wider mb-1">Motivo</div>
+                                        <div className="text-sm font-bold text-red-900">
+                                            {lead.metadata?.handoff_reason || "NON SPECIFICATO"}
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/60 p-3 rounded-xl border border-red-100">
+                                        <div className="text-[10px] uppercase font-bold text-red-400 tracking-wider mb-1">Analisi AI</div>
+                                        <div className="text-xs font-medium text-red-800 leading-tight">
+                                            {lead.metadata?.ai_analysis || "Nessun dettaglio aggiuntivo disponibile."}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {/* TODO: Implement server-side status update to 'human_mode' or 'active' */ }}
+                                    className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-200 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <HelpingHand className="w-4 h-4" />
+                                    Prendi in Carico
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Profile Picture & Identity */}
                 <div className="flex flex-col items-center animate-in fade-in slide-in-from-top-4 duration-500">

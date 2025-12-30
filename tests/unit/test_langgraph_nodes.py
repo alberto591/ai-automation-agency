@@ -56,9 +56,7 @@ def mock_ai():
     def get_structured_mock(model):
         m = MagicMock()
         if model == IntentExtraction:
-            m.invoke.return_value = IntentExtraction(
-                budget=500000, intent="PURCHASE", entities=["Milano"]
-            )
+            m.invoke.return_value = IntentExtraction(budget=0, intent="INFO", entities=[])
         elif model == PropertyPreferences:
             m.invoke.return_value = PropertyPreferences(
                 rooms=[3], zones=["Milano"], features=["balcony"], property_types=["apartment"]
@@ -314,7 +312,9 @@ def test_intent_node_extracts_budget_and_intent(mock_db, mock_ai, mock_msg):
 
     # Verify budget and intent extracted
     assert result["budget"] == 500000
-    assert result["intent"] == "PURCHASE"
+    assert result["intent"] == "buy"
+    assert result["qualification_data"]["intent"] == "buy"
+    assert result["qualification_data"]["budget"] == 500000
     assert "Milano" in result["entities"]
 
 
@@ -335,6 +335,11 @@ def test_cache_check_node_returns_cached_response(mock_db, mock_ai, mock_msg):
         "messages": [],
     }
     mock_db.get_cached_response.return_value = "This is a cached response"
+
+    # Ensure intent doesn't trigger qualification
+    mock_ai.llm.with_structured_output(IntentExtraction).invoke.return_value = IntentExtraction(
+        budget=0, intent="INFO", entities=[]
+    )
 
     graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
 
@@ -365,6 +370,11 @@ def test_cache_check_node_continues_when_no_cache(mock_db, mock_ai, mock_msg):
     }
     mock_db.get_cached_response.return_value = None
     mock_db.get_properties.return_value = []
+
+    # Ensure intent doesn't trigger qualification
+    mock_ai.llm.with_structured_output(IntentExtraction).invoke.return_value = IntentExtraction(
+        budget=0, intent="INFO", entities=[]
+    )
 
     graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
 
@@ -439,6 +449,11 @@ def test_retrieval_node_fallback_mechanism(mock_db, mock_ai, mock_msg):
         {"title": "Property 3", "price": 400000, "similarity": 0.55},
     ]
 
+    # Ensure intent doesn't trigger qualification
+    mock_ai.llm.with_structured_output(IntentExtraction).invoke.return_value = IntentExtraction(
+        budget=0, intent="INFO", entities=[]
+    )
+
     graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
 
     result = graph.invoke(
@@ -473,6 +488,11 @@ def test_finalize_node_sends_message_and_updates_db(mock_db, mock_ai, mock_msg):
         "messages": [],
     }
     mock_db.get_properties.return_value = []
+
+    # Ensure intent doesn't trigger qualification
+    mock_ai.llm.with_structured_output(IntentExtraction).invoke.return_value = IntentExtraction(
+        budget=0, intent="INFO", entities=[]
+    )
 
     graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
 

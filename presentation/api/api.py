@@ -120,7 +120,7 @@ async def generate_appraisal_pdf(request: AppraisalPDFRequest) -> dict[str, str]
     Generate a PDF appraisal report with investment metrics.
     """
     try:
-        from infrastructure.ai_pdf_generator import PropertyPDFGenerator
+        from infrastructure.ai_pdf_generator import PropertyPDFGenerator  # noqa: PLC0415
 
         # Prepare appraisal data for PDF
         appraisal_data = {

@@ -57,6 +57,7 @@ class Container:
             scraper=self.scraper,
             market=self.market,
             calendar=self.calendar,
+            validation=self.validation,
         )
 
         self.appraisal_service: AppraisalService = AppraisalService(research_port=self.research)
@@ -102,6 +103,15 @@ class Container:
         )
 
         return PerplexityAdapter()
+
+    @property
+    def validation(self) -> Any:
+        """Lazy load Validation adapter (Postgres/Supabase)."""
+        from infrastructure.adapters.validation_adapter import (  # noqa: PLC0415
+            PostgresValidationAdapter,
+        )
+
+        return PostgresValidationAdapter()
 
 
 # Composition Root Instance

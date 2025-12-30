@@ -260,20 +260,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const postcode = document.getElementById('appraisal-postcode').value;
             const phone = document.getElementById('appraisal-phone').value;
             const condition = document.getElementById('appraisal-condition').value;
+            const sqm = document.getElementById('appraisal-sqm').value;
 
-            if (!address || !postcode || !phone || !condition) {
-                showNotification('Compila tutti i campi obbligatori', 'error');
+            if (!address || !postcode || !phone || !condition || !sqm) {
+                showNotification(t('form-error-missing'), 'error');
                 return;
             }
 
             // Validazione telefono (Italia +39, Spagna +34)
             const phoneRegex = /^(\+39|0039|\+34|0034|0)?[0-9]{9,10}$/;
             if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-                showNotification('Numero di telefono non valido', 'error');
+                showNotification(t('form-error-phone'), 'error');
                 return;
             }
 
-            submitBtn.innerHTML = '<i class="ph ph-spinner"></i> Analisi...';
+            submitBtn.innerHTML = `<i class="ph ph-spinner"></i> ${t('appraisal-status-analyzing')}`;
             submitBtn.disabled = true;
 
             const payload = {
@@ -281,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 agency: "Fifi Appraisal Tool",
                 phone: phone,
                 postcode: postcode,
-                properties: "RICHIESTA VALUTAZIONE: " + address + " (Condizione: " + condition + ")"
+                properties: "RICHIESTA VALUTAZIONE: " + address + " (Condizione: " + condition + ") MQ: " + sqm
             };
 
             fetch(`${API_BASE}/api/leads`, {
@@ -291,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => response.json())
                 .then(data => {
-                    showNotification('Valutazione in arrivo su WhatsApp!', 'success');
+                    showNotification(t('appraisal-status-success'), 'success');
 
                     // Show Instant Result UI
                     document.querySelector('.appraisal-form-box').style.display = 'none';
@@ -303,12 +304,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     const simData = {
                         min_val: 450000,
                         max_val: 485000,
-                        sqm: 100, // Assumed from input or default
+                        sqm: parseInt(sqm), // Use user input
                         rent: 1850,
                         yield: 5.2,
                         roi: 35.8,
                         coc: 14.5
                     };
+
+                    // Update Confidence Text based on language
+                    const confidenceText = document.getElementById('confidence-text');
+                    if (confidenceText) {
+                        confidenceText.textContent = `${t('appraisal-res-confidence-high')} (85%)`;
+                    }
 
                     // Simulate Calculation Animation
                     animateValue("res-min", 0, simData.min_val, 1500);
@@ -326,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const pdfBtn = document.getElementById('download-pdf-btn');
                     if (pdfBtn) {
                         pdfBtn.addEventListener('click', function () {
-                            this.innerHTML = '<i class="ph ph-spinner"></i> Generazione...';
+                            this.innerHTML = `<i class="ph ph-spinner"></i> ${t('appraisal-status-pdf-generating')}`;
                             this.disabled = true;
 
                             // Construct fifi_data for PDF
@@ -374,20 +381,20 @@ document.addEventListener('DOMContentLoaded', function () {
                                         if (API_BASE.includes('localhost')) {
                                             // Since we can't easily open local files from browser due to security,
                                             // we'll just show success. In prod with Supabase URL, we'd window.open(data.pdf_path)
-                                            showNotification('PDF Generato! (Check temp/documents/)', 'success');
+                                            showNotification(t('appraisal-status-pdf-success'), 'success');
                                             console.log("PDF generated at:", data.pdf_path);
                                         } else {
                                             window.open(data.pdf_path, '_blank');
                                         }
-                                        this.innerHTML = '<i class="ph ph-check"></i> Scaricato';
+                                        this.innerHTML = `<i class="ph ph-check"></i> ${t('appraisal-status-pdf-success')}`;
                                     } else {
                                         throw new Error('PDF Generation failed');
                                     }
                                 })
                                 .catch(err => {
                                     console.error(err);
-                                    showNotification('Errore generazione PDF', 'error');
-                                    this.innerHTML = '<i class="ph ph-download"></i> Riprova';
+                                    showNotification(t('appraisal-pdf-error'), 'error');
+                                    this.innerHTML = `<i class="ph ph-download"></i> ${t('appraisal-res-download-pdf')}`;
                                     this.disabled = false;
                                 });
                         });
@@ -396,8 +403,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('Errore. Riprova più tardi.', 'error');
-                    submitBtn.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    showNotification(t('generic-error'), 'error');
+                    submitBtn.innerHTML = `<i class="ph ph-warning"></i> ${t('retry')}`;
                     submitBtn.disabled = false;
                 });
         });
@@ -413,8 +420,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 newMessage.className = 'chat-message from-ai';
                 newMessage.innerHTML = `
                     <div class="message-time">14:23</div>
-                    <div class="message-bubble ai-bubble">
-                        Perfetto! Ho trovato 3 trilocali disponibili a Porta Nuova nel tuo budget. Ti invio le foto e organizziamo una visita per domani alle 16:00?
+                    <div class="message-bubble ai-bubble" data-translate="chat-ai-msg-1">
+                        ${t('chat-ai-msg-1')}
                     </div>
                 `;
                 typingBubble.closest('.chat-message').remove();
@@ -426,8 +433,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     clientResponse.className = 'chat-message from-client';
                     clientResponse.innerHTML = `
                         <div class="message-time">14:24</div>
-                        <div class="message-bubble">
-                            Sì, mi interessa! Grazie per la velocità della risposta
+                        <div class="message-bubble" data-translate="chat-client-msg-1">
+                            ${t('chat-client-msg-1')}
                         </div>
                     `;
                     chatContainer.appendChild(clientResponse);
@@ -837,7 +844,7 @@ const translations = {
         'nav-caratteristiche': 'Caratteristiche',
         'nav-contatto': 'Contatto',
         'nav-prenota-demo': 'Prenota Demo',
-        'nav-valutazione': 'Valutazione AI',
+        'nav-valutazione': 'Stima Preliminare',
 
         // Hero Section
         'hero-subtitle': 'Il Futuro dell\'Immobiliare',
@@ -983,16 +990,62 @@ const translations = {
 
         // Appraisal (Lead Magnet)
         'appraisal-tag': 'Novità',
-        'appraisal-title': 'Scopri il valore della tua casa in 15 secondi',
-        'appraisal-subtitle': 'L\'IA analizza i prezzi di mercato della tua zona e ti invia una valutazione istantanea su WhatsApp. Gratuito, veloce, preciso.',
+        'appraisal-title': 'Valutazione Immobiliare Preliminare',
+        'appraisal-subtitle': 'Analisi basata su modelli statistici avanzati. Ottieni un supporto decisionale immediato direttamente su WhatsApp.',
         'appraisal-f1': 'Analisi Big Data real-time',
         'appraisal-f2': 'Risultato diretto su WhatsApp',
         'appraisal-f3': 'Precisione per quartiere',
         'appraisal-address-placeholder': 'Indirizzo dell\'immobile',
         'appraisal-postcode-placeholder': 'CAP / Codice Postale',
         'appraisal-phone-placeholder': 'Tuo WhatsApp (+39 ...)',
-        'appraisal-cta': 'Ottieni Valutazione AI',
-        'appraisal-disclaimer': 'Zero spam. Solo i dati che ti servono.'
+        'appraisal-cta': 'Calcola Stima Preliminare',
+        'appraisal-disclaimer': 'I tuoi dati sono protetti e criptati. Rispetto totale della privacy.',
+        'appraisal-legal-check': 'Accetto che questa è una stima preliminare e non sostituisce un professionista.',
+        'appraisal-res-badge': 'Supporto Valutativo Preliminare',
+        'appraisal-res-label': 'Valore Stimato',
+        'appraisal-res-confidence-high': 'Confidenza Alta',
+        'appraisal-res-confidence-mid': 'Confidenza Media',
+        'appraisal-res-confidence-low': 'Confidenza Bassa',
+        'appraisal-res-price-sqm': 'Prezzo/mq',
+        'appraisal-res-rent': 'Affitto Stimato',
+        'appraisal-res-rent-suffix': '/mese',
+        'appraisal-res-yield': 'Yield (Lordo)',
+        'appraisal-res-inv-title': '📊 Analisi Investimento',
+        'appraisal-res-cap-rate': 'Cap Rate',
+        'appraisal-res-cap-hint': 'Rendimento annuo lordo',
+        'appraisal-res-roi': 'ROI (5 anni)',
+        'appraisal-res-roi-hint': 'Ritorno totale stimato',
+        'appraisal-res-coc': 'Cash-on-Cash',
+        'appraisal-res-coc-hint': 'Rendimento su capitale',
+        'appraisal-res-whatsapp-sent': 'Ti abbiamo inviato il report completo su WhatsApp!',
+        'appraisal-res-download-pdf': 'Scarica Report PDF',
+        'appraisal-res-expert': 'Parla con un esperto',
+        'appraisal-status-analyzing': 'Analisi...',
+        'appraisal-status-success': 'Valutazione in arrivo!',
+        'appraisal-status-pdf-generating': 'Generazione...',
+        'appraisal-status-pdf-success': 'Scaricato',
+        'appraisal-condition-luxury': '💎 Di Lusso / Ristrutturato',
+        'appraisal-condition-excellent': '✨ Ottimo Stato',
+        'appraisal-condition-good': '🏠 Buono Stato',
+        'appraisal-condition-fair': '🔨 Da Ristrutturare',
+        'appraisal-condition-poor': '🏚️ Completamente da rifare',
+        'appraisal-condition-label': 'Condizioni immobile',
+        'form-error-missing': 'Compila tutti i campi obbligatori',
+        'form-error-phone': 'Numero di telefono non valido',
+        'generic-error': 'Errore. Riprova più tardi.',
+        'retry': 'Riprova',
+        'chat-ai-msg-1': 'Perfetto! Ho trovato 3 trilocali disponibili a Porta Nuova nel tuo budget. Ti invio le foto e organizziamo una visita per domani alle 16:00?',
+        'chat-client-msg-1': 'Sì, mi interessa! Grazie per la velocità della risposta',
+        'meta-title': 'Anzevino AI Real Estate | Il Primo Agente AI per le Agenzie Immobiliari',
+        'meta-description': 'Vendi più case mentre dormi. Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24.',
+        'badge-gdpr': 'GDPR Compliant',
+        'badge-partner': 'Partner Immobiliare.it',
+        'badge-certified': 'Certificato AI',
+        'notif-title': 'Nuovo Lead Qualificato',
+        'notif-client': 'Cliente: Marco R.',
+        'notif-pref': 'Preferenza: Trilocale Prati',
+        'ai-active': 'AI Attivo',
+        'appraisal-sqm-placeholder': 'Superficie (mq)'
     },
     en: {
         // Navigation
@@ -1001,7 +1054,7 @@ const translations = {
         'nav-caratteristiche': 'Features',
         'nav-contatto': 'Contact',
         'nav-prenota-demo': 'Book Demo',
-        'nav-valutazione': 'AI Valuation',
+        'nav-valutazione': 'Preliminary Estimate',
 
         // Hero Section
         'hero-subtitle': 'The Future of Real Estate',
@@ -1147,16 +1200,62 @@ const translations = {
 
         // Appraisal (Lead Magnet)
         'appraisal-tag': 'New',
-        'appraisal-title': 'Discover your home\'s value in 15 seconds',
-        'appraisal-subtitle': 'AI analyzes market prices in your area and sends you an instant valuation on WhatsApp. Free, fast, precise.',
+        'appraisal-title': 'Preliminary Real Estate Valuation',
+        'appraisal-subtitle': 'Analysis based on advanced statistical models. Get immediate decision support directly on WhatsApp.',
         'appraisal-f1': 'Real-time Big Data analysis',
         'appraisal-f2': 'Direct results on WhatsApp',
         'appraisal-f3': 'Neighborhood precision',
         'appraisal-address-placeholder': 'Property address',
         'appraisal-postcode-placeholder': 'CAP / Postcode',
         'appraisal-phone-placeholder': 'Your WhatsApp (+39 ...)',
-        'appraisal-cta': 'Get AI Valuation',
-        'appraisal-disclaimer': 'Zero spam. Only the data you need.'
+        'appraisal-cta': 'Calculate Preliminary Estimate',
+        'appraisal-disclaimer': 'Your data is protected and encrypted. Total privacy respect.',
+        'appraisal-legal-check': 'I accept that this is a preliminary estimate and does not replace a professional.',
+        'appraisal-res-badge': 'Preliminary Valuation Support',
+        'appraisal-res-label': 'Estimated Value',
+        'appraisal-res-confidence-high': 'High Confidence',
+        'appraisal-res-confidence-mid': 'Medium Confidence',
+        'appraisal-res-confidence-low': 'Low Confidence',
+        'appraisal-res-price-sqm': 'Price/sqm',
+        'appraisal-res-rent': 'Estimated Rent',
+        'appraisal-res-rent-suffix': '/month',
+        'appraisal-res-yield': 'Yield (Gross)',
+        'appraisal-res-inv-title': '📊 Investment Analysis',
+        'appraisal-res-cap-rate': 'Cap Rate',
+        'appraisal-res-cap-hint': 'Gross annual yield',
+        'appraisal-res-roi': 'ROI (5 years)',
+        'appraisal-res-roi-hint': 'Total estimated return',
+        'appraisal-res-coc': 'Cash-on-Cash',
+        'appraisal-res-coc-hint': 'Return on equity',
+        'appraisal-res-whatsapp-sent': 'We sent you the full report on WhatsApp!',
+        'appraisal-res-download-pdf': 'Download PDF Report',
+        'appraisal-res-expert': 'Talk to an expert',
+        'appraisal-status-analyzing': 'Analyzing...',
+        'appraisal-status-success': 'Valuation coming!',
+        'appraisal-status-pdf-generating': 'Generating...',
+        'appraisal-status-pdf-success': 'Downloaded',
+        'appraisal-condition-luxury': '💎 Luxury / Renovated',
+        'appraisal-condition-excellent': '✨ Excellent Condition',
+        'appraisal-condition-good': '🏠 Good Condition',
+        'appraisal-condition-fair': '🔨 To Renovate',
+        'appraisal-condition-poor': '🏚️ Total Remake',
+        'appraisal-condition-label': 'Property condition',
+        'form-error-missing': 'Please fill in all required fields',
+        'form-error-phone': 'Invalid phone number',
+        'generic-error': 'Error. Please try again later.',
+        'retry': 'Retry',
+        'chat-ai-msg-1': 'Perfect! I found 3 apartments available in Porta Nuova within your budget. Shall I send photos and schedule a viewing for tomorrow at 4 PM?',
+        'chat-client-msg-1': 'Yes, I\'m interested! Thanks for the quick response',
+        'meta-title': 'Anzevino AI Real Estate | The First AI Agent for Real Estate Agencies',
+        'meta-description': 'Sell more homes while you sleep. Your first AI Agent that qualifies leads on WhatsApp in 15 seconds, 24/7.',
+        'badge-gdpr': 'GDPR Compliant',
+        'badge-partner': 'Immobiliare.it Partner',
+        'badge-certified': 'AI Certified',
+        'notif-title': 'New Qualified Lead',
+        'notif-client': 'Client: Marco R.',
+        'notif-pref': 'Preference: 3-room Prati',
+        'ai-active': 'AI Active',
+        'appraisal-sqm-placeholder': 'Surface Area (sqm)'
     }
 };
 
@@ -1168,6 +1267,11 @@ function switchLanguage(language) {
         elements.forEach(element => {
             if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
                 element.placeholder = text;
+            } else if (element.id === 'confidence-text') {
+                // Keep the percentage if it's already there
+                const percentageMatch = element.textContent.match(/\(\d+%\)/);
+                const suffix = percentageMatch ? ` ${percentageMatch[0]}` : '';
+                element.textContent = text + suffix;
             } else {
                 element.textContent = text;
             }
@@ -1176,6 +1280,15 @@ function switchLanguage(language) {
 
     // Update HTML lang attribute
     document.documentElement.lang = language;
+
+    // Update Meta Tags
+    if (translations[language]['meta-title']) {
+        document.title = translations[language]['meta-title'];
+    }
+    const metaDesc = document.getElementById('meta-description');
+    if (metaDesc && translations[language]['meta-description']) {
+        metaDesc.setAttribute('content', translations[language]['meta-description']);
+    }
 
     // Update URL for language
     const currentUrl = window.location.href;
@@ -1188,6 +1301,12 @@ function switchLanguage(language) {
 
     // Store language preference
     localStorage.setItem('preferredLanguage', language);
+}
+
+// Get Translation Helper
+function t(key) {
+    const lang = localStorage.getItem('preferredLanguage') || 'it';
+    return translations[lang][key] || key;
 }
 
 // Initialize Language

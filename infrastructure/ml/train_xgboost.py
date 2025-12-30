@@ -20,6 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
 
 from infrastructure.logging import get_logger
+from infrastructure.ml.model_registry import ModelRegistry
 
 logger = get_logger(__name__)
 
@@ -194,9 +195,6 @@ class XGBoostTrainer:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train XGBoost model for property valuation")
     parser.add_argument("--data", type=str, required=True, help="Path to training data CSV")
-    parser.add_argument(
-        "--output", type=str, default="models/fifi_xgboost_v1.json", help="Output model path"
-    )
     parser.add_argument("--no_tune", action="store_true", help="Skip hyperparameter tuning")
     parser.add_argument("--test_size", type=float, default=0.15, help="Test set proportion")
 
@@ -241,7 +239,7 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("XGBOOST MODEL TRAINING COMPLETE")
     print("=" * 60)
-    print(f"Model Path: {args.output}")
+    print("=" * 60)
     print("\nTest Set Metrics:")
     print(f"  MAE: €{metrics['mae']:,.0f}")
     print(f"  MAPE: {metrics['mape']:.2f}%")
@@ -255,17 +253,18 @@ def main() -> None:
 
     print("=" * 60)
 
-    # Save model
-    trainer.save_model(
-        args.output,
-        metadata={
-            "data_source": args.data,
-            "n_samples": len(df),
-            "train_samples": len(x_train),
-            "val_samples": len(x_val),
-            "test_samples": len(x_test),
-        },
+    # Save to Registry
+    logger.info("SAVING_TO_REGISTRY")
+    registry = ModelRegistry()
+
+    version = registry.save_model(
+        trainer.model,
+        metrics=metrics,
+        description=f"XGBoost AVM trained on {len(df)} samples",
+        author="system_training_script",
     )
+
+    print(f"\n✅ Model saved to registry: {version}")
 
 
 if __name__ == "__main__":

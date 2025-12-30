@@ -4,25 +4,53 @@ from pydantic import BaseModel
 
 
 class Intent(str, Enum):
-    BUY = "buy"  # +3
-    SELL = "sell"  # +2
-    RENT = "rent"  # +1
-    INFO = "info"  # 0
+    BUY = "buy"
+    SELL = "sell"
+    RENT = "rent"
+    INFO = "info"
     UNKNOWN = "unknown"
+
+    @property
+    def score(self) -> int:
+        return {
+            self.BUY: 3,
+            self.SELL: 2,
+            self.RENT: 1,
+            self.INFO: 0,
+            self.UNKNOWN: 0,
+        }.get(self, 0)
 
 
 class Timeline(str, Enum):
-    URGENT = "urgent"  # < 30 days (+3)
-    MEDIUM = "medium"  # 2-3 months (+2)
-    LONG = "long"  # 6+ months (+1)
-    UNKNOWN = "unknown"  # (0)
+    URGENT = "urgent"  # < 30 days
+    MEDIUM = "medium"  # 2-3 months
+    LONG = "long"  # 6+ months
+    UNKNOWN = "unknown"
+
+    @property
+    def score(self) -> int:
+        return {
+            self.URGENT: 3,
+            self.MEDIUM: 2,
+            self.LONG: 1,
+            self.UNKNOWN: 0,
+        }.get(self, 0)
 
 
 class FinancingStatus(str, Enum):
-    APPROVED = "approved"  # (+3)
-    PROCESSING = "processing"  # (+2)
-    TODO = "todo"  # (+1)
-    UNKNOWN = "unknown"  # (0)
+    APPROVED = "approved"
+    PROCESSING = "processing"
+    TODO = "todo"
+    UNKNOWN = "unknown"
+
+    @property
+    def score(self) -> int:
+        return {
+            self.APPROVED: 3,
+            self.PROCESSING: 2,
+            self.TODO: 1,
+            self.UNKNOWN: 0,
+        }.get(self, 0)
 
 
 class LeadCategory(str, Enum):
@@ -37,11 +65,36 @@ class QualificationData(BaseModel):
 
     intent: Intent = Intent.UNKNOWN
     timeline: Timeline = Timeline.UNKNOWN
-    budget: float | None = None  # <100k(+1), 100-300(+2), 300-600(+3), 600+(+3)
+    budget: float | None = None
     financing: FinancingStatus = FinancingStatus.UNKNOWN
-    location_specific: bool = False  # True(+2), False(+1 for general)
-    property_specific: bool = False  # True(+2), False(+1 for open)
-    has_contact_info: bool = False  # Derived from having phone & email (+2)
+    location_specific: bool | None = None  # True(+2), False(+1 for general)
+    property_specific: bool | None = None  # True(+2), False(+1 for open)
+    contact_complete: bool | None = None  # True(+2), False(+1)
+
+    def calculate_raw_score(self) -> int:
+        score = 0
+        score += self.intent.score
+        score += self.timeline.score
+        score += self.financing.score
+        score += 2 if self.location_specific else 1
+        score += 2 if self.property_specific else 1
+        score += 2 if self.contact_complete else 1
+
+        # Budget Scoring (Complex logic)
+        if self.budget:
+            if self.budget >= 600_000:  # noqa: PLR2004
+                score += 3
+            elif self.budget >= 300_000:  # noqa: PLR2004
+                score += 3
+            elif self.budget >= 100_000:  # noqa: PLR2004
+                score += 2
+            else:
+                score += 1
+        else:
+            # If no budget provided but other intent signals are strong, default to 0
+            pass
+
+        return score
 
 
 class LeadScore(BaseModel):
@@ -51,4 +104,4 @@ class LeadScore(BaseModel):
     normalized_score: int  # 1-10
     category: LeadCategory
     details: QualificationData
-    action_item: str  # Suggestion for the agent/system
+    action_item: str

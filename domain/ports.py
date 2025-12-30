@@ -148,3 +148,33 @@ class ResearchPort(ABC):
     def find_market_comparables(self, address: str, radius_km: float = 2.0) -> str:
         """Find active live listings to supplement valuation models."""
         pass
+
+
+class ValidationPort(ABC):
+    @abstractmethod
+    def log_validation(
+        self,
+        predicted_value: int,
+        actual_value: int,
+        metadata: dict[str, Any],
+        uncertainty_score: float | None = None,
+        lead_id: str | None = None,
+        model_version: str = "xgboost_v1",
+    ) -> None:
+        """Logs a validation event."""
+        pass
+
+    @abstractmethod
+    def detect_drift(self, zone: str, threshold: float = 0.15) -> bool:
+        """Checks for model drift in a zone."""
+        pass
+
+
+class NotificationPort(ABC):
+    @abstractmethod
+    def notify_agency(self, request: Any) -> bool:
+        """
+        Notifies the agency of a handoff request.
+        Request type is Any to avoid circular imports, but typically HandoffRequest.
+        """
+        pass

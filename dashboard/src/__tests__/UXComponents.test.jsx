@@ -85,6 +85,14 @@ describe('StatusBadge', () => {
         expect(container.querySelector('.animate-ping')).toBeInTheDocument();
     });
 
+    it('renders review_required status with pulse and alert icon', () => {
+        const { container } = render(<StatusBadge status="review_required" />);
+        expect(screen.getByText('Revisione')).toBeInTheDocument();
+        expect(container.querySelector('.animate-ping')).toBeInTheDocument();
+        // Check for red color class
+        expect(container.firstChild).toHaveClass('bg-red-100');
+    });
+
     it('applies correct size classes', () => {
         const { container: small } = render(<StatusBadge status="new" size="sm" />);
         expect(small.querySelector('.text-\\[10px\\]')).toBeInTheDocument();

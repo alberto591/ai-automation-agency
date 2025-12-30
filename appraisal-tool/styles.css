@@ -895,13 +895,74 @@ p {
 }
 
 .mini-form input {
-    border: none;
-    background: transparent;
     width: 100%;
-    font-family: inherit;
-    font-size: 1rem;
-    color: var(--navy-blue);
+    background: transparent;
+    border: none;
     outline: none;
+    font-size: 0.95rem;
+    color: var(--slate-800);
+}
+
+.form-group-checkbox {
+    margin-bottom: 1.5rem;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--slate-600);
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    min-width: 20px;
+    height: 20px;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input~.checkmark {
+    background-color: #e2e8f0;
+}
+
+.checkbox-container input:checked~.checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkmark:after {
+    content: "";
+    display: none;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+.checkbox-container input:checked~.checkmark:after {
+    display: block;
+}
+
+.disclaimer-text {
+    line-height: 1.4;
 }
 
 .form-disclaimer {

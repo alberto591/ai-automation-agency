@@ -24,3 +24,6 @@ jobs:
       # We skip full integration tests that require live API keys
       run: |
         pytest tests/unit
+
+    - name: Verify Docker Build
+      run: docker build . --file Dockerfile --tag agenzia-ai:test

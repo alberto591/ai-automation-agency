@@ -10,20 +10,28 @@
 
 Fifi is currently a basic lead capture tool (16/100 maturity) that needs to evolve into a production-grade Automated Valuation Model (AVM). The **€110-180B global market opportunity** requires we prioritize regulatory compliance (EU AI Act) alongside technical development.
 
-**Critical Path**: Legal → Data → ML Model → Validation → Scale
+**Critical Path**: Legal → Data → ML Model (Expanded Features) → Validation (Shadow Mode) → Scale
+
+### Agent Autonomy Boundaries
+Fifi operates under strict constrained autonomy to ensure safety and compliance:
+- ❌ **Cannot** negotiate prices or make offers.
+- ❌ **Cannot** provide legal or financial advice.
+- ❌ **Cannot** finalize transactions.
+- ✅ **Can** qualify leads, estimate values, schedule appointments, and generate draft documents.
 
 ---
 
 ## Week 1: Foundation & Compliance (URGENT)
 
-### Day 1: System Rebranding
-- [ ] Rename all `WEB_APPRAISAL` references to `FIFI_APPRAISAL` in codebase
-- [ ] Add "Powered by Fifi AI" branding to responses
-- [ ] Update marketing materials (appraisal-tool landing page)
+### Cleanup & Rebranding
+- [x] Rename all `WEB_APPRAISAL` references to `FIFI_APPRAISAL` in codebase
+- [/] **Search/Replace**: Use `sed` or IDE across `src/`, `config/`, `tests/`
+- [ ] **DB Migration**: Rename `web_appraisal_requests` → `fifi_appraisal_requests`
+- [ ] **Env Vars**: Update `WEB_APPRAISAL_TOOL_URL` → `FIFI_APPRAISAL_URL`
 
-**Files to modify**:
-- `application/workflows/agents.py` (lines 76, 135-136, 224, 310, etc.)
-- `test_scripts/verify_blueprint.py`
+### Legal & Compliance
+- [ ] Draft "Consultazione Legale per AI Immobiliare" brief
+- [ ] **Docs**: Create `docs/legal/risk_assessment_v1.md`
 - `test_scripts/verify_real_appraisal.py`
 - `appraisal-tool/index.html` and `script.js`
 
@@ -121,12 +129,36 @@ CREATE INDEX idx_location ON historical_transactions(lat, lon);
 
 **Option C: Real-Time Intelligence (Perplexity API)** (High Value / Low Effort)
 
-To avoid fragile scrapers for live data checks, we will integrate **Perplexity Labs** (`pplx-api`).
+To avoid fragile scrapers- [ ] **Acquire Data**: Purchase 1-month historic access (Milan/Florence/Rome).
+- [ ] **Ingest**: Convert CSV/Excel to `market_data` table.
+- [ ] **Pipeline**: Build `scripts/ingest_omi_data.py`.
 
-**Architecture**:
-- **Port**: `ResearchPort` (Domain Layer)
-- **Adapter**: `PerplexityAdapter` (Infrastructure Layer)
-- **Model**: `llama-3-sonar-large-32k-online`
+### 2. Live Market Comps (Perplexity) (DONE)
+- [x] **Adapter**: `PerplexityAdapter` (Infrastructure Layer)
+- [x] **Model**: `llama-3-sonar-large-32k-online`
+
+### 2.x Architecture: Control Plane vs. Execution Plane
+To ensure robustness, we separate policy from action:
+
+**Control Plane (Governance)**
+- Agent Policies & Compliance Gates (e.g., "Do not appraise >€2M without human flag")
+- Confidence Thresholds (e.g., "If confidence < 70%, route to human")
+- Escalation Rules
+
+**Execution Plane (Action)**
+- WhatsApp Messaging (Meta Adapter)
+- Appraisal Computation (XGBoost)
+- Scheduling (Cal.com)
+- PDF Generation
+
+### 2.y Observability Stack
+**Goal**: Traceability for every agent decision.
+- **Structured Logging**: JSON logs for all Tool calls.
+- **Traces**: LangSmith/MLflow traces for LLM reasoning paths.
+- **Metrics**:
+  - Avg Qualification Time (s)
+  - LLM vs Fast Path ratio
+  - Appointment Conversion Rate per Zone
 
 **Use Cases**:
 1.  **Legal Compliance Checks**: "Check Gazzetta Ufficiale for changes to 'Bonus Ristrutturazioni' in the last 7 days."
@@ -154,25 +186,30 @@ class PerplexityAdapter(ResearchPort):
 ```sql
 CREATE TABLE property_features (
     property_id UUID PRIMARY KEY,
-    zone_price_index DECIMAL(5,2), -- Microzone pricing multiplier
-    distance_to_metro_m INTEGER,
-    distance_to_school_m INTEGER,
-    distance_to_hospital_m INTEGER,
-    walkability_score INTEGER, -- 0-100
-    crime_rate_index DECIMAL(5,2),
-    school_district_quality TEXT,
-    tourism_impact_score INTEGER, -- Florence, Venice boost
-    floor_premium_pct DECIMAL(5,2), -- Piano nobile vs ground
-    exposure TEXT, -- 'street', 'courtyard', 'park'
-    renovation_year INTEGER,
-    energy_class TEXT -- 'A+', 'A', 'B', etc.
-);
-```
+    -- Enhanced Features (Post-Critique)
+    property_age_years INTEGER, -- Critical value driver
+    renovation_status TEXT, -- 'needs_work', 'partial', 'total' (User + Vision validated)
+    heating_type TEXT, -- 'central', 'autonomous'
+    has_parking BOOLEAN,
+    energy_class_score INTEGER, -- A=10, G=1
 
-**Python Feature Extraction**:
-```python
-# infrastructure/ml/feature_engineering.py
-from dataclasses import dataclass
+    -- Location Intelligence
+    zone_price_index DECIMAL(5,2),
+    distance_to_metro_m INTEGER,
+    distance_to_park_m INTEGER,
+    school_district_rating DECIMAL(3,1),
+    crime_rate_index DECIMAL(5,2),
+
+    -- Temporal
+    listing_date DATE,
+    market_condition_index DECIMAL(4,2), -- Interest rate / Seasonality factor
+
+    -- Original
+    floor_premium_pct DECIMAL(5,2),
+  ### 1. Feature Engineering (Expanded - PENDING)
+Using the new `PropertyFeatures` schema (v2):
+- [ ] **Implement**: Update `infrastructure/ml/feature_engineering.py` with age, renovation, etc.
+- [x] **Tool Tooling**: `extract_property_features` (LLM + Regex Fast Path)
 import googlemaps
 
 @dataclass
@@ -211,11 +248,10 @@ def extract_features(property_description: str, address: str) -> PropertyFeature
     )
 ```
 
-### Phase 2: XGBoost Model Training
-
-**Training Pipeline**:
-```python
-# infrastructure/ml/train_model.py
+### 2. XGBoost Model (v1 - DONE)
+- [x] **Train**: `infrastructure/ml/train_xgboost.py`
+- [x] **Registry**: `infrastructure/ml/model_registry.py` (Local `.ubj` storage)
+- [x] **Backtest**: `scripts/backtest_avm.py` (MAPE: 11.41%)
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error
@@ -254,6 +290,11 @@ def train_fifi_model():
     # Log to MLflow
     mlflow.log_metric("mape", mape)
     mlflow.sklearn.log_model(model, "fifi_xgboost_v1")
+
+    # Explainability (Critique Requirement)
+    explainer = shap.Explainer(model)
+    shap_values = explainer(X_test)
+    mlflow.shap.log_explanation(explainer, X_test)
 
     print(f"✅ Model MAPE: {mape:.2%}")
 
@@ -333,10 +374,11 @@ def fifi_appraisal_node(state: AgentState) -> dict[str, Any]:
             "comparables": comparables[:5]
         }
 ```
+         - [ ] **Integration**: `FifiAppraisalNode` calls `XGBoostAdapter`.
 
-### Validation Framework
-
-**Appraisal Validations Table**:
+### 2. Validation & Feedback Loop (PENDING)
+- [ ] **Table**: `fifi_appraisal_validations` (User feedback).
+- [ ] **Shadow Mode**: Script to run on scraper feed.
 ```sql
 CREATE TABLE appraisal_validations (
     id UUID PRIMARY KEY,
@@ -368,6 +410,23 @@ RETURNS TABLE(zone TEXT, mape DECIMAL, count BIGINT) AS $$
     GROUP BY zone
     ORDER BY mape ASC;
 $$ LANGUAGE SQL;
+
+$$ LANGUAGE SQL;
+
+### Post-Deployment Monitoring (Shadow Mode)
+**Critique Requirement**: "Continuous validation against actual sales."
+
+1.  **Shadow Deployment**: Run model on every listing that hits the market (Immobiliare.it scraper).
+2.  **Outcome Tracking**: Match "Closed" listings with "Sold Price" (from OMI/Deeds when available) or track "Listing Price" deviations.
+3.  **Drift Detection**: Alert if distribution of input features (e.g., avg query sqm) shifts >2 standard deviations.
+4.  **Retraining Schedule**: Automated quarterly retraining, or triggered if MAPE > 18% in any zone for 2 consecutive weeks.
+
+### Agent Memory System
+**Implementation**: PgVector within Supabase.
+- **Short-term**: Conversation context (BufferWindowMemory within LangChain).
+- **Long-term**: User preferences (Zone, Budget, "Must-haves") stored in `leads` table profiles.
+- **Episodic**: Past appraisals and feedback stored as vector embeddings for retrieval (RAG) during future interactions.
+- **Retention**: GDPR-compliant TTL (Time-To-Live) of 24 months for inactive data.
 ```
 
 ---
@@ -423,17 +482,20 @@ We will integrate Make.com without coupling our core logic to it. Agenzia AI rem
 
 ### Fifi Dashboard Route
 
-**New React Component**: `/dashboard/src/pages/FifiAppraisal.jsx`
+**New React- [ ] **Frontend**: `dashboard/src/pages/FifiAppraisal.jsx`
+- [ ] **Backend**: `GET /api/market/stats?zone=X`
 
-**Features**:
-1. Property details input form
-2. Real-time ML prediction display
-3. Confidence interval visualization
-4. Comparable properties map
+### 2. PDF Reports (DONE)
+- [x] **Generator**: `infrastructure/ai_pdf_generator.py` (FPDF2)
+- [x] **Endpoint**: `POST /api/appraisals/generate-pdf`
+- [x] **UI**: "Scarica Report PDF" button in `appraisal-tool`.
+erties map
 5. Value drivers breakdown chart
 6. Methodology explainer
 7. PDF export functionality
-8. Legal disclaimers
+7. PDF export functionality
+8. Legal disclaimers & Explainability section
+9. **Explainability**: "Why this price?" (SHAP value visualization)
 
 **PDF Report Template**:
 ```
@@ -456,7 +518,13 @@ FATTORI DI VALORE:
 - Balcone: +2%
 
 DISCLAIMER:
-Questa stima è generata dall'IA ed è solo a scopo informativo...
+Questa valutazione è un supporto analitico basato su intelligenza artificiale e NON costituisce perizia legale. Il valore stimato ha un margine di errore del +/- 11.4%. Si raccomanda la verifica da parte di un professionista iscritto all'albo.
+
+SPIEGAZIONE DEL VALORE (AI Reasoning):
+Il prezzo base di €400k è stato incrementato di €50k principalmente per:
+1. Posizione (Zona Porta Nuova): +€30k
+2. Efficienza Energetica (Classe A): +€15k
+3. Piano Alto: +€5k
 ```
 
 ---
@@ -519,6 +587,55 @@ Questa stima è generata dall'IA ed è solo a scopo informativo...
 | MLflow Hosting | €100/month | Ongoing |
 | Developer Time (2 engineers) | Internal | 9 weeks |
 | **TOTAL** | **€18,000 - €35,000** | **9 weeks** |
+
+---
+
+---
+
+## Strategic Pivots (Post-Critique)
+
+### 1. Lead Qualification Refinement
+**Issue**: "Scores are arbitrary; need verifying intent."
+**Action**:
+- **Identity Verification**: Integrate lightweight OTP/SMS check before booking.
+- **Intent Segmentation**: Ask "Investment vs Living" early.
+  - *Investor*: Show Cap Rate, ROI, Cash-on-Cash.
+  - *Owner*: Show Schools, Commute, Amenities.
+- **Scoring Backtest**: Correlate Score > 70 with actual "Show-up" rate, not just booking rate.
+
+### 3. Detailed Qualification Specification (The "7-Question Flow")
+**Logic**: 0-21 points → Normalized 1-10.
+- **HOT (9-10)**: Call in 5 min.
+- **WARM (6-8)**: Nurture sequence.
+- **COLD (<6)**: Drip campaign.
+
+**The Script (Italian)**:
+1. **INTENT**: "Cerchi di comprare, vendere, o solo informarti?"
+   - Comprare (+3), Vendere (+2), Info (0)
+2. **TIMELINE**: "Quando hai bisogno di una casa?"
+   - <30gg (+3), 2-3 mesi (+2), >6 mesi (+1)
+3. **BUDGET**: "Budget massimo?"
+   - €300k-600k (+3), >€600k (+3), <€100k (+1)
+4. **FINANCING**: "Hai già un'ipoteca approvata?"
+   - Sì (+3), In corso (+2), No (+1)
+5. **LOCATION**: "Zona preferita?"
+   - Specifica (+2), Generica (+1)
+6. **PROPERTY**: "Tipo di proprietà?"
+   - Specifica (+2), Aperto (+1)
+7. **CONTACT**: "Nome, telefono, email?"
+   - Completo (+2), Parziale (+1)
+
+**Status**: [x] Implemented in `application/services/lead_scoring_service.py` and `application/workflows/agents.py`.
+
+**Disqualification (Kill Switch)**:
+- IF `Budget < €50k` AND `Timeline = "Not sure"` → Tag as "DISQUALIFIED".
+
+### 2. Regulatory Hardening
+**Issue**: "Automated appraisals cannot replace professionals."
+**Action** (PENDING):
+- [ ] **Positioning**: Rebrand tool as "Supporto Valutativo Preliminare".
+- [ ] **Audit Trail**: Log every input feature and model version.
+- [ ] **Disclaimer**: Mandatory "Click-to-accept".
 
 ---
 
@@ -601,6 +718,21 @@ Questa stima è generata dall'IA ed è solo a scopo informativo...
 **Revenue Potential**:
 - 1,000 appraisals/month × €50 = €50,000/month
 - Annual recurring revenue: €600,000
+
+## Strategic Roadmap (Next Versions)
+
+### v1.1 (Fast Wins)
+- **Confidence-based Escalation**: Route "Unsure" leads to humans immediately.
+- **Explainable Valuations**: SHAP graphs in dashboard.
+- **Drift Monitoring**: Automated alerts for market shifts.
+
+### v2.0 (Moat Building)
+- **Reinforcement Learning**: Fine-tune agent based on actual closed deals.
+- **Zone-specific Micro-models**: Separate XGBoost models for "Historic Center" vs "Suburbs".
+- **Multi-Agent Architecture**:
+  - *Qualifier Agent* (Chat)
+  - *Valuation Agent* (Math/ML)
+  - *Compliance Agent* (Reviewer)
 
 ---
 

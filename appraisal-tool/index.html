@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anzevino AI Real Estate | Il Primo Agente AI per le Agenzie Immobiliari</title>
-    <meta name="description"
-        content="Vendi più case mentre dormi. Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24.">
+    <title data-translate="meta-title">Anzevino AI Real Estate | Il Primo Agente AI per le Agenzie Immobiliari</title>
+    <meta name="description" id="meta-description"
+        content="Vendi più case mentre dormi. Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24."
+        data-translate="meta-description">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -63,7 +64,7 @@
                 <a href="#soluzione" data-translate="nav-soluzione">Soluzione</a>
                 <a href="#dashboard" data-translate="nav-dashboard">Dashboard</a>
                 <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
-                <a href="#appraisal" data-translate="nav-valutazione">Valutazione AI</a>
+                <a href="#appraisal" data-translate="nav-valutazione">Stima Preliminare</a>
                 <a href="#contatto" data-translate="nav-contatto">Contatto</a>
                 <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
@@ -121,15 +122,15 @@
                     <div class="hero-trust">
                         <div class="trust-item">
                             <i class="ph ph-shield-check"></i>
-                            <span>GDPR Compliant</span>
+                            <span data-translate="badge-gdpr">GDPR Compliant</span>
                         </div>
                         <div class="trust-item">
                             <i class="ph ph-handshake"></i>
-                            <span>Partner Immobiliare.it</span>
+                            <span data-translate="badge-partner">Partner Immobiliare.it</span>
                         </div>
                         <div class="trust-item">
                             <i class="ph ph-medal"></i>
-                            <span>Certificato AI</span>
+                            <span data-translate="badge-certified">Certificato AI</span>
                         </div>
                     </div>
                 </div>
@@ -183,14 +184,15 @@
                                     <div class="notification-card">
                                         <div class="notification-header">
                                             <i class="ph ph-bell"></i>
-                                            <span>Nuovo Lead Qualificato</span>
+                                            <span data-translate="notif-title">Nuovo Lead Qualificato</span>
                                         </div>
                                         <div class="notification-body">
-                                            <strong>Cliente: Marco R.</strong><br>
-                                            <span>Preferenza: Trilocale Prati</span><br>
+                                            <strong data-translate="notif-client">Cliente: Marco R.</strong><br>
+                                            <span data-translate="notif-pref">Preferenza: Trilocale Prati</span><br>
                                             <span class="score">Score: 92/100</span>
                                         </div>
-                                        <div class="notification-time">2 min fa</div>
+                                        <div class="notification-time" data-translate="dashboard-time-2min">2 min fa
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +200,7 @@
 
                         <div class="ai-badge">
                             <i class="ph ph-robot"></i>
-                            <span>AI Attivo</span>
+                            <span data-translate="ai-active">AI Attivo</span>
                             <div class="pulse"></div>
                         </div>
                     </div>
@@ -298,7 +300,7 @@
                 <div class="appraisal-content">
                     <div class="appraisal-text">
                         <span class="intro-tag" data-translate="appraisal-tag">Novità</span>
-                        <h2 data-translate="appraisal-title">Scopri il valore della tua casa in 15 secondi</h2>
+                        <h2 data-translate="appraisal-title">Valutazione Immobiliare Preliminare</h2>
                         <p data-translate="appraisal-subtitle">L'IA analizza i prezzi di mercato della tua zona e ti
                             invia una valutazione istantanea su WhatsApp. Gratuito, veloce, preciso.</p>
 
@@ -322,13 +324,24 @@
                             <div class="form-group">
                                 <i class="ph ph-house-line"></i>
                                 <select id="appraisal-condition" name="condition" required>
-                                    <option value="" disabled selected>Condizioni immobile</option>
-                                    <option value="luxury">💎 Di Lusso / Ristrutturato</option>
-                                    <option value="excellent">✨ Ottimo Stato</option>
-                                    <option value="good">🏠 Buono Stato</option>
-                                    <option value="fair">🔨 Da Ristrutturare</option>
-                                    <option value="poor">🏚️ Completamente da rifare</option>
+                                    <option value="" disabled selected data-translate="appraisal-condition-label">
+                                        Condizioni immobile</option>
+                                    <option value="luxury" data-translate="appraisal-condition-luxury">💎 Di Lusso /
+                                        Ristrutturato</option>
+                                    <option value="excellent" data-translate="appraisal-condition-excellent">✨ Ottimo
+                                        Stato</option>
+                                    <option value="good" data-translate="appraisal-condition-good">🏠 Buono Stato
+                                    </option>
+                                    <option value="fair" data-translate="appraisal-condition-fair">🔨 Da Ristrutturare
+                                    </option>
+                                    <option value="poor" data-translate="appraisal-condition-poor">🏚️ Completamente da
+                                        rifare</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <i class="ph ph-ruler"></i>
+                                <input type="number" id="appraisal-sqm" name="sqm" required min="20" max="1000"
+                                    placeholder="Superficie (mq)" data-translate="appraisal-sqm-placeholder">
                             </div>
                             <div class="form-group">
                                 <i class="ph ph-hash"></i>
@@ -340,12 +353,21 @@
                                 <input type="tel" id="appraisal-phone" name="phone" required
                                     placeholder="Tuo WhatsApp (+39 ...)" data-translate="appraisal-phone-placeholder">
                             </div>
+                            <div class="form-group-checkbox">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="appraisal-disclaimer-check" required>
+                                    <span class="checkmark"></span>
+                                    <span class="disclaimer-text" data-translate="appraisal-legal-check">
+                                        Accetto che questa è una stima preliminare e non sostituisce un professionista.
+                                    </span>
+                                </label>
+                            </div>
                             <button type="submit" class="btn-primary btn-full">
-                                <span data-translate="appraisal-cta">Ottieni Valutazione AI</span>
+                                <span data-translate="appraisal-cta">Calcola Stima Preliminare</span>
                                 <i class="ph ph-arrow-right"></i>
                             </button>
-                            <p class="form-disclaimer" data-translate="appraisal-disclaimer">Zero spam. Solo i dati che
-                                ti servono.</p>
+                            <p class="form-disclaimer" data-translate="appraisal-disclaimer">Zero spam. I tuoi dati sono
+                                protetti e criptati.</p>
                         </form>
                     </div>
 
@@ -353,74 +375,85 @@
                     <div id="appraisal-result" class="appraisal-result-box" style="display: none;">
                         <div class="result-header">
                             <div class="result-badge">
-                                <i class="ph ph-sparkle"></i> Stima Fifi AI
+                                <i class="ph ph-sparkle"></i> <span data-translate="appraisal-res-badge">Supporto
+                                    Valutativo Preliminare</span>
                             </div>
                             <button class="close-result" onclick="resetAppraisal()"><i class="ph ph-x"></i></button>
                         </div>
 
                         <div class="result-main">
                             <div class="result-value-container">
-                                <span class="label">Valore Stimato</span>
+                                <span class="label" data-translate="appraisal-res-label">Valore Stimato</span>
                                 <h3 class="value-range">€<span id="res-min">0</span> - €<span id="res-max">0</span></h3>
                                 <div class="confidence-meter">
                                     <div class="meter-bar">
                                         <div class="meter-fill" style="width: 85%"></div>
                                     </div>
-                                    <span class="confidence-text">Confidenza Alta (85%)</span>
+                                    <span class="confidence-text" id="confidence-text"
+                                        data-translate="appraisal-res-confidence-high">Confidenza Alta</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="result-metrics">
                             <div class="metric-item">
-                                <span class="metric-label">Prezzo/mq</span>
+                                <span class="metric-label" data-translate="appraisal-res-price-sqm">Prezzo/mq</span>
                                 <span class="metric-value">€<span id="res-sqm">0</span></span>
                             </div>
                             <div class="metric-item">
-                                <span class="metric-label">Affitto Stimato</span>
-                                <span class="metric-value">€<span id="res-rent">0</span>/mese</span>
+                                <span class="metric-label" data-translate="appraisal-res-rent">Affitto Stimato</span>
+                                <span class="metric-value">€<span id="res-rent">0</span><span
+                                        data-translate="appraisal-res-rent-suffix">/mese</span></span>
                             </div>
                             <div class="metric-item">
-                                <span class="metric-label">Yield (Lordo)</span>
+                                <span class="metric-label" data-translate="appraisal-res-yield">Yield (Lordo)</span>
                                 <span class="metric-value highlight">
-                                    <<span id="res-yield">0
-                                </span>%</span>
+                                    <span id="res-yield">0</span>%
+                                </span>
                             </div>
                         </div>
 
                         <!-- Investment Metrics Grid -->
                         <div class="investment-metrics-section">
-                            <h4 class="metrics-title">📊 Analisi Investimento</h4>
+                            <h4 class="metrics-title" data-translate="appraisal-res-inv-title">📊 Analisi Investimento
+                            </h4>
                             <div class="investment-metrics-grid">
                                 <div class="metric-card">
                                     <div class="metric-card-icon">💰</div>
-                                    <div class="metric-card-label">Cap Rate</div>
+                                    <div class="metric-card-label" data-translate="appraisal-res-cap-rate">Cap Rate
+                                    </div>
                                     <div class="metric-card-value" id="res-cap-rate">0%</div>
-                                    <div class="metric-card-hint">Rendimento annuo lordo</div>
+                                    <div class="metric-card-hint" data-translate="appraisal-res-cap-hint">Rendimento
+                                        annuo lordo</div>
                                 </div>
                                 <div class="metric-card">
                                     <div class="metric-card-icon">📈</div>
-                                    <div class="metric-card-label">ROI (5 anni)</div>
+                                    <div class="metric-card-label" data-translate="appraisal-res-roi">ROI (5 anni)</div>
                                     <div class="metric-card-value" id="res-roi">0%</div>
-                                    <div class="metric-card-hint">Ritorno totale stimato</div>
+                                    <div class="metric-card-hint" data-translate="appraisal-res-roi-hint">Ritorno totale
+                                        stimato</div>
                                 </div>
                                 <div class="metric-card">
                                     <div class="metric-card-icon">💵</div>
-                                    <div class="metric-card-label">Cash-on-Cash</div>
+                                    <div class="metric-card-label" data-translate="appraisal-res-coc">Cash-on-Cash</div>
                                     <div class="metric-card-value" id="res-coc">0%</div>
-                                    <div class="metric-card-hint">Rendimento su capitale</div>
+                                    <div class="metric-card-hint" data-translate="appraisal-res-coc-hint">Rendimento su
+                                        capitale</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="result-cta">
-                            <p>Ti abbiamo inviato il report completo su WhatsApp!</p>
+                            <p data-translate="appraisal-res-whatsapp-sent">Ti abbiamo inviato il report completo su
+                                WhatsApp!</p>
                             <button id="download-pdf-btn" class="btn-secondary btn-sm"
                                 style="margin-right: 0.5rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
-                                <i class="ph ph-download"></i> Scarica Report PDF
+                                <i class="ph ph-download"></i> <span data-translate="appraisal-res-download-pdf">Scarica
+                                    Report PDF</span>
                             </button>
                             <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary btn-sm">
-                                <i class="ph ph-calendar"></i> Parla con un esperto
+                                <i class="ph ph-calendar"></i> <span data-translate="appraisal-res-expert">Parla con un
+                                    esperto</span>
                             </a>
                         </div>
                     </div>

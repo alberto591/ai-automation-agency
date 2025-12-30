@@ -63,6 +63,7 @@ class LeadProcessor:
         scraper: ScraperPort | None = None,
         market: MarketDataPort | None = None,
         calendar: CalendarPort | None = None,
+        validation: Any = None,
     ):
         self.db = db
         from application.workflows.agents import create_lead_processing_graph
@@ -74,9 +75,12 @@ class LeadProcessor:
         self.scraper = scraper
         self.market = market
         self.calendar = calendar
+        self.validation = validation
 
         # The graph creation expects the ports
-        self.graph = create_lead_processing_graph(db, ai, msg, journey, scraper, market, calendar)
+        self.graph = create_lead_processing_graph(
+            db, ai, msg, journey, scraper, market, calendar, validation
+        )
 
     SIMILARITY_THRESHOLD = 0.78
 
