@@ -82,6 +82,15 @@ class Container:
         adapter = IMAPAdapter()
         return EmailParserService(email_port=adapter)
 
+    @property
+    def research(self) -> Any:
+        """Lazy load Research adapter (Perplexity Labs)."""
+        from infrastructure.adapters.perplexity_adapter import (  # noqa: PLC0415
+            PerplexityAdapter,
+        )
+
+        return PerplexityAdapter()
+
 
 # Composition Root Instance
 container = Container()

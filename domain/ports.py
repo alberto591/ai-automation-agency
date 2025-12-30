@@ -129,3 +129,28 @@ class EmailPort(ABC):
     def mark_as_processed(self, email_id: str) -> None:
         """Marks email as read or moves to processed folder."""
         pass
+
+
+class ResearchPort(ABC):
+    """Real-time web research using Perplexity Labs API."""
+
+    @abstractmethod
+    def search(self, query: str, context: str | None = None) -> str:
+        """
+        Perform real-time web research.
+
+        Args:
+            query: Research question (
+                e.g., "Find 3 active listings for 2-bed flats in Brera >€500k"
+            )
+            context: Optional context for better results
+
+        Returns:
+            Research findings as formatted text
+
+        Use cases:
+        - Legal compliance checks (Gazzetta Ufficiale updates)
+        - Live market comparables (current listings without scraping)
+        - Entity vetting (construction companies, commercial tenants)
+        """
+        pass

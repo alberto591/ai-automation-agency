@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     MISTRAL_MODEL: str = Field(default="mistral-large-latest")
     MISTRAL_EMBEDDING_MODEL: str = Field(default="mistral-embed")
 
+    # Perplexity Labs (Research)
+    PERPLEXITY_API_KEY: str = Field(default="")
+
     # WhatsApp Messaging
     WHATSAPP_PROVIDER: str = Field(default="twilio")  # or "meta"
 
