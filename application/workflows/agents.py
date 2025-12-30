@@ -11,8 +11,6 @@ from config.settings import settings
 from domain.enums import LeadStatus
 from domain.ports import AIPort, CalendarPort, DatabasePort, MessagingPort
 from domain.services.logging import get_logger
-from infrastructure.ml.feature_engineering import extract_property_features
-from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 
 logger = get_logger(__name__)
 
@@ -198,6 +196,12 @@ def create_lead_processing_graph(
             return {"fifi_data": {}}
 
         logger.info("FIFI_APPRAISAL_START", context={"phone": state["phone"]})
+
+        # Lazy imports for ML components
+        from infrastructure.ml.feature_engineering import (
+            extract_property_features,
+        )
+        from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 
         # 1. Extract features from user input
         features = extract_property_features(

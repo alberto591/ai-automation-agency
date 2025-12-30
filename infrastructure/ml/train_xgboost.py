@@ -146,7 +146,7 @@ class XGBoostTrainer:
         r2 = r2_score(y_test, y_pred)
 
         # Calculate train/test delta (check for overfitting)
-        if hasattr(self, "train_metrics"):
+        if self.train_metrics and "mape" in self.train_metrics:
             train_test_delta = abs(self.train_metrics["mape"] - mape)
         else:
             train_test_delta = None
