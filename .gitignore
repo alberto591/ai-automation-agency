@@ -43,4 +43,4 @@ yarn-error.log
 *.swo
 .vercel
 # .env*.local
-data/
+/data/
