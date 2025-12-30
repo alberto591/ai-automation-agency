@@ -26,13 +26,13 @@ def test_rate_limit():
             if container.msg.rate_limiter.check_rate_limit(test_phone):
                 success_count += 1
                 print(
-                    f"  ✓ Message {i+1}: Allowed (remaining: {container.msg.rate_limiter.get_remaining(test_phone)})"
+                    f"  ✓ Message {i + 1}: Allowed (remaining: {container.msg.rate_limiter.get_remaining(test_phone)})"
                 )
             else:
                 blocked_count += 1
-                print(f"  ✗ Message {i+1}: BLOCKED by rate limiter")
+                print(f"  ✗ Message {i + 1}: BLOCKED by rate limiter")
         except Exception as e:
-            print(f"  ✗ Message {i+1}: Error - {e}")
+            print(f"  ✗ Message {i + 1}: Error - {e}")
             blocked_count += 1
 
     print("\n=== Results ===")

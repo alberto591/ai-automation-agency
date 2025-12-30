@@ -1,4 +1,5 @@
 """Pydantic v1/v2 compatibility shim."""
+
 try:
     # Pydantic v2
     from pydantic import model_validator  # noqa: F401

@@ -3,6 +3,7 @@
 This adapter handles synchronization of lead data to a Google Sheet
 using the gspread library and Service Account authentication.
 """
+
 import json
 from datetime import datetime
 from typing import Any

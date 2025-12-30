@@ -1,4 +1,5 @@
 """Unit tests for GoogleSheetsAdapter."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -19,8 +20,9 @@ def mock_settings():
 @pytest.fixture
 def mock_gspread():
     """Mock gspread client and credentials."""
-    with patch("infrastructure.adapters.google_sheets_adapter.gspread") as mock_gspread, patch(
-        "infrastructure.adapters.google_sheets_adapter.Credentials"
+    with (
+        patch("infrastructure.adapters.google_sheets_adapter.gspread") as mock_gspread,
+        patch("infrastructure.adapters.google_sheets_adapter.Credentials"),
     ):
         # Setup mock client and sheet
         mock_client = MagicMock()
