@@ -4,6 +4,7 @@ from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 
 from application.services.scoring import ScoringService
+from config.settings import settings
 from domain.qualification import Intent, QualificationData, Timeline
 
 
@@ -111,7 +112,8 @@ def score_lead_node(state: QualificationState) -> QualificationState:
     # Generate final message based on category
     if score.category == "HOT":
         final_msg = (
-            "✅ Grazie! Sei un profilo priorità HOT. Un nostro agente ti chiamerà tra 5 minuti."
+            "✅ Grazie! Sei un profilo priorità HOT. Un nostro agente ti chiamerà tra 5 minuti.\n"
+            f"Oppure prenota subito una chiamata prioritaria qui: {settings.CALCOM_BOOKING_LINK}"
         )
     else:
         final_msg = "Grazie! Ti manderemo aggiornamenti via email."

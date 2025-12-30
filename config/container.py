@@ -1,5 +1,6 @@
 from typing import Any
 
+from application.services.appraisal import AppraisalService
 from application.services.journey_manager import JourneyManager
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from config.settings import settings
@@ -48,6 +49,8 @@ class Container:
             market=self.market,
             calendar=self.calendar,
         )
+
+        self.appraisal_service: AppraisalService = AppraisalService(research_port=self.research)
 
     @property
     def sheets(self) -> Any:

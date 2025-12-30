@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 
 from config.container import container
 from config.settings import settings
+from domain.appraisal import AppraisalRequest, AppraisalResult
 from domain.enums import LeadStatus
 from domain.errors import BaseAppError
 from infrastructure.logging import get_logger
@@ -317,6 +318,18 @@ async def get_market_valuation(
     except Exception as e:
         logger.error("MARKET_VALUATION_FAILED", context={"zone": zone, "error": str(e)})
         raise HTTPException(status_code=500, detail="Failed to fetch market data") from None
+
+
+@app.post("/api/appraisals/estimate", dependencies=[Depends(get_current_user)])
+async def generate_appraisal(req: AppraisalRequest) -> AppraisalResult:
+    """
+    Generates an AI-driven property appraisal using real-time market data (Perplexity).
+    """
+    try:
+        return container.appraisal_service.estimate_value(req)
+    except Exception as e:
+        logger.error("APPRAISAL_ENDPOINT_FAILED", context={"error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to generate appraisal") from None
 
 
 if __name__ == "__main__":
