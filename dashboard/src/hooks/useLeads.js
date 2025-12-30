@@ -75,6 +75,9 @@ export function useLeads() {
                     created_at: l.created_at,
                     fullMessages: l.messages, // Keep raw messages for chat window
                     metadata: l.metadata || {}, // Handle potential metadata
+                    qualification_score: l.qualification_score,
+                    qualification_status: l.qualification_status, // HOT, WARM, COLD
+                    qualification_data: l.qualification_data,
                     raw: l // Keep full object
                 }
             })

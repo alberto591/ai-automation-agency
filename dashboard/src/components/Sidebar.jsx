@@ -90,6 +90,9 @@ export default function Sidebar({ selectedLead, setSelectedLead }) {
                                 <span className={`font-bold truncate ${selectedLead?.id === lead.id ? 'text-[hsl(var(--zen-text-main))]' : 'text-gray-700'}`}>
                                     {lead.name}
                                 </span>
+                                {lead.qualification_status === 'HOT' && (
+                                    <span className="ml-1 text-orange-500 animate-pulse" title="Lead HOT (Score > 9)">🔥</span>
+                                )}
                                 <span className="text-[10px] font-medium text-[hsl(var(--zen-text-muted))] uppercase tracking-tighter shrink-0 ml-2">
                                     {lead.time}
                                 </span>

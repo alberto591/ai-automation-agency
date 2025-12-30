@@ -90,30 +90,37 @@ class AppraisalService:
         Expected format lines: "Title... €300,000 ... 100 sqm"
         """
         comps = []
-        # Regex to find Price (€DDD,DDD) and Sqm (DD sqm/mq)
-        # Matches: € 300.000 or 300,000 and 75 mq or sqm
-        price_pattern = r"€\s?([\d\.,]+)"
-        sqm_pattern = r"(\d+)\s?(?:sqm|mq|m²)"
+        # Support formats: € 300.000, 300.000 €, EUR 300.000, €300,000
+        # and 75 mq, 75 sqm, 75 m²
 
         lines = text.split("\n")
         for line in lines:
-            if "€" not in line:
-                continue
-
             try:
-                price_match = re.search(price_pattern, line)
-                sqm_match = re.search(sqm_pattern, line)
+                # Find price (look for € or EUR)
+                if "€" in line:
+                    # Match numbers like 300.000 or 300,000 associated with €
+                    price_match = re.search(r"€\s?([\d\.,]+)|([\d\.,]+)\s?€", line)
+                elif "EUR" in line:
+                    price_match = re.search(r"EUR\s?([\d\.,]+)|([\d\.,]+)\s?EUR", line)
+                else:
+                    continue
+
+                # Find sqm
+                sqm_match = re.search(r"(\d+)\s?(?:sqm|mq|m²|m2)", line, re.IGNORECASE)
 
                 if price_match and sqm_match:
-                    price_str = price_match.group(1).replace(".", "").replace(",", "")
+                    # Extract price group (could be group 1 or 2)
+                    price_str = price_match.group(1) or price_match.group(2)
+                    price_str = price_str.replace(".", "").replace(",", "")
                     price = float(price_str)
+
                     sqm = int(sqm_match.group(1))
 
-                    if sqm > 0:
+                    if sqm > 0 and price > 10000:  # Basic sanity check
                         psqm = price / sqm
                         comps.append(
                             Comparable(
-                                title=line[:50].strip() + "...",
+                                title=line[:60].strip() + "...",
                                 price=price,
                                 surface_sqm=sqm,
                                 price_per_sqm=round(psqm, 0),
