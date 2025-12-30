@@ -1,30 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { User, Settings, LogOut, Building, Phone, Mail } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function ProfileDropdown({ isOpen, onClose }) {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (isOpen) {
-            fetchProfile();
-        }
-    }, [isOpen]);
+        if (!isOpen) return;
 
-    const fetchProfile = async () => {
         setLoading(true);
-        try {
-            const response = await fetch('/api/user/profile');
-            if (response.ok) {
-                const data = await response.json();
-                setProfile(data);
+
+        async function fetchProfile() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const token = session?.access_token;
+
+                const response = await fetch('/api/user/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfile(data);
+                } else {
+                    console.error("Failed to fetch profile with status:", response.status);
+                }
+            } catch (error) {
+                console.error("Error fetching profile", error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error("Failed to fetch profile:", error);
-        } finally {
-            setLoading(false);
         }
-    };
+
+        fetchProfile();
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

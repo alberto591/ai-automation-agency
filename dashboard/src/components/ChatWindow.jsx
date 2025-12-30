@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Phone, MoreVertical, Info, Bot, User } from 'lucide-react';
+import { Send, Phone, MoreVertical, Info, Bot, User, Sparkles } from 'lucide-react';
 import { useMessages } from '../hooks/useMessages';
+import { supabase } from '../lib/supabase';
 
 import LeadDrawer from './LeadDrawer';
 import EmptyState from './EmptyState';
@@ -12,6 +13,7 @@ export default function ChatWindow({ selectedLead }) {
     const [inputText, setInputText] = useState("");
     const [sending, setSending] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [generatingSummary, setGeneratingSummary] = useState(false);
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -22,6 +24,14 @@ export default function ChatWindow({ selectedLead }) {
     useEffect(() => {
         setDrawerOpen(false);
     }, [selectedLead]);
+
+    async function getAuthHeader() {
+        const { data: { session } } = await supabase.auth.getSession();
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || ''}`
+        };
+    }
 
     async function sendMessage() {
         if (!inputText.trim() || !selectedLead) return;
@@ -42,9 +52,10 @@ export default function ChatWindow({ selectedLead }) {
         setInputText(""); // Clear input immediately
 
         try {
+            const headers = await getAuthHeader();
             const response = await fetch('/api/leads/message', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({
                     phone: selectedLead.phone,
                     message: inputText
@@ -55,7 +66,6 @@ export default function ChatWindow({ selectedLead }) {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                // Revert on failure (optional, or just alert)
                 throw new Error("Failed to send");
             }
         } catch (error) {
@@ -81,19 +91,53 @@ export default function ChatWindow({ selectedLead }) {
         const endpoint = isAiActive ? '/api/leads/takeover' : '/api/leads/resume';
 
         try {
+            const headers = await getAuthHeader();
             const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ phone: selectedLead.phone })
             });
 
             if (!response.ok) throw new Error("Failed to toggle AI");
 
-            // Success! No need to do anything, optimistic update was correct.
         } catch (error) {
             // 2. Revert on Error
             setStatus(isAiActive ? 'active' : 'human_mode');
             alert("Errore cambio modalità: " + error.message);
+        }
+    }
+
+    async function handleGenerateSummary() {
+        if (!selectedLead || generatingSummary) return;
+        setGeneratingSummary(true);
+
+        try {
+            const headers = await getAuthHeader();
+            // Remove content-type for GET (not strictly needed but good practice not to send body headers)
+            delete headers['Content-Type'];
+
+            const response = await fetch(`/api/leads/${encodeURIComponent(selectedLead.phone)}/summary`, {
+                headers: headers
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Inject summary as a local system message for viewing pleasure
+                const summaryMsg = {
+                    role: 'system',
+                    content: `📊 **Riassunto AI**\n\n${data.summary}\n\n🎯 **Azione suggerita**: ${data.suggested_action}\nSENTIMENT: ${data.sentiment}`,
+                    created_at: new Date().toISOString(),
+                    metadata: { type: 'summary' }
+                };
+                setMessages(prev => [...prev, summaryMsg]);
+            } else {
+                alert("Impossibile generare riassunto.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Errore durante la generazione del riassunto.");
+        } finally {
+            setGeneratingSummary(false);
         }
     }
 
@@ -140,6 +184,20 @@ export default function ChatWindow({ selectedLead }) {
                 </div>
 
                 <div className="flex items-center space-x-6">
+                    {/* AI Summary Button */}
+                    <Tooltip content="Genera Riassunto AI" position="bottom">
+                        <button
+                            onClick={handleGenerateSummary}
+                            disabled={generatingSummary}
+                            className={`p-2.5 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 ${generatingSummary
+                                ? 'bg-indigo-50 text-indigo-300'
+                                : 'hover:bg-indigo-50 text-indigo-500 hover:text-indigo-600'
+                                }`}
+                        >
+                            <Sparkles className={`w-5.5 h-5.5 ${generatingSummary ? 'animate-spin' : ''}`} />
+                        </button>
+                    </Tooltip>
+
                     {/* Premium Toggle Switch */}
                     <Tooltip content={status === 'human_mode' ? "Riattiva AI Agent" : "Passa a Modalità Manuale"} position="bottom">
                         <div

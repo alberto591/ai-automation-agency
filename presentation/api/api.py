@@ -2,7 +2,17 @@ import re
 from datetime import datetime
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, Form, Header, HTTPException, Request
+# ... (imports)
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    Form,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -13,6 +23,7 @@ from domain.errors import BaseAppError
 from infrastructure.logging import get_logger
 from infrastructure.monitoring.sentry import init_sentry
 from presentation.api.webhooks import calcom_webhook, portal_webhook, voice_webhook
+from presentation.middleware.auth import get_current_user
 
 logger = get_logger(__name__)
 
@@ -70,6 +81,9 @@ class ManualMessageRequest(BaseModel):
     message: str
 
 
+# --- PUBLIC ENDPOINTS (Webhooks & Lead Ingestion) ---
+
+
 @app.post("/api/leads")
 async def create_lead(lead: LeadRequest) -> dict[str, Any]:
     logger.info("RECEIVED_LEAD_REQUEST", context={"name": lead.name, "phone": lead.phone})
@@ -92,26 +106,6 @@ async def create_lead(lead: LeadRequest) -> dict[str, Any]:
     except Exception:
         logger.error("INTERNAL_SERVER_ERROR", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error") from None
-
-
-@app.post("/api/leads/takeover")
-async def takeover_lead(req: PhoneRequest) -> dict[str, str]:
-    try:
-        container.lead_processor.takeover(req.phone)
-        return {"status": "success", "message": "AI Muted. Human in control."}
-    except Exception as e:
-        logger.error("TAKEOVER_FAILED", context={"phone": req.phone, "error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to mute AI") from None
-
-
-@app.post("/api/leads/resume")
-async def resume_lead(req: PhoneRequest) -> dict[str, str]:
-    try:
-        container.lead_processor.resume(req.phone)
-        return {"status": "success", "message": "AI Resumed."}
-    except Exception as e:
-        logger.error("RESUME_FAILED", context={"phone": req.phone, "error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to resume AI") from None
 
 
 @app.post("/api/webhooks/twilio")
@@ -162,7 +156,35 @@ async def twilio_status_callback(
     return "OK"
 
 
-@app.post("/api/leads/message")
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    return {"status": "online", "service": "Agenzia AI - Hexagonal"}
+
+
+# --- PROTECTED ENDPOINTS (Dashboard Actions) ---
+
+
+@app.post("/api/leads/takeover", dependencies=[Depends(get_current_user)])
+async def takeover_lead(req: PhoneRequest) -> dict[str, str]:
+    try:
+        container.lead_processor.takeover(req.phone)
+        return {"status": "success", "message": "AI Muted. Human in control."}
+    except Exception as e:
+        logger.error("TAKEOVER_FAILED", context={"phone": req.phone, "error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to mute AI") from None
+
+
+@app.post("/api/leads/resume", dependencies=[Depends(get_current_user)])
+async def resume_lead(req: PhoneRequest) -> dict[str, str]:
+    try:
+        container.lead_processor.resume(req.phone)
+        return {"status": "success", "message": "AI Resumed."}
+    except Exception as e:
+        logger.error("RESUME_FAILED", context={"phone": req.phone, "error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to resume AI") from None
+
+
+@app.post("/api/leads/message", dependencies=[Depends(get_current_user)])
 async def send_manual_message(
     req: ManualMessageRequest, background_tasks: BackgroundTasks
 ) -> dict[str, str]:
@@ -199,7 +221,7 @@ class LeadUpdate(BaseModel):
     scheduled_at: str | None = None  # Receive as ISO string
 
 
-@app.patch("/api/leads")
+@app.patch("/api/leads", dependencies=[Depends(get_current_user)])
 async def update_lead(req: LeadUpdate) -> dict[str, str]:
     try:
         # Use lead_processor to update domain record
@@ -223,7 +245,7 @@ class ScheduleRequest(BaseModel):
     start_time: str  # ISO string
 
 
-@app.post("/api/leads/schedule")
+@app.post("/api/leads/schedule", dependencies=[Depends(get_current_user)])
 async def schedule_viewing(req: ScheduleRequest) -> dict[str, str]:
     try:
         dt = datetime.fromisoformat(req.start_time.replace("Z", "+00:00"))
@@ -239,7 +261,7 @@ class ContractRequest(BaseModel):
     offered_price: int
 
 
-@app.post("/api/leads/generate-contract")
+@app.post("/api/leads/generate-contract", dependencies=[Depends(get_current_user)])
 async def generate_contract(req: ContractRequest) -> dict[str, str]:
     try:
         container.journey.transition_to(
@@ -251,7 +273,7 @@ async def generate_contract(req: ContractRequest) -> dict[str, str]:
         raise HTTPException(status_code=500, detail="Failed to generate contract") from None
 
 
-@app.get("/api/user/profile")
+@app.get("/api/user/profile", dependencies=[Depends(get_current_user)])
 async def get_user_profile() -> dict[str, Any]:
     return {
         "name": (
@@ -265,9 +287,36 @@ async def get_user_profile() -> dict[str, Any]:
     }
 
 
-@app.get("/health")
-async def health_check() -> dict[str, str]:
-    return {"status": "online", "service": "Agenzia AI - Hexagonal"}
+# --- NEW INTELLIGENCE ENDPOINTS ---
+
+
+@app.get("/api/leads/{phone}/summary", dependencies=[Depends(get_current_user)])
+async def get_lead_summary(phone: str) -> dict[str, Any]:
+    """
+    Generates an AI summary of the conversation + sentiment analysis.
+    """
+    try:
+        summary_data = container.lead_processor.summarize_lead(phone)
+        return summary_data
+    except Exception as e:
+        logger.error("SUMMARY_ENDPOINT_FAILED", context={"phone": phone, "error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to generate summary") from None
+
+
+@app.get("/api/market/valuation", dependencies=[Depends(get_current_user)])
+async def get_market_valuation(
+    zone: str = Query(..., min_length=2),
+    city: str = Query(default=""),
+) -> dict[str, Any]:
+    """
+    Returns market valuation data for a specific zone using the MarketDataPort.
+    """
+    try:
+        insights = container.market.get_market_insights(zone, city)
+        return {"status": "success", "data": insights}
+    except Exception as e:
+        logger.error("MARKET_VALUATION_FAILED", context={"zone": zone, "error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to fetch market data") from None
 
 
 if __name__ == "__main__":

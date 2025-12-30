@@ -65,5 +65,15 @@ def mock_container():
 def client():
     """FastAPI test client."""
     from presentation.api.api import app
+    from presentation.middleware.auth import get_current_user
 
-    return TestClient(app)
+    # Override auth to bypass JWT check in tests
+    app.dependency_overrides[get_current_user] = lambda: {
+        "sub": "test_user",
+        "role": "authenticated",
+    }
+
+    yield TestClient(app)
+
+    # Cleanup
+    app.dependency_overrides = {}

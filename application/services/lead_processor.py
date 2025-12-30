@@ -270,3 +270,59 @@ class LeadProcessor:
         except Exception as e:
             logger.error("GRAPH_INVOCATION_FAILED", context={"phone": phone, "error": str(e)})
             return ""
+
+    def summarize_lead(self, phone: str) -> dict[str, Any]:
+        """
+        Generates a summary of the conversation history for a given lead.
+        """
+        phone = re.sub(r"\s+", "", phone)
+        lead = self.db.get_lead(phone)
+        if not lead or not lead.get("messages"):
+            return {
+                "summary": "No active conversation found.",
+                "sentiment": "NEUTRAL",
+                "suggested_action": "Initiate contact",
+            }
+
+        # Format history
+        history_text = ""
+        for msg in lead["messages"]:
+            role = "User" if msg["role"] == "user" else "Assistant"
+            content = msg.get("content", "")
+            history_text += f"{role}: {content}\n"
+
+        prompt = (
+            f"Summarize the following conversation in Italian. "
+            f"Identify the client's sentiment (POSITIVE, NEUTRAL, NEGATIVE) and suggest the next best action.\n\n"
+            f"Conversation:\n{history_text}\n\n"
+            f"Output JSON format: {{'summary': '...', 'sentiment': '...', 'suggested_action': '...'}}"
+        )
+
+        try:
+            response = self.ai.generate_response(prompt)
+            # Try to parse JSON from AI response if it's raw text
+            # using a robust parser or expecting the dict if the adapter handles it.
+            # For now, let's assume text and we might need to parse it or return it.
+            # To be safe, we'll return the raw text if parsing fails, but wrapping in the struct.
+
+            # Simple heuristic cleaning if AI returns markdown json
+            clean_res = response.replace("```json", "").replace("```", "").strip()
+
+            import json
+
+            try:
+                return cast(dict[str, Any], json.loads(clean_res))
+            except json.JSONDecodeError:
+                return {
+                    "summary": response,
+                    "sentiment": "UNKNOWN",
+                    "suggested_action": "Review conversation",
+                }
+
+        except Exception as e:
+            logger.error("SUMMARIZATION_FAILED", context={"phone": phone, "error": str(e)})
+            return {
+                "summary": "Failed to generate summary.",
+                "sentiment": "UNKNOWN",
+                "suggested_action": "Check logs",
+            }

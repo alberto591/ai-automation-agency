@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str = Field(default="")
     SUPABASE_KEY: str = Field(default="")
     SUPABASE_SERVICE_ROLE_KEY: str | None = Field(default=None)
+    SUPABASE_JWT_SECRET: str = Field(default="")
 
     # Mistral AI
     MISTRAL_API_KEY: str = Field(default="")

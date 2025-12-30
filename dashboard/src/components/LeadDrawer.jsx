@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function LeadDrawer({ lead, isOpen, onClose }) {
@@ -11,6 +11,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
         preferred_zones: ''
     });
     const [isSaving, setIsSaving] = useState(false);
+    const [marketData, setMarketData] = useState(null);
 
     // Sync state with lead prop
     useEffect(() => {
@@ -22,8 +23,37 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                 preferred_zones: Array.isArray(lead.preferred_zones) ? lead.preferred_zones.join(', ') : (lead.preferred_zones || '')
             });
             setIsEditing(false);
+
+            // Try fetch market data for the first zone
+            const zones = Array.isArray(lead.preferred_zones) ? lead.preferred_zones : (lead.preferred_zones?.split(',') || []);
+            if (zones.length > 0 && typeof zones[0] === 'string' && zones[0].trim().length > 2) {
+                fetchMarketData(zones[0].trim());
+            } else {
+                setMarketData(null);
+            }
         }
     }, [lead, isOpen]);
+
+    async function fetchMarketData(zone) {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            if (!token) return;
+
+            const response = await fetch(`/api/market/valuation?zone=${encodeURIComponent(zone)}&city=Milano`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const res = await response.json();
+                if (res.status === 'success') {
+                    setMarketData(res.data);
+                }
+            }
+        } catch (e) {
+            console.error("Market data fetch failed", e);
+        }
+    }
 
     if (!isOpen || !lead) return null;
 
@@ -176,6 +206,27 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 )}
                             </div>
                         </div>
+
+                        {/* Market Valuation Card (New) */}
+                        {marketData && (
+                            <div className="bg-slate-900 p-5 rounded-3xl border border-[hsl(var(--zen-border))] shadow-md hover:shadow-lg transition-all group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+                                <div className="relative">
+                                    <TrendingUp className="w-5 h-5 mb-2 text-emerald-400" />
+                                    <div className="text-[9px] text-white/60 font-bold uppercase tracking-widest mb-1">Valutazione Mercato ({marketData.zone})</div>
+                                    <div className="flex items-end justify-between">
+                                        <div>
+                                            <div className="text-2xl font-black text-white">
+                                                {marketData.average_price_sqm}€<span className="text-sm text-white/50 font-medium">/mq</span>
+                                            </div>
+                                            <div className="text-[10px] text-emerald-400 font-bold mt-1 bg-emerald-400/10 inline-block px-2 py-0.5 rounded-md">
+                                                {marketData.trend === 'UP' ? '↗ In rialzo' : (marketData.trend === 'DOWN' ? '↘ In calo' : '→ Stabile')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
