@@ -183,18 +183,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Cal.com Integration
     function openBooking() {
-        if (window.Cal) {
-            window.Cal("modal", {
-                calLink: "anzevino-ai/demo",
-                config: { theme: 'light' }
-            });
-        } else {
-            window.open('https://cal.com/anzevino-ai/demo', '_blank');
-        }
-        return false;
+        // Direct link fallback for reliability
+        window.open('https://cal.com/anzevino-ai/demo', '_blank');
     }
 
     // Demo Button Handling
+    // Disabled to allow native <a> tag behavior (more reliable)
+    /* 
     const demoButtons = document.querySelectorAll('.btn-primary');
     demoButtons.forEach(button => {
         if (button.textContent.includes('Demo') || button.textContent.includes('Prenota') || button.textContent.includes('Book')) {
@@ -204,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+    */
 
     // WhatsApp Integration
     const whatsappButtons = document.querySelectorAll('[href*="whatsapp"]');
