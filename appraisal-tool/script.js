@@ -291,7 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => response.json())
                 .then(data => {
-                .then(data => {
                     showNotification('Valutazione in arrivo su WhatsApp!', 'success');
 
                     // Show Instant Result UI
@@ -305,224 +304,223 @@ document.addEventListener('DOMContentLoaded', function () {
                     animateValue("res-sqm", 0, 5200, 1500);
                     animateValue("res-rent", 0, 1850, 1500);
                     animateValue("res-yield", 0, 5.2, 1500, true); // true for decimal
-
                 })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification('Errore. Riprova più tardi.', 'error');
-                            submitBtn.innerHTML = '<i class="ph ph-warning"></i> Riprova';
-                            submitBtn.disabled = false;
-                        });
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Errore. Riprova più tardi.', 'error');
+                    submitBtn.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    submitBtn.disabled = false;
                 });
-        }
+        });
+    }
 
     // Typing Animation for Hero Chat
     function simulateTyping() {
-                const typingBubble = document.querySelector('.typing-indicator');
-                if (typingBubble) {
-                    setTimeout(() => {
-                        const chatContainer = document.querySelector('.chat-container');
-                        const newMessage = document.createElement('div');
-                        newMessage.className = 'chat-message from-ai';
-                        newMessage.innerHTML = `
+        const typingBubble = document.querySelector('.typing-indicator');
+        if (typingBubble) {
+            setTimeout(() => {
+                const chatContainer = document.querySelector('.chat-container');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'chat-message from-ai';
+                newMessage.innerHTML = `
                     <div class="message-time">14:23</div>
                     <div class="message-bubble ai-bubble">
                         Perfetto! Ho trovato 3 trilocali disponibili a Porta Nuova nel tuo budget. Ti invio le foto e organizziamo una visita per domani alle 16:00?
                     </div>
                 `;
-                        typingBubble.closest('.chat-message').remove();
-                        chatContainer.appendChild(newMessage);
+                typingBubble.closest('.chat-message').remove();
+                chatContainer.appendChild(newMessage);
 
-                        // Continue the conversation
-                        setTimeout(() => {
-                            const clientResponse = document.createElement('div');
-                            clientResponse.className = 'chat-message from-client';
-                            clientResponse.innerHTML = `
+                // Continue the conversation
+                setTimeout(() => {
+                    const clientResponse = document.createElement('div');
+                    clientResponse.className = 'chat-message from-client';
+                    clientResponse.innerHTML = `
                         <div class="message-time">14:24</div>
                         <div class="message-bubble">
                             Sì, mi interessa! Grazie per la velocità della risposta
                         </div>
                     `;
-                            chatContainer.appendChild(clientResponse);
+                    chatContainer.appendChild(clientResponse);
 
-                            // Scroll to bottom
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                        }, 2000);
+                    // Scroll to bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 2000);
 
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                    }, 2000);
-                }
-            }
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 2000);
+        }
+    }
 
     // Start typing simulation after page load
     setTimeout(simulateTyping, 3000);
 
-        // Dashboard Stats Animation
-        const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
-        let dashboardAnimated = false;
+    // Dashboard Stats Animation
+    const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
+    let dashboardAnimated = false;
 
-        function animateDashboardStats() {
-            if (dashboardAnimated) return;
+    function animateDashboardStats() {
+        if (dashboardAnimated) return;
 
-            dashboardStats.forEach(stat => {
-                const target = parseInt(stat.textContent);
-                let current = 0;
-                const increment = target / 50;
+        dashboardStats.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            let current = 0;
+            const increment = target / 50;
 
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                        dashboardAnimated = true;
-                    }
-                    stat.textContent = Math.floor(current);
-                }, 40);
-            });
-        }
-
-        // Intersection Observer for dashboard animation
-        const dashboardSection = document.querySelector('.dashboard-section');
-        if (dashboardSection && dashboardStats.length > 0) {
-            const dashboardObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        setTimeout(animateDashboardStats, 500);
-                    }
-                });
-            }, {
-                threshold: 0.3
-            });
-
-            dashboardObserver.observe(dashboardSection);
-        }
-
-        // Conversation Step Navigation
-        const conversationItems = document.querySelectorAll('.conversation-item');
-        conversationItems.forEach(item => {
-            item.addEventListener('click', function () {
-                // Remove active state from all items
-                conversationItems.forEach(conv => conv.classList.remove('active'));
-
-                // Add active state to clicked item
-                this.classList.add('active');
-
-                // You could add logic here to show conversation details
-            });
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    dashboardAnimated = true;
+                }
+                stat.textContent = Math.floor(current);
+            }, 40);
         });
+    }
 
-        // Feature Card Hover Effects
-        const featureCards = document.querySelectorAll('.feature-card');
-        featureCards.forEach(card => {
-            card.addEventListener('mouseenter', function () {
-                this.style.transform = 'translateY(-12px) scale(1.02)';
-            });
-
-            card.addEventListener('mouseleave', function () {
-                this.style.transform = 'translateY(0) scale(1)';
-            });
-        });
-
-        // Problem Stats Animation
-        const problemStats = document.querySelectorAll('.problem-stat');
-        let problemStatsAnimated = false;
-
-        function animateProblemStats() {
-            if (problemStatsAnimated) return;
-
-            problemStats.forEach((stat, index) => {
-                const numberElement = stat.querySelector('.stat-number');
-                const targetText = numberElement.textContent;
-                const isPercentage = targetText.includes('%');
-                const isEuro = targetText.includes('€');
-
-                let target = parseInt(targetText.replace(/[^0-9]/g, ''));
-                let current = 0;
-                const increment = target / 60;
-
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                        problemStatsAnimated = true;
-                    }
-
-                    let displayValue = Math.floor(current);
-                    if (isPercentage) displayValue += '%';
-                    if (isEuro) displayValue = '€' + displayValue.toLocaleString();
-
-                    numberElement.textContent = displayValue;
-                }, 30 + (index * 100));
-            });
-        }
-
-        // Intersection Observer for problem stats
-        const problemSection = document.querySelector('.problem-section');
-        if (problemSection && problemStats.length > 0) {
-            const problemObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        setTimeout(animateProblemStats, 800);
-                    }
-                });
-            }, {
-                threshold: 0.4
-            });
-
-            problemObserver.observe(problemSection);
-        }
-
-        // Form Input Enhancements
-        const formInputs = document.querySelectorAll('.form-group input, .form-group select');
-        formInputs.forEach(input => {
-            input.addEventListener('focus', function () {
-                this.parentElement.classList.add('focused');
-            });
-
-            input.addEventListener('blur', function () {
-                this.parentElement.classList.remove('focused');
-                if (this.value) {
-                    this.parentElement.classList.add('filled');
-                } else {
-                    this.parentElement.classList.remove('filled');
+    // Intersection Observer for dashboard animation
+    const dashboardSection = document.querySelector('.dashboard-section');
+    if (dashboardSection && dashboardStats.length > 0) {
+        const dashboardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateDashboardStats, 500);
                 }
             });
+        }, {
+            threshold: 0.3
         });
 
-        // Parallax Effect for Hero Section
-        const hero = document.querySelector('.hero');
-        if (hero) {
-            window.addEventListener('scroll', function () {
-                const scrolled = window.pageYOffset;
-                const rate = scrolled * -0.3;
-                hero.style.transform = `translateY(${rate}px)`;
+        dashboardObserver.observe(dashboardSection);
+    }
+
+    // Conversation Step Navigation
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function () {
+            // Remove active state from all items
+            conversationItems.forEach(conv => conv.classList.remove('active'));
+
+            // Add active state to clicked item
+            this.classList.add('active');
+
+            // You could add logic here to show conversation details
+        });
+    });
+
+    // Feature Card Hover Effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Problem Stats Animation
+    const problemStats = document.querySelectorAll('.problem-stat');
+    let problemStatsAnimated = false;
+
+    function animateProblemStats() {
+        if (problemStatsAnimated) return;
+
+        problemStats.forEach((stat, index) => {
+            const numberElement = stat.querySelector('.stat-number');
+            const targetText = numberElement.textContent;
+            const isPercentage = targetText.includes('%');
+            const isEuro = targetText.includes('€');
+
+            let target = parseInt(targetText.replace(/[^0-9]/g, ''));
+            let current = 0;
+            const increment = target / 60;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    problemStatsAnimated = true;
+                }
+
+                let displayValue = Math.floor(current);
+                if (isPercentage) displayValue += '%';
+                if (isEuro) displayValue = '€' + displayValue.toLocaleString();
+
+                numberElement.textContent = displayValue;
+            }, 30 + (index * 100));
+        });
+    }
+
+    // Intersection Observer for problem stats
+    const problemSection = document.querySelector('.problem-section');
+    if (problemSection && problemStats.length > 0) {
+        const problemObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateProblemStats, 800);
+                }
             });
-        }
+        }, {
+            threshold: 0.4
+        });
 
-        // Loading states for buttons
-        function addLoadingState(button, originalText) {
-            button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
-            button.disabled = true;
+        problemObserver.observe(problemSection);
+    }
 
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 2000);
-        }
+    // Form Input Enhancements
+    const formInputs = document.querySelectorAll('.form-group input, .form-group select');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function () {
+            this.parentElement.classList.add('focused');
+        });
 
-        // Success/Error Notifications
-        function showNotification(message, type = 'info') {
-            // Remove existing notification
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
+        input.addEventListener('blur', function () {
+            this.parentElement.classList.remove('focused');
+            if (this.value) {
+                this.parentElement.classList.add('filled');
+            } else {
+                this.parentElement.classList.remove('filled');
             }
+        });
+    });
 
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
+    // Parallax Effect for Hero Section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.3;
+            hero.style.transform = `translateY(${rate}px)`;
+        });
+    }
+
+    // Loading states for buttons
+    function addLoadingState(button, originalText) {
+        button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+    }
+
+    // Success/Error Notifications
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
             <div class="notification-content">
                 <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}"></i>
                 <span>${message}</span>
@@ -532,8 +530,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-            // Add styles
-            notification.style.cssText = `
+        // Add styles
+        notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -549,13 +547,13 @@ document.addEventListener('DOMContentLoaded', function () {
             font-family: Inter, sans-serif;
         `;
 
-            notification.querySelector('.notification-content').style.cssText = `
+        notification.querySelector('.notification-content').style.cssText = `
             display: flex;
             align-items: center;
             gap: 12px;
         `;
 
-            notification.querySelector('.notification-close').style.cssText = `
+        notification.querySelector('.notification-close').style.cssText = `
             background: none;
             border: none;
             color: white;
@@ -564,32 +562,32 @@ document.addEventListener('DOMContentLoaded', function () {
             margin-left: auto;
         `;
 
-            // Add to DOM
-            document.body.appendChild(notification);
+        // Add to DOM
+        document.body.appendChild(notification);
 
-            // Animate in
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
 
-            // Close functionality
-            const closeBtn = notification.querySelector('.notification-close');
-            closeBtn.addEventListener('click', () => {
+        // Close functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        });
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
                 notification.style.transform = 'translateX(100%)';
                 setTimeout(() => notification.remove(), 300);
-            });
+            }
+        }, 5000);
+    }
 
-            // Auto remove after 5 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.style.transform = 'translateX(100%)';
-                    setTimeout(() => notification.remove(), 300);
-                }
-            }, 5000);
-        }
-
-        // Add mobile menu styles
-        const mobileMenuStyles = `
+    // Add mobile menu styles
+    const mobileMenuStyles = `
         @media (max-width: 768px) {
             .nav-links {
                 position: fixed;
@@ -623,75 +621,75 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     `;
 
-        // Inject mobile menu styles
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = mobileMenuStyles;
-        document.head.appendChild(styleSheet);
+    // Inject mobile menu styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = mobileMenuStyles;
+    document.head.appendChild(styleSheet);
 
-        // Performance optimization: Debounce scroll events
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
+    // Performance optimization: Debounce scroll events
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
                 clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
+                func(...args);
             };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Apply debounce to scroll handlers
+    const debouncedScrollHandler = debounce(function () {
+        // Additional scroll-based animations can be added here
+    }, 16); // ~60fps
+
+    window.addEventListener('scroll', debouncedScrollHandler);
+
+    // Accessibility improvements
+    document.addEventListener('keydown', function (e) {
+        // ESC key closes mobile menu
+        if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = navToggle.querySelector('i');
+            icon.classList.remove('ph-x');
+            icon.classList.add('ph-list');
         }
+    });
 
-        // Apply debounce to scroll handlers
-        const debouncedScrollHandler = debounce(function () {
-            // Additional scroll-based animations can be added here
-        }, 16); // ~60fps
+    // Focus management for mobile menu
+    if (navLinks) {
+        const focusableElements = navLinks.querySelectorAll('a, button');
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
 
-        window.addEventListener('scroll', debouncedScrollHandler);
-
-        // Accessibility improvements
-        document.addEventListener('keydown', function (e) {
-            // ESC key closes mobile menu
-            if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
-                navLinks.classList.remove('active');
-                const icon = navToggle.querySelector('i');
-                icon.classList.remove('ph-x');
-                icon.classList.add('ph-list');
-            }
+        navToggle.addEventListener('click', function () {
+            setTimeout(() => {
+                if (navLinks.classList.contains('active')) {
+                    firstFocusable.focus();
+                }
+            }, 300);
         });
 
-        // Focus management for mobile menu
-        if (navLinks) {
-            const focusableElements = navLinks.querySelectorAll('a, button');
-            const firstFocusable = focusableElements[0];
-            const lastFocusable = focusableElements[focusableElements.length - 1];
-
-            navToggle.addEventListener('click', function () {
-                setTimeout(() => {
-                    if (navLinks.classList.contains('active')) {
-                        firstFocusable.focus();
+        navLinks.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
                     }
-                }, 300);
-            });
-
-            navLinks.addEventListener('keydown', function (e) {
-                if (e.key === 'Tab') {
-                    if (e.shiftKey) {
-                        if (document.activeElement === firstFocusable) {
-                            lastFocusable.focus();
-                            e.preventDefault();
-                        }
-                    } else {
-                        if (document.activeElement === lastFocusable) {
-                            firstFocusable.focus();
-                            e.preventDefault();
-                        }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
-    });
+    console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
+});
 
 // Utility Functions
 function animateValue(id, start, end, duration, isDecimal = false) {
