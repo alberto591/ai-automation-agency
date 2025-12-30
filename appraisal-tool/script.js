@@ -298,17 +298,101 @@ document.addEventListener('DOMContentLoaded', function () {
                     const resultBox = document.getElementById('appraisal-result');
                     resultBox.style.display = 'block';
 
+                    // Simulated Data (matches what we show in UI)
+                    // In production, this would come from the API response
+                    const simData = {
+                        min_val: 450000,
+                        max_val: 485000,
+                        sqm: 100, // Assumed from input or default
+                        rent: 1850,
+                        yield: 5.2,
+                        roi: 35.8,
+                        coc: 14.5
+                    };
+
                     // Simulate Calculation Animation
-                    animateValue("res-min", 0, 450000, 1500);
-                    animateValue("res-max", 0, 485000, 1500);
-                    animateValue("res-sqm", 0, 5200, 1500);
-                    animateValue("res-rent", 0, 1850, 1500);
-                    animateValue("res-yield", 0, 5.2, 1500, true); // true for decimal
+                    animateValue("res-min", 0, simData.min_val, 1500);
+                    animateValue("res-max", 0, simData.max_val, 1500);
+                    animateValue("res-sqm", 0, 5200, 1500); // This looks like price/sqm in the UI (approx 467,500 / 100)
+                    animateValue("res-rent", 0, simData.rent, 1500);
+                    animateValue("res-yield", 0, simData.yield, 1500, true);
 
                     // Animate Investment Metrics
-                    animateValue("res-cap-rate", 0, 5.2, 1500, true);
-                    animateValue("res-roi", 0, 35.8, 1500, true);
-                    animateValue("res-coc", 0, 14.5, 1500, true);
+                    animateValue("res-cap-rate", 0, simData.yield, 1500, true);
+                    animateValue("res-roi", 0, simData.roi, 1500, true);
+                    animateValue("res-coc", 0, simData.coc, 1500, true);
+
+                    // Handle PDF Download
+                    const pdfBtn = document.getElementById('download-pdf-btn');
+                    if (pdfBtn) {
+                        pdfBtn.addEventListener('click', function () {
+                            this.innerHTML = '<i class="ph ph-spinner"></i> Generazione...';
+                            this.disabled = true;
+
+                            // Construct fifi_data for PDF
+                            const fifi_data = {
+                                predicted_value: 467500, // Average of range
+                                confidence_range: `€${simData.min_val.toLocaleString()} - €${simData.max_val.toLocaleString()}`,
+                                confidence_level: 85,
+                                features: {
+                                    sqm: 100, // Default for lead magnet
+                                    bedrooms: 3,
+                                    bathrooms: 2,
+                                    floor: 2,
+                                    condition: condition, // User input
+                                    has_elevator: true,
+                                    has_balcony: true
+                                },
+                                investment_metrics: {
+                                    monthly_rent: simData.rent,
+                                    annual_rent: simData.rent * 12,
+                                    cap_rate: simData.yield,
+                                    roi_5_year: simData.roi,
+                                    cash_on_cash_return: simData.coc,
+                                    down_payment_20pct: 467500 * 0.2
+                                },
+                                comparables: [
+                                    { title: "Appartamento Signorile in Centro", sale_price_eur: 480000, sqm: 105 },
+                                    { title: "Trilocale Ristrutturato", sale_price_eur: 455000, sqm: 98 },
+                                    { title: "Attico Vista Mura", sale_price_eur: 510000, sqm: 110 }
+                                ]
+                            };
+
+                            fetch(`${API_BASE}/api/appraisals/generate-pdf`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    address: address + " (CAP: " + postcode + ")",
+                                    fifi_data: fifi_data
+                                })
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        // In local/dev, open path directly if accessible or show success
+                                        // For now we just notify success as it's a local file path being returned
+                                        if (API_BASE.includes('localhost')) {
+                                            // Since we can't easily open local files from browser due to security,
+                                            // we'll just show success. In prod with Supabase URL, we'd window.open(data.pdf_path)
+                                            showNotification('PDF Generato! (Check temp/documents/)', 'success');
+                                            console.log("PDF generated at:", data.pdf_path);
+                                        } else {
+                                            window.open(data.pdf_path, '_blank');
+                                        }
+                                        this.innerHTML = '<i class="ph ph-check"></i> Scaricato';
+                                    } else {
+                                        throw new Error('PDF Generation failed');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    showNotification('Errore generazione PDF', 'error');
+                                    this.innerHTML = '<i class="ph ph-download"></i> Riprova';
+                                    this.disabled = false;
+                                });
+                        });
+                    }
+
                 })
                 .catch(error => {
                     console.error('Error:', error);

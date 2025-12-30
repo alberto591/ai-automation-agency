@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import Any
 
-from fpdf import FPDF
+from fpdf import FPDF  # fpdf2 package
 
 from infrastructure.logging import get_logger
 
@@ -158,6 +158,178 @@ class PropertyPDFGenerator:
 
         except Exception as e:
             logger.error("PDF_GENERATION_FAILED", context={"error": str(e)})
+            raise
+
+    def generate_appraisal_report(self, appraisal_data: dict[str, Any], output_path: str) -> str:
+        """
+        Creates a professional PDF appraisal report with investment metrics.
+
+        Args:
+            appraisal_data: Dictionary containing property details, valuation, and metrics
+            output_path: Where to save the generated PDF
+
+        Returns:
+            The path to the generated PDF
+        """
+        try:
+            pdf = FPDF()
+            pdf.add_page()
+
+            # --- Header ---
+            pdf.set_fill_color(*self.agency_color)
+            pdf.rect(0, 0, 210, 35, "F")
+
+            pdf.set_font("Helvetica", "B", 22)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_xy(10, 8)
+            pdf.cell(0, 12, "Fifi AI - Valutazione Immobiliare", ln=True)
+
+            pdf.set_font("Helvetica", "", 10)
+            pdf.set_xy(10, 22)
+            pdf.cell(0, 8, f"Generato il {datetime.now().strftime('%d/%m/%Y %H:%M')}", ln=True)
+
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_y(45)
+
+            # --- Property Address ---
+            pdf.set_font("Helvetica", "B", 14)
+            address = appraisal_data.get("address", "Indirizzo non specificato")
+            pdf.cell(0, 10, f"Immobile: {address}", ln=True)
+            pdf.ln(5)
+
+            # --- Executive Summary ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.set_fill_color(240, 240, 240)
+            pdf.cell(0, 10, "Riepilogo Valutazione", ln=True, fill=True)
+            pdf.ln(2)
+
+            predicted_value = appraisal_data.get("predicted_value", 0)
+            confidence_range = appraisal_data.get("confidence_range", "N/A")
+            confidence_level = appraisal_data.get("confidence_level", 0)
+
+            pdf.set_font("Helvetica", "", 11)
+            pdf.cell(0, 8, f"Valore Stimato: EUR {predicted_value:,}".replace(",", "."), ln=True)
+            pdf.cell(0, 8, f"Range di Confidenza: {confidence_range}".replace("€", "EUR "), ln=True)
+            pdf.cell(0, 8, f"Livello di Confidenza: {confidence_level}%", ln=True)
+            pdf.ln(5)
+
+            # --- Property Details ---
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.set_fill_color(240, 240, 240)
+            pdf.cell(0, 10, "Dettagli Proprietà", ln=True, fill=True)
+            pdf.ln(2)
+
+            features = appraisal_data.get("features", {})
+            pdf.set_font("Helvetica", "", 11)
+
+            details = [
+                ("Superficie", f"{features.get('sqm', 'N/A')} mq"),
+                ("Camere", str(features.get("bedrooms", "N/A"))),
+                ("Bagni", str(features.get("bathrooms", "N/A"))),
+                ("Piano", str(features.get("floor", "N/A"))),
+                ("Condizione", features.get("condition", "N/A")),
+                ("Ascensore", "Sì" if features.get("has_elevator") else "No"),
+                ("Balcone", "Sì" if features.get("has_balcony") else "No"),
+            ]
+
+            for label, value in details:
+                pdf.set_font("Helvetica", "B", 10)
+                pdf.cell(50, 7, f"{label}:", border="B")
+                pdf.set_font("Helvetica", "", 10)
+                pdf.cell(0, 7, str(value), border="B", ln=True)
+
+            pdf.ln(5)
+
+            # --- Investment Metrics ---
+            metrics = appraisal_data.get("investment_metrics", {})
+            if metrics:
+                pdf.set_font("Helvetica", "B", 12)
+                pdf.set_fill_color(240, 240, 240)
+                pdf.cell(0, 10, "Analisi Investimento", ln=True, fill=True)
+                pdf.ln(2)
+
+                pdf.set_font("Helvetica", "", 11)
+                monthly_rent = metrics.get("monthly_rent", 0)
+                annual_rent = metrics.get("annual_rent", 0)
+                cap_rate = metrics.get("cap_rate", 0)
+                roi_5_year = metrics.get("roi_5_year", 0)
+                cash_on_cash = metrics.get("cash_on_cash_return", 0)
+                down_payment = metrics.get("down_payment_20pct", 0)
+
+                investment_data = [
+                    ("Affitto Mensile Stimato", f"EUR {monthly_rent:,}".replace(",", ".")),
+                    ("Affitto Annuale", f"EUR {annual_rent:,}".replace(",", ".")),
+                    ("Cap Rate (Rendimento Lordo)", f"{cap_rate}%"),
+                    ("ROI (5 anni)", f"{roi_5_year}%"),
+                    ("Cash-on-Cash Return", f"{cash_on_cash}%"),
+                    ("Acconto Richiesto (20%)", f"EUR {down_payment:,}".replace(",", ".")),
+                ]
+
+                for label, value in investment_data:
+                    pdf.set_font("Helvetica", "B", 10)
+                    pdf.cell(70, 7, f"{label}:", border="B")
+                    pdf.set_font("Helvetica", "", 10)
+                    pdf.cell(0, 7, str(value), border="B", ln=True)
+
+                pdf.ln(5)
+
+            # --- Market Comparables ---
+            comparables = appraisal_data.get("comparables", [])
+            if comparables:
+                pdf.set_font("Helvetica", "B", 12)
+                pdf.set_fill_color(240, 240, 240)
+                pdf.cell(0, 10, "Immobili Comparabili", ln=True, fill=True)
+                pdf.ln(2)
+
+                pdf.set_font("Helvetica", "", 9)
+                for i, comp in enumerate(comparables[:3], 1):
+                    title = comp.get("title", "N/A")
+                    price = comp.get("sale_price_eur", 0)
+                    sqm = comp.get("sqm", 0)
+                    price_sqm = price / sqm if sqm > 0 else 0
+
+                    pdf.set_font("Helvetica", "B", 10)
+                    pdf.cell(0, 6, f"{i}. {title[:60]}", ln=True)
+                    pdf.set_font("Helvetica", "", 9)
+                    pdf.cell(
+                        0,
+                        5,
+                        f"   Prezzo: EUR {price:,} | {sqm} mq | EUR {price_sqm:,.0f}/mq".replace(
+                            ",", "."
+                        ),
+                        ln=True,
+                    )
+                    pdf.ln(2)
+
+                pdf.ln(3)
+
+            # --- Disclaimer ---
+            pdf.set_y(-50)
+            pdf.set_font("Helvetica", "I", 8)
+            pdf.set_text_color(100, 100, 100)
+            pdf.multi_cell(
+                0,
+                5,
+                "DISCLAIMER: Questa valutazione è fornita solo a scopo informativo e non costituisce "
+                "una perizia ufficiale. I valori stimati sono basati su algoritmi di machine learning "
+                "e dati di mercato disponibili. Per decisioni di acquisto/vendita, si consiglia di "
+                "consultare un perito certificato.",
+            )
+
+            pdf.set_y(-20)
+            pdf.set_font("Helvetica", "", 8)
+            pdf.set_text_color(150, 150, 150)
+            pdf.cell(0, 5, "Powered by Fifi AI - Anzevino Real Estate Intelligence", 0, 0, "C")
+
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            pdf.output(output_path)
+            logger.info("APPRAISAL_PDF_GENERATED", context={"path": output_path})
+            return output_path
+
+        except Exception as e:
+            logger.error("APPRAISAL_PDF_GENERATION_FAILED", context={"error": str(e)})
             raise
 
 

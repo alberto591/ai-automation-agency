@@ -109,6 +109,53 @@ async def create_lead(lead: LeadRequest) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail="Internal Server Error") from None
 
 
+class AppraisalPDFRequest(BaseModel):
+    address: str
+    fifi_data: dict[str, Any]
+
+
+@app.post("/api/appraisals/generate-pdf")
+async def generate_appraisal_pdf(request: AppraisalPDFRequest) -> dict[str, str]:
+    """
+    Generate a PDF appraisal report with investment metrics.
+    """
+    try:
+        from infrastructure.ai_pdf_generator import PropertyPDFGenerator
+
+        # Prepare appraisal data for PDF
+        appraisal_data = {
+            "address": request.address,
+            "predicted_value": request.fifi_data.get("predicted_value", 0),
+            "confidence_range": request.fifi_data.get("confidence_range", "N/A"),
+            "confidence_level": request.fifi_data.get("confidence_level", 0),
+            "features": request.fifi_data.get("features", {}),
+            "investment_metrics": request.fifi_data.get("investment_metrics", {}),
+            "comparables": request.fifi_data.get("comparables", []),
+        }
+
+        # Generate PDF
+        generator = PropertyPDFGenerator()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"appraisal_{timestamp}.pdf"
+        output_path = f"temp/documents/{filename}"
+
+        pdf_path = generator.generate_appraisal_report(appraisal_data, output_path)
+
+        logger.info("PDF_GENERATED", context={"path": pdf_path, "address": request.address})
+
+        # For now, return local path (in production, upload to Supabase Storage)
+        return {
+            "status": "success",
+            "pdf_path": pdf_path,
+            "filename": filename,
+            "message": "PDF generato con successo",
+        }
+
+    except Exception as e:
+        logger.error("PDF_GENERATION_FAILED", context={"error": str(e)}, exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to generate PDF") from e
+
+
 @app.post("/api/webhooks/twilio")
 async def twilio_webhook(
     background_tasks: BackgroundTasks,
