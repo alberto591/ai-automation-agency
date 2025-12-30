@@ -19,7 +19,13 @@ dependencies = [
     "google-auth",
     "langchain-core",
     "langchain-mistralai",
-    "langgraph"
+    "langgraph",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "matplotlib",
+    "seaborn"
 ]
 
 [tool.ruff]
