@@ -8,7 +8,7 @@ from supabase import create_client
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from config import settings
+from config.settings import settings
 
 load_dotenv()
 

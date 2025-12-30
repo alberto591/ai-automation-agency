@@ -11,6 +11,8 @@ from config.settings import settings
 from domain.enums import LeadStatus
 from domain.ports import AIPort, CalendarPort, DatabasePort, MessagingPort
 from domain.services.logging import get_logger
+from infrastructure.ml.feature_engineering import extract_property_features
+from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 
 logger = get_logger(__name__)
 
@@ -73,10 +75,11 @@ class AgentState(TypedDict):
     negotiation_data: dict[str, Any]
     status_msg: str
     ai_response: str
-    source: Literal["WEB_APPRAISAL", "PORTAL", "WHATSAPP", "UNKNOWN"]
+    source: Literal["FIFI_APPRAISAL", "PORTAL", "WHATSAPP", "UNKNOWN"]
     context_data: dict[str, Any]
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
     language: Literal["it", "en"]
+    fifi_data: dict[str, Any]  # Appraisal results
 
 
 def create_lead_processing_graph(
@@ -133,7 +136,7 @@ def create_lead_processing_graph(
         # Only run heuristic if source is still WHATSAPP (default)
         if source == "WHATSAPP":
             if "valutazione" in query_lower or "appraisal" in query_lower:
-                source = "WEB_APPRAISAL"
+                source = "FIFI_APPRAISAL"
             elif (
                 "immobiliare" in query_lower
                 or "idealista" in query_lower
@@ -183,7 +186,54 @@ def create_lead_processing_graph(
             "ai_response": "",
             "source": source,
             "context_data": context_data,
+            "fifi_data": {},
         }
+
+    def fifi_appraisal_node(state: AgentState) -> dict[str, Any]:
+        """
+        Dedicated node for Fifi AI appraisal processing.
+        Handles ML inference, uncertainty quantification, and human oversight routing.
+        """
+        if state["source"] != "FIFI_APPRAISAL":
+            return {"fifi_data": {}}
+
+        logger.info("FIFI_APPRAISAL_START", context={"phone": state["phone"]})
+
+        # 1. Extract features from user input
+        features = extract_property_features(
+            description=state["user_input"], address=state["lead_data"].get("address")
+        )
+
+        # 2. ML Prediction (Model Simulator for Week 3)
+        adapter = XGBoostAdapter()
+        prediction = adapter.predict(features)
+
+        # 3. Find comparables for uncertainty estimation
+        # We use existing retrieved properties if any, or fetch new ones
+        comparables = db.get_properties(state["user_input"], use_mock_table=True, limit=5)
+        uncertainty_score = adapter.calculate_uncertainty(prediction, comparables)
+
+        # 4. Confidence interval
+        confidence_low = int(prediction * (1 - uncertainty_score))
+        confidence_high = int(prediction * (1 + uncertainty_score))
+
+        # 5. Human oversight decision
+        status = "AUTO_APPROVED" if uncertainty_score < 0.15 else "HUMAN_REVIEW_REQUIRED"
+
+        fifi_res = {
+            "fifi_status": status,
+            "uncertainty_score": uncertainty_score,
+            "predicted_value": int(prediction),
+            "confidence_range": f"€{int(confidence_low or 0):,} - €{int(confidence_high or 0):,}",
+            "confidence_level": int((1 - uncertainty_score) * 100),
+            "comparables": comparables[:3],
+        }
+
+        # Tag lead as HOT and add appraisal notes
+        if journey and status == "AUTO_APPROVED":
+            journey.transition_to(state["phone"], LeadStatus.HOT)
+
+        return {"fifi_data": fifi_res}
 
     def intent_node(state: AgentState) -> dict[str, Any]:
         """Structured extraction of intent and entities using LLM."""
@@ -221,8 +271,8 @@ def create_lead_processing_graph(
             current_state = lead.get("journey_state") or LeadStatus.ACTIVE
 
             # Phase 1.1: Appraisal -> captured as HOT lead with Tag
-            if state["source"] == "WEB_APPRAISAL":
-                if current_state == LeadStatus.ACTIVE:
+            if state["source"] == "FIFI_APPRAISAL":
+                if current_state == LeadStatus.ACTIVE and journey:
                     journey.transition_to(phone, LeadStatus.HOT)
 
             # Update lead_data in state so subsequent nodes see the change
@@ -307,7 +357,7 @@ def create_lead_processing_graph(
         market_results = {}
 
         # Scenario 1: WEB_APPRAISAL (Valuation request)
-        if state["source"] == "WEB_APPRAISAL":
+        if state["source"] == "FIFI_APPRAISAL":
             # Extract town/zone from context or postcode
             postcode = state.get("postcode")
             # If we don't have a clear zone, we try to guess from entities or prompt extraction
@@ -407,7 +457,7 @@ def create_lead_processing_graph(
                         "- If it's ABOVE, use data to justify why (e.g., premium features, renovation) or suggest it's a premium option.\n\n"
                         "### CRITICAL PHASE INSTRUCTIONS ###\n"
                         "You MUST follow these instructions based on current state (Stage: {stage}):\n"
-                        "1. If Lead Source is WEB_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately. Use the market average to ground your estimate.\n"
+                        "1. If Lead Source is FIFI_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately. Use the market average to ground your estimate.\n"
                         "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
                         "3. If status_msg mentions 'closest alternatives': Be transparent that these might not match all criteria but are high-quality options in the desired area.\n"
                         "Keep it native for WhatsApp (short, friendly, max 1500 characters, in the detected language: {language})."
@@ -559,6 +609,7 @@ def create_lead_processing_graph(
     workflow = StateGraph(AgentState)
 
     workflow.add_node("ingest", ingest_node)
+    workflow.add_node("fifi_appraisal", fifi_appraisal_node)
     workflow.add_node("intent", intent_node)
     workflow.add_node("preferences", preference_extraction_node)
     workflow.add_node("sentiment", sentiment_analysis_node)
@@ -568,17 +619,17 @@ def create_lead_processing_graph(
     workflow.add_node("generation", generation_node)
     workflow.add_node("finalize", finalize_node)
 
-    # Simple Edges
     workflow.add_edge(START, "ingest")
 
-    # Conditional edge from ingest (human mode vs continue)
-    def route_after_ingest(state: AgentState) -> Literal["intent", "__end__"]:
+    def route_after_ingest(state: AgentState) -> str:
         if state["checkpoint"] == "human_mode":
-            return "__end__"
+            return str(END)
+        if state["source"] == "FIFI_APPRAISAL":
+            return "fifi_appraisal"
         return "intent"
 
     workflow.add_conditional_edges("ingest", route_after_ingest)
-
+    workflow.add_edge("fifi_appraisal", "intent")
     workflow.add_edge("intent", "preferences")
     workflow.add_edge("preferences", "sentiment")
     workflow.add_edge("sentiment", "market_analysis")
@@ -623,5 +674,6 @@ def _format_properties(properties: list[dict[str, Any]]) -> str:
         return "Nessun immobile trovato."
     res = "Opzioni trovate:\n"
     for p in properties:
-        res += f"- {p.get('title')}: €{p.get('price'):,}\n"
+        price = p.get("price") or p.get("sale_price_eur") or 0
+        res += f"- {p.get('title', 'Property')}: €{int(price):,}\n"
     return res

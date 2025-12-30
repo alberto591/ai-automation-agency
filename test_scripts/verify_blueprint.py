@@ -26,8 +26,8 @@ def verify_blueprint_scenarios():
     lp = container.lead_processor
     db = container.db
 
-    # 1. Test Web Appraisal (Phase 1.1)
-    print("\n--- Scenario 1: Web Appraisal (Phase 1.1) ---")
+    # 1. Test Fifi Appraisal (Phase 1.1)
+    print("\n--- Scenario 1: Fifi Appraisal (Phase 1.1) ---")
     phone_appraisal = "+39111222333"
     cleanup_all(phone_appraisal)
 
@@ -42,7 +42,7 @@ def verify_blueprint_scenarios():
     print(f"Metadata Source: {source}")
 
     assert status == LeadStatus.HOT
-    assert source == "WEB_APPRAISAL"
+    assert source == "FIFI_APPRAISAL"
 
     # 2. Test Portal Lead (Phase 1.2)
     print("\n--- Scenario 2: Portal Lead (Phase 1.2) ---")

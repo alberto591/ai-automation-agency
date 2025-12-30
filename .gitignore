@@ -42,4 +42,5 @@ yarn-error.log
 *.swp
 *.swo
 .vercel
-.env*.local
+# .env*.local
+data/

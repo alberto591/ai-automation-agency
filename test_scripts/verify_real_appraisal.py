@@ -43,8 +43,8 @@ def verify_real_appraisal():
     print("\n📦 LEAD METADATA:")
     print(json.dumps(metadata, indent=2))
 
-    if metadata.get("source") == "WEB_APPRAISAL":
-        print("✅ SUCCESS: Source correctly tagged as WEB_APPRAISAL")
+    if metadata.get("source") == "FIFI_APPRAISAL":
+        print("✅ SUCCESS: Source correctly tagged as FIFI_APPRAISAL")
     else:
         print("❌ ERROR: Source tag missing or incorrect")
 

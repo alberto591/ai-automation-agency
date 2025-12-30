@@ -2,7 +2,7 @@ import argparse
 
 from mistralai import Mistral
 
-from config import settings
+from config.settings import settings
 
 
 class PitchGeneratorService:

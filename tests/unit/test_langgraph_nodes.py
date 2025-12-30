@@ -15,6 +15,7 @@ from application.workflows.agents import (
 )
 from domain.enums import LeadStatus
 from domain.ports import AIPort, DatabasePort, MessagingPort
+from infrastructure.ml.feature_engineering import PropertyFeatures
 
 
 @pytest.fixture
@@ -66,6 +67,10 @@ def mock_ai():
             m.invoke.return_value = SentimentAnalysis(
                 sentiment="POSITIVE", urgency="MEDIUM", notes="Interested buyer"
             )
+        elif model == PropertyFeatures:
+            m.invoke.return_value = PropertyFeatures(
+                sqm=85, floor=2, has_elevator=True, condition="excellent"
+            )
         return m
 
     mock_llm.with_structured_output.side_effect = get_structured_mock
@@ -97,6 +102,42 @@ def test_ingest_node_new_lead_creation(mock_db, mock_ai, mock_msg):
     mock_db.get_properties.return_value = [
         {"title": "Test Property", "price": 400000, "similarity": 0.85}
     ]
+
+
+# =============================================================================
+# FIFI APPRAISAL NODE TESTS
+# =============================================================================
+
+
+def test_fifi_appraisal_node_logic(mock_db, mock_ai, mock_msg):
+    """Test the specialized appraisal node."""
+    graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
+
+    state = {
+        "phone": "+39123456789",
+        "user_input": "Valutazione casa 90mq",
+        "source": "FIFI_APPRAISAL",
+        "lead_data": {"id": "test-id"},
+        "history_text": "",
+        "checkpoint": "continue",
+        "language": "it",
+    }
+
+    # Mock properties for uncertainty calc
+    mock_db.get_properties.return_value = [
+        {"title": "Comp 1", "price": 440000, "sale_price_eur": 440000, "similarity": 0.9},
+        {"title": "Comp 2", "price": 460000, "sale_price_eur": 460000, "similarity": 0.9},
+    ]
+
+    # We need to manually call the node or run the graph.
+    # The node is internal, so we run the graph.
+    res = graph.invoke(state)
+
+    assert "fifi_data" in res
+    fifi = res["fifi_data"]
+    assert fifi["predicted_value"] > 0
+    assert fifi["fifi_status"] == "AUTO_APPROVED"
+    assert "€" in fifi["confidence_range"]
 
     graph = create_lead_processing_graph(mock_db, mock_ai, mock_msg)
 
@@ -174,7 +215,7 @@ def test_ingest_node_language_detection_english(mock_db, mock_ai, mock_msg):
 
 
 def test_ingest_node_source_detection_appraisal(mock_db, mock_ai, mock_msg):
-    """Test source detection for WEB_APPRAISAL."""
+    """Test source detection for FIFI_APPRAISAL."""
     mock_db.get_lead.return_value = None
     mock_db.get_properties.return_value = []
 
@@ -190,7 +231,7 @@ def test_ingest_node_source_detection_appraisal(mock_db, mock_ai, mock_msg):
     )
 
     # Source should be detected as WEB_APPRAISAL
-    assert result["source"] == "WEB_APPRAISAL"
+    assert result["source"] == "FIFI_APPRAISAL"
 
 
 def test_ingest_node_human_mode_stops_processing(mock_db, mock_ai, mock_msg):

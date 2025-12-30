@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from supabase import create_client
 
-from config import settings
+from config.settings import settings
 from infrastructure.market_scraper import MarketDataManager
 from infrastructure.market_service import MarketDataService
 

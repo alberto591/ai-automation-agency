@@ -13,14 +13,18 @@ if TYPE_CHECKING:
 class Container:
     def __init__(self) -> None:
         # Import Adapters lazily to avoid circular imports with config
-        from infrastructure.adapters.calcom_adapter import CalComAdapter
-        from infrastructure.adapters.document_adapter import DocumentAdapter
-        from infrastructure.adapters.langchain_adapter import LangChainAdapter
-        from infrastructure.adapters.market_adapter import IdealistaMarketAdapter
-        from infrastructure.adapters.meta_whatsapp_adapter import MetaWhatsAppAdapter
-        from infrastructure.adapters.scraper_adapter import ImmobiliareScraperAdapter
-        from infrastructure.adapters.supabase_adapter import SupabaseAdapter
-        from infrastructure.adapters.twilio_adapter import TwilioAdapter
+        from infrastructure.adapters.calcom_adapter import CalComAdapter  # noqa: PLC0415
+        from infrastructure.adapters.document_adapter import DocumentAdapter  # noqa: PLC0415
+        from infrastructure.adapters.langchain_adapter import LangChainAdapter  # noqa: PLC0415
+        from infrastructure.adapters.market_adapter import IdealistaMarketAdapter  # noqa: PLC0415
+        from infrastructure.adapters.meta_whatsapp_adapter import (  # noqa: PLC0415
+            MetaWhatsAppAdapter,
+        )
+        from infrastructure.adapters.scraper_adapter import (  # noqa: PLC0415
+            ImmobiliareScraperAdapter,
+        )
+        from infrastructure.adapters.supabase_adapter import SupabaseAdapter  # noqa: PLC0415
+        from infrastructure.adapters.twilio_adapter import TwilioAdapter  # noqa: PLC0415
 
         # Infrastructure Adapters
         self.db: SupabaseAdapter = SupabaseAdapter()

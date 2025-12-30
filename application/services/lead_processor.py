@@ -2,7 +2,6 @@ import re
 from datetime import UTC, datetime
 from typing import Any, cast
 
-from application.workflows.agents import create_lead_processing_graph
 from domain.enums import LeadStatus
 from domain.ports import (
     AIPort,
@@ -66,6 +65,8 @@ class LeadProcessor:
         calendar: CalendarPort | None = None,
     ):
         self.db = db
+        from application.workflows.agents import create_lead_processing_graph
+
         self.ai = ai
         self.msg = msg
         self.scorer = scorer

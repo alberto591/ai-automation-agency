@@ -136,21 +136,15 @@ class ResearchPort(ABC):
 
     @abstractmethod
     def search(self, query: str, context: str | None = None) -> str:
-        """
-        Perform real-time web research.
+        """General purpose real-time web research."""
+        pass
 
-        Args:
-            query: Research question (
-                e.g., "Find 3 active listings for 2-bed flats in Brera >€500k"
-            )
-            context: Optional context for better results
+    @abstractmethod
+    def research_legal_compliance(self, topic: str) -> str:
+        """Specific research for regulatory updates (e.g., Gazzetta Ufficiale, EU AI Act)."""
+        pass
 
-        Returns:
-            Research findings as formatted text
-
-        Use cases:
-        - Legal compliance checks (Gazzetta Ufficiale updates)
-        - Live market comparables (current listings without scraping)
-        - Entity vetting (construction companies, commercial tenants)
-        """
+    @abstractmethod
+    def find_market_comparables(self, address: str, radius_km: float = 2.0) -> str:
+        """Find active live listings to supplement valuation models."""
         pass

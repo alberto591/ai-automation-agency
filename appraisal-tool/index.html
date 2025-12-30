@@ -320,6 +320,17 @@
                                     data-translate="appraisal-address-placeholder">
                             </div>
                             <div class="form-group">
+                                <i class="ph ph-house-line"></i>
+                                <select id="appraisal-condition" name="condition" required>
+                                    <option value="" disabled selected>Condizioni immobile</option>
+                                    <option value="luxury">💎 Di Lusso / Ristrutturato</option>
+                                    <option value="excellent">✨ Ottimo Stato</option>
+                                    <option value="good">🏠 Buono Stato</option>
+                                    <option value="fair">🔨 Da Ristrutturare</option>
+                                    <option value="poor">🏚️ Completamente da rifare</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <i class="ph ph-hash"></i>
                                 <input type="text" id="appraisal-postcode" name="postcode" required
                                     placeholder="CAP / Postcode" data-translate="appraisal-postcode-placeholder">
@@ -336,6 +347,51 @@
                             <p class="form-disclaimer" data-translate="appraisal-disclaimer">Zero spam. Solo i dati che
                                 ti servono.</p>
                         </form>
+                    </div>
+
+                    <!-- Hidden Result Box -->
+                    <div id="appraisal-result" class="appraisal-result-box" style="display: none;">
+                        <div class="result-header">
+                            <div class="result-badge">
+                                <i class="ph ph-sparkle"></i> Stima Fifi AI
+                            </div>
+                            <button class="close-result" onclick="resetAppraisal()"><i class="ph ph-x"></i></button>
+                        </div>
+
+                        <div class="result-main">
+                            <div class="result-value-container">
+                                <span class="label">Valore Stimato</span>
+                                <h3 class="value-range">€<span id="res-min">0</span> - €<span id="res-max">0</span></h3>
+                                <div class="confidence-meter">
+                                    <div class="meter-bar">
+                                        <div class="meter-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span class="confidence-text">Confidenza Alta (85%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Prezzo/mq</span>
+                                <span class="metric-value">€<span id="res-sqm">0</span></span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Affitto Stimato</span>
+                                <span class="metric-value">€<span id="res-rent">0</span>/mese</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Yield (Lordo)</span>
+                                <span class="metric-value highlight"><span id="res-yield">0</span>%</span>
+                            </div>
+                        </div>
+
+                        <div class="result-cta">
+                            <p>Ti abbiamo inviato il report completo su WhatsApp!</p>
+                            <a href="https://cal.com/anzevino-ai/demo" target="_blank" class="btn-primary btn-sm">
+                                <i class="ph ph-calendar"></i> Parla con un esperto
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -57,3 +57,16 @@ class PerplexityAdapter(ResearchPort):
             raise ExternalServiceError(
                 f"Perplexity API search failed: {str(e)}", cause=str(e)
             ) from e
+
+    def research_legal_compliance(self, topic: str) -> str:
+        query = f"Ricerca aggiornamenti normativi e legali recenti (Gazzetta Ufficiale, normativa italiana ed europea) su: {topic}. Fornisci un riassunto dei punti chiave."
+        return self.search(
+            query,
+            context="Sei un consulente legale esperto in intelligenza artificiale e diritto immobiliare.",
+        )
+
+    def find_market_comparables(self, address: str, radius_km: float = 2.0) -> str:
+        query = f"Trova almeno 3 immobili comparabili attualmente in vendita vicino a '{address}' (entro {radius_km}km). Fornisci prezzo, superficie (mq) e link se disponibile."
+        return self.search(
+            query, context="Sei un analista immobiliare esperto nel mercato italiano."
+        )

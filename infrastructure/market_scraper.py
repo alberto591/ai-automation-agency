@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from supabase import Client, create_client
 
-from config import settings
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
