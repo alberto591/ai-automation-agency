@@ -21,7 +21,21 @@ from domain.ports import AIPort, DatabasePort, MessagingPort
 def mock_db():
     """Mock database port."""
     db = MagicMock(spec=DatabasePort)
-    db.get_lead.return_value = None
+
+    # Track saved leads to simulate proper new lead creation
+    saved_leads = {}
+
+    def save_lead_side_effect(lead_data):
+        phone = lead_data.get("customer_phone")
+        if phone:
+            saved_leads[phone] = {**lead_data, "id": "test-lead-uuid"}
+        return {"id": "test-lead-uuid"}
+
+    def get_lead_side_effect(phone):
+        return saved_leads.get(phone)
+
+    db.get_lead.side_effect = get_lead_side_effect
+    db.save_lead.side_effect = save_lead_side_effect
     db.get_properties.return_value = []
     db.get_cached_response.return_value = None
     db.get_market_stats.return_value = {"avg_price_sqm": 3500}
@@ -105,7 +119,10 @@ def test_ingest_node_new_lead_creation(mock_db, mock_ai, mock_msg):
 
 def test_ingest_node_language_detection_italian(mock_db, mock_ai, mock_msg):
     """Test language detection for Italian phone number."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -130,7 +147,10 @@ def test_ingest_node_language_detection_italian(mock_db, mock_ai, mock_msg):
 
 def test_ingest_node_language_detection_english(mock_db, mock_ai, mock_msg):
     """Test language detection for English (non-Italian phone + English keywords)."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+44123456789",
         "customer_name": "Tourist",
         "is_ai_active": True,
@@ -175,7 +195,10 @@ def test_ingest_node_source_detection_appraisal(mock_db, mock_ai, mock_msg):
 
 def test_ingest_node_human_mode_stops_processing(mock_db, mock_ai, mock_msg):
     """Test that human mode stops AI processing."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": False,  # Human mode
@@ -206,7 +229,10 @@ def test_ingest_node_human_mode_stops_processing(mock_db, mock_ai, mock_msg):
 
 def test_intent_node_extracts_budget_and_intent(mock_db, mock_ai, mock_msg):
     """Test that intent_node extracts budget and intent correctly."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -258,7 +284,10 @@ def test_intent_node_extracts_budget_and_intent(mock_db, mock_ai, mock_msg):
 
 def test_cache_check_node_returns_cached_response(mock_db, mock_ai, mock_msg):
     """Test that cache_check_node returns cached response when available."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -284,7 +313,10 @@ def test_cache_check_node_returns_cached_response(mock_db, mock_ai, mock_msg):
 
 def test_cache_check_node_continues_when_no_cache(mock_db, mock_ai, mock_msg):
     """Test that cache_check_node continues processing when no cache."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -318,7 +350,10 @@ def test_cache_check_node_continues_when_no_cache(mock_db, mock_ai, mock_msg):
 
 def test_retrieval_node_filters_by_similarity(mock_db, mock_ai, mock_msg):
     """Test that retrieval_node filters properties by similarity threshold."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -348,7 +383,10 @@ def test_retrieval_node_filters_by_similarity(mock_db, mock_ai, mock_msg):
 
 def test_retrieval_node_fallback_mechanism(mock_db, mock_ai, mock_msg):
     """Test retrieval_node fallback when no properties above threshold."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -384,7 +422,10 @@ def test_retrieval_node_fallback_mechanism(mock_db, mock_ai, mock_msg):
 
 def test_finalize_node_sends_message_and_updates_db(mock_db, mock_ai, mock_msg):
     """Test that finalize_node sends message and updates database."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -406,14 +447,17 @@ def test_finalize_node_sends_message_and_updates_db(mock_db, mock_ai, mock_msg):
     # Verify message sent
     assert mock_msg.send_message.called
     # Verify database updated with metadata
-    assert mock_db.save_lead.called
+    assert mock_db.update_lead.called
     # Verify final checkpoint
     assert result["checkpoint"] == "done"
 
 
 def test_finalize_node_saves_metadata(mock_db, mock_ai, mock_msg):
     """Test that finalize_node persists enriched metadata."""
+    # Clear side_effect to use return_value
+    mock_db.get_lead.side_effect = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test",
         "is_ai_active": True,
@@ -433,12 +477,15 @@ def test_finalize_node_saves_metadata(mock_db, mock_ai, mock_msg):
         }
     )
 
-    # Verify save_lead was called with metadata
-    save_calls = mock_db.save_lead.call_args_list
-    assert len(save_calls) > 0
+    # Verify update_lead was called with metadata
+    update_calls = mock_db.update_lead.call_args_list
+    assert len(update_calls) > 0
 
     # Check that final call includes metadata
-    final_call = save_calls[-1][0][0]
-    assert "metadata" in final_call
-    assert "preferences" in final_call["metadata"]
-    assert "sentiment" in final_call["metadata"]
+    # update_lead is called as: db.update_lead(phone, update_payload)
+    # So call_args_list[-1] will be ((phone, payload), kwargs)
+    final_call_args = update_calls[-1][0]  # positional args tuple
+    update_payload = final_call_args[1]  # second arg is the payload dict
+    assert "metadata" in update_payload
+    assert "preferences" in update_payload["metadata"]
+    assert "sentiment" in update_payload["metadata"]

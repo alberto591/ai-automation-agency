@@ -4,14 +4,21 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-# Mock environmental variables
+# Mock environmental variables BEFORE any imports that might trigger Container instantiation
 os.environ["SUPABASE_URL"] = "https://mock.supabase.co"
 os.environ["SUPABASE_KEY"] = "mock_key"
+os.environ["SUPABASE_JWT_SECRET"] = "mock_jwt_secret"
 os.environ["MISTRAL_API_KEY"] = "mock_mistral_key"
 os.environ["TWILIO_ACCOUNT_SID"] = "mock_sid"
 os.environ["TWILIO_AUTH_TOKEN"] = "mock_token"
 os.environ["TWILIO_PHONE_NUMBER"] = "+1234567890"
 os.environ["WEBHOOK_API_KEY"] = "test_webhook_secret"
+os.environ["WHATSAPP_PROVIDER"] = "twilio"
+os.environ["CALCOM_API_KEY"] = "mock_calcom_key"
+os.environ["CALCOM_EVENT_TYPE_ID"] = "123"
+os.environ["CALCOM_WEBHOOK_SECRET"] = "mock_calcom_secret"
+os.environ["AGENCY_OWNER_PHONE"] = "+391234567890"
+os.environ["AGENCY_OWNER_EMAIL"] = "test@example.com"
 
 
 @pytest.fixture(scope="session", autouse=True)

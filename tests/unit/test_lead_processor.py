@@ -81,6 +81,7 @@ def test_process_lead_success(processor, mock_db, mock_ai, mock_msg):
     ]
     mock_db.get_cached_response.return_value = None
     mock_db.get_lead.return_value = {
+        "id": "test-lead-uuid",
         "customer_phone": "+39333000000",
         "customer_name": "Test User",
         "is_ai_active": True,
@@ -94,4 +95,4 @@ def test_process_lead_success(processor, mock_db, mock_ai, mock_msg):
 
     assert response == "AI Response"
     mock_msg.send_message.assert_called_once()
-    assert mock_db.save_lead.call_count >= 1
+    assert mock_db.update_lead.call_count >= 1

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Real Estate Appraisal Tool - Italy</title>
+    <style>
+        :root {
+            --color-primary: #2180B4;
+            --color-primary-hover: #1a6a99;
+            --color-secondary: #F5A623;
+            --color-bg: #F8F9FA;
+            --color-surface: #FFFFFF;
+            --color-text: #2C3E50;
+            --color-text-light: #7F8C8D;
+            --color-border: #E8EAED;
+            --color-success: #27AE60;
+            --color-warning: #E67E22;
+            --color-error: #E74C3C;
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+            --radius-base: 8px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: var(--space-24);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1a5a8a 100%);
+            color: white;
+            padding: var(--space-32);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-32);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0 0 var(--space-8) 0;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-24);
+            margin-bottom: var(--space-32);
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-base);
+            padding: var(--space-24);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid var(--color-border);
+        }
+
+        .card h2 {
+            margin: 0 0 var(--space-16) 0;
+            color: var(--color-primary);
+            font-size: 1.4em;
+            border-bottom: 2px solid var(--color-secondary);
+            padding-bottom: var(--space-12);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-16);
+        }
+
+        label {
+            display: block;
+            margin-bottom: var(--space-8);
+            font-weight: 600;
+            font-size: 0.95em;
+            color: var(--color-text);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: var(--space-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(33, 128, 180, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
+        }
+
+        @media (max-width: 768px) {
+            .input-row { grid-template-columns: 1fr; }
+        }
+
+        .currency-input {
+            position: relative;
+        }
+
+        .currency-input::before {
+            content: '€';
+            position: absolute;
+            left: var(--space-12);
+            top: 38px;
+            font-weight: 600;
+            color: var(--color-text-light);
+            pointer-events: none;
+        }
+
+        .currency-input input {
+            padding-left: 24px;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            color: white;
+            border: none;
+            padding: var(--space-12) var(--space-24);
+            border-radius: var(--radius-base);
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: var(--space-12);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 128, 180, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background: var(--color-bg);
+            padding: var(--space-24);
+            border-radius: var(--radius-base);
+            border-left: 4px solid var(--color-success);
+        }
+
+        .result-item {
+            margin-bottom: var(--space-24);
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--space-4);
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--color-primary);
+            word-break: break-word;
+        }
+
+        .market-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
+            margin-bottom: var(--space-24);
+        }
+
+        .data-point {
+            background: var(--color-bg);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            border-left: 3px solid var(--color-secondary);
+        }
+
+        .data-point-label {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-bottom: var(--space-4);
+        }
+
+        .data-point-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--color-text);
+        }
+
+        .calculation-breakdown {
+            background: var(--color-bg);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            margin-top: var(--space-16);
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-8) 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 0.95em;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            color: var(--color-text-light);
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .metric {
+            display: inline-block;
+            background: var(--color-secondary);
+            color: white;
+            padding: var(--space-8) var(--space-16);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-right: var(--space-8);
+            margin-bottom: var(--space-8);
+        }
+
+        .metric.good {
+            background: var(--color-success);
+        }
+
+        .metric.warning {
+            background: var(--color-warning);
+        }
+
+        .metric.error {
+            background: var(--color-error);
+        }
+
+        .explanation {
+            background: #E3F2FD;
+            border-left: 4px solid var(--color-primary);
+            padding: var(--space-16);
+            margin-top: var(--space-16);
+            border-radius: var(--radius-base);
+            font-size: 0.95em;
+            color: var(--color-text);
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 2px solid var(--color-border);
+            margin: var(--space-24) 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--color-text-light);
+            border: none;
+            padding: var(--space-12) var(--space-16);
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0;
+            width: auto;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-btn:hover {
+            color: var(--color-primary);
+            transform: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            margin-top: var(--space-16);
+        }
+
+        .risk-bar {
+            flex: 1;
+            height: 12px;
+            background: var(--color-border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            background: var(--color-success);
+            transition: width 0.3s;
+        }
+
+        .risk-fill.medium {
+            background: var(--color-warning);
+        }
+
+        .risk-fill.high {
+            background: var(--color-error);
+        }
+
+        .footer {
+            margin-top: var(--space-32);
+            padding-top: var(--space-24);
+            border-top: 1px solid var(--color-border);
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            text-align: center;
+        }
+
+        .alert {
+            padding: var(--space-12) var(--space-16);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-16);
+        }
+
+        .alert-info {
+            background: #D1ECF1;
+            border-left: 4px solid #0C5460;
+            color: #0C5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏠 AI Real Estate Appraisal Tool</h1>
+            <p class="subtitle">Professional property valuation & investment analysis for Italian real estate</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Input Section -->
+            <div class="card">
+                <h2>Property Details</h2>
+
+                <div class="form-group">
+                    <label>Property Location (Region)</label>
+                    <select id="region" onchange="updateMarketData()">
+                        <option value="">Select Region...</option>
+                        <option value="tuscany">Tuscany</option>
+                        <option value="florence">Florence</option>
+                        <option value="lucca">Lucca</option>
+                        <option value="rome">Rome</option>
+                        <option value="milan">Milan</option>
+                        <option value="other">Other Italy</option>
+                    </select>
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Property Size (m²)</label>
+                        <input type="number" id="size" placeholder="e.g., 150" min="0" step="0.1" oninput="calculateAppraisal()">
+                    </div>
+                    <div class="form-group currency-input">
+                        <label>Purchase Price (€)</label>
+                        <input type="number" id="price" placeholder="e.g., 300000" min="0" step="1000" oninput="calculateAppraisal()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Condition</label>
+                    <select id="condition" onchange="calculateAppraisal()">
+                        <option value="">Select condition...</option>
+                        <option value="renovation">Needs Renovation (-10%)</option>
+                        <option value="good">Good Condition (0%)</option>
+                        <option value="renovated">Recently Renovated (+5%)</option>
+                        <option value="finely">Finely Renovated (+10%)</option>
+                        <option value="new">New Construction (+10%)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Type</label>
+                    <select id="type" onchange="calculateAppraisal()">
+                        <option value="">Select type...</option>
+                        <option value="residential">Residential Apartment</option>
+                        <option value="villa">Villa/House</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="mixed">Mixed Use</option>
+                    </select>
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Age of Property (years)</label>
+                        <input type="number" id="age" placeholder="e.g., 25" min="0" step="1" oninput="calculateAppraisal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Property Status</label>
+                        <select id="status" onchange="calculateAppraisal()">
+                            <option value="">Select status...</option>
+                            <option value="vacant">Vacant (100%)</option>
+                            <option value="occupied">Owner Occupied (100%)</option>
+                            <option value="rented">Rented (-20%)</option>
+                            <option value="seasonal">Seasonal Rental (-5%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="form-group">
+                    <label>Annual Rental Income (€) - if applicable</label>
+                    <div class="currency-input">
+                        <input type="number" id="rentalIncome" placeholder="e.g., 12000" min="0" step="100" oninput="calculateAppraisal()">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label>Annual Operating Expenses (€)</label>
+                        <div class="currency-input">
+                            <input type="number" id="expenses" placeholder="e.g., 3000" min="0" step="100" oninput="calculateAppraisal()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Down Payment (%)</label>
+                        <input type="number" id="downPayment" value="20" min="0" max="100" step="1" oninput="calculateAppraisal()">
+                    </div>
+                </div>
+
+                <button onclick="calculateAppraisal()">Calculate Appraisal</button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card">
+                <h2>Appraisal Results</h2>
+
+                <div id="marketInfo" class="market-data">
+                    <div class="data-point">
+                        <div class="data-point-label">Market Price/m²</div>
+                        <div class="data-point-value" id="marketPrice">€2,585</div>
+                    </div>
+                    <div class="data-point">
+                        <div class="data-point-label">Your Price/m²</div>
+                        <div class="data-point-value" id="yourPrice">-</div>
+                    </div>
+                </div>
+
+                <div class="results">
+                    <div class="result-item">
+                        <div class="result-label">Estimated Fair Market Value</div>
+                        <div class="result-value" id="estimatedValue">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Valuation Status</div>
+                        <div id="valuationStatus" style="margin-top: var(--space-8);"></div>
+                    </div>
+                </div>
+
+                <hr class="section-divider">
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('metrics')">Investment Metrics</button>
+                    <button class="tab-btn" onclick="switchTab('breakdown')">Valuation Details</button>
+                </div>
+
+                <div id="metrics" class="tab-content active">
+                    <div class="result-item">
+                        <div class="result-label">Cap Rate (NOI / Property Value)</div>
+                        <div class="result-value" id="capRate">-</div>
+                        <div class="explanation" id="capRateExplain"></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Annual Cash-on-Cash Return (with mortgage)</div>
+                        <div class="result-value" id="roiReturn">-</div>
+                        <div class="explanation" id="roiExplain"></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Price/Income Ratio</div>
+                        <div class="result-value" id="priceRatio">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Investment Risk Assessment</div>
+                        <div class="risk-indicator">
+                            <div class="risk-bar">
+                                <div class="risk-fill" id="riskFill" style="width: 50%"></div>
+                            </div>
+                            <span id="riskLabel" style="min-width: 80px;">Medium Risk</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="breakdown" class="tab-content">
+                    <div class="calculation-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Base Market Value</span>
+                            <span class="breakdown-value" id="baseValue">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Condition Adjustment</span>
+                            <span class="breakdown-value" id="conditionAdj">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Status Adjustment</span>
+                            <span class="breakdown-value" id="statusAdj">-</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Final Estimated Value</span>
+                            <span class="breakdown-value" id="finalValue">-</span>
+                        </div>
+                    </div>
+                    <div class="explanation" style="margin-top: var(--space-16);">
+                        <strong>How this works:</strong> We use current 2025 Italian market data adjusted by property-specific factors (condition, status, age) to estimate fair market value.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Investment Recommendation</h2>
+            <div id="recommendation" style="min-height: 100px;">
+                <p style="color: var(--color-text-light);">Fill in property details and click "Calculate Appraisal" to see investment analysis.</p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>📊 Data based on 2025 Italian Real Estate Market (Immobiliare.it, Idealista.it, Patrigest Q1-Q3 2025)</p>
+            <p>💡 This tool provides estimates for analysis. Consult licensed appraisers and legal experts for official valuations.</p>
+        </footer>
+    </div>
+
+    <script>
+        const marketData = {
+            tuscany: { pricePerM2: 2585, region: 'Tuscany', rentYield: 0.065 },
+            florence: { pricePerM2: 4546, region: 'Florence', rentYield: 0.055 },
+            lucca: { pricePerM2: 3278, region: 'Lucca', rentYield: 0.061 },
+            rome: { pricePerM2: 4460, region: 'Rome', rentYield: 0.052 },
+            milan: { pricePerM2: 8000, region: 'Milan', rentYield: 0.048 },
+            other: { pricePerM2: 2000, region: 'Other Italy', rentYield: 0.070 }
+        };
+
+        const conditionFactors = {
+            '': 1.0,
+            'renovation': 0.90,
+            'good': 1.0,
+            'renovated': 1.05,
+            'finely': 1.10,
+            'new': 1.10
+        };
+
+        const statusFactors = {
+            '': 1.0,
+            'vacant': 1.0,
+            'occupied': 1.0,
+            'rented': 0.80,
+            'seasonal': 0.95
+        };
+
+        function updateMarketData() {
+            const region = document.getElementById('region').value || 'tuscany';
+            const data = marketData[region];
+            document.getElementById('marketPrice').textContent = `€${data.pricePerM2.toLocaleString()}`;
+        }
+
+        function calculateAppraisal() {
+            const region = document.getElementById('region').value || 'tuscany';
+            const size = parseFloat(document.getElementById('size').value) || 0;
+            const purchasePrice = parseFloat(document.getElementById('price').value) || 0;
+            const condition = document.getElementById('condition').value || '';
+            const status = document.getElementById('status').value || '';
+            const age = parseFloat(document.getElementById('age').value) || 0;
+            const rentalIncome = parseFloat(document.getElementById('rentalIncome').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const downPayment = parseFloat(document.getElementById('downPayment').value) || 20;
+
+            if (!size || !purchasePrice || !region) {
+                document.getElementById('recommendation').innerHTML = '<p style="color: var(--color-text-light);">Please enter property size, price, and region.</p>';
+                return;
+            }
+
+            const data = marketData[region];
+            const baseMarketValue = size * data.pricePerM2;
+            const conditionFactor = conditionFactors[condition];
+            const statusFactor = statusFactors[status];
+            const adjustedValue = baseMarketValue * conditionFactor * statusFactor;
+
+            const yourPricePerM2 = purchasePrice / size;
+            document.getElementById('yourPrice').textContent = `€${yourPricePerM2.toFixed(0).toLocaleString()}`;
+
+            // Valuation Analysis
+            const valuationDiff = ((adjustedValue - purchasePrice) / purchasePrice * 100).toFixed(1);
+            let valuationHTML = '';
+            if (valuationDiff > 10) {
+                valuationHTML = `<span class="metric good">✓ Good Deal: ${valuationDiff}% under market</span>`;
+            } else if (valuationDiff > 0) {
+                valuationHTML = `<span class="metric good">✓ Fair Deal: ${valuationDiff}% under market</span>`;
+            } else if (valuationDiff > -10) {
+                valuationHTML = `<span class="metric warning">⚠ Fair Price: ${Math.abs(valuationDiff)}% over market</span>`;
+            } else {
+                valuationHTML = `<span class="metric error">✗ Overpriced: ${Math.abs(valuationDiff)}% over market</span>`;
+            }
+            document.getElementById('valuationStatus').innerHTML = valuationHTML;
+
+            // Investment Metrics
+            const noi = rentalIncome - expenses;
+            const capRate = (noi / adjustedValue * 100).toFixed(2);
+            const mortgageAmount = purchasePrice * (100 - downPayment) / 100;
+            const mortgagePayment = mortgageAmount * 0.05; // 5% annual estimate at current rates
+            const cashReturn = noi - mortgagePayment;
+            const cashInvested = purchasePrice * (downPayment / 100);
+            const roiPercent = (cashReturn / (cashInvested || 1) * 100).toFixed(2);
+            const priceIncomeRatio = (purchasePrice / (rentalIncome || 1)).toFixed(1);
+
+            document.getElementById('estimatedValue').textContent = `€${adjustedValue.toLocaleString('it-IT', {maximumFractionDigits: 0})}`;
+            document.getElementById('capRate').textContent = `${capRate}%`;
+            document.getElementById('roiReturn').textContent = `${roiPercent}%`;
+            document.getElementById('priceRatio').textContent = priceIncomeRatio;
+
+            // Explanations
+            let capExplain = '';
+            if (capRate >= 8) capExplain = '✓ Excellent cap rate - strong income potential';
+            else if (capRate >= 5) capExplain = '✓ Good cap rate - solid investment returns';
+            else if (capRate >= 2) capExplain = '⚠ Moderate cap rate - check carefully';
+            else if (rentalIncome > 0) capExplain = '✗ Low cap rate - limited income potential';
+            else capExplain = 'Enter rental income to calculate cap rate';
+            document.getElementById('capRateExplain').textContent = capExplain;
+
+            let roiExplain = '';
+            if (roiPercent >= 10) roiExplain = '✓ Excellent cash-on-cash return';
+            else if (roiPercent >= 6) roiExplain = '✓ Good cash return after mortgage';
+            else if (roiPercent >= 3) roiExplain = '⚠ Modest cash return';
+            else roiExplain = 'Consider if cash flow meets your needs';
+            document.getElementById('roiExplain').textContent = roiExplain;
+
+            // Risk Assessment
+            let riskLevel = 'Medium Risk';
+            let riskWidth = 50;
+            let riskClass = 'medium';
+            if (valuation > 15 && capRate >= 7) {
+                riskLevel = 'Low Risk';
+                riskWidth = 25;
+                riskClass = '';
+            } else if (valuationDiff < -15 || capRate < 2) {
+                riskLevel = 'High Risk';
+                riskWidth = 75;
+                riskClass = 'high';
+            }
+            document.getElementById('riskFill').style.width = riskWidth + '%';
+            document.getElementById('riskFill').className = 'risk-fill ' + riskClass;
+            document.getElementById('riskLabel').textContent = riskLevel;
+
+            // Breakdown
+            const conditionText = condition === 'renovation' ? '-10%' : condition === 'good' ? '0%' : condition === 'renovated' ? '+5%' : condition === 'finely' ? '+10%' : condition === 'new' ? '+10%' : '0%';
+            const statusText = status === 'rented' ? '-20%' : status === 'seasonal' ? '-5%' : '0%';
+            document.getElementById('baseValue').textContent = `€${baseMarketValue.toLocaleString('it-IT', {maximumFractionDigits: 0})}`;
+            document.getElementById('conditionAdj').textContent = conditionText;
+            document.getElementById('statusAdj').textContent = statusText;
+            document.getElementById('finalValue').textContent = `€${adjustedValue.toLocaleString('it-IT', {maximumFractionDigits: 0})}`;
+
+            // Recommendation
+            let recommendation = '<div style="display: flex; gap: 8px; flex-wrap: wrap;">';
+
+            if (valuationDiff > 0) {
+                recommendation += '<span class="metric good">✓ Below Market Value</span>';
+            } else {
+                recommendation += '<span class="metric error">✗ Above Market Value</span>';
+            }
+
+            if (capRate >= 6) {
+                recommendation += '<span class="metric good">✓ Strong Yield</span>';
+            } else if (rentalIncome === 0) {
+                recommendation += '<span class="metric warning">ℹ Primary Residence</span>';
+            } else {
+                recommendation += '<span class="metric warning">⚠ Weak Yield</span>';
+            }
+
+            if (priceIncomeRatio <= 15 && rentalIncome > 0) {
+                recommendation += '<span class="metric good">✓ Affordable Price/Income</span>';
+            }
+
+            recommendation += '</div>';
+
+            let summary = '<p style="margin-top: 12px; font-weight: 500;">';
+            if (valuationDiff > 10 && capRate >= 6) {
+                summary += '🎯 <strong>Strong Acquisition Candidate:</strong> Property is undervalued and has good rental potential. Market fundamentals support long-term appreciation.';
+            } else if (valuationDiff > 0 && capRate >= 4) {
+                summary += '✓ <strong>Good Investment:</strong> Fair valuation with acceptable returns. Suitable for patient investors.';
+            } else if (valuationDiff > -5) {
+                summary += '⚠ <strong>Fair Market Price:</strong> No significant value opportunity, but may suit personal use. Verify all conditions independently.';
+            } else {
+                summary += '✗ <strong>Consider Alternatives:</strong> Property appears overpriced relative to market. Explore other options or negotiate price.';
+            }
+            summary += '</p>';
+
+            document.getElementById('recommendation').innerHTML = recommendation + summary;
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        updateMarketData();
+    </script>
+</body>
+</html>

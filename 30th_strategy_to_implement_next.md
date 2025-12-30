@@ -118,6 +118,32 @@ CREATE INDEX idx_zone_date ON historical_transactions(zone, sale_date DESC);
 CREATE INDEX idx_location ON historical_transactions(lat, lon);
 ```
 
+
+**Option C: Real-Time Intelligence (Perplexity API)** (High Value / Low Effort)
+
+To avoid fragile scrapers for live data checks, we will integrate **Perplexity Labs** (`pplx-api`).
+
+**Architecture**:
+- **Port**: `ResearchPort` (Domain Layer)
+- **Adapter**: `PerplexityAdapter` (Infrastructure Layer)
+- **Model**: `llama-3-sonar-large-32k-online`
+
+**Use Cases**:
+1.  **Legal Compliance Checks**: "Check Gazzetta Ufficiale for changes to 'Bonus Ristrutturazioni' in the last 7 days."
+2.  **Live Market Comps**: "Find 3 active listings for 2-bed flats in Brera >€500k." (Bypasses scraper maintenance).
+3.  **Entity Vetting**: Background checks on construction companies or commercial tenants.
+
+**Implementation**:
+```python
+# infrastructure/adapters/perplexity_adapter.py (Pseudo-code)
+class PerplexityAdapter(ResearchPort):
+    def search(self, query: str) -> str:
+        return self.client.chat.completions.create(
+            model="llama-3-sonar-large-32k-online",
+            messages=[{"role": "user", "content": query}]
+        ).choices[0].message.content
+```
+
 ---
 
 ## Weeks 3-5: ML Model Development
@@ -346,7 +372,54 @@ $$ LANGUAGE SQL;
 
 ---
 
-## Week 8: User Interface
+## Week 8: Automation & Integrations (Make.com)
+
+### Strategy: "Clean" Hexagonal Integration
+
+We will integrate Make.com without coupling our core logic to it. Agenzia AI remains the "brain", while Make.com handles external triggers and notifications.
+
+### 1. Inbound Triggers (Data Entry)
+**Goal**: Feed leads from generic web forms (Facebook Ads, Typeform, etc.) into Agenzia AI.
+
+**Mechanism**:
+- **Endpoint**: `POST /api/leads` (Already exists)
+- **Security**: Add `X-API-KEY` header verification for authorized automation tools.
+- **Make.com Scenario**:
+  1. **Trigger**: Webhook / Form Submission
+  2. **Action**: HTTP Request -> `https://api.anzevino.ai/api/leads`
+  3. **Payload**:
+     ```json
+     {
+       "name": "Mario Rossi",
+       "phone": "+39...",
+       "agency": "External Source",
+       "notes": "Interested in valuation"
+     }
+     ```
+
+### 2. Outbound Events (Notification & Sync)
+**Goal**: Notify external systems (CRM, Slack, Mailchimp) when Fifi completes key actions.
+
+**Mechanism**:
+- **Architecture**: `WebhookAdapter` (Infrastructure Layer)
+- **Triggers**:
+  - `LEAD_QUALIFIED`: When AI tags lead as "hot".
+  - `APPRAISAL_COMPLETED`: When Fifi generates a value.
+  - `CONTRACT_GENERATED`: When a PDF is ready.
+
+**Make.com Scenario**:
+- **Trigger**: Custom Webhook (e.g., `https://hook.make.com/abc...`)
+- **Action**: Router logic (e.g., if value > €500k -> Send SMS to CEO).
+
+**Implementation Plan**:
+- [ ] Create `WebhookPort` interface in `domain/ports.py`
+- [ ] Implement `MakeWebhookAdapter` in `infrastructure/adapters/`
+- [ ] Add `webhook_url` to `config/settings.py`
+- [ ] Dispatch events from `LeadProcessor`
+
+---
+
+## Week 9: User Interface
 
 ### Fifi Dashboard Route
 
@@ -385,6 +458,33 @@ FATTORI DI VALORE:
 DISCLAIMER:
 Questa stima è generata dall'IA ed è solo a scopo informativo...
 ```
+
+---
+
+### Competitive Analysis: Reference Tool Insights
+
+**Analysis of existing HTML appraisal tool** reveals critical UI/UX patterns and missing features:
+
+**✅ UI/UX to Adopt**:
+- Instant feedback (recalculate on input)
+- Tab-based results (Summary / Details / Metrics)
+- Risk visualization bar (Green/Yellow/Red)
+- Color-coded badges (`✓ Good Deal`, `⚠ Fair`)
+- Breakdown chart showing adjustments
+
+**🔶 Missing Features (Fifi Advantage)**:
+- **Investment Metrics**: Cap Rate, ROI, Price/Rent Ratio
+- **Condition Taxonomy**: 5-tier classifier (-10% to +10%)
+- **Age Depreciation**: -0.5% per year
+- **Occupancy Penalty**: Rented -20%
+- **Comparables Map**: Show nearby transactions
+
+**Quick Wins for Week 9**:
+- [ ] Add Investment Metrics tab
+- [ ] Add Breakdown visualization
+- [ ] Add Condition classifier (5 tiers)
+- [ ] Add Risk indicator bar
+- [ ] Add Comparables map
 
 ---
 
