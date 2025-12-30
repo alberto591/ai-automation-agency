@@ -9,7 +9,6 @@ from typing import cast
 
 import requests
 
-from config.settings import settings
 from domain.ports import CalendarPort
 from domain.services.logging import get_logger
 
@@ -20,8 +19,11 @@ class CalComAdapter(CalendarPort):
     """Cal.com API adapter for calendar operations."""
 
     def __init__(self) -> None:
+        from config.settings import settings
+
         self.api_key = settings.CALCOM_API_KEY
         self.event_type_id = settings.CALCOM_EVENT_TYPE_ID
+        self.booking_link = settings.CALCOM_BOOKING_LINK
         self.base_url = "https://api.cal.com/v2"
 
     def _get_headers(self) -> dict[str, str]:
@@ -92,7 +94,7 @@ class CalComAdapter(CalendarPort):
         """
         if not self.api_key or not self.event_type_id:
             logger.warning("CALCOM_API_DISABLED", context={"reason": "Missing API credentials"})
-            return settings.CALCOM_BOOKING_LINK  # Return public booking link as fallback
+            return self.booking_link  # Return public booking link as fallback
 
         url = f"{self.base_url}/bookings"
 
@@ -129,9 +131,9 @@ class CalComAdapter(CalendarPort):
             logger.info("CALCOM_BOOKING_CREATED", context={"booking_id": booking_id})
 
             # Return the public booking link (user can reschedule via this)
-            return settings.CALCOM_BOOKING_LINK
+            return self.booking_link
 
         except requests.exceptions.RequestException as e:
             logger.error("CALCOM_BOOKING_FAILED", context={"error": str(e)})
             # Return public booking link as fallback
-            return settings.CALCOM_BOOKING_LINK
+            return self.booking_link

@@ -3,7 +3,6 @@ from typing import Any
 from tenacity import retry, stop_after_attempt, wait_exponential
 from twilio.rest import Client
 
-from config.settings import settings
 from domain.errors import ExternalServiceError, RateLimitError
 from domain.ports import MessagingPort
 from infrastructure.logging import get_logger
@@ -14,10 +13,17 @@ logger = get_logger(__name__)
 
 class TwilioAdapter(MessagingPort):
     def __init__(self) -> None:
+        from config.settings import settings
+
         self.client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        self.message_rate_limit = settings.MESSAGE_RATE_LIMIT
+        self.message_rate_window_seconds = settings.MESSAGE_RATE_WINDOW_SECONDS
+        self.from_number = settings.TWILIO_PHONE_NUMBER
+        self.webhook_base_url = settings.WEBHOOK_BASE_URL  # Optional
+
         self.rate_limiter = RateLimiter(
-            max_messages=settings.MESSAGE_RATE_LIMIT,
-            window_seconds=settings.MESSAGE_RATE_WINDOW_SECONDS,
+            max_messages=self.message_rate_limit,
+            window_seconds=self.message_rate_window_seconds,
         )
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -27,13 +33,13 @@ class TwilioAdapter(MessagingPort):
             remaining = self.rate_limiter.get_remaining(to)
             raise RateLimitError(
                 f"Rate limit exceeded for {to}",
-                cause=f"Exceeded {settings.MESSAGE_RATE_LIMIT} messages per {settings.MESSAGE_RATE_WINDOW_SECONDS}s",
+                cause=f"Exceeded {self.message_rate_limit} messages per {self.message_rate_window_seconds}s",
                 remediation=f"Wait before sending more messages. Remaining: {remaining}",
             )
 
         # 1. Clean numbers
         clean_to = "".join(to.split())
-        from_number = settings.TWILIO_PHONE_NUMBER
+        from_number = self.from_number
 
         # 2. Add whatsapp prefix safely
         final_to = f"whatsapp:{clean_to}" if not clean_to.startswith("whatsapp:") else clean_to
@@ -52,10 +58,8 @@ class TwilioAdapter(MessagingPort):
 
             # 3. Add Status Callback if configured
             # In production, this should be the public URL
-            if settings.WEBHOOK_BASE_URL:
-                params[
-                    "status_callback"
-                ] = f"{settings.WEBHOOK_BASE_URL}/api/webhooks/twilio/status"
+            if self.webhook_base_url:
+                params["status_callback"] = f"{self.webhook_base_url}/api/webhooks/twilio/status"
 
             message = self.client.messages.create(**params)
             logger.info(

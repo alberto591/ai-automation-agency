@@ -4,7 +4,6 @@ from typing import Any, cast
 from supabase import create_client
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from config.settings import settings
 from domain.errors import DatabaseError
 from domain.ports import DatabasePort
 from infrastructure.logging import get_logger
@@ -14,6 +13,8 @@ logger = get_logger(__name__)
 
 class SupabaseAdapter(DatabasePort):
     def __init__(self) -> None:
+        from config.settings import settings
+
         try:
             key = settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_KEY
             self.client = create_client(settings.SUPABASE_URL, key)

@@ -9,7 +9,7 @@ from infrastructure.adapters.calcom_adapter import CalComAdapter
 
 @pytest.fixture
 def cal_adapter():
-    with patch("infrastructure.adapters.calcom_adapter.settings") as mock_settings:
+    with patch("config.settings.settings") as mock_settings:
         mock_settings.CALCOM_API_KEY = "test_key"
         mock_settings.CALCOM_EVENT_TYPE_ID = "12345"
         mock_settings.CALCOM_BOOKING_LINK = "https://cal.com/test"

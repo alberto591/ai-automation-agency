@@ -1,22 +1,27 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from application.services.appraisal import AppraisalService
 from application.services.journey_manager import JourneyManager
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from config.settings import settings
-from domain.ports import MessagingPort
-from infrastructure.adapters.calcom_adapter import CalComAdapter
-from infrastructure.adapters.document_adapter import DocumentAdapter
-from infrastructure.adapters.langchain_adapter import LangChainAdapter
-from infrastructure.adapters.market_adapter import IdealistaMarketAdapter
-from infrastructure.adapters.meta_whatsapp_adapter import MetaWhatsAppAdapter
-from infrastructure.adapters.scraper_adapter import ImmobiliareScraperAdapter
-from infrastructure.adapters.supabase_adapter import SupabaseAdapter
-from infrastructure.adapters.twilio_adapter import TwilioAdapter
+from domain.ports import CalendarPort, MessagingPort
+
+if TYPE_CHECKING:
+    pass
 
 
 class Container:
     def __init__(self) -> None:
+        # Import Adapters lazily to avoid circular imports with config
+        from infrastructure.adapters.calcom_adapter import CalComAdapter
+        from infrastructure.adapters.document_adapter import DocumentAdapter
+        from infrastructure.adapters.langchain_adapter import LangChainAdapter
+        from infrastructure.adapters.market_adapter import IdealistaMarketAdapter
+        from infrastructure.adapters.meta_whatsapp_adapter import MetaWhatsAppAdapter
+        from infrastructure.adapters.scraper_adapter import ImmobiliareScraperAdapter
+        from infrastructure.adapters.supabase_adapter import SupabaseAdapter
+        from infrastructure.adapters.twilio_adapter import TwilioAdapter
+
         # Infrastructure Adapters
         self.db: SupabaseAdapter = SupabaseAdapter()
         self.ai: LangChainAdapter = LangChainAdapter()
@@ -25,7 +30,7 @@ class Container:
             self.msg = MetaWhatsAppAdapter()
         else:
             self.msg = TwilioAdapter()
-        self.calendar: CalComAdapter = CalComAdapter()
+        self.calendar: CalendarPort = CalComAdapter()
         self.doc_gen: DocumentAdapter = DocumentAdapter()
         self.scraper: ImmobiliareScraperAdapter = ImmobiliareScraperAdapter()
         self.market: IdealistaMarketAdapter = IdealistaMarketAdapter()
