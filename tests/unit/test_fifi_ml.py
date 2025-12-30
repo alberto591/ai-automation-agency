@@ -62,3 +62,140 @@ def test_xgboost_adapter_uncertainty():
 
     # No comps -> high uncertainty
     assert adapter.calculate_uncertainty(prediction, []) == 0.25
+
+
+# --- Investment Metrics Tests ---
+
+
+def test_investment_metrics_basic_calculation():
+    """Test basic investment metrics calculation."""
+    adapter = XGBoostAdapter()
+
+    metrics = adapter.calculate_investment_metrics(
+        property_value=500000.0,
+        sqm=100,
+        zone="centro-milano",
+    )
+
+    # Verify all expected keys are present
+    assert "monthly_rent" in metrics
+    assert "annual_rent" in metrics
+    assert "cap_rate" in metrics
+    assert "gross_yield" in metrics
+    assert "cash_on_cash_return" in metrics
+    assert "roi_5_year" in metrics
+    assert "down_payment_20pct" in metrics
+    assert "annual_cash_flow" in metrics
+
+
+def test_investment_metrics_rent_calculation():
+    """Test that rent is calculated correctly based on zone."""
+    adapter = XGBoostAdapter()
+
+    # Milano: €18/sqm
+    metrics_milano = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone="centro-milano"
+    )
+    assert metrics_milano["monthly_rent"] == 1800  # 100 * 18
+
+    # Lucca: €12/sqm
+    metrics_lucca = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone="centro-lucca"
+    )
+    assert metrics_lucca["monthly_rent"] == 1200  # 100 * 12
+
+    # Default zone
+    metrics_default = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone=None
+    )
+    assert metrics_default["monthly_rent"] == 1300  # 100 * 13 (default)
+
+
+def test_investment_metrics_cap_rate():
+    """Test Cap Rate calculation."""
+    adapter = XGBoostAdapter()
+
+    # Milano: 100sqm = €1800/month = €21600/year
+    # Cap Rate = (21600 / 500000) * 100 = 4.32%
+    metrics = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone="centro-milano"
+    )
+
+    expected_cap_rate = (1800 * 12 / 500000) * 100
+    assert metrics["cap_rate"] == round(expected_cap_rate, 2)
+    assert metrics["gross_yield"] == metrics["cap_rate"]  # Should be same
+
+
+def test_investment_metrics_cash_on_cash():
+    """Test Cash-on-Cash Return calculation."""
+    adapter = XGBoostAdapter()
+
+    metrics = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone="centro-milano"
+    )
+
+    # Monthly rent: €1800
+    # Annual rent: €21600
+    # Expenses (30%): €6480
+    # Cash flow: €15120
+    # Down payment (20%): €100000
+    # CoC: (15120 / 100000) * 100 = 15.12%
+    assert metrics["down_payment_20pct"] == 100000
+    assert metrics["annual_cash_flow"] == 15120  # 21600 - 6480
+    assert metrics["cash_on_cash_return"] == round((15120 / 100000) * 100, 2)
+
+
+def test_investment_metrics_roi_5_year():
+    """Test 5-year ROI projection."""
+    adapter = XGBoostAdapter()
+
+    metrics = adapter.calculate_investment_metrics(
+        property_value=500000.0, sqm=100, zone="centro-milano"
+    )
+
+    # Appreciation: 500000 * (1.03^5) = ~579,637
+    # Value gain: ~79,637
+    # Rental income (5 years): 21600 * 5 = 108000
+    # Total return: ~187,637
+    # ROI: (187,637 / 500000) * 100 = ~37.5%
+    assert metrics["roi_5_year"] > 30  # Should be around 37%
+    assert metrics["roi_5_year"] < 45
+
+
+def test_investment_metrics_edge_cases():
+    """Test edge cases for investment metrics."""
+    adapter = XGBoostAdapter()
+
+    # Zero property value (should not divide by zero)
+    metrics_zero = adapter.calculate_investment_metrics(
+        property_value=0, sqm=100, zone="centro-milano"
+    )
+    assert metrics_zero["cap_rate"] == 0
+    assert metrics_zero["roi_5_year"] == 0
+
+    # Very small property
+    metrics_small = adapter.calculate_investment_metrics(
+        property_value=100000.0, sqm=20, zone="centro-lucca"
+    )
+    assert metrics_small["monthly_rent"] == 240  # 20 * 12
+    assert metrics_small["cap_rate"] > 0
+
+
+def test_investment_metrics_all_zones():
+    """Test that all supported zones have different rent rates."""
+    adapter = XGBoostAdapter()
+
+    zones = [
+        ("centro-milano", 18),
+        ("centro-firenze", 16),
+        ("centro-roma", 15),
+        ("centro-bologna", 14),
+        ("centro-lucca", 12),
+    ]
+
+    for zone, expected_rate in zones:
+        metrics = adapter.calculate_investment_metrics(property_value=500000.0, sqm=100, zone=zone)
+        expected_rent = 100 * expected_rate
+        assert (
+            metrics["monthly_rent"] == expected_rent
+        ), f"Zone {zone} should have rent {expected_rent}"
