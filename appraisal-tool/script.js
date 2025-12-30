@@ -304,6 +304,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     animateValue("res-sqm", 0, 5200, 1500);
                     animateValue("res-rent", 0, 1850, 1500);
                     animateValue("res-yield", 0, 5.2, 1500, true); // true for decimal
+
+                    // Animate Investment Metrics
+                    animateValue("res-cap-rate", 0, 5.2, 1500, true);
+                    animateValue("res-roi", 0, 35.8, 1500, true);
+                    animateValue("res-coc", 0, 14.5, 1500, true);
                 })
                 .catch(error => {
                     console.error('Error:', error);

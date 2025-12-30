@@ -224,6 +224,13 @@ def create_lead_processing_graph(
         # 5. Human oversight decision
         status = "AUTO_APPROVED" if uncertainty_score < 0.15 else "HUMAN_REVIEW_REQUIRED"
 
+        # 6. Calculate investment metrics
+        investment_metrics = adapter.calculate_investment_metrics(
+            property_value=prediction,
+            sqm=features.sqm,
+            zone=features.zone_slug,
+        )
+
         fifi_res = {
             "fifi_status": status,
             "uncertainty_score": uncertainty_score,
@@ -231,6 +238,7 @@ def create_lead_processing_graph(
             "confidence_range": f"€{int(confidence_low or 0):,} - €{int(confidence_high or 0):,}",
             "confidence_level": int((1 - uncertainty_score) * 100),
             "comparables": comparables[:3],
+            "investment_metrics": investment_metrics,
         }
 
         # Tag lead as HOT and add appraisal notes

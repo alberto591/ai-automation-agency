@@ -219,3 +219,62 @@ class XGBoostAdapter:
 
         std_dev = np.std(prices)
         return float(std_dev / prediction)
+
+    def calculate_investment_metrics(
+        self, property_value: float, sqm: int, zone: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Calculate investment metrics for a property.
+
+        Args:
+            property_value: Estimated property value in EUR
+            sqm: Property size in square meters
+            zone: Zone slug for market-specific calculations
+
+        Returns:
+            Dictionary with investment metrics
+        """
+        # Rental yield assumptions by zone (monthly rent per sqm)
+        zone_rent_sqm = {
+            "centro-milano": 18,
+            "centro-firenze": 16,
+            "centro-roma": 15,
+            "centro-bologna": 14,
+            "centro-lucca": 12,
+            "default": 13,
+        }
+
+        # Get monthly rent per sqm
+        monthly_rent_sqm = zone_rent_sqm.get(zone or "default", zone_rent_sqm["default"])
+        monthly_rent = monthly_rent_sqm * sqm
+        annual_rent = monthly_rent * 12
+
+        # Cap Rate (Gross Yield) = Annual Rent / Property Value
+        cap_rate = (annual_rent / property_value) * 100 if property_value > 0 else 0
+
+        # Assume 20% down payment for Cash-on-Cash calculation
+        down_payment = property_value * 0.20
+        # Annual cash flow (simplified: annual rent - estimated expenses)
+        annual_expenses = annual_rent * 0.30  # 30% for taxes, maintenance, vacancy
+        annual_cash_flow = annual_rent - annual_expenses
+
+        # Cash-on-Cash Return
+        cash_on_cash = (annual_cash_flow / down_payment) * 100 if down_payment > 0 else 0
+
+        # ROI (5-year projection with 3% annual appreciation)
+        appreciation_rate = 0.03
+        future_value = property_value * ((1 + appreciation_rate) ** 5)
+        total_rental_income = annual_rent * 5
+        total_return = (future_value - property_value) + total_rental_income
+        roi_5_year = (total_return / property_value) * 100 if property_value > 0 else 0
+
+        return {
+            "monthly_rent": int(monthly_rent),
+            "annual_rent": int(annual_rent),
+            "cap_rate": round(cap_rate, 2),
+            "gross_yield": round(cap_rate, 2),  # Same as cap rate
+            "cash_on_cash_return": round(cash_on_cash, 2),
+            "roi_5_year": round(roi_5_year, 2),
+            "down_payment_20pct": int(down_payment),
+            "annual_cash_flow": int(annual_cash_flow),
+        }
