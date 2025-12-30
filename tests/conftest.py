@@ -35,21 +35,30 @@ def mock_settings():
 @pytest.fixture(autouse=True)
 def mock_container():
     """Mocks the DI container components."""
-    # We patch it directly in the modules that use it to avoid early init issues.
-    # Now that presentation/api/__init__.py has 'from . import api',
-    # this string should resolve correctly in all environments.
-    with patch("presentation.api.api.container") as mock_cnt:
+    # We patch the singleton at its source
+    with patch("config.container.container") as mock_cnt:
         # Define default successful mocks for lead_processor
         mock_cnt.lead_processor.process_lead.return_value = "AI Response"
         mock_cnt.lead_processor.takeover.return_value = None
         mock_cnt.lead_processor.resume.return_value = None
         mock_cnt.lead_processor.update_lead_details.return_value = None
-        mock_cnt.lead_processor.send_manual_message.return_value = None
+        mock_cnt.lead_processor.send_manual_message.return_value = "mock_sid"
         mock_cnt.lead_processor.add_message_history.return_value = None
+        mock_cnt.lead_processor.sync_lead.return_value = None
 
         # Define mocks for journey
         mock_cnt.journey.transition_to.return_value = None
-        yield mock_cnt
+
+        # Also patch in modules that might have already imported it
+        # or will import it via 'from ... import ...'
+        try:
+            import presentation.api.api
+
+            with patch.object(presentation.api.api, "container", mock_cnt):
+                yield mock_cnt
+        except (ImportError, AttributeError):
+            # Fallback for tests that don't load the API or environments where discovery fails
+            yield mock_cnt
 
 
 @pytest.fixture
