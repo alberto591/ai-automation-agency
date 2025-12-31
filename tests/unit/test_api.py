@@ -64,3 +64,87 @@ def test_schedule_viewing(client, mock_container):
     response = client.post("/api/leads/schedule", json=payload)
     assert response.status_code == 200
     mock_container.journey.transition_to.assert_called()
+
+
+def test_generate_appraisal_pdf_success(client, mock_container):
+    """Test successful PDF generation for appraisal report."""
+    from unittest.mock import patch
+
+    payload = {
+        "address": "Via Roma 1, Milano",
+        "fifi_data": {
+            "predicted_value": 500000,
+            "confidence_range": "EUR 480.000 - EUR 520.000",
+            "confidence_level": 90,
+            "features": {"sqm": 100, "bedrooms": 2},
+            "investment_metrics": {"monthly_rent": 1500, "cap_rate": 3.6},
+            "comparables": [],
+        },
+    }
+
+    with patch("infrastructure.ai_pdf_generator.PropertyPDFGenerator") as mock_gen:
+        mock_instance = mock_gen.return_value
+        mock_instance.generate_appraisal_report.return_value = "temp/documents/appraisal_test.pdf"
+
+        response = client.post("/api/appraisals/generate-pdf", json=payload)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "success"
+        assert "pdf_path" in data
+        assert "filename" in data
+        assert data["message"] == "PDF generato con successo"
+        mock_instance.generate_appraisal_report.assert_called_once()
+
+
+def test_generate_appraisal_pdf_failure(client):
+    """Test error handling when PDF generation fails."""
+    from unittest.mock import patch
+
+    payload = {
+        "address": "Via Roma 1, Milano",
+        "fifi_data": {"predicted_value": 500000},
+    }
+
+    with patch("infrastructure.ai_pdf_generator.PropertyPDFGenerator") as mock_gen:
+        mock_instance = mock_gen.return_value
+        mock_instance.generate_appraisal_report.side_effect = Exception("PDF generation error")
+
+        response = client.post("/api/appraisals/generate-pdf", json=payload)
+
+        assert response.status_code == 500
+        assert "Failed to generate PDF" in response.json()["detail"]
+
+
+def test_generate_appraisal_estimate(client, mock_container):
+    """Test appraisal estimation endpoint."""
+    mock_container.appraisal_service.estimate_value.return_value = {
+        "estimated_value": 450000.0,
+        "estimated_range_min": 430000.0,
+        "estimated_range_max": 470000.0,
+        "avg_price_sqm": 4736.0,
+        "price_sqm_min": 4526.0,
+        "price_sqm_max": 4947.0,
+        "comparables": [],
+        "reasoning": "Estimated based on market data",
+        "market_trend": "stable",
+    }
+
+    payload = {
+        "city": "Roma",
+        "zone": "Centro",
+        "property_type": "apartment",
+        "surface_sqm": 95,
+        "condition": "good",
+        "bedrooms": 2,
+    }
+
+    response = client.post("/api/appraisals/estimate", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "estimated_value" in data
+    assert "estimated_range_min" in data
+    assert "estimated_range_max" in data
+    assert data["estimated_value"] == 450000.0
+    mock_container.appraisal_service.estimate_value.assert_called_once()

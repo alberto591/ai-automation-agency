@@ -1,0 +1,50 @@
+{
+    "schema_version": "1.0",
+    "description": "Documentation manifest for Anzevino AI Real Estate Agent project",
+    "root_docs": {
+        "allowed": [
+            "README.md",
+            "CONTRIBUTING.md",
+            "DEPLOYMENT.md",
+            "Claude.md"
+        ],
+        "description": "Only these files are permitted in the project root directory"
+    },
+    "doc_types": {
+        "guide": {
+            "directory": "docs/guides",
+            "template": "{slug}.md",
+            "description": "How-to guides and tutorials"
+        },
+        "adr": {
+            "directory": "docs/adr",
+            "template": "ADR-{number}-{slug}.md",
+            "description": "Architecture Decision Records"
+        },
+        "roadmap": {
+            "directory": "docs/roadmap",
+            "template": "{slug}.md",
+            "description": "Future work, TODOs, and strategic plans"
+        },
+        "report": {
+            "directory": "docs/reports",
+            "template": "{date}_{slug}.md",
+            "description": "Generated reports and session summaries"
+        },
+        "legal": {
+            "directory": "docs/legal",
+            "template": "{slug}.md",
+            "description": "Legal disclaimers and compliance documents"
+        },
+        "reference": {
+            "directory": "docs/reference",
+            "template": "{slug}.md",
+            "description": "API references and technical specifications"
+        },
+        "sql": {
+            "directory": "docs/sql",
+            "template": "{slug}.md",
+            "description": "SQL documentation and migration guides"
+        }
+    }
+}

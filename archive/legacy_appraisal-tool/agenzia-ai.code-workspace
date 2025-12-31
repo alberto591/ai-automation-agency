@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "agenzia-ai",
+			"path": "../agenzia-ai"
+		},
+		{
+			"name": "anzevino-ai-real-estate-website",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

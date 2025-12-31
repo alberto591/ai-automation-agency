@@ -14,7 +14,7 @@ An advanced AI-powered assistant for Italian real estate agencies. Automated lea
 ### Guides
 All technical and user guides- **Deployment Guide**: See [PRODUCTION_DEPLOYMENT.md](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/PRODUCTION_DEPLOYMENT.md)
 - **Live Client Demo**: See [PARTNER_PITCH_DEMO.md](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/PARTNER_PITCH_DEMO.md) for the live demo script and sales pitch.
-- **Developer Guide**: See [MASTER_EXECUTION_GUIDE.md](file:///Users/lycanbeats/Desktop/agenzia-ai/MASTER_EXECUTION_GUIDE.md)
+- **Developer Guide**: See [master-execution-guide.md](file:///Users/lycanbeats/Desktop/agenzia-ai/docs/guides/master-execution-guide.md)
 - [🏠 Property CSV Import](docs/property-import.md)
 - [🛡️ Security & API](docs/api-security.md)
 - [🔄 How it Works (Flow)](docs/customer-flow.md)
@@ -27,7 +27,10 @@ All technical and user guides- **Deployment Guide**: See [PRODUCTION_DEPLOYMENT.
 - **Database**: Supabase (PostgreSQL + Vector)
 - **AI Brain**: Mistral AI (Natural Language + RAG)
 - **Messaging**: Twilio (WhatsApp API)
-- **Frontend**: Vanilla HTML/CSS/JS (Bilingual IT/EN)
+- **Frontend Apps**: `apps/`
+  - **Landing Page**: `apps/landing-page` (Marketing)
+  - **Dashboard**: `apps/dashboard` (React Admin)
+  - **Appraisal Tool (Fifi)**: `apps/fifi` (Lead Magnet)
 - **Automation**: Make.com / Zapier
 
 ## 🚀 Quick Local Setup

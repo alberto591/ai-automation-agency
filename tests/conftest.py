@@ -56,6 +56,19 @@ def mock_container():
         # Define mocks for journey
         mock_cnt.journey.transition_to.return_value = None
 
+        # Define mocks for appraisal_service
+        mock_cnt.appraisal_service.estimate_value.return_value = {
+            "estimated_value": 450000.0,
+            "estimated_range_min": 430000.0,
+            "estimated_range_max": 470000.0,
+            "avg_price_sqm": 4736.0,
+            "price_sqm_min": 4526.0,
+            "price_sqm_max": 4947.0,
+            "comparables": [],
+            "reasoning": "Estimated based on market data",
+            "market_trend": "stable",
+        }
+
         # Also patch in modules that might have already imported it
         # or will import it via 'from ... import ...'
         try:

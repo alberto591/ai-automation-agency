@@ -72,7 +72,7 @@ class ScoringService:
         score += 2 if data.location_specific else 0
         score += 2 if data.property_specific else 0
         # Contact info (+2) baseline (+1 implied)
-        score += 2 if data.has_contact_info else 1
+        score += 2 if data.contact_complete else 1
 
         # Normalize score (Max 18)
         # min(10, ceil(raw/18 * 10))

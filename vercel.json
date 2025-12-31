@@ -1,6 +1,6 @@
 {
-    "buildCommand": "cd appraisal-tool && npm install && npm run build && cd ../dashboard && npm install && npm run build && mkdir -p ../appraisal-tool/dist/dashboard && cp -r dist/* ../appraisal-tool/dist/dashboard/",
-    "outputDirectory": "appraisal-tool/dist",
+    "buildCommand": "mkdir -p dist && cd apps/dashboard && npm install && npm run build && mkdir -p ../../dist/dashboard && cp -r dist/* ../../dist/dashboard/ && cd ../fifi && npm install && npm run build && mkdir -p ../../dist/appraisal && cp -r dist/* ../../dist/appraisal/ && cd ../landing-page && npm install && npm run build && cp -r dist/* ../../dist/",
+    "outputDirectory": "dist",
     "rewrites": [
         {
             "source": "/api/(.*)",

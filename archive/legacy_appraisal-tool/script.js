@@ -258,12 +258,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const submitBtn = this.querySelector('button[type="submit"]');
             const address = document.getElementById('appraisal-address').value;
             const postcode = document.getElementById('appraisal-postcode').value;
+            const disclaimerCheck = document.getElementById('appraisal-disclaimer-check');
             const phone = document.getElementById('appraisal-phone').value;
             const condition = document.getElementById('appraisal-condition').value;
             const sqm = document.getElementById('appraisal-sqm').value;
 
             if (!address || !postcode || !phone || !condition || !sqm) {
                 showNotification(t('form-error-missing'), 'error');
+                return;
+            }
+
+            if (disclaimerCheck && !disclaimerCheck.checked) {
+                showNotification(t('form-error-disclaimer'), 'error');
                 return;
             }
 
@@ -1032,6 +1038,7 @@ const translations = {
         'appraisal-condition-label': 'Condizioni immobile',
         'form-error-missing': 'Compila tutti i campi obbligatori',
         'form-error-phone': 'Numero di telefono non valido',
+        'form-error-disclaimer': 'È necessario accettare i termini per procedere',
         'generic-error': 'Errore. Riprova più tardi.',
         'retry': 'Riprova',
         'chat-ai-msg-1': 'Perfetto! Ho trovato 3 trilocali disponibili a Porta Nuova nel tuo budget. Ti invio le foto e organizziamo una visita per domani alle 16:00?',
@@ -1242,6 +1249,7 @@ const translations = {
         'appraisal-condition-label': 'Property condition',
         'form-error-missing': 'Please fill in all required fields',
         'form-error-phone': 'Invalid phone number',
+        'form-error-disclaimer': 'You must accept the terms to proceed',
         'generic-error': 'Error. Please try again later.',
         'retry': 'Retry',
         'chat-ai-msg-1': 'Perfect! I found 3 apartments available in Porta Nuova within your budget. Shall I send photos and schedule a viewing for tomorrow at 4 PM?',

@@ -17,7 +17,7 @@ def test_hot_lead_scenario():
         financing=FinancingStatus.APPROVED,  # +3
         location_specific=True,  # +2
         property_specific=True,  # +2
-        has_contact_info=True,  # +2
+        contact_complete=True,  # +2
     )
     # Total Raw: 18 -> Normalized: 10
 
@@ -38,7 +38,7 @@ def test_warm_lead_scenario():
         financing=FinancingStatus.TODO,  # +1
         location_specific=False,  # 0
         property_specific=False,  # 0
-        has_contact_info=True,  # +2 (implied)
+        contact_complete=True,  # +2 (implied)
     )
     # Total Raw: 3+2+2+1+0+0+2 (assuming contact) = 10
     # Normalized: (10/18)*10 = 5.55 -> rounds to 6?
@@ -61,7 +61,7 @@ def test_cold_lead_scenario():
         financing=FinancingStatus.UNKNOWN,  # 0
         location_specific=False,  # 0
         property_specific=False,  # 0
-        has_contact_info=True,  # +2 (we have their phone)
+        contact_complete=True,  # +2 (we have their phone)
     )
     # Total Raw: 1+1+0+0+0+0+2 = 4
     # Normalized: (4/18)*10 = 2.2 -> ceil = 3
