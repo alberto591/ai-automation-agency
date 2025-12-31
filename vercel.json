@@ -1,5 +1,5 @@
 {
-    "buildCommand": "mkdir -p dist && cd apps/dashboard && npm install && npm run build && mkdir -p ../../dist/dashboard && cp -r dist/* ../../dist/dashboard/ && cd ../fifi && npm install && npm run build && mkdir -p ../../dist/appraisal && cp -r dist/* ../../dist/appraisal/ && cd ../landing-page && npm install && npm run build && cp -r dist/* ../../dist/",
+    "buildCommand": "chmod +x scripts/build.sh && ./scripts/build.sh",
     "outputDirectory": "dist",
     "rewrites": [
         {
