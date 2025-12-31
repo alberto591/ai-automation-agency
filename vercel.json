@@ -1,5 +1,5 @@
 {
-    "buildCommand": "chmod +x scripts/build.sh && ./scripts/build.sh",
+    "buildCommand": "npm run build",
     "outputDirectory": "dist",
     "rewrites": [
         {
