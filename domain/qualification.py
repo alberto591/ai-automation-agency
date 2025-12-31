@@ -71,6 +71,11 @@ class QualificationData(BaseModel):
     property_specific: bool | None = None  # True(+2), False(+1 for open)
     contact_complete: bool | None = None  # True(+2), False(+1)
 
+    # Routing and analytics fields
+    assigned_agent_id: str | None = None
+    routing_reason: str | None = None
+    qualification_completed_at: str | None = None
+
     def calculate_raw_score(self) -> int:
         score = 0
         score += self.intent.score

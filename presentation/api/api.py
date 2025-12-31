@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import Any
 
 # ... (imports)
+from uuid import UUID
+
 from fastapi import (
     BackgroundTasks,
     Depends,
@@ -16,11 +18,14 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from application.services.lead_scorer import LeadScorer
+from application.services.scoring import ScoringService
 from config.container import container
 from config.settings import settings
 from domain.appraisal import AppraisalRequest, AppraisalResult
 from domain.enums import LeadStatus
 from domain.errors import BaseAppError
+from domain.qualification import LeadCategory, LeadScore, QualificationData
 from infrastructure.logging import get_logger
 from infrastructure.monitoring.sentry import init_sentry
 from presentation.api.webhooks import calcom_webhook, portal_webhook, voice_webhook
@@ -377,6 +382,74 @@ async def generate_appraisal(req: AppraisalRequest) -> AppraisalResult:
     except Exception as e:
         logger.error("APPRAISAL_ENDPOINT_FAILED", context={"error": str(e)})
         raise HTTPException(status_code=500, detail="Failed to generate appraisal") from None
+
+
+# --- ANALYTICS ENDPOINTS ---
+
+
+@app.get("/api/analytics/qualification-metrics", dependencies=[Depends(get_current_user)])
+async def get_qualification_metrics(days: int = Query(default=7, ge=1, le=90)) -> dict[str, Any]:
+    """
+    Get lead qualification flow metrics for the specified period.
+
+    Returns completion rates, started/completed counts, and other analytics.
+    """
+    scorer = LeadScorer(container.db)
+    metrics = scorer.calculate_completion_rate(days=days)
+
+    return metrics
+
+
+@app.get("/api/analytics/score-distribution", dependencies=[Depends(get_current_user)])
+async def get_score_distribution(days: int = Query(default=30, ge=1, le=90)) -> dict[str, Any]:
+    """
+    Get the distribution of lead scores (HOT/WARM/COLD) for the specified period.
+    """
+    scorer = LeadScorer(container.db)
+    distribution = scorer.get_score_distribution(days=days)
+
+    return distribution
+
+
+class RouteLeadRequest(BaseModel):
+    """Request to manually route a lead to a specific agent."""
+
+    lead_id: str
+    agent_id: str | None = None
+
+
+@app.post("/api/admin/route-lead", dependencies=[Depends(get_current_user)])
+async def route_lead_endpoint(req: RouteLeadRequest) -> dict[str, Any]:
+    """
+    Manually route a lead to an agent or trigger auto-routing based on score.
+    """
+    scorer = LeadScorer(container.db)
+
+    # Get lead's qualification data
+    lead_response = (
+        container.db.client.table("leads").select("*").eq("id", req.lead_id).single().execute()
+    )
+    lead_data: dict[str, Any] = lead_response.data
+
+    # Calculate score if not  already done
+    if not lead_data.get("lead_score_normalized"):
+        qual_data = QualificationData(**lead_data)
+        score = ScoringService.calculate_score(qual_data)
+    else:
+        # Use existing score
+        score = LeadScore(
+            raw_score=lead_data.get("lead_score_raw", 0),
+            normalized_score=lead_data["lead_score_normalized"],
+            category=LeadCategory(lead_data.get("lead_category", "COLD")),
+            details=QualificationData(**lead_data),
+            action_item="",
+        )
+
+    # Route the lead
+    agent_uuid = UUID(req.agent_id) if req.agent_id else None
+    routing_result = scorer.route_lead(lead_id=UUID(req.lead_id), score=score, agent_id=agent_uuid)
+
+    return routing_result
 
 
 if __name__ == "__main__":
