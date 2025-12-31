@@ -1,6 +1,15 @@
 from enum import Enum
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
+
+# Import InvestmentMetrics from application layer
+# Note: This creates a dependency from domain -> application
+# For proper hexagonal architecture, we could define InvestmentMetrics in domain
+# But for MVP speed, we'll use TYPE_CHECKING to avoid circular imports
+
+if TYPE_CHECKING:
+    pass
 
 
 class PropertyCondition(str, Enum):
@@ -37,7 +46,17 @@ class AppraisalResult(BaseModel):
     comparables: list[Comparable]
     reasoning: str
     market_trend: str = "stable"  # rising, falling, stable
+
+    # Investment Analysis (NEW)
+    investment_metrics: dict[str, Any] | None = None  # Serialized InvestmentMetrics
+    confidence_level: int | None = None  # 1-100
+    reliability_stars: int | None = None  # 1-5 stars
+
     disclaimer: str = (
         "This is an AI-generated estimate based on online data. "
         "It is not a formal professional appraisal."
     )
+
+    class Config:
+        # Allow arbitrary types for investment_metrics
+        arbitrary_types_allowed = True

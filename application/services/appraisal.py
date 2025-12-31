@@ -1,5 +1,7 @@
 import re
+from dataclasses import asdict
 
+from application.services.investment_calculator import InvestmentCalculator
 from domain.appraisal import (
     AppraisalRequest,
     AppraisalResult,
@@ -15,6 +17,7 @@ logger = get_logger(__name__)
 class AppraisalService:
     def __init__(self, research_port: ResearchPort):
         self.research = research_port
+        self.investment_calc = InvestmentCalculator()
 
     def estimate_value(self, request: AppraisalRequest) -> AppraisalResult:
         """
@@ -71,6 +74,20 @@ class AppraisalService:
             f"Adjusted for '{request.condition.value}' condition."
         )
 
+        # Calculate investment metrics
+        estimated_rent = self.investment_calc.estimate_monthly_rent(
+            property_price=int(estimated_value), zone=request.zone
+        )
+
+        investment_metrics = self.investment_calc.calculate_metrics(
+            property_price=int(estimated_value),
+            estimated_monthly_rent=estimated_rent,
+        )
+
+        # Calculate confidence level based on data quality
+        confidence_level = self._calculate_confidence(len(comparables))
+        reliability_stars = self._calculate_reliability_stars(confidence_level)
+
         return AppraisalResult(
             estimated_value=round(estimated_value, -3),  # Round to nearest thousand
             estimated_range_min=round(min_val, -3),
@@ -80,6 +97,9 @@ class AppraisalService:
             price_sqm_max=round(max(c.price_per_sqm for c in comparables), 0),
             comparables=comparables,
             reasoning=reasoning,
+            investment_metrics=asdict(investment_metrics) if investment_metrics else None,
+            confidence_level=confidence_level,
+            reliability_stars=reliability_stars,
         )
 
     def _parse_comparables(self, text: str) -> list[Comparable]:
@@ -144,4 +164,30 @@ class AppraisalService:
             comparables=[],
             reasoning="Could not find sufficient data to generate an estimate.",
             market_trend="unknown",
+            confidence_level=0,
+            reliability_stars=1,
         )
+
+    def _calculate_confidence(self, num_comparables: int) -> int:
+        """Calculate confidence level (1-100) based on data quality."""
+        if num_comparables >= 5:
+            return 90
+        elif num_comparables >= 3:
+            return 75
+        elif num_comparables >= 1:
+            return 50
+        else:
+            return 20
+
+    def _calculate_reliability_stars(self, confidence_level: int) -> int:
+        """Convert confidence level to 1-5 star rating."""
+        if confidence_level >= 85:
+            return 5
+        elif confidence_level >= 70:
+            return 4
+        elif confidence_level >= 55:
+            return 3
+        elif confidence_level >= 40:
+            return 2
+        else:
+            return 1
