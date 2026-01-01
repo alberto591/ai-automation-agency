@@ -372,10 +372,11 @@ async def get_market_valuation(
         raise HTTPException(status_code=500, detail="Failed to fetch market data") from None
 
 
-@app.post("/api/appraisals/estimate", dependencies=[Depends(get_current_user)])
+@app.post("/api/appraisals/estimate")
 async def generate_appraisal(req: AppraisalRequest) -> AppraisalResult:
     """
     Generates an AI-driven property appraisal using real-time market data (Perplexity).
+    Public endpoint for Fifi appraisal tool.
     """
     try:
         return container.appraisal_service.estimate_value(req)

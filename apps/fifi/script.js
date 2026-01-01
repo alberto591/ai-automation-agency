@@ -291,49 +291,59 @@ document.addEventListener('DOMContentLoaded', function () {
                 properties: "RICHIESTA VALUTAZIONE: " + address + " (Condizione: " + condition + ") MQ: " + sqm
             };
 
+            // First, create lead
             fetch(`${API_BASE}/api/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
                 .then(response => response.json())
-                .then(data => {
+                .then(leadData => {
                     showNotification(t('appraisal-status-success'), 'success');
 
+                    // Now get real appraisal with investment metrics
+                    return fetch(`${API_BASE}/api/appraisals/estimate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            city: "Florence",
+                            zone: postcode,
+                            surface_sqm: parseInt(sqm),
+                            condition: condition
+                        })
+                    });
+                })
+                .then(response => response.json())
+                .then(appraisal => {
                     // Show Instant Result UI
                     document.querySelector('.appraisal-form-box').style.display = 'none';
                     const resultBox = document.getElementById('appraisal-result');
                     resultBox.style.display = 'block';
 
-                    // Simulated Data (matches what we show in UI)
-                    // In production, this would come from the API response
-                    const simData = {
-                        min_val: 450000,
-                        max_val: 485000,
-                        sqm: parseInt(sqm), // Use user input
-                        rent: 1850,
-                        yield: 5.2,
-                        roi: 35.8,
-                        coc: 14.5
-                    };
+                    // Extract real data from API response
+                    const metrics = appraisal.investment_metrics || {};
+                    const avgPrice = (appraisal.estimated_range_min + appraisal.estimated_range_max) / 2;
 
-                    // Update Confidence Text based on language
+                    // Update Confidence Text
                     const confidenceText = document.getElementById('confidence-text');
-                    if (confidenceText) {
-                        confidenceText.textContent = `${t('appraisal-res-confidence-high')} (85%)`;
+                    if (confidenceText && appraisal.confidence_level) {
+                        const stars = '⭐'.repeat(appraisal.reliability_stars || 3);
+                        confidenceText.textContent = `${stars} (${appraisal.confidence_level}%)`;
                     }
 
-                    // Simulate Calculation Animation
-                    animateValue("res-min", 0, simData.min_val, 1500);
-                    animateValue("res-max", 0, simData.max_val, 1500);
-                    animateValue("res-sqm", 0, 5200, 1500); // This looks like price/sqm in the UI (approx 467,500 / 100)
-                    animateValue("res-rent", 0, simData.rent, 1500);
-                    animateValue("res-yield", 0, simData.yield, 1500, true);
+                    // Animate with real data
+                    animateValue("res-min", 0, appraisal.estimated_range_min, 1500);
+                    animateValue("res-max", 0, appraisal.estimated_range_max, 1500);
+                    animateValue("res-sqm", 0, appraisal.avg_price_sqm, 1500);
 
-                    // Animate Investment Metrics
-                    animateValue("res-cap-rate", 0, simData.yield, 1500, true);
-                    animateValue("res-roi", 0, simData.roi, 1500, true);
-                    animateValue("res-coc", 0, simData.coc, 1500, true);
+                    // Use real investment metrics if available
+                    if (metrics) {
+                        animateValue("res-rent", 0, metrics.monthly_rent || metrics.estimated_rent || 0, 1500);
+                        animateValue("res-yield", 0, metrics.cap_rate || 0, 1500, true);
+                        animateValue("res-cap-rate", 0, metrics.cap_rate || 0, 1500, true);
+                        animateValue("res-roi", 0, metrics.roi || 0, 1500, true);
+                        animateValue("res-coc", 0, metrics.cash_on_cash_return || 0, 1500, true);
+                    }
 
                     // Handle PDF Download
                     const pdfBtn = document.getElementById('download-pdf-btn');
