@@ -89,6 +89,11 @@ class MessagingPort(ABC):
         """Sends a message, optionally with a media attachment."""
         pass
 
+    @abstractmethod
+    def send_interactive_message(self, to: str, message: Any) -> str:
+        """Sends an interactive message (Buttons, List, etc.). 'message' is an InteractiveMessage model."""
+        pass
+
 
 class MarketDataPort(ABC):
     @abstractmethod

@@ -13,6 +13,8 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true)
     const [period, setPeriod] = useState(7)
 
+    const [systemMetrics, setSystemMetrics] = useState(null)
+
     useEffect(() => {
         fetchAnalytics()
     }, [period])
@@ -20,16 +22,31 @@ export default function AnalyticsPage() {
     const fetchAnalytics = async () => {
         setLoading(true)
         try {
-            const [metricsRes, distributionRes] = await Promise.all([
+            const [metricsRes, distributionRes, systemRes] = await Promise.all([
                 fetch(`/api/analytics/qualification-metrics?days=${period}`),
-                fetch(`/api/analytics/score-distribution?days=${period}`)
+                fetch(`/api/analytics/score-distribution?days=${period}`),
+                fetch('/metrics')
             ])
 
             const metricsData = await metricsRes.json()
             const distributionData = await distributionRes.json()
+            const systemText = await systemRes.text()
 
             setMetrics(metricsData)
             setDistribution(distributionData)
+
+            // Parse Prometheus text
+            const parseMetric = (name) => {
+                const match = systemText.match(new RegExp(`${name}\\s+([\\d\\.]+)`))
+                return match ? parseFloat(match[1]) : 0
+            }
+
+            setSystemMetrics({
+                cacheHitRate: parseMetric('cache_hit_rate'),
+                apiCalls: parseMetric('perplexity_api_calls_total'),
+                appraisals: parseMetric('appraisal_requests_total')
+            })
+
         } catch (error) {
             console.error('Failed to fetch analytics:', error)
         } finally {
@@ -211,6 +228,29 @@ export default function AnalyticsPage() {
             {/* Period Info */}
             <div className="text-xs text-slate-400 text-center">
                 Data from the last {period} days
+            </div>
+
+            {/* System Health Section */}
+            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">System Health (Live)</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-8">
+                <div className="glass-panel p-6 rounded-2xl border-t-4 border-blue-500">
+                    <div className="text-sm text-slate-500 mb-1">Cache Hit Rate</div>
+                    <div className="text-2xl font-bold text-slate-800">
+                        {systemMetrics ? (systemMetrics.cacheHitRate * 100).toFixed(1) : 0}%
+                    </div>
+                </div>
+                <div className="glass-panel p-6 rounded-2xl border-t-4 border-purple-500">
+                    <div className="text-sm text-slate-500 mb-1">Perplexity API Calls</div>
+                    <div className="text-2xl font-bold text-slate-800">
+                        {systemMetrics?.apiCalls || 0}
+                    </div>
+                </div>
+                <div className="glass-panel p-6 rounded-2xl border-t-4 border-green-500">
+                    <div className="text-sm text-slate-500 mb-1">Total Appraisals</div>
+                    <div className="text-2xl font-bold text-slate-800">
+                        {systemMetrics?.appraisals || 0}
+                    </div>
+                </div>
             </div>
         </div>
     )

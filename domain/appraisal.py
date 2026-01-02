@@ -1,30 +1,42 @@
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from pydantic import BaseModel
-
-# Import InvestmentMetrics from application layer
-# Note: This creates a dependency from domain -> application
-# For proper hexagonal architecture, we could define InvestmentMetrics in domain
-# But for MVP speed, we'll use TYPE_CHECKING to avoid circular imports
-
-if TYPE_CHECKING:
-    pass
+from pydantic import BaseModel, field_validator
 
 
 class PropertyCondition(str, Enum):
-    RENOVATED = "renovated"  # +10-15%
+    LUXURY = "luxury"  # +15-20%
+    EXCELLENT = "excellent"  # +10-15%
     GOOD = "good"  # Baseline
-    NEEDS_WORK = "needs_work"  # -15-20%
+    FAIR = "fair"  # -10-15%
+    POOR = "poor"  # -20-30%
+    RENOVATED = "luxury"  # Alias
+    NEEDS_WORK = "fair"  # Alias
 
 
 class AppraisalRequest(BaseModel):
     city: str
     zone: str
     property_type: str = "apartment"
-    surface_sqm: int
+    surface_sqm: Any
     condition: PropertyCondition = PropertyCondition.GOOD
     bedrooms: int | None = None
+    phone: str | None = None
+    email: str | None = None
+    name: str | None = None
+
+    @field_validator("surface_sqm", mode="before")
+    @classmethod
+    def parse_sqm(cls, v: Any) -> int:
+        if isinstance(v, str):
+            import re
+
+            nums = re.sub(r"[^\d]", "", v)
+            return int(nums) if nums else 0
+        try:
+            return int(v) if v is not None else 0
+        except (ValueError, TypeError):
+            return 0
 
 
 class Comparable(BaseModel):

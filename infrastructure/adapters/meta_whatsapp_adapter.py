@@ -97,3 +97,85 @@ class MetaWhatsAppAdapter(MessagingPort):
             raise ExternalServiceError(
                 "Failed to connect to Meta WhatsApp API", cause=str(e)
             ) from e
+
+    def send_interactive_message(self, to: str, message: Any) -> str:
+        """
+        Sends an interactive message (Buttons or List).
+        Expects 'message' to be an instance of domain.messages.InteractiveMessage.
+        """
+        # Clean number
+        clean_to = "".join(filter(str.isdigit, to))
+
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
+        }
+
+        interactive_payload = {}
+
+        # 1. Map Domain Model to Meta Payload
+        if message.type == "button":
+            interactive_payload = {
+                "type": "button",
+                "body": {"text": message.body_text},
+                "action": {
+                    "buttons": [
+                        {
+                            "type": "reply",
+                            "reply": {"id": btn.id, "title": btn.title[:20]},  # Meta limit 20 chars
+                        }
+                        for btn in (message.buttons or [])
+                    ]
+                },
+            }
+        elif message.type == "list":
+            interactive_payload = {
+                "type": "list",
+                "body": {"text": message.body_text},
+                "action": {
+                    "button": message.button_text or "Menu",
+                    "sections": [
+                        {
+                            "title": section.title,
+                            "rows": [
+                                {
+                                    "id": row.id,
+                                    "title": row.title[:24],  # Meta limit
+                                    "description": (row.description or "")[:72],
+                                }
+                                for row in section.rows
+                            ],
+                        }
+                        for section in (message.sections or [])
+                    ],
+                },
+            }
+
+        # Add Header/Footer if present
+        if message.header_text:
+            interactive_payload["header"] = {"type": "text", "text": message.header_text}
+
+        if message.footer_text:
+            interactive_payload["footer"] = {"text": message.footer_text}
+
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": clean_to,
+            "type": "interactive",
+            "interactive": interactive_payload,
+        }
+
+        try:
+            response = requests.post(self.base_url, headers=headers, json=payload, timeout=15)
+            response_data = response.json()
+
+            if response.status_code != 200:
+                logger.error("META_WHATSAPP_INTERACTIVE_FAILED", context={"error": response_data})
+                raise ExternalServiceError(f"Meta API Error: {response_data}")
+
+            return response_data.get("messages", [{}])[0].get("id")
+
+        except Exception as e:
+            logger.error("META_INTERACTIVE_SEND_ERROR", context={"error": str(e)})
+            raise ExternalServiceError("Failed to send interactive message", cause=str(e))

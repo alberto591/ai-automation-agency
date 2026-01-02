@@ -3,7 +3,7 @@ from typing import Any
 from tenacity import retry, stop_after_attempt, wait_exponential
 from twilio.rest import Client
 
-from domain.errors import ExternalServiceError, RateLimitError
+from domain.errors import ExternalServiceError
 from domain.ports import MessagingPort
 from infrastructure.logging import get_logger
 from infrastructure.rate_limiter import RateLimiter
@@ -28,15 +28,6 @@ class TwilioAdapter(MessagingPort):
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
-        # 0. Check rate limit
-        if not self.rate_limiter.check_rate_limit(to):
-            remaining = self.rate_limiter.get_remaining(to)
-            raise RateLimitError(
-                f"Rate limit exceeded for {to}",
-                cause=f"Exceeded {self.message_rate_limit} messages per {self.message_rate_window_seconds}s",
-                remediation=f"Wait before sending more messages. Remaining: {remaining}",
-            )
-
         # 1. Clean numbers
         clean_to = "".join(to.split())
         from_number = self.from_number
@@ -70,3 +61,12 @@ class TwilioAdapter(MessagingPort):
         except Exception as e:
             logger.error("TWILIO_SEND_FAILED", context={"to": to, "error": str(e)})
             raise ExternalServiceError("Failed to send WhatsApp message", cause=str(e)) from e
+
+    def send_interactive_message(self, to: str, message: Any) -> str:
+        """
+        Sends an interactive message (Buttons, List, etc.).
+
+        Currently not implemented for Twilio.
+        """
+        logger.warning("TWILIO_INTERACTIVE_NOT_IMPLEMENTED", context={"to": to})
+        raise NotImplementedError("Interactive messages not yet supported for Twilio adapter")

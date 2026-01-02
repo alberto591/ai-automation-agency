@@ -57,6 +57,7 @@ class Container:
             scraper=self.scraper,
             market=self.market,
             calendar=self.calendar,
+            email=self.email,
             validation=self.validation,
         )
 
@@ -97,12 +98,14 @@ class Container:
 
     @property
     def research(self) -> Any:
-        """Lazy load Research adapter (Perplexity Labs)."""
+        """Lazy load Research adapter (Perplexity Labs) with Redis cache."""
         from infrastructure.adapters.perplexity_adapter import (  # noqa: PLC0415
             PerplexityAdapter,
         )
+        from infrastructure.cache import RedisPerplexityCache  # noqa: PLC0415
 
-        return PerplexityAdapter()
+        cache = RedisPerplexityCache(redis_url=settings.REDIS_URL, ttl_hours=24)
+        return PerplexityAdapter(cache=cache)
 
     @property
     def validation(self) -> Any:
@@ -112,6 +115,13 @@ class Container:
         )
 
         return PostgresValidationAdapter()
+
+    @property
+    def email(self) -> Any:
+        """Lazy load Email adapter (IMAP)."""
+        from infrastructure.adapters.imap_adapter import IMAPAdapter  # noqa: PLC0415
+
+        return IMAPAdapter()
 
 
 # Composition Root Instance

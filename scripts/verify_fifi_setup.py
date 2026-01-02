@@ -25,7 +25,7 @@ def verify_database_connection():
     try:
         from supabase import create_client
 
-        client = create_client(settings.supabase_url, settings.supabase_key)
+        client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
         result = client.table("leads").select("id").limit(1).execute()
         print("✅ Database connection successful")
         return True
@@ -39,7 +39,7 @@ def check_tables_exist():
     try:
         from supabase import create_client
 
-        client = create_client(settings.supabase_url, settings.supabase_key)
+        client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
 
         tables_to_check = [
             "historical_transactions",
@@ -66,7 +66,7 @@ def check_transaction_data():
     try:
         from supabase import create_client
 
-        client = create_client(settings.supabase_url, settings.supabase_key)
+        client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
 
         result = client.table("historical_transactions").select("*", count="exact").execute()
 
@@ -90,16 +90,26 @@ def check_transaction_data():
         return False
 
 
-def test_feature_engineering():
-    """Test if feature engineering works."""
+def test_ml_components():
+    """Test if ML components are available."""
     try:
-        from infrastructure.ml.feature_engineering import FeatureEngineer
+        from infrastructure.ml.feature_engineering import (
+            PropertyFeatures,
+        )
+        from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 
-        engineer = FeatureEngineer()
-        print("✅ Feature engineering module loaded")
+        # Test feature extraction
+        PropertyFeatures(sqm=100, bedrooms=2, condition="good")
+
+        # Test XGBoost adapter
+        adapter = XGBoostAdapter()
+
+        print("✅ ML components loaded successfully")
+        print("   - PropertyFeatures: ✅")
+        print(f"   - XGBoostAdapter: ✅ (model version: {adapter.model_version})")
         return True
     except Exception as e:
-        print(f"⚠️  Feature engineering not ready: {str(e)[:100]}")
+        print(f"⚠️  ML components not ready: {str(e)[:150]}")
         return False
 
 
@@ -112,7 +122,7 @@ def main():
         ("Database Connection", verify_database_connection),
         ("Table Structure", check_tables_exist),
         ("Transaction Data", check_transaction_data),
-        ("Feature Engineering", test_feature_engineering),
+        ("ML Components", test_ml_components),
     ]
 
     results = []

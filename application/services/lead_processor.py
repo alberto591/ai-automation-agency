@@ -7,6 +7,7 @@ from domain.ports import (
     AIPort,
     CalendarPort,
     DatabasePort,
+    EmailPort,
     MarketDataPort,
     MessagingPort,
     ScraperPort,
@@ -63,6 +64,7 @@ class LeadProcessor:
         scraper: ScraperPort | None = None,
         market: MarketDataPort | None = None,
         calendar: CalendarPort | None = None,
+        email: EmailPort | None = None,
         validation: Any = None,
     ):
         self.db = db
@@ -75,6 +77,7 @@ class LeadProcessor:
         self.scraper = scraper
         self.market = market
         self.calendar = calendar
+        self.email = email
         self.validation = validation
 
         # The graph creation expects the ports
@@ -236,6 +239,60 @@ class LeadProcessor:
                 context={"phone": phone, "property": properties[0].get("id")},
             )
 
+    def process_appraisal_signal(
+        self, phone: str, estimated_value: float, comparables_count: int
+    ) -> None:
+        """
+        Updates lead score and tags based on appraisal results.
+        High value properties (>500k) get boosted scores and tags.
+        """
+        phone = re.sub(r"\s+", "", phone)
+        logger.info(
+            "PROCESSING_APPRAISAL_SIGNAL", context={"phone": phone, "value": estimated_value}
+        )
+
+        # Calculate score boost
+        score_boost = 0
+        is_high_value = estimated_value > 500000
+        is_investor = False  # Could derive from other signals later
+
+        if is_high_value:
+            score_boost += 25  # Immediate WARM/HOT status potential
+        if estimated_value > 1000000:
+            score_boost += 15  # Luxury bonus
+
+        tags = []
+        if is_high_value:
+            tags.append("HIGH_VALUE")
+        if estimated_value > 1000000:
+            tags.append("LUXURY")
+
+        # Update lead
+        try:
+            lead = self.db.get_lead(phone)
+            if lead:
+                current_score = lead.get("lead_score_raw", 0)
+                new_score = current_score + score_boost
+
+                # Update tags
+                current_tags = lead.get("tags", []) or []
+                updated_tags = list(set(current_tags + tags))
+
+                self.db.save_lead(
+                    {
+                        "customer_phone": phone,
+                        "lead_score_raw": new_score,
+                        "tags": updated_tags,
+                        "estimated_property_value": estimated_value,
+                        "updated_at": datetime.now(UTC).isoformat(),
+                    }
+                )
+                logger.info(
+                    "LEAD_SCORED_FROM_APPRAISAL", context={"phone": phone, "new_score": new_score}
+                )
+        except Exception as e:
+            logger.error("APPRAISAL_SIGNAL_FAILED", context={"phone": phone, "error": str(e)})
+
     def process_incoming_message(
         self,
         phone: str,
@@ -331,3 +388,56 @@ class LeadProcessor:
                 "sentiment": "UNKNOWN",
                 "suggested_action": "Check logs",
             }
+
+    def process_new_emails(self) -> int:
+        """
+        Fetches unread emails and processes them as leads.
+        Returns the number of emails processed.
+        """
+        if not self.email:
+            logger.warning("EMAIL_PROCESSING_SKIPPED_NO_ADAPTER")
+            return 0
+
+        try:
+            emails = self.email.fetch_unread_emails()
+            count = 0
+
+            for email_data in emails:
+                sender = email_data.get("sender", "Unknown")
+                subject = email_data.get("subject", "No Subject")
+                body = email_data.get("body", "")
+
+                # Basic email parsing to extract phone if possible, else use email as identifier key
+                # For now, we'll try to find a phone number in the body, otherwise use email
+                # Note: Our generic process_lead currently expects a phone.
+                # We might need to handle email-only leads soon, but for MVP let's look for phone or use a placeholder.
+
+                # Heuristic: Find first phone-like string
+                phone_match = re.search(r"(\+39|3[0-9]{2})\s?([\d\s]{6,8})", body + " " + subject)
+                if phone_match:
+                    phone = phone_match.group(0).replace(" ", "")
+                else:
+                    # Fallback: create a pseudo-phone from email for now or log warning
+                    # Ideally we update the system to handle email primary keys.
+                    # For this pass, we'll just log and skip if no phone found to avoid junk data
+                    logger.info("EMAIL_SKIPPED_NO_PHONE", context={"subject": subject})
+                    continue
+
+                logger.info("PROCESSING_EMAIL_LEAD", context={"phone": phone, "subject": subject})
+
+                # Construct message text
+                text = f"[EMAIL] Subject: {subject}\n\n{body[:1000]}"
+
+                self.process_incoming_message(phone, text, source="email", channel="email")
+
+                # Mark as processed
+                if "id" in email_data:
+                    self.email.mark_as_processed(email_data["id"])
+
+                count += 1
+
+            return count
+
+        except Exception as e:
+            logger.error("EMAIL_POLLING_FAILED", context={"error": str(e)})
+            return 0

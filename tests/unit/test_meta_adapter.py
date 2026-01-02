@@ -10,7 +10,11 @@ def adapter():
     with patch("config.settings.settings") as mock_set:
         mock_set.META_ACCESS_TOKEN = "test_token"
         mock_set.META_PHONE_ID = "test_id"
-        return MetaWhatsAppAdapter()
+        mock_set.WHATSAPP_PROVIDER = "meta"
+
+        # Patch the Container to avoid real instantiation of other adapters
+        with patch("config.container.Container"):
+            yield MetaWhatsAppAdapter()
 
 
 def test_send_message_success(adapter):

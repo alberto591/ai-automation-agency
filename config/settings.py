@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Perplexity Labs (Research)
     PERPLEXITY_API_KEY: str = Field(default="")
 
+    # Redis Cache (Optional)
+    REDIS_URL: str = Field(default="")  # e.g., redis://localhost:6379/0
+
     # WhatsApp Messaging
     WHATSAPP_PROVIDER: str = Field(default="twilio")  # or "meta"
 

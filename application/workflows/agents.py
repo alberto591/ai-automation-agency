@@ -261,7 +261,7 @@ def create_lead_processing_graph(
             try:
                 validation.log_validation(
                     predicted_value=int(prediction),
-                    actual_value=None,  # Not available yet for live audit
+                    actual_value=0,  # Not available yet for live audit
                     metadata={
                         "phone": state["phone"],
                         "features": features.model_dump()
@@ -269,9 +269,11 @@ def create_lead_processing_graph(
                         else str(features),
                         "source": "live_appraisal",
                         "user_input": state["user_input"],
+                        "zone": features.zone_slug or "UNKNOWN",
+                        "city": "UNKNOWN",  # Could extract from features if needed
+                        "fifi_status": status,
                     },
                     uncertainty_score=uncertainty_score,
-                    zone=features.zone_slug,
                 )
                 logger.info("AUDIT_LOG_SUCCESS", context={"phone": state["phone"]})
             except Exception as e:
@@ -617,17 +619,33 @@ def create_lead_processing_graph(
         return {"embedding": embedding, "checkpoint": "continue"}
 
     def retrieval_node(state: AgentState) -> dict[str, Any]:
-        """Fetch matching properties."""
+        """Fetch matching properties using database or tool logic."""
         query = state["user_input"]
         embedding = state["embedding"]
         budget = state["budget"]
+        preferences = state["preferences"]
 
-        filters = {"max_price": budget} if budget else {}
-        properties = db.get_properties(query, embedding=embedding, filters=filters)
+        # Construct filters from preferences
+        filters = {}
+        if budget:
+            filters["max_price"] = budget
+        if preferences.property_types:
+            filters["property_type"] = preferences.property_types[0]  # Simple taking first for now
+        if preferences.rooms:
+            filters["min_bedrooms"] = min(preferences.rooms)
+
+        # Use DB port directly (Tool wrapper optional inside node if needed, but direct is cleaner here)
+        properties = db.get_properties(query, embedding=embedding, filters=filters, limit=5)
 
         # Filter (ADR-004 logic: 0.78 threshold)
         valid_properties = [p for p in properties if p.get("similarity", 0) >= 0.78]
         status_msg = ""
+
+        # If explicit search request (e.g. "Show me villas"), relax threshold
+        if state["intent"] in ["PURCHASE", "RENT"] or "search" in query.lower():
+            if not valid_properties and properties:
+                valid_properties = properties[:3]
+                status_msg = "Showing best available matches based on your criteria."
 
         # Fallback Mechanism: If no exact matches, take the best ones with a warning
         if not valid_properties:
@@ -666,6 +684,13 @@ def create_lead_processing_graph(
                         "Language: {language}\n\n"
                         "If Language is 'it': Short, friendly Italian, local agency vibe.\n"
                         "If Language is 'en': Act as a professional, welcoming guide for tourists. Focus on the charm of Tuscany. Explain local nuances like 'borgo', 'agriturismo', and the lifestyle. Use warm, descriptive language.\n\n"
+                        "### OBJECTION HANDLING ###\n"
+                        "If the user expresses concerns (price, timing, trust), use the 'Empathy -> Pivot -> Value' technique:\n"
+                        "1. Acknowledge and Validate: 'I understand that price is a major factor...'\n"
+                        "2. Pivot: 'However, considering the location and recent market trends...'\n"
+                        "3. Value: 'This property offers unique investment potential...'\n"
+                        "- Never be defensive. Be consultative.\n"
+                        "- If they say 'Just looking', encourage them: 'That's the best way to start! I can send you a curated list to get a feel for the market.'\n\n"
                         "### NEGOTIATION & MARKET INTELLIGENCE ###\n"
                         "If Market Insights (Market Data) are present:\n"
                         "- Explicitly mention the area average price if relevant (e.g., 'The average in {area_name} is €{avg_price_sqm}/sqm').\n"
@@ -772,7 +797,38 @@ def create_lead_processing_graph(
             db.save_message(lead["id"], assistant_msg)
 
             # 2. Send Message via Messaging Port
-            msg.send_message(phone, response)
+            # Check for Rich Content needed
+            # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
+            if (
+                state["source"] == "WHATSAPP"
+                and state.get("retrieved_properties")
+                and "list" not in state["status_msg"]  # Avoid loops if we flagging it
+            ):
+                from domain.messages import InteractiveMessage, Row, Section
+
+                rows = []
+                for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
+                    rows.append(
+                        Row(
+                            id=f"prop_{p.get('id', '0')}",
+                            title=p.get("title", "Property")[:24],
+                            description=f"€{p.get('price', 0):,}",
+                        )
+                    )
+
+                msg_model = InteractiveMessage(
+                    type="list",
+                    body_text=response[:1024],  # Truncate body if needed
+                    button_text="View Homes",
+                    sections=[Section(title="Top Matches", rows=rows)],
+                )
+                try:
+                    msg.send_interactive_message(phone, msg_model)
+                except Exception:
+                    # Fallback to text if interactive fails (e.g. not implemented in mock)
+                    msg.send_message(phone, response)
+            else:
+                msg.send_message(phone, response)
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:
@@ -796,7 +852,7 @@ def create_lead_processing_graph(
             "journey_state": lead.get("journey_state"),
             "status": lead.get("status"),
             # "messages" removal here is critical: save_message handled it
-            "last_message": response or text,
+            # "last_message" removed - not in current schema
             "updated_at": datetime.now(UTC).isoformat(),
         }
         db.update_lead(phone, update_payload)

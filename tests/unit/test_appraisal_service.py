@@ -19,14 +19,14 @@ class TestAppraisalServiceIntegration:
     def service(self):
         """AppraisalService with mocked research."""
         mock_research = Mock()
-        mock_research.search = Mock(
+        mock_research.find_market_comparables = Mock(
             return_value="""
             Apartment in Centro | €450,000 | 95 sqm
             Renovated Flat | €480,000 |100 sqm
             Luxury Apt | €520,000 | 105 sqm
             """
         )
-        return AppraisalService(research=mock_research)
+        return AppraisalService(research_port=mock_research)
 
     def test_full_appraisal_with_investment_metrics(self, service):
         """Should generate full appraisal with investment metrics."""
@@ -62,7 +62,7 @@ class TestAppraisalServiceIntegration:
 
     def test_fallback_when_no_data(self, service):
         """Should return safe fallback when research fails."""
-        service.research.search = Mock(return_value="")
+        service.research.find_market_comparables = Mock(return_value="")
 
         request = AppraisalRequest(city="Florence", zone="Unknown", surface_sqm=100)
 

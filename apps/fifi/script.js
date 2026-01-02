@@ -114,21 +114,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Phone validation (Italy +39 and Spain +34)
-            const phoneRegex = /^(\+39|0039|\+34|0034|0)?[0-9]{9,10}$/;
-            if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-                showNotification('Per favore inserisci un numero di telefono valido', 'error');
-                return;
+            // Ensure E.164 format for backend (+ prefix)
+            let formattedPhone = phone.replace(/\s/g, '');
+            if (!formattedPhone.startsWith('+')) {
+                if (formattedPhone.startsWith('00')) {
+                    formattedPhone = '+' + formattedPhone.substring(2);
+                } else {
+                    // Default to Italy if no prefix
+                    formattedPhone = '+39' + (formattedPhone.startsWith('0') ? formattedPhone.substring(1) : formattedPhone);
+                }
             }
-
-            // Send data to backend API
-            this.innerHTML = '<i class="ph ph-spinner"></i> Elaborazione IA...';
-            this.disabled = true;
 
             const payload = {
                 name: name,
                 agency: agency,
-                phone: phone,
+                phone: formattedPhone,
                 properties: formData.get('properties')
             };
 
@@ -280,16 +280,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            // Ensure E.164 format for backend (+ prefix)
+            let formattedPhone = phone.replace(/\s/g, '');
+            if (!formattedPhone.startsWith('+')) {
+                if (formattedPhone.startsWith('00')) {
+                    formattedPhone = '+' + formattedPhone.substring(2);
+                } else {
+                    // Default to Italy if no prefix
+                    formattedPhone = '+39' + (formattedPhone.startsWith('0') ? formattedPhone.substring(1) : formattedPhone);
+                }
+            }
+
             submitBtn.innerHTML = `<i class="ph ph-spinner"></i> ${t('appraisal-status-analyzing')}`;
             submitBtn.disabled = true;
 
             const payload = {
                 name: "AI Appraisal Lead",
                 agency: "Fifi Appraisal Tool",
-                phone: phone,
+                phone: formattedPhone,
                 postcode: postcode,
                 properties: "RICHIESTA VALUTAZIONE: " + address + " (Condizione: " + condition + ") MQ: " + sqm
             };
+
+            // Extract city from address
+            const extractCity = (address) => {
+                // Common Italian cities (add more as needed)
+                const cities = ['Firenze', 'Florence', 'Roma', 'Rome', 'Milano', 'Milan', 'Napoli', 'Naples', 'Torino', 'Turin', 'Bologna', 'Venezia', 'Venice'];
+                const addressUpper = address.toUpperCase();
+                for (const city of cities) {
+                    if (addressUpper.includes(city.toUpperCase())) {
+                        // Return English name for API consistency
+                        if (city === 'Firenze') return 'Florence';
+                        if (city === 'Roma') return 'Rome';
+                        if (city === 'Milano') return 'Milan';
+                        if (city === 'Napoli') return 'Naples';
+                        if (city === 'Torino') return 'Turin';
+                        if (city === 'Venezia') return 'Venice';
+                        return city;
+                    }
+                }
+                return 'Florence'; // Default fallback
+            };
+
+            const detectedCity = extractCity(address);
 
             // First, create lead
             fetch(`${API_BASE}/api/leads`, {
@@ -306,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            city: "Florence",
+                            city: detectedCity,
                             zone: postcode,
                             surface_sqm: parseInt(sqm),
                             condition: condition
@@ -322,23 +355,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Extract real data from API response
                     const metrics = appraisal.investment_metrics || {};
-                    const avgPrice = (appraisal.estimated_range_min + appraisal.estimated_range_max) / 2;
+                    const hasData = appraisal.estimated_value > 0;
+
+                    // Toggle result UI based on data availability
+                    const noDataAlert = document.getElementById('no-data-alert');
+                    const valueRangeDisplay = document.getElementById('value-range');
+                    if (noDataAlert && valueRangeDisplay) {
+                        noDataAlert.style.display = hasData ? 'none' : 'flex';
+                        valueRangeDisplay.style.display = hasData ? 'block' : 'none';
+                    }
 
                     // Update Confidence Text
                     const confidenceText = document.getElementById('confidence-text');
-                    if (confidenceText && appraisal.confidence_level) {
-                        const stars = '⭐'.repeat(appraisal.reliability_stars || 3);
-                        confidenceText.textContent = `${stars} (${appraisal.confidence_level}%)`;
+                    if (confidenceText) {
+                        if (hasData && appraisal.confidence_level) {
+                            const stars = '⭐'.repeat(appraisal.reliability_stars || 3);
+                            confidenceText.textContent = `${stars} (${appraisal.confidence_level}%)`;
+                        } else {
+                            confidenceText.textContent = t('appraisal-res-confidence-low');
+                        }
                     }
 
                     // Animate with real data
-                    animateValue("res-min", 0, appraisal.estimated_range_min, 1500);
-                    animateValue("res-max", 0, appraisal.estimated_range_max, 1500);
-                    animateValue("res-sqm", 0, appraisal.avg_price_sqm, 1500);
+                    animateValue("res-min", 0, appraisal.estimated_range_min || 0, 1500);
+                    animateValue("res-max", 0, appraisal.estimated_range_max || 0, 1500);
+                    animateValue("res-sqm", 0, appraisal.avg_price_sqm || 0, 1500);
 
                     // Use real investment metrics if available
                     if (metrics) {
-                        animateValue("res-rent", 0, metrics.monthly_rent || metrics.estimated_rent || 0, 1500);
+                        animateValue("res-rent", 0, metrics.monthly_rent || 0, 1500);
                         animateValue("res-yield", 0, metrics.cap_rate || 0, 1500, true);
                         animateValue("res-cap-rate", 0, metrics.cap_rate || 0, 1500, true);
                         animateValue("res-roi", 0, metrics.roi || 0, 1500, true);
@@ -348,37 +393,36 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Handle PDF Download
                     const pdfBtn = document.getElementById('download-pdf-btn');
                     if (pdfBtn) {
-                        pdfBtn.addEventListener('click', function () {
+                        // Remove existing listeners if any
+                        const newPdfBtn = pdfBtn.cloneNode(true);
+                        pdfBtn.parentNode.replaceChild(newPdfBtn, pdfBtn);
+
+                        newPdfBtn.addEventListener('click', function () {
                             this.innerHTML = `<i class="ph ph-spinner"></i> ${t('appraisal-status-pdf-generating')}`;
                             this.disabled = true;
 
-                            // Construct fifi_data for PDF
                             const fifi_data = {
-                                predicted_value: 467500, // Average of range
-                                confidence_range: `€${simData.min_val.toLocaleString()} - €${simData.max_val.toLocaleString()}`,
-                                confidence_level: 85,
+                                predicted_value: appraisal.estimated_value || 0,
+                                confidence_range: `€${(appraisal.estimated_range_min || 0).toLocaleString()} - €${(appraisal.estimated_range_max || 0).toLocaleString()}`,
+                                confidence_level: appraisal.confidence_level || 85,
                                 features: {
-                                    sqm: 100, // Default for lead magnet
+                                    sqm: parseInt(sqm),
                                     bedrooms: 3,
                                     bathrooms: 2,
                                     floor: 2,
-                                    condition: condition, // User input
+                                    condition: condition,
                                     has_elevator: true,
                                     has_balcony: true
                                 },
                                 investment_metrics: {
-                                    monthly_rent: simData.rent,
-                                    annual_rent: simData.rent * 12,
-                                    cap_rate: simData.yield,
-                                    roi_5_year: simData.roi,
-                                    cash_on_cash_return: simData.coc,
-                                    down_payment_20pct: 467500 * 0.2
+                                    monthly_rent: metrics.monthly_rent || 0,
+                                    annual_rent: (metrics.monthly_rent || 0) * 12,
+                                    cap_rate: metrics.cap_rate || 0,
+                                    roi_5_year: metrics.roi || 0,
+                                    cash_on_cash_return: metrics.cash_on_cash_return || 0,
+                                    down_payment_20pct: (appraisal.estimated_value || 0) * 0.2
                                 },
-                                comparables: [
-                                    { title: "Appartamento Signorile in Centro", sale_price_eur: 480000, sqm: 105 },
-                                    { title: "Trilocale Ristrutturato", sale_price_eur: 455000, sqm: 98 },
-                                    { title: "Attico Vista Mura", sale_price_eur: 510000, sqm: 110 }
-                                ]
+                                comparables: appraisal.comparables || []
                             };
 
                             fetch(`${API_BASE}/api/appraisals/generate-pdf`, {
@@ -392,14 +436,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 .then(res => res.json())
                                 .then(data => {
                                     if (data.status === 'success') {
-                                        // In local/dev, open path directly if accessible or show success
-                                        // For now we just notify success as it's a local file path being returned
-                                        if (API_BASE.includes('localhost')) {
-                                            // Since we can't easily open local files from browser due to security,
-                                            // we'll just show success. In prod with Supabase URL, we'd window.open(data.pdf_path)
-                                            showNotification(t('appraisal-status-pdf-success'), 'success');
-                                            console.log("PDF generated at:", data.pdf_path);
-                                        } else {
+                                        showNotification(t('appraisal-status-pdf-success'), 'success');
+                                        if (!API_BASE.includes('localhost')) {
                                             window.open(data.pdf_path, '_blank');
                                         }
                                         this.innerHTML = `<i class="ph ph-check"></i> ${t('appraisal-status-pdf-success')}`;
@@ -409,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 })
                                 .catch(err => {
                                     console.error(err);
-                                    showNotification(t('appraisal-pdf-error'), 'error');
+                                    showNotification(t('generic-error'), 'error');
                                     this.innerHTML = `<i class="ph ph-download"></i> ${t('appraisal-res-download-pdf')}`;
                                     this.disabled = false;
                                 });

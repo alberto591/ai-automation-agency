@@ -25,15 +25,14 @@ class AppraisalService:
         """
         logger.info("APPRAISAL_START", context=request.model_dump())
 
-        # 1. Research Active Listings
-        query = (
-            f"Find 3 active real estate listings for a {request.property_type} in "
-            f"{request.city} area {request.zone}, around {request.surface_sqm} sqm. "
-            f"Format: Title | Price | Sqm. Return only the data list."
-        )
-
+        # 1. Research Active Listings using improved query
         try:
-            research_text = self.research.search(query)
+            research_text = self.research.find_market_comparables(
+                city=request.city,
+                zone=request.zone,
+                property_type=request.property_type,
+                surface_sqm=request.surface_sqm,
+            )
             comparables = self._parse_comparables(research_text)
         except Exception as e:
             logger.error("APPRAISAL_RESEARCH_FAILED", context={"error": str(e)})
@@ -104,49 +103,125 @@ class AppraisalService:
 
     def _parse_comparables(self, text: str) -> list[Comparable]:
         """
-        Naively parses Perplexity output.
-        In a robust system, we'd use a structured extraction LLM chain here.
-        This regex is a placeholder for the MVP.
-        Expected format lines: "Title... €300,000 ... 100 sqm"
+        Use Mistral LLM to extract structured comparable data from Perplexity's natural language response.
+        This is more robust than regex for handling varied response formats.
         """
-        comps = []
-        # Support formats: € 300.000, 300.000 €, EUR 300.000, €300,000
-        # and 75 mq, 75 sqm, 75 m²
+        from mistralai import Mistral
 
+        from config.settings import settings
+
+        try:
+            client = Mistral(api_key=settings.MISTRAL_API_KEY)
+
+            extraction_prompt = f"""Extract real estate comparable data from the following text.
+Return ONLY a JSON array of objects, each with: title (string), price (number in euros), surface_sqm (number).
+
+FILTERING RULES:
+- Only include properties that have BOTH a sale price AND square meters specified
+- EXCLUDE rental properties (monthly prices like "€1,300/month")
+- EXCLUDE auction properties ("asta", "auction", "giudiziaria")
+- EXCLUDE properties with incomplete data
+- Prefer recent listings when available
+
+Text to parse:
+{text}
+
+Return format: [{{"title": "...", "price": 450000, "surface_sqm": 95}}, ...]
+If no valid comparables found, return: []"""
+
+            response = client.chat.complete(
+                model=settings.MISTRAL_MODEL,
+                messages=[{"role": "user", "content": extraction_prompt}],
+            )
+
+            result_text = response.choices[0].message.content.strip()
+
+            # Extract JSON from response (handle markdown code blocks)
+            if "```json" in result_text:
+                result_text = result_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in result_text:
+                result_text = result_text.split("```")[1].split("```")[0].strip()
+
+            import json
+
+            data = json.loads(result_text)
+
+            comps = []
+            for item in data:
+                try:
+                    price = float(item["price"])
+                    sqm = int(item["surface_sqm"])
+
+                    if sqm > 0 and price > 10000:
+                        psqm = price / sqm
+                        # Sanity check: €500-€15000/sqm for Florence
+                        if 500 < psqm < 15000:
+                            comps.append(
+                                Comparable(
+                                    title=str(item["title"])[:100],
+                                    price=price,
+                                    surface_sqm=sqm,
+                                    price_per_sqm=round(psqm, 0),
+                                    description=str(item.get("title", ""))[:200],
+                                )
+                            )
+                except (KeyError, ValueError, TypeError) as e:
+                    logger.debug(f"Skipping invalid comparable: {item}. Error: {e}")
+                    continue
+
+            logger.info(f"Extracted {len(comps)} comparables using LLM")
+            return comps
+
+        except Exception as e:
+            logger.error(f"LLM extraction failed: {e}. Falling back to regex.")
+            # Fallback to simple regex if LLM fails
+            return self._parse_comparables_regex(text)
+
+    def _parse_comparables_regex(self, text: str) -> list[Comparable]:
+        """Fallback regex parser."""
+        comps = []
         lines = text.split("\n")
+
         for line in lines:
+            if "|---" in line or (line.strip().startswith("|") and "Title" in line):
+                continue
+
             try:
-                # Find price (look for € or EUR)
+                price_match = None
                 if "€" in line:
-                    # Match numbers like 300.000 or 300,000 associated with €
                     price_match = re.search(r"€\s?([\d\.,]+)|([\d\.,]+)\s?€", line)
                 elif "EUR" in line:
                     price_match = re.search(r"EUR\s?([\d\.,]+)|([\d\.,]+)\s?EUR", line)
-                else:
-                    continue
 
-                # Find sqm
-                sqm_match = re.search(r"(\d+)\s?(?:sqm|mq|m²|m2)", line, re.IGNORECASE)
+                sqm_match = re.search(r"(\d+)\s?(?:sqm|mq|m²|m2|m\^2)", line, re.IGNORECASE)
 
                 if price_match and sqm_match:
-                    # Extract price group (could be group 1 or 2)
                     price_str = price_match.group(1) or price_match.group(2)
-                    price_str = price_str.replace(".", "").replace(",", "")
-                    price = float(price_str)
+                    if price_str.count(".") > 1:
+                        price_str = price_str.replace(".", "")
+                    elif price_str.count(",") > 1:
+                        price_str = price_str.replace(",", "")
+                    else:
+                        if "." in price_str and len(price_str.split(".")[-1]) == 3:
+                            price_str = price_str.replace(".", "")
+                        elif "," in price_str and len(price_str.split(",")[-1]) == 3:
+                            price_str = price_str.replace(",", "")
 
+                    price = float(price_str)
                     sqm = int(sqm_match.group(1))
 
-                    if sqm > 0 and price > 10000:  # Basic sanity check
+                    if sqm > 0 and price > 10000:
                         psqm = price / sqm
-                        comps.append(
-                            Comparable(
-                                title=line[:60].strip() + "...",
-                                price=price,
-                                surface_sqm=sqm,
-                                price_per_sqm=round(psqm, 0),
-                                description=line.strip(),
+                        if 500 < psqm < 15000:
+                            comps.append(
+                                Comparable(
+                                    title=line[:60].strip() + "...",
+                                    price=price,
+                                    surface_sqm=sqm,
+                                    price_per_sqm=round(psqm, 0),
+                                    description=line.strip(),
+                                )
                             )
-                        )
             except Exception:
                 continue
 

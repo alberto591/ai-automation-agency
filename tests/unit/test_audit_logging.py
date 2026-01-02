@@ -89,6 +89,7 @@ def test_fifi_appraisal_node_triggers_audit_log(mock_extract, mock_validation):
         "lead_score": {},
         "sentiment": MagicMock(),
         "preferences": MagicMock(),
+        "zone": "milano-centro",  # Add zone for fifi appraisal node
     }
 
     # Invoke graph - it should run fifi_appraisal_node
@@ -100,7 +101,7 @@ def test_fifi_appraisal_node_triggers_audit_log(mock_extract, mock_validation):
     args, kwargs = mock_validation.log_validation.call_args
     assert kwargs["predicted_value"] > 0
     assert kwargs["metadata"]["phone"] == "+39123456789"
-    assert kwargs["zone"] == "milano-centro"
+    assert kwargs["metadata"]["zone"] == "milano-centro"  # Zone is in metadata, not a direct kwarg
 
 
 @patch("infrastructure.ml.feature_engineering.extract_property_features")

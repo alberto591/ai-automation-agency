@@ -1,4 +1,5 @@
 import re
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any
 
@@ -14,8 +15,10 @@ from fastapi import (
     HTTPException,
     Query,
     Request,
+    Response,
 )
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 
 from application.services.lead_scorer import LeadScorer
@@ -33,7 +36,57 @@ from presentation.middleware.auth import get_current_user
 
 logger = get_logger(__name__)
 
-app: FastAPI = FastAPI(title="Agenzia AI API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("API_STARTUP")
+
+    # Initialize Sentry
+    if settings.SENTRY_DSN:
+        init_sentry(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.ENVIRONMENT,
+            traces_sample_rate=1.0 if settings.ENVIRONMENT == "development" else 0.1,
+        )
+        logger.info("SENTRY_ENABLED", context={"environment": settings.ENVIRONMENT})
+    else:
+        logger.warning("SENTRY_DISABLED", context={"reason": "No DSN configured"})
+
+    # Background task for email polling
+    import asyncio
+
+    async def poll_emails():
+        while True:
+            try:
+                # Poll every 5 minutes
+                await asyncio.sleep(300)
+                # Skip polling if no email configured
+                if not settings.IMAP_PASSWORD:
+                    continue
+
+                logger.info("POLLING_EMAILS")
+                count = container.lead_processor.process_new_emails()
+                if count > 0:
+                    logger.info("EMAILS_PROCESSED", context={"count": count})
+            except Exception as e:
+                logger.error("EMAIL_POLL_LOOP_ERROR", context={"error": str(e)})
+                await asyncio.sleep(60)  # Backoff on error
+
+    # Start polling
+    polling_task = asyncio.create_task(poll_emails())
+
+    yield
+
+    # Shutdown
+    polling_task.cancel()
+    logger.info("API_SHUTDOWN")
+
+
+app: FastAPI = FastAPI(
+    title="Agenzia AI API",
+    lifespan=lifespan,
+)
 
 # Middleware / Security
 app.add_middleware(
@@ -46,21 +99,6 @@ app.add_middleware(
 app.include_router(calcom_webhook.router, prefix="/api")
 app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    """Initialize services on application startup."""
-    # Initialize Sentry for error monitoring
-    if settings.SENTRY_DSN:
-        init_sentry(
-            dsn=settings.SENTRY_DSN,
-            environment=settings.ENVIRONMENT,
-            traces_sample_rate=1.0 if settings.ENVIRONMENT == "development" else 0.1,
-        )
-        logger.info("SENTRY_ENABLED", context={"environment": settings.ENVIRONMENT})
-    else:
-        logger.warning("SENTRY_DISABLED", context={"reason": "No DSN configured"})
 
 
 async def verify_webhook_key(x_webhook_key: str = Header(None)) -> None:
@@ -211,7 +249,13 @@ async def twilio_status_callback(
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:
-    return {"status": "online", "service": "Agenzia AI - Hexagonal"}
+    return {"status": "healthy", "service": "anzevino-ai-api"}
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint."""
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 # --- PROTECTED ENDPOINTS (Dashboard Actions) ---
@@ -379,7 +423,17 @@ async def generate_appraisal(req: AppraisalRequest) -> AppraisalResult:
     Public endpoint for Fifi appraisal tool.
     """
     try:
-        return container.appraisal_service.estimate_value(req)
+        result = container.appraisal_service.estimate_value(req)
+
+        # Link appraisal to lead if phone is provided
+        if req.phone:
+            container.lead_processor.process_appraisal_signal(
+                phone=req.phone,
+                estimated_value=result.estimated_value,
+                comparables_count=len(result.comparables),
+            )
+
+        return result
     except Exception as e:
         logger.error("APPRAISAL_ENDPOINT_FAILED", context={"error": str(e)})
         raise HTTPException(status_code=500, detail="Failed to generate appraisal") from None
