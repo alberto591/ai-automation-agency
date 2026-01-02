@@ -1,7 +1,6 @@
 import hashlib
 import json
 from datetime import datetime, timedelta
-from typing import Optional
 
 from infrastructure.logging import get_logger
 from infrastructure.metrics import cache_hits_total, cache_misses_total
@@ -38,7 +37,7 @@ class PerplexityCache:
         key_string = json.dumps(key_data, sort_keys=True)
         return hashlib.md5(key_string.encode()).hexdigest()
 
-    def get(self, city: str, zone: str, property_type: str, surface_sqm: int) -> Optional[str]:
+    def get(self, city: str, zone: str, property_type: str, surface_sqm: int) -> str | None:
         """
         Retrieve cached response if available and not expired.
 

@@ -201,11 +201,10 @@ If no valid comparables found, return: []"""
                         price_str = price_str.replace(".", "")
                     elif price_str.count(",") > 1:
                         price_str = price_str.replace(",", "")
-                    else:
-                        if "." in price_str and len(price_str.split(".")[-1]) == 3:
-                            price_str = price_str.replace(".", "")
-                        elif "," in price_str and len(price_str.split(",")[-1]) == 3:
-                            price_str = price_str.replace(",", "")
+                    elif "." in price_str and len(price_str.split(".")[-1]) == 3:
+                        price_str = price_str.replace(".", "")
+                    elif "," in price_str and len(price_str.split(",")[-1]) == 3:
+                        price_str = price_str.replace(",", "")
 
                     price = float(price_str)
                     sqm = int(sqm_match.group(1))

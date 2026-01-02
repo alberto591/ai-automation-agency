@@ -2,7 +2,6 @@
 import hashlib
 import json
 from datetime import timedelta
-from typing import Optional
 
 try:
     import redis
@@ -69,7 +68,7 @@ class RedisPerplexityCache:
         hash_key = hashlib.md5(key_string.encode()).hexdigest()
         return f"perplexity:{hash_key}"
 
-    def get(self, city: str, zone: str, property_type: str, surface_sqm: int) -> Optional[str]:
+    def get(self, city: str, zone: str, property_type: str, surface_sqm: int) -> str | None:
         """Retrieve cached response if available."""
         key = self._generate_key(city, zone, property_type, surface_sqm)
 

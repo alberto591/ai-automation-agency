@@ -91,7 +91,7 @@ class MessagingPort(ABC):
 
     @abstractmethod
     def send_interactive_message(self, to: str, message: Any) -> str:
-        """Sends an interactive message (Buttons, List, etc.). 'message' is an InteractiveMessage model."""
+        """Sends interactive message (Buttons, List, etc.) via InteractiveMessage model."""
         pass
 
 

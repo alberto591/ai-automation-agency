@@ -178,4 +178,4 @@ class MetaWhatsAppAdapter(MessagingPort):
 
         except Exception as e:
             logger.error("META_INTERACTIVE_SEND_ERROR", context={"error": str(e)})
-            raise ExternalServiceError("Failed to send interactive message", cause=str(e))
+            raise ExternalServiceError("Failed to send interactive message", cause=str(e)) from e

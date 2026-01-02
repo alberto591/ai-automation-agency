@@ -1,7 +1,7 @@
 import asyncio
 import os
 import sys
-from typing import Any, Optional
+from typing import Any
 
 # Ensure project root is in path
 sys.path.append(os.getcwd())
@@ -18,7 +18,7 @@ class RequestMock:
 
 
 class MockDatabaseAdapter(DatabasePort):
-    def get_lead(self, phone: str) -> Optional[dict[str, Any]]:
+    def get_lead(self, phone: str) -> dict[str, Any] | None:
         return {"id": "test-id", "customer_phone": phone, "status": "active", "messages": []}
 
     def save_lead(self, lead_data: dict[str, Any]) -> None:
@@ -40,7 +40,7 @@ class MockDatabaseAdapter(DatabasePort):
     ) -> list[dict[str, Any]]:
         return []
 
-    def get_cached_response(self, embedding: list[float], threshold: float = 0.9) -> Optional[str]:
+    def get_cached_response(self, embedding: list[float], threshold: float = 0.9) -> str | None:
         return None
 
     def save_to_cache(self, query: str, embedding: list[float], response: str) -> None:

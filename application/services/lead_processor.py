@@ -254,7 +254,6 @@ class LeadProcessor:
         # Calculate score boost
         score_boost = 0
         is_high_value = estimated_value > 500000
-        is_investor = False  # Could derive from other signals later
 
         if is_high_value:
             score_boost += 25  # Immediate WARM/HOT status potential
@@ -403,7 +402,6 @@ class LeadProcessor:
             count = 0
 
             for email_data in emails:
-                sender = email_data.get("sender", "Unknown")
                 subject = email_data.get("subject", "No Subject")
                 body = email_data.get("body", "")
 

@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -11,26 +11,26 @@ class Button(BaseModel):
 class Row(BaseModel):
     id: str
     title: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class Section(BaseModel):
-    title: Optional[str] = None
+    title: str | None = None
     rows: list[Row]
 
 
 class InteractiveMessage(BaseModel):
     type: Literal["button", "list", "cta_url"]
     body_text: str
-    header_text: Optional[str] = None
-    footer_text: Optional[str] = None
+    header_text: str | None = None
+    footer_text: str | None = None
 
     # For Lists
-    button_text: Optional[str] = None  # The text on the button that opens the list
-    sections: Optional[list[Section]] = None
+    button_text: str | None = None  # The text on the button that opens the list
+    sections: list[Section] | None = None
 
     # For Reply Buttons
-    buttons: Optional[list[Button]] = None
+    buttons: list[Button] | None = None
 
     # For CTA URL
-    url: Optional[str] = None
+    url: str | None = None
