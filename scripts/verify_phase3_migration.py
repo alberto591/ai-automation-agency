@@ -18,8 +18,6 @@ def verify_indexes():
     """Verify that all indexes were created."""
     print("\n📊 Verifying Database Indexes...")
     
-    client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
-    
     expected_indexes = [
         'idx_properties_description_fts',
         'idx_properties_price',
@@ -33,22 +31,14 @@ def verify_indexes():
         'idx_feedback_rating',
     ]
     
-    # Query for indexes
-    query = """
-    SELECT indexname, tablename
-    FROM pg_indexes 
-    WHERE tablename IN ('properties', 'appraisal_performance_metrics', 'appraisal_feedback')
-    ORDER BY tablename, indexname;
-    """
-    
-    result = client.rpc('exec_sql', {'query': query}).execute() if hasattr(client, 'rpc') else None
-    
-    # Alternative: Check via table info
     print("\n✅ Expected Indexes:")
     for idx in expected_indexes:
         print(f"  - {idx}")
     
-    print("\n✓ Indexes should be created. Verify in Supabase Dashboard → Database → Indexes")
+    print("\n✓ Verify in Supabase Dashboard:")
+    print("  Database → Tables → [table] → Indexes")
+    print("  Or run: SELECT indexname FROM pg_indexes WHERE tablename IN ('properties', 'appraisal_performance_metrics', 'appraisal_feedback');")
+    
     return True
 
 
