@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from supabase import create_client
+
 from config.settings import settings
 
 
@@ -83,7 +84,7 @@ def verify_functions():
     # Test get_performance_stats
     try:
         result = client.rpc('get_performance_stats', {'p_hours': 24}).execute()
-        print(f"\n✓ get_performance_stats() - WORKING")
+        print("\n✓ get_performance_stats() - WORKING")
         print(f"  Response: {result.data}")
     except Exception as e:
         print(f"\n⚠️  get_performance_stats() - Error: {str(e)}")
@@ -118,11 +119,11 @@ def test_performance_query():
     print(f"  Results: {len(result.data)} properties")
     
     if elapsed_ms < 500:
-        print(f"  ✅ EXCELLENT - Under 500ms (Phase 3 optimization working!)")
+        print("  ✅ EXCELLENT - Under 500ms (Phase 3 optimization working!)")
     elif elapsed_ms < 1000:
-        print(f"  ✓ GOOD - Under 1s (indexes helping)")
+        print("  ✓ GOOD - Under 1s (indexes helping)")
     else:
-        print(f"  ⚠️  SLOW - Over 1s (indexes may not be created yet)")
+        print("  ⚠️  SLOW - Over 1s (indexes may not be created yet)")
     
     return True
 
