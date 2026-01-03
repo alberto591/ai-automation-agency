@@ -121,7 +121,7 @@ class AppraisalService:
         confidence_level = self._calculate_confidence(len(comparables))
         reliability_stars = self._calculate_reliability_stars(confidence_level)
 
-        return AppraisalResult(
+        result = AppraisalResult(
             estimated_value=round(estimated_value, -3),  # Round to nearest thousand
             estimated_range_min=round(min_val, -3),
             estimated_range_max=round(max_val, -3),
@@ -134,6 +134,31 @@ class AppraisalService:
             confidence_level=confidence_level,
             reliability_stars=reliability_stars,
         )
+
+        # Log performance metrics (non-blocking)
+        if self.performance_logger:
+            try:
+                response_time_ms = int((time.time() - start_time) * 1000)
+                self.performance_logger.log_appraisal_performance(
+                    city=request.city,
+                    zone=request.zone,
+                    property_type=request.property_type,
+                    surface_sqm=request.surface_sqm,
+                    response_time_ms=response_time_ms,
+                    used_local_search=used_local_search,
+                    used_perplexity=used_perplexity,
+                    comparables_found=len(comparables),
+                    confidence_level=confidence_level,
+                    reliability_stars=reliability_stars,
+                    estimated_value=float(round(estimated_value, -3)),
+                    user_phone=getattr(request, 'phone', None),
+                    user_email=getattr(request, 'email', None),
+                )
+            except Exception as e:
+                # Don't fail the request if logging fails
+                logger.warning("PERFORMANCE_LOGGING_FAILED", context={"error": str(e)})
+
+        return result
 
     def _parse_comparables(self, text: str) -> list[Comparable]:
         """
