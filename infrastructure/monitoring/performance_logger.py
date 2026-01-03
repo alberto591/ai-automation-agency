@@ -4,7 +4,6 @@ Logs appraisal performance metrics to Supabase for monitoring and analysis
 """
 
 import time
-from typing import Optional
 from functools import wraps
 
 from infrastructure.logging import get_logger
@@ -35,10 +34,10 @@ class PerformanceMetricLogger:
         confidence_level: int,
         reliability_stars: int,
         estimated_value: float,
-        property_type: Optional[str] = None,
-        surface_sqm: Optional[int] = None,
-        user_phone: Optional[str] = None,
-        user_email: Optional[str] = None,
+        property_type: str | None = None,
+        surface_sqm: int | None = None,
+        user_phone: str | None = None,
+        user_email: str | None = None,
     ) -> None:
         """
         Log appraisal performance metrics.

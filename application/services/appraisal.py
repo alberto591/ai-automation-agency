@@ -1,4 +1,5 @@
 import re
+import time
 from dataclasses import asdict
 
 from application.services.investment_calculator import InvestmentCalculator
@@ -17,16 +18,25 @@ logger = get_logger(__name__)
 
 class AppraisalService:
     def __init__(
-        self, research_port: ResearchPort, local_search: LocalPropertySearchService | None = None
+        self,
+        research_port: ResearchPort,
+        local_search: LocalPropertySearchService | None = None,
+        performance_logger=None,
     ):
         self.research = research_port
         self.investment_calc = InvestmentCalculator()
         self.local_search = local_search
+        self.performance_logger = performance_logger
 
     def estimate_value(self, request: AppraisalRequest) -> AppraisalResult:
         """
         Generates a property valuation using AI research for comparables.
         """
+        # Start performance tracking
+        start_time = time.time()
+        used_local_search = False
+        used_perplexity = False
+        
         logger.info("APPRAISAL_START", context=request.model_dump())
 
         # 1. Try Local Database First (Performance Optimization Phase 1)
@@ -41,12 +51,14 @@ class AppraisalService:
                     min_comparables=3,
                 )
                 if comparables:
+                    used_local_search = True
                     logger.info("LOCAL_SEARCH_SUCCESS", context={"count": len(comparables)})
             except Exception as e:
                 logger.warning("LOCAL_SEARCH_FAILED", context={"error": str(e)})
 
         # 2. Fall back to Perplexity if local search didn't find enough
         if not comparables:
+            used_perplexity = True
             logger.info("FALLBACK_TO_PERPLEXITY")
             try:
                 research_text = self.research.find_market_comparables(

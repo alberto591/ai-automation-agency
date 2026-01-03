@@ -63,13 +63,16 @@ class Container:
 
         # Local property search (for performance optimization)
         from application.services.local_property_search import LocalPropertySearchService
-
+        from infrastructure.monitoring.performance_logger import PerformanceMetricLogger
+        
         # Use the Supabase client from the SupabaseAdapter
         self.local_property_search = LocalPropertySearchService(db_client=self.db.client)
+        self.performance_logger = PerformanceMetricLogger(db_client=self.db.client)
 
         self.appraisal_service: AppraisalService = AppraisalService(
             research_port=self.research,
             local_search=self.local_property_search,
+            performance_logger=self.performance_logger,
         )
 
     @property
