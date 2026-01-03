@@ -15,6 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from infrastructure.database.supabase_adapter import get_supabase_client
+
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
