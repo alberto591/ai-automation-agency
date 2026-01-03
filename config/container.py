@@ -63,10 +63,9 @@ class Container:
 
         # Local property search (for performance optimization)
         from application.services.local_property_search import LocalPropertySearchService
-        from infrastructure.database.supabase_adapter import get_supabase_client
 
-        self.supabase = get_supabase_client()
-        self.local_property_search = LocalPropertySearchService(db_client=self.supabase)
+        # Use the Supabase client from the SupabaseAdapter
+        self.local_property_search = LocalPropertySearchService(db_client=self.db.client)
 
         self.appraisal_service: AppraisalService = AppraisalService(
             research_port=self.research,

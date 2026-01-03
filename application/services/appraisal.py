@@ -154,6 +154,7 @@ If no valid comparables found, return: []"""
             response = client.chat.complete(
                 model=settings.MISTRAL_MODEL,
                 messages=[{"role": "user", "content": extraction_prompt}],
+                response_format={"type": "json_object"},  # Phase 2 optimization: JSON mode
             )
 
             result_text = response.choices[0].message.content.strip()
