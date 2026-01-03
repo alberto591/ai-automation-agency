@@ -203,6 +203,12 @@ COMMENT ON FUNCTION refresh_performance_views IS
 ALTER TABLE appraisal_performance_metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE appraisal_feedback ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (for idempotency)
+DROP POLICY IF EXISTS service_role_all_performance_metrics ON appraisal_performance_metrics;
+DROP POLICY IF EXISTS service_role_all_feedback ON appraisal_feedback;
+DROP POLICY IF EXISTS public_read_performance_stats ON appraisal_performance_metrics;
+DROP POLICY IF EXISTS public_read_feedback_stats ON appraisal_feedback;
+
 -- Allow service role full access
 CREATE POLICY service_role_all_performance_metrics 
 ON appraisal_performance_metrics 
