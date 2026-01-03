@@ -100,6 +100,10 @@ app.include_router(calcom_webhook.router, prefix="/api")
 app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
 
+# Import and include feedback router
+from presentation.api import feedback as feedback_api
+app.include_router(feedback_api.router, prefix="/api")
+
 
 async def verify_webhook_key(x_webhook_key: str = Header(None)) -> None:
     if settings.WEBHOOK_API_KEY and x_webhook_key != settings.WEBHOOK_API_KEY:
