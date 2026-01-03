@@ -61,7 +61,17 @@ class Container:
             validation=self.validation,
         )
 
-        self.appraisal_service: AppraisalService = AppraisalService(research_port=self.research)
+        # Local property search (for performance optimization)
+        from application.services.local_property_search import LocalPropertySearchService
+        from infrastructure.database.supabase_adapter import get_supabase_client
+
+        self.supabase = get_supabase_client()
+        self.local_property_search = LocalPropertySearchService(db_client=self.supabase)
+
+        self.appraisal_service: AppraisalService = AppraisalService(
+            research_port=self.research,
+            local_search=self.local_property_search,
+        )
 
     @property
     def sheets(self) -> Any:

@@ -2,6 +2,7 @@ import re
 from dataclasses import asdict
 
 from application.services.investment_calculator import InvestmentCalculator
+from application.services.local_property_search import LocalPropertySearchService
 from domain.appraisal import (
     AppraisalRequest,
     AppraisalResult,
@@ -15,9 +16,12 @@ logger = get_logger(__name__)
 
 
 class AppraisalService:
-    def __init__(self, research_port: ResearchPort):
+    def __init__(
+        self, research_port: ResearchPort, local_search: LocalPropertySearchService | None = None
+    ):
         self.research = research_port
         self.investment_calc = InvestmentCalculator()
+        self.local_search = local_search
 
     def estimate_value(self, request: AppraisalRequest) -> AppraisalResult:
         """
@@ -25,19 +29,37 @@ class AppraisalService:
         """
         logger.info("APPRAISAL_START", context=request.model_dump())
 
-        # 1. Research Active Listings using improved query
-        try:
-            research_text = self.research.find_market_comparables(
-                city=request.city,
-                zone=request.zone,
-                property_type=request.property_type,
-                surface_sqm=request.surface_sqm,
-            )
-            comparables = self._parse_comparables(research_text)
-        except Exception as e:
-            logger.error("APPRAISAL_RESEARCH_FAILED", context={"error": str(e)})
-            # Fallback or empty if research fails
-            comparables = []
+        # 1. Try Local Database First (Performance Optimization Phase 1)
+        comparables = []
+        if self.local_search:
+            try:
+                comparables = self.local_search.search_local_comparables(
+                    city=request.city,
+                    zone=request.zone,
+                    property_type=request.property_type,
+                    surface_sqm=request.surface_sqm,
+                    min_comparables=3,
+                )
+                if comparables:
+                    logger.info("LOCAL_SEARCH_SUCCESS", context={"count": len(comparables)})
+            except Exception as e:
+                logger.warning("LOCAL_SEARCH_FAILED", context={"error": str(e)})
+
+        # 2. Fall back to Perplexity if local search didn't find enough
+        if not comparables:
+            logger.info("FALLBACK_TO_PERPLEXITY")
+            try:
+                research_text = self.research.find_market_comparables(
+                    city=request.city,
+                    zone=request.zone,
+                    property_type=request.property_type,
+                    surface_sqm=request.surface_sqm,
+                )
+                comparables = self._parse_comparables(research_text)
+            except Exception as e:
+                logger.error("APPRAISAL_RESEARCH_FAILED", context={"error": str(e)})
+                # Fallback or empty if research fails
+                comparables = []
 
         # 2. Calculate Market Metrics
         if not comparables:
