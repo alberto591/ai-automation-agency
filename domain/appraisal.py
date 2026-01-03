@@ -59,7 +59,8 @@ class AppraisalResult(BaseModel):
     reasoning: str
     market_trend: str = "stable"  # rising, falling, stable
 
-    # Investment Analysis (NEW)
+    # Metadata (NEW)
+    id: str | None = None  # UUID from performance tracking
     investment_metrics: dict[str, Any] | None = None  # Serialized InvestmentMetrics
     confidence_level: int | None = None  # 1-100
     reliability_stars: int | None = None  # 1-5 stars

@@ -5,6 +5,7 @@ Logs appraisal performance metrics to Supabase for monitoring and analysis
 
 import time
 from functools import wraps
+from typing import Any, cast
 
 from infrastructure.logging import get_logger
 
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 class PerformanceMetricLogger:
     """Logs appraisal performance metrics to database."""
 
-    def __init__(self, db_client):
+    def __init__(self, db_client: Any):
         """
         Initialize logger with database client.
 
@@ -38,28 +39,16 @@ class PerformanceMetricLogger:
         surface_sqm: int | None = None,
         user_phone: str | None = None,
         user_email: str | None = None,
-    ) -> None:
+    ) -> str | None:
         """
-        Log appraisal performance metrics.
+        Log appraisal performance metrics to the database.
 
-        Args:
-            city: City name
-            zone: Zone/neighborhood
-            response_time_ms: Total response time in milliseconds
-            used_local_search: Whether local database search was used
-            used_perplexity: Whether Perplexity API fallback was used
-            comparables_found: Number of comparables found
-            confidence_level: Confidence percentage (0-100)
-            reliability_stars: Star rating (1-5)
-            estimated_value: Estimated property value
-            property_type: Type of property (optional)
-            surface_sqm: Property size in square meters (optional)
-            user_phone: User phone for correlation (optional)
-            user_email: User email for correlation (optional)
+        Returns:
+            The ID of the logged metric if successful, else None.
         """
         try:
             # Use RPC function for secure insert
-            self.db.rpc(
+            result = self.db.rpc(
                 "log_appraisal_performance",
                 {
                     "p_city": city,
@@ -89,28 +78,37 @@ class PerformanceMetricLogger:
                 },
             )
 
+            # Return the ID if possible
+            if result.data and isinstance(result.data, list) and len(result.data) > 0:
+                return cast(str, result.data[0].get("id"))
+            if isinstance(result.data, str):
+                return result.data
+
+            return None
+
         except Exception as e:
             # Don't fail the request if logging fails
             logger.warning(
                 "PERFORMANCE_METRIC_LOG_FAILED",
                 context={"error": str(e)},
             )
+            return None
 
 
-def track_performance(db_client):
+def track_performance(db_client: Any) -> Any:
     """
     Decorator to track appraisal performance metrics.
 
     Usage:
         @track_performance(db_client)
-        def estimate_property(request):
+        def estimate_property(self, request):
             # ... appraisal logic ...
             return result
     """
 
-    def decorator(func):
+    def decorator(func: Any) -> Any:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             start_time = time.time()
 
             # Execute function
@@ -119,31 +117,30 @@ def track_performance(db_client):
             # Calculate response time
             response_time_ms = int((time.time() - start_time) * 1000)
 
-            # Extract request data (assumes first arg is AppraisalRequest)
+            # Extract request data (assumes first or second arg is AppraisalRequest)
+            # In a class method, args[0] is self, args[1] is the request
             request = args[1] if len(args) > 1 else kwargs.get("request")
 
             if request and hasattr(result, "confidence_level"):
                 try:
                     metric_logger = PerformanceMetricLogger(db_client)
                     metric_logger.log_appraisal_performance(
-                        city=request.city,
-                        zone=request.zone,
-                        property_type=request.property_type,
-                        surface_sqm=request.surface_sqm,
+                        city=getattr(request, "city", "Unknown"),
+                        zone=getattr(request, "zone", "Unknown"),
+                        property_type=getattr(request, "property_type", None),
+                        surface_sqm=getattr(request, "surface_sqm", None),
                         response_time_ms=response_time_ms,
-                        used_local_search=hasattr(result, "_used_local_search")
-                        and result._used_local_search,
-                        used_perplexity=hasattr(result, "_used_perplexity")
-                        and result._used_perplexity,
-                        comparables_found=len(result.comparables),
-                        confidence_level=result.confidence_level,
-                        reliability_stars=result.reliability_stars,
-                        estimated_value=result.estimated_value,
+                        used_local_search=getattr(result, "_used_local_search", False),
+                        used_perplexity=getattr(result, "_used_perplexity", False),
+                        comparables_found=len(getattr(result, "comparables", [])),
+                        confidence_level=getattr(result, "confidence_level", 0),
+                        reliability_stars=getattr(result, "reliability_stars", 1),
+                        estimated_value=float(getattr(result, "estimated_value", 0)),
                         user_phone=getattr(request, "phone", None),
                         user_email=getattr(request, "email", None),
                     )
                 except Exception as e:
-                    logger.warning("Performance tracking failed", context={"error": str(e)})
+                    logger.warning("DECORATOR_LOGGING_FAILED", context={"error": str(e)})
 
             return result
 

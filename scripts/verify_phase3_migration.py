@@ -18,135 +18,148 @@ from config.settings import settings
 def verify_indexes():
     """Verify that all indexes were created."""
     print("\n📊 Verifying Database Indexes...")
-    
+
     expected_indexes = [
-        'idx_properties_description_fts',
-        'idx_properties_price',
-        'idx_properties_sqm',
-        'idx_properties_price_sqm',
-        'idx_properties_image_url',
-        'idx_performance_metrics_created_at',
-        'idx_performance_metrics_location',
-        'idx_performance_metrics_response_time',
-        'idx_feedback_created_at',
-        'idx_feedback_rating',
+        "idx_properties_description_fts",
+        "idx_properties_price",
+        "idx_properties_sqm",
+        "idx_properties_price_sqm",
+        "idx_properties_image_url",
+        "idx_performance_metrics_created_at",
+        "idx_performance_metrics_location",
+        "idx_performance_metrics_response_time",
+        "idx_feedback_created_at",
+        "idx_feedback_rating",
     ]
-    
+
     print("\n✅ Expected Indexes:")
     for idx in expected_indexes:
         print(f"  - {idx}")
-    
+
     print("\n✓ Verify in Supabase Dashboard:")
     print("  Database → Tables → [table] → Indexes")
-    print("  Or run: SELECT indexname FROM pg_indexes WHERE tablename IN ('properties', 'appraisal_performance_metrics', 'appraisal_feedback');")
-    
+    print(
+        "  Or run: SELECT indexname FROM pg_indexes WHERE tablename IN ('properties', 'appraisal_performance_metrics', 'appraisal_feedback');"
+    )
+
     return True
 
 
 def verify_tables():
     """Verify that performance tracking tables exist."""
     print("\n📋 Verifying Tables...")
-    
+
     client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
-    
+
     tables = [
-        'appraisal_performance_metrics',
-        'appraisal_feedback',
+        "appraisal_performance_metrics",
+        "appraisal_feedback",
     ]
-    
+
     for table in tables:
         try:
-            result = client.table(table).select('id').limit(0).execute()
+            result = client.table(table).select("id").limit(0).execute()
             print(f"  ✅ {table} - EXISTS")
+
+            # Check for appraisal_id column in feedback table
+            if table == "appraisal_feedback":
+                try:
+                    client.table(table).select("appraisal_id").limit(0).execute()
+                    print("    ✅ appraisal_id column - EXISTS")
+                except Exception:
+                    print("    ⚠️  appraisal_id column - MISSING (linking will fall back)")
         except Exception as e:
             print(f"  ❌ {table} - MISSING ({str(e)})")
             return False
-    
+
     return True
 
 
 def verify_functions():
     """Verify that helper functions exist."""
     print("\n🔧 Verifying Functions...")
-    
+
     client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
-    
+
     functions = [
-        'log_appraisal_performance',
-        'get_performance_stats',
-        'refresh_performance_views',
+        "log_appraisal_performance",
+        "get_performance_stats",
+        "refresh_performance_views",
     ]
-    
+
     print("\n✅ Expected Functions:")
     for func in functions:
         print(f"  - {func}()")
-    
+
     # Test get_performance_stats
     try:
-        result = client.rpc('get_performance_stats', {'p_hours': 24}).execute()
+        result = client.rpc("get_performance_stats", {"p_hours": 24}).execute()
         print("\n✓ get_performance_stats() - WORKING")
         print(f"  Response: {result.data}")
     except Exception as e:
         print(f"\n⚠️  get_performance_stats() - Error: {str(e)}")
         print("  (This is normal if no data exists yet)")
-    
+
     return True
 
 
 def test_performance_query():
     """Test that the optimized query works."""
     print("\n🚀 Testing Optimized Query Performance...")
-    
+
     client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-    
+
     import time
+
     start = time.time()
-    
+
     # Test the query that local search uses
-    result = client.table('properties') \
-        .select('*') \
-        .ilike('description', '%Milano%') \
-        .ilike('description', '%Centro%') \
-        .gte('sqm', 66) \
-        .lte('sqm', 123) \
-        .gt('price', 10000) \
-        .limit(10) \
+    result = (
+        client.table("properties")
+        .select("*")
+        .ilike("description", "%Milano%")
+        .ilike("description", "%Centro%")
+        .gte("sqm", 66)
+        .lte("sqm", 123)
+        .gt("price", 10000)
+        .limit(10)
         .execute()
-    
+    )
+
     elapsed_ms = (time.time() - start) * 1000
-    
+
     print(f"\n  Query Time: {elapsed_ms:.0f}ms")
     print(f"  Results: {len(result.data)} properties")
-    
+
     if elapsed_ms < 500:
         print("  ✅ EXCELLENT - Under 500ms (Phase 3 optimization working!)")
     elif elapsed_ms < 1000:
         print("  ✓ GOOD - Under 1s (indexes helping)")
     else:
         print("  ⚠️  SLOW - Over 1s (indexes may not be created yet)")
-    
+
     return True
 
 
 def verify_migration():
     """Run all verification checks."""
-    print("="*60)
+    print("=" * 60)
     print("  PHASE 3 MIGRATION VERIFICATION")
-    print("="*60)
-    
+    print("=" * 60)
+
     results = {
-        'indexes': verify_indexes(),
-        'tables': verify_tables(),
-        'functions': verify_functions(),
-        'performance': test_performance_query(),
+        "indexes": verify_indexes(),
+        "tables": verify_tables(),
+        "functions": verify_functions(),
+        "performance": test_performance_query(),
     }
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("  VERIFICATION SUMMARY")
-    print("="*60)
-    
+    print("=" * 60)
+
     all_passed = all(results.values())
-    
+
     if all_passed:
         print("\n✅ ALL CHECKS PASSED - Phase 3 Migration Successful!")
         print("\n📊 Performance Impact:")
@@ -163,18 +176,19 @@ def verify_migration():
         print("  1. Verify SQL migration ran completely")
         print("  2. Check Supabase logs for errors")
         print("  3. Try running migration again (it's idempotent)")
-    
-    print("\n" + "="*60)
-    
+
+    print("\n" + "=" * 60)
+
     return all_passed
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         success = verify_migration()
         sys.exit(0 if success else 1)
     except Exception as e:
         print(f"\n❌ Verification failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

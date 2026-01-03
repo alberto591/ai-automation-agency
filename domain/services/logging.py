@@ -32,6 +32,9 @@ class StructuredLogger:
     def info(self, event: str, *, context: dict[str, Any] | None = None) -> None:
         self._log(logging.INFO, event, context=context)
 
+    def debug(self, event: str, *, context: dict[str, Any] | None = None) -> None:
+        self._log(logging.DEBUG, event, context=context)
+
     def error(
         self, event: str, *, context: dict[str, Any] | None = None, exc_info: bool = True
     ) -> None:

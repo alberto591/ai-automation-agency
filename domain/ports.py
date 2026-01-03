@@ -150,7 +150,14 @@ class ResearchPort(ABC):
         pass
 
     @abstractmethod
-    def find_market_comparables(self, address: str, radius_km: float = 2.0) -> str:
+    def find_market_comparables(
+        self,
+        city: str,
+        zone: str,
+        property_type: str = "appartamento",
+        surface_sqm: int = 100,
+        radius_km: float = 2.0,
+    ) -> str:
         """Find active live listings to supplement valuation models."""
         pass
 

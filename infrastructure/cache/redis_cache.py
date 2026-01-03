@@ -2,9 +2,10 @@
 import hashlib
 import json
 from datetime import timedelta
+from typing import Any, cast
 
 try:
-    import redis
+    import redis  # type: ignore
 
     REDIS_AVAILABLE = True
 except ImportError:
@@ -78,7 +79,7 @@ class RedisPerplexityCache:
                 if value:
                     cache_hits_total.labels(cache_type="redis").inc()
                     logger.info("REDIS_CACHE_HIT", context={"key": key[:20]})
-                    return value
+                    return cast(str, value)
                 else:
                     cache_misses_total.labels(cache_type="redis").inc()
                     logger.info("REDIS_CACHE_MISS", context={"key": key[:20]})
@@ -121,7 +122,7 @@ class RedisPerplexityCache:
         else:
             self._fallback.clear()
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         stats = {
             "backend": "redis" if self._use_redis else "in-memory",

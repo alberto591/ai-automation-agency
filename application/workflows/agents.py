@@ -626,7 +626,7 @@ def create_lead_processing_graph(
         preferences = state["preferences"]
 
         # Construct filters from preferences
-        filters = {}
+        filters: dict[str, Any] = {}
         if budget:
             filters["max_price"] = budget
         if preferences.property_types:

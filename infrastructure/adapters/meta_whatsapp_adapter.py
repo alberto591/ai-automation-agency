@@ -174,7 +174,10 @@ class MetaWhatsAppAdapter(MessagingPort):
                 logger.error("META_WHATSAPP_INTERACTIVE_FAILED", context={"error": response_data})
                 raise ExternalServiceError(f"Meta API Error: {response_data}")
 
-            return response_data.get("messages", [{}])[0].get("id")
+            messages = response_data.get("messages", [])
+            if messages and isinstance(messages, list):
+                return str(messages[0].get("id", ""))
+            return ""
 
         except Exception as e:
             logger.error("META_INTERACTIVE_SEND_ERROR", context={"error": str(e)})

@@ -1,6 +1,7 @@
 import hashlib
 import json
 from datetime import datetime, timedelta
+from typing import Any
 
 from infrastructure.logging import get_logger
 from infrastructure.metrics import cache_hits_total, cache_misses_total
@@ -84,7 +85,7 @@ class PerplexityCache:
         self._cache.clear()
         logger.info("CACHE_CLEARED", context={"entries_removed": count})
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         return {
             "total_entries": len(self._cache),

@@ -381,6 +381,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         animateValue("res-coc", 0, metrics.cash_on_cash_return || 0, 1500, true);
                     }
 
+                    // Update feedback link with appraisal ID
+                    const feedbackLink = document.getElementById('feedback-link');
+                    if (feedbackLink && appraisal.id) {
+                        feedbackLink.href = `/feedback.html?appraisal_id=${appraisal.id}`;
+                    }
+
                     // Handle PDF Download
                     const pdfBtn = document.getElementById('download-pdf-btn');
                     if (pdfBtn) {
@@ -1094,7 +1100,8 @@ const translations = {
         'notif-client': 'Cliente: Marco R.',
         'notif-pref': 'Preferenza: Trilocale Prati',
         'ai-active': 'AI Attivo',
-        'appraisal-sqm-placeholder': 'Superficie (mq)'
+        'appraisal-sqm-placeholder': 'Superficie (mq)',
+        'appraisal-res-feedback': 'Lascia un Feedback'
     },
     en: {
         // Navigation
@@ -1305,7 +1312,8 @@ const translations = {
         'notif-client': 'Client: Marco R.',
         'notif-pref': 'Preference: 3-room Prati',
         'ai-active': 'AI Active',
-        'appraisal-sqm-placeholder': 'Surface Area (sqm)'
+        'appraisal-sqm-placeholder': 'Surface Area (sqm)',
+        'appraisal-res-feedback': 'Leave Feedback'
     }
 };
 

@@ -1,7 +1,7 @@
 import re
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 # ... (imports)
 from uuid import UUID
@@ -39,7 +39,7 @@ logger = get_logger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     # Startup
     logger.info("API_STARTUP")
 
@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
     # Background task for email polling
     import asyncio
 
-    async def poll_emails():
+    async def poll_emails() -> None:
         while True:
             try:
                 # Poll every 5 minutes
@@ -160,7 +160,7 @@ class AppraisalPDFRequest(BaseModel):
 
 
 @app.post("/api/appraisals/generate-pdf")
-async def generate_appraisal_pdf(request: AppraisalPDFRequest) -> dict[str, str]:
+async def generate_appraisal_pdf(request: AppraisalPDFRequest) -> dict[str, Any]:
     """
     Generate a PDF appraisal report with investment metrics.
     """
@@ -255,7 +255,7 @@ async def health_check() -> dict[str, str]:
 
 
 @app.get("/metrics")
-async def metrics():
+async def metrics() -> Response:
     """Prometheus metrics endpoint."""
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
@@ -416,6 +416,49 @@ async def get_market_valuation(
     except Exception as e:
         logger.error("MARKET_VALUATION_FAILED", context={"zone": zone, "error": str(e)})
         raise HTTPException(status_code=500, detail="Failed to fetch market data") from None
+
+
+@app.get("/api/monitoring/performance")
+async def get_performance_monitoring(
+    hours: int = Query(default=24, ge=1, le=168),
+) -> dict[str, Any]:
+    """
+    Returns aggregated performance statistics for the last N hours.
+    Used by the internal monitoring dashboard.
+    """
+    try:
+        # Call the Supabase RPC function
+        result = container.db.client.rpc("get_performance_stats", {"p_hours": hours}).execute()
+
+        if not result.data:
+            return {
+                "total_appraisals": 0,
+                "avg_response_ms": 0,
+                "p50_response_ms": 0,
+                "p90_response_ms": 0,
+                "local_hit_rate": 0,
+                "avg_confidence": 0,
+                "avg_comparables": 0,
+            }
+
+        data_list = cast(list[Any], result.data)
+        if data_list and len(data_list) > 0:
+            return cast(dict[str, Any], data_list[0])
+        return {
+            "total_appraisals": 0,
+            "avg_response_ms": 0,
+            "p50_response_ms": 0,
+            "p90_response_ms": 0,
+            "local_hit_rate": 0,
+            "avg_confidence": 0,
+            "avg_comparables": 0,
+        }
+
+    except Exception as e:
+        logger.error("MONITORING_STATS_FAILED", context={"error": str(e)})
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch monitoring statistics"
+        ) from None
 
 
 @app.post("/api/appraisals/estimate")

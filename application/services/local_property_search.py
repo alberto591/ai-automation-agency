@@ -1,7 +1,9 @@
 """
 Local Property Search Service
-Searches Supabase properties database before falling back to Perplexity API
+Provides low-latency appraisal data by querying local Supabase database.
 """
+
+from typing import Any, cast
 
 from supabase import Client
 
@@ -10,9 +12,37 @@ from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
+# Constants for maintainability
+SIZE_RANGE_BUFFER = 0.20  # +/- 20% on square meters
+MAX_RESULTS_LIMIT = 10
+MIN_PRICE_PER_SQM = 500
+MAX_PRICE_PER_SQM = 15000
+TITLE_MAX_LENGTH = 100
+DESC_MAX_LENGTH = 300
+
+# City Normalization Mapping
+CITY_VARIANTS = {
+    "florence": "Firenze",
+    "firenze": "Firenze",
+    "siena": "Siena",
+    "pisa": "Pisa",
+    "lucca": "Lucca",
+    "arezzo": "Arezzo",
+    "grosseto": "Grosseto",
+    "livorno": "Livorno",
+    "milan": "Milano",
+    "milano": "Milano",
+    "rome": "Roma",
+    "roma": "Roma",
+    "naples": "Napoli",
+    "napoli": "Napoli",
+    "venice": "Venezia",
+    "venezia": "Venezia",
+}
+
 
 class LocalPropertySearchService:
-    """Search local Supabase database for property comparables."""
+    """Service to search for comparable properties in the local database."""
 
     def __init__(self, db_client: Client):
         self.db = db_client
@@ -20,78 +50,67 @@ class LocalPropertySearchService:
     def search_local_comparables(
         self,
         city: str,
-        zone: str,
-        property_type: str,
-        surface_sqm: int,
+        zone: str | None = None,
+        property_type: str | None = None,
+        surface_sqm: int | None = None,
         min_comparables: int = 3,
     ) -> list[Comparable]:
         """
-        Search local database for property comparables.
-
-        Args:
-            city: City name (e.g., "Milano", "Firenze")
-            zone: Zone/neighborhood (e.g., "Centro", "Navigli")
-            property_type: Type of property (e.g., "apartment", "villa")
-            surface_sqm: Target property size
-            min_comparables: Minimum number of comparables to return
-
-        Returns:
-            List of Comparable objects if sufficient matches found, empty list otherwise
+        Search for properties in the local database.
         """
         try:
-            # Define size range (±30% of target size)
-            size_min = int(surface_sqm * 0.7)
-            size_max = int(surface_sqm * 1.3)
+            # 1. Normalize City Name
+            normalized_city = CITY_VARIANTS.get(city.lower(), city)
 
-            logger.info(
-                "LOCAL_SEARCH_START",
-                context={
-                    "city": city,
-                    "zone": zone,
-                    "size_range": f"{size_min}-{size_max}",
-                },
-            )
+            # 2. Build Query
+            query = self.db.table("properties").select("*").eq("status", "available")
 
-            # Query properties matching criteria
-            # Search description field for zone/city since they're embedded in text
-            query = self.db.table("properties").select("*")
+            if normalized_city:
+                query = query.ilike("description", f"%{normalized_city}%")
 
-            # Filter by description containing city and zone
-            zone_pattern = f"%{zone}%"
-            city_pattern = f"%{city}%"
+            if zone:
+                query = query.ilike("description", f"%{zone}%")
 
-            result = (
-                query.ilike("description", zone_pattern)
-                .ilike("description", city_pattern)
-                .gte("sqm", size_min)
-                .lte("sqm", size_max)
-                .gt("price", 10000)  # Exclude obviously invalid prices
-                .limit(10)  # Get top 10 matches
-                .execute()
-            )
+            if property_type:
+                # Basic mapping for property types if needed
+                query = query.ilike("title", f"%{property_type}%")
+
+            if surface_sqm:
+                min_sqm = int(surface_sqm * (1 - SIZE_RANGE_BUFFER))
+                max_sqm = int(surface_sqm * (1 + SIZE_RANGE_BUFFER))
+                query = query.gte("sqm", min_sqm).lte("sqm", max_sqm)
+
+            # 3. Execute Search
+            result = query.limit(MAX_RESULTS_LIMIT).execute()
 
             properties = result.data
-
-            if not properties:
+            if not properties or not isinstance(properties, list):
                 logger.info("LOCAL_SEARCH_NO_RESULTS")
                 return []
 
-            # Convert to Comparable objects
+            # 4. Filter and Transform
             comparables = []
-            for prop in properties:
+            for prop_data in properties:
+                prop = cast(dict[str, Any], prop_data)
                 try:
-                    if prop.get("price") and prop.get("sqm") and prop["sqm"] > 0:
-                        price_per_sqm = prop["price"] / prop["sqm"]
+                    price = prop.get("price")
+                    sqm = prop.get("sqm")
 
-                        # Sanity check: €500-€15000/sqm
-                        if 500 < price_per_sqm < 15000:
+                    if price and sqm and sqm > 0:
+                        price_per_sqm = float(price) / float(sqm)
+
+                        if MIN_PRICE_PER_SQM < price_per_sqm < MAX_PRICE_PER_SQM:
                             comparables.append(
                                 Comparable(
-                                    title=prop.get("title", "Property")[:100],
-                                    price=float(prop["price"]),
-                                    surface_sqm=int(prop["sqm"]),
+                                    title=cast(str, prop.get("title", "Property"))[
+                                        :TITLE_MAX_LENGTH
+                                    ],
+                                    price=float(price),
+                                    surface_sqm=int(sqm),
                                     price_per_sqm=round(price_per_sqm, 0),
-                                    description=prop.get("description", "")[:200],
+                                    description=cast(str, prop.get("description", ""))[
+                                        :DESC_MAX_LENGTH
+                                    ],
                                 )
                             )
                 except (KeyError, ValueError, TypeError) as e:
@@ -102,20 +121,13 @@ class LocalPropertySearchService:
                 "LOCAL_SEARCH_COMPLETE",
                 context={
                     "found": len(comparables),
-                    "required": min_comparables,
+                    "city": normalized_city,
+                    "zone": zone,
                 },
             )
 
-            # Only return if we have enough comparables
-            if len(comparables) >= min_comparables:
-                return comparables[:min_comparables]  # Return only what's needed
-            else:
-                return []  # Not enough, caller should fall back to Perplexity
+            return comparables
 
         except Exception as e:
-            logger.error(
-                "LOCAL_SEARCH_ERROR",
-                context={"error": str(e)},
-                exc_info=True,
-            )
-            return []  # Fall back to Perplexity on error
+            logger.error("LOCAL_SEARCH_ERROR", context={"error": str(e)})
+            return []

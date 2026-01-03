@@ -1,4 +1,5 @@
 import time
+from typing import Any, cast
 
 from openai import OpenAI
 
@@ -14,7 +15,7 @@ logger = get_logger(__name__)
 class PerplexityAdapter(ResearchPort):
     """Perplexity Labs API adapter for real-time research."""
 
-    def __init__(self, cache=None) -> None:
+    def __init__(self, cache: Any = None) -> None:
         self.client = OpenAI(
             api_key=settings.PERPLEXITY_API_KEY, base_url="https://api.perplexity.ai"
         )
@@ -64,7 +65,7 @@ class PerplexityAdapter(ResearchPort):
                 context={"result_length": len(result), "duration_seconds": round(duration, 2)},
             )
 
-            return result
+            return cast(str, result)
 
         except Exception as e:
             logger.error("PERPLEXITY_FAILED", context={"error": str(e)})
@@ -95,7 +96,7 @@ class PerplexityAdapter(ResearchPort):
         if self.cache:
             cached = self.cache.get(city, zone, property_type, surface_sqm)
             if cached:
-                return cached
+                return cast(str, cached)
 
         # Italian query for better local results
         query = (
@@ -110,9 +111,5 @@ class PerplexityAdapter(ResearchPort):
         result = self.search(
             query, context="Sei un analista immobiliare esperto nel mercato italiano."
         )
-
-        # Cache the result
-        if self.cache:
-            self.cache.set(city, zone, property_type, surface_sqm, result)
 
         return result

@@ -240,6 +240,14 @@
     </div>
 
     <script>
+        // Dynamic API URL: Use localhost for dev, relative path for prod
+        const API_BASE = (window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.protocol === 'file:' ||
+            !window.location.hostname)
+            ? 'http://localhost:8000'
+            : '';
+
         const ratings = {
             overall: 0,
             speed: 0,
@@ -325,6 +333,7 @@
                 // Get appraisal data from URL params or localStorage
                 const urlParams = new URLSearchParams(window.location.search);
                 const feedbackData = {
+                    appraisal_id: urlParams.get('appraisal_id'),
                     rating: ratings.overall,
                     speed_rating: ratings.speed,
                     accuracy_rating: ratings.accuracy,
@@ -334,7 +343,7 @@
                     estimated_value: parseFloat(urlParams.get('value')) || null,
                 };
 
-                const response = await fetch('/api/feedback/submit', {
+                const response = await fetch(`${API_BASE}/api/feedback/submit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

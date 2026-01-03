@@ -148,5 +148,11 @@ def signal_handler(sig, frame):
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Gather production property data.")
+    parser.add_argument("--duration", type=int, default=30, help="Duration in minutes")
+    args = parser.parse_args()
+
     signal.signal(signal.SIGINT, signal_handler)
-    run_gathering(30)
+    run_gathering(args.duration)

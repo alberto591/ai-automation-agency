@@ -1,9 +1,13 @@
+import json
 import re
 import time
 from dataclasses import asdict
 
+from mistralai import Mistral
+
 from application.services.investment_calculator import InvestmentCalculator
 from application.services.local_property_search import LocalPropertySearchService
+from config.settings import settings
 from domain.appraisal import (
     AppraisalRequest,
     AppraisalResult,
@@ -12,8 +16,31 @@ from domain.appraisal import (
 )
 from domain.ports import ResearchPort
 from infrastructure.logging import get_logger
+from infrastructure.monitoring.performance_logger import PerformanceMetricLogger
 
 logger = get_logger(__name__)
+
+# Constants for Market Adjustments
+ADJUSTMENT_RENOVATED = 1.15  # +15%
+ADJUSTMENT_NEEDS_WORK = 0.85  # -15%
+RANGE_MARGIN = 0.05  # ±5% for estimated range
+
+# Constants for Sanity Checks
+MIN_PROPERTY_PRICE = 10000
+MIN_PRICE_PER_SQM = 500
+MAX_PRICE_PER_SQM = 15000
+
+# Constants for Confidence Levels
+CONFIDENCE_HIGH = 90
+CONFIDENCE_MEDIUM = 75
+CONFIDENCE_LOW = 50
+CONFIDENCE_MINIMAL = 20
+
+# Thresholds for reliability
+STARS_5_THRESHOLD = 85
+STARS_4_THRESHOLD = 70
+STARS_3_THRESHOLD = 55
+STARS_2_THRESHOLD = 40
 
 
 class AppraisalService:
@@ -21,8 +48,8 @@ class AppraisalService:
         self,
         research_port: ResearchPort,
         local_search: LocalPropertySearchService | None = None,
-        performance_logger=None,
-    ):
+        performance_logger: PerformanceMetricLogger | None = None,
+    ) -> None:
         self.research = research_port
         self.investment_calc = InvestmentCalculator()
         self.local_search = local_search
@@ -32,14 +59,13 @@ class AppraisalService:
         """
         Generates a property valuation using AI research for comparables.
         """
-        # Start performance tracking
         start_time = time.time()
         used_local_search = False
         used_perplexity = False
-        
+
         logger.info("APPRAISAL_START", context=request.model_dump())
 
-        # 1. Try Local Database First (Performance Optimization Phase 1)
+        # 1. Try Local Database First
         comparables = []
         if self.local_search:
             try:
@@ -70,36 +96,27 @@ class AppraisalService:
                 comparables = self._parse_comparables(research_text)
             except Exception as e:
                 logger.error("APPRAISAL_RESEARCH_FAILED", context={"error": str(e)})
-                # Fallback or empty if research fails
                 comparables = []
 
-        # 2. Calculate Market Metrics
         if not comparables:
-            # Fallback logic if no comps found (e.g. use generic city data or fail gracefully)
-            # For MVP, we return a conservative estimate or error.
-            # Let's assume a baseline if 0 comps.
             logger.warning("APPRAISAL_NO_COMPS_FOUND")
-            # Logic: Return 0 or specific error state?
-            # Let's fabricate a wide range based on generic assumptions? No, dangerous.
-            # Return empty/safe result.
             return self._create_fallback_result(request)
 
         avg_sqm_price = sum(c.price_per_sqm for c in comparables) / len(comparables)
 
         # 3. Apply Adjustments
-        # Condition Adjustment
         adjustment_factor = 1.0
         if request.condition == PropertyCondition.RENOVATED:
-            adjustment_factor = 1.15  # +15%
+            adjustment_factor = ADJUSTMENT_RENOVATED
         elif request.condition == PropertyCondition.NEEDS_WORK:
-            adjustment_factor = 0.85  # -15%
+            adjustment_factor = ADJUSTMENT_NEEDS_WORK
 
         adjusted_sqm_price = avg_sqm_price * adjustment_factor
 
         # Calculate Totals
         estimated_value = adjusted_sqm_price * request.surface_sqm
-        min_val = estimated_value * 0.95  # +/- 5% range
-        max_val = estimated_value * 1.05
+        min_val = estimated_value * (1 - RANGE_MARGIN)
+        max_val = estimated_value * (1 + RANGE_MARGIN)
 
         reasoning = (
             f"Based on {len(comparables)} listings in {request.zone} with an average "
@@ -122,7 +139,7 @@ class AppraisalService:
         reliability_stars = self._calculate_reliability_stars(confidence_level)
 
         result = AppraisalResult(
-            estimated_value=round(estimated_value, -3),  # Round to nearest thousand
+            estimated_value=round(estimated_value, -3),
             estimated_range_min=round(min_val, -3),
             estimated_range_max=round(max_val, -3),
             avg_price_sqm=round(adjusted_sqm_price, 0),
@@ -136,10 +153,11 @@ class AppraisalService:
         )
 
         # Log performance metrics (non-blocking)
+        appraisal_id = None
         if self.performance_logger:
             try:
                 response_time_ms = int((time.time() - start_time) * 1000)
-                self.performance_logger.log_appraisal_performance(
+                appraisal_id = self.performance_logger.log_appraisal_performance(
                     city=request.city,
                     zone=request.zone,
                     property_type=request.property_type,
@@ -151,24 +169,19 @@ class AppraisalService:
                     confidence_level=confidence_level,
                     reliability_stars=reliability_stars,
                     estimated_value=float(round(estimated_value, -3)),
-                    user_phone=getattr(request, 'phone', None),
-                    user_email=getattr(request, 'email', None),
+                    user_phone=getattr(request, "phone", None),
+                    user_email=getattr(request, "email", None),
                 )
             except Exception as e:
-                # Don't fail the request if logging fails
                 logger.warning("PERFORMANCE_LOGGING_FAILED", context={"error": str(e)})
 
+        result.id = appraisal_id
         return result
 
     def _parse_comparables(self, text: str) -> list[Comparable]:
         """
-        Use Mistral LLM to extract structured comparable data from Perplexity's natural language response.
-        This is more robust than regex for handling varied response formats.
+        Use Mistral LLM to extract structured comparable data.
         """
-        from mistralai import Mistral
-
-        from config.settings import settings
-
         try:
             client = Mistral(api_key=settings.MISTRAL_API_KEY)
 
@@ -191,18 +204,16 @@ If no valid comparables found, return: []"""
             response = client.chat.complete(
                 model=settings.MISTRAL_MODEL,
                 messages=[{"role": "user", "content": extraction_prompt}],
-                response_format={"type": "json_object"},  # Phase 2 optimization: JSON mode
+                response_format={"type": "json_object"},
             )
 
             result_text = response.choices[0].message.content.strip()
 
-            # Extract JSON from response (handle markdown code blocks)
+            # Handle potential markdown code blocks
             if "```json" in result_text:
                 result_text = result_text.split("```json")[1].split("```")[0].strip()
             elif "```" in result_text:
                 result_text = result_text.split("```")[1].split("```")[0].strip()
-
-            import json
 
             data = json.loads(result_text)
 
@@ -212,10 +223,9 @@ If no valid comparables found, return: []"""
                     price = float(item["price"])
                     sqm = int(item["surface_sqm"])
 
-                    if sqm > 0 and price > 10000:
+                    if sqm > 0 and price > MIN_PROPERTY_PRICE:
                         psqm = price / sqm
-                        # Sanity check: €500-€15000/sqm for Florence
-                        if 500 < psqm < 15000:
+                        if MIN_PRICE_PER_SQM < psqm < MAX_PRICE_PER_SQM:
                             comps.append(
                                 Comparable(
                                     title=str(item["title"])[:100],
@@ -234,7 +244,6 @@ If no valid comparables found, return: []"""
 
         except Exception as e:
             logger.error(f"LLM extraction failed: {e}. Falling back to regex.")
-            # Fallback to simple regex if LLM fails
             return self._parse_comparables_regex(text)
 
     def _parse_comparables_regex(self, text: str) -> list[Comparable]:
@@ -256,22 +265,17 @@ If no valid comparables found, return: []"""
                 sqm_match = re.search(r"(\d+)\s?(?:sqm|mq|m²|m2|m\^2)", line, re.IGNORECASE)
 
                 if price_match and sqm_match:
-                    price_str = price_match.group(1) or price_match.group(2)
-                    if price_str.count(".") > 1:
-                        price_str = price_str.replace(".", "")
-                    elif price_str.count(",") > 1:
-                        price_str = price_str.replace(",", "")
-                    elif "." in price_str and len(price_str.split(".")[-1]) == 3:
-                        price_str = price_str.replace(".", "")
-                    elif "," in price_str and len(price_str.split(",")[-1]) == 3:
-                        price_str = price_str.replace(",", "")
-
+                    price_str = (
+                        (price_match.group(1) or price_match.group(2))
+                        .replace(".", "")
+                        .replace(",", "")
+                    )
                     price = float(price_str)
                     sqm = int(sqm_match.group(1))
 
-                    if sqm > 0 and price > 10000:
+                    if sqm > 0 and price > MIN_PROPERTY_PRICE:
                         psqm = price / sqm
-                        if 500 < psqm < 15000:
+                        if MIN_PRICE_PER_SQM < psqm < MAX_PRICE_PER_SQM:
                             comps.append(
                                 Comparable(
                                     title=line[:60].strip() + "...",
@@ -305,23 +309,23 @@ If no valid comparables found, return: []"""
     def _calculate_confidence(self, num_comparables: int) -> int:
         """Calculate confidence level (1-100) based on data quality."""
         if num_comparables >= 5:
-            return 90
+            return CONFIDENCE_HIGH
         elif num_comparables >= 3:
-            return 75
+            return CONFIDENCE_MEDIUM
         elif num_comparables >= 1:
-            return 50
+            return CONFIDENCE_LOW
         else:
-            return 20
+            return CONFIDENCE_MINIMAL
 
     def _calculate_reliability_stars(self, confidence_level: int) -> int:
         """Convert confidence level to 1-5 star rating."""
-        if confidence_level >= 85:
+        if confidence_level >= STARS_5_THRESHOLD:
             return 5
-        elif confidence_level >= 70:
+        elif confidence_level >= STARS_4_THRESHOLD:
             return 4
-        elif confidence_level >= 55:
+        elif confidence_level >= STARS_3_THRESHOLD:
             return 3
-        elif confidence_level >= 40:
+        elif confidence_level >= STARS_2_THRESHOLD:
             return 2
         else:
             return 1
