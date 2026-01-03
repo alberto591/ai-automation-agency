@@ -43,9 +43,28 @@ COMMENT ON INDEX idx_properties_price_sqm IS
 'Composite index for price/sqm validation queries';
 
 -- 5. Image URL Index (for deduplication)
--- Already exists in production, but ensuring it's optimal
+-- First, clean up any existing duplicates before creating unique index
+
+-- Delete duplicate rows, keeping only the oldest one for each image_url
+DELETE FROM properties
+WHERE id IN (
+    SELECT id
+    FROM (
+        SELECT id,
+               ROW_NUMBER() OVER (
+                   PARTITION BY image_url 
+                   ORDER BY created_at ASC NULLS LAST, id ASC
+               ) as row_num
+        FROM properties
+        WHERE image_url IS NOT NULL
+    ) t
+    WHERE t.row_num > 1
+);
+
+-- Now create the unique index
 CREATE UNIQUE INDEX IF NOT EXISTS idx_properties_image_url 
-ON properties(image_url);
+ON properties(image_url)
+WHERE image_url IS NOT NULL;
 
 COMMENT ON INDEX idx_properties_image_url IS 
 'Unique constraint for deduplication by image URL';
