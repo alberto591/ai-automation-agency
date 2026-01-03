@@ -67,3 +67,12 @@ module = ["scripts.*", "tests.*", "archive.*", "best_practices.*", "test_scripts
 disallow_untyped_defs = false
 disallow_untyped_calls = false
 strict = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+# Exclude archived and script tests that have outdated imports
+norecursedirs = ["archive", "test_scripts", "scripts", ".git", ".venv", "venv", "node_modules"]
