@@ -19,11 +19,31 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 ZONES = [
+    # === TUSCANY (Primary Focus for Demo) ===
+    ("Firenze, Centro", "Firenze"),
+    ("Firenze, Oltrarno", "Firenze"),
+    ("Firenze, Campo di Marte", "Firenze"),
+    ("Siena, Centro Storico", "Siena"),
+    ("Pisa, Centro", "Pisa"),
+    ("Pisa, Marina", "Pisa"),
+    ("Lucca, Centro Storico", "Lucca"),
+    ("Arezzo, Centro", "Arezzo"),
+    ("Grosseto, Centro", "Grosseto"),
+    ("Livorno, Centro", "Livorno"),
+    ("Chianti, Greve", "Chianti"),
+    ("Chianti, Castellina", "Chianti"),
+    # === Existing Milano ===
     ("Milano, Centro", "Milano"),
     ("Milano, Navigli", "Milano"),
     ("Milano, Isola", "Milano"),
-    ("Firenze, Centro", "Firenze"),
-    ("Chianti", "Toscana"),
+    # === Major Cities (National Coverage) ===
+    ("Roma, Centro Storico", "Roma"),
+    ("Roma, Trastevere", "Roma"),
+    ("Roma, Parioli", "Roma"),
+    ("Venezia, San Marco", "Venezia"),
+    ("Venezia, Cannaregio", "Venezia"),
+    ("Napoli, Centro", "Napoli"),
+    ("Napoli, Vomero", "Napoli"),
 ]
 
 
