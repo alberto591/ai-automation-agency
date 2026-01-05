@@ -24,6 +24,7 @@ tenacity>=8.2.3
 python-jose[cryptography]>=3.3.0
 numpy>=1.26.0
 xgboost>=2.0.0
+scikit-learn>=1.4.0
 fpdf2>=2.7.0
 langgraph>=0.0.10
 thefuzz>=0.20.0
