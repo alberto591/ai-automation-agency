@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Fifi AI - Valutazione immobiliare istantanea gratuita. Il primo agente AI per agenzie immobiliari in Italia.">
+
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Critical CSS - Inline for fastest render -->
+    <style>
+        /* Critical above-the-fold styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .navbar {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+        }
+    </style>
+
+    <!-- Defer non-critical CSS -->
+    <link rel="preload" href="dist/styles.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="dist/styles.min.css">
+    </noscript>
+
+    <title>Fifi AI | Valutazione Immobiliare Gratuita</title>
+
+    <!-- Phosphor Icons - Defer loading -->
+    <link rel="preload" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/regular/style.css" as="style"
+        onload="this.onload=null;this.rel='stylesheet'">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img src="logo.png" alt="Anzevino AI Logo" width="120" height="40" loading="eager">
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation">
+                <i class="ph ph-list"></i>
+            </button>
+            <ul class="nav-links">
+                <li><a href="#appraisal" data-translate="nav-appraisal">Valutazione AI</a></li>
+                <li><a href="#features" data-translate="nav-features">Funzionalità</a></li>
+                <li><a href="#demo" data-translate="nav-demo">Demo</a></li>
+                <li><a href="#contact" data-translate="nav-contact">Contatti</a></li>
+            </ul>
+            <div class="nav-actions">
+                <select id="language-switcher" aria-label="Select language">
+                    <option value="it">🇮🇹 IT</option>
+                    <option value="en">🇬🇧 EN</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Appraisal Form Section -->
+    <section id="appraisal" class="appraisal-section">
+        <div class="container">
+            <h1 data-translate="appraisal-title">Valutazione Immobiliare Gratuita</h1>
+            <p data-translate="appraisal-subtitle">Scopri il valore di mercato del tuo immobile in pochi secondi</p>
+
+            <!-- Form Box -->
+            <div class="appraisal-form-box">
+                <form id="appraisal-form">
+                    <div class="form-group">
+                        <label for="appraisal-address" data-translate="form-address">Indirizzo</label>
+                        <input type="text" id="appraisal-address" required placeholder="Via Roma 10, Milano">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appraisal-condition" data-translate="form-condition">Condizione</label>
+                            <select id="appraisal-condition" required>
+                                <option value="excellent">Eccellente</option>
+                                <option value="good" selected>Buona</option>
+                                <option value="fair">Discreta</option>
+                                <option value="poor">Da ristrutturare</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="appraisal-sqm" data-translate="form-sqm">Superficie (mq)</label>
+                            <input type="number" id="appraisal-sqm" required min="20" max="500" placeholder="85">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appraisal-postcode" data-translate="form-postcode">CAP</label>
+                            <input type="text" id="appraisal-postcode" required maxlength="5" placeholder="20121">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="appraisal-phone" data-translate="form-phone">Telefono</label>
+                            <input type="tel" id="appraisal-phone" required placeholder="+39 333 5555555">
+                        </div>
+                    </div>
+
+                    <div class="disclaimer-box">
+                        <label class="disclaimer-label">
+                            <input type="checkbox" id="appraisal-disclaimer-check" required>
+                            <span data-translate="disclaimer-text">
+                                Accetto che i miei dati vengano utilizzati per ricevere la valutazione via WhatsApp
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <span data-translate="appraisal-cta">Calcola Stima Preliminare</span>
+                        <i class="ph ph-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Results Box (Hidden by default) -->
+            <div id="appraisal-result" class="result-box" style="display: none;">
+                <button class="close-result" aria-label="Close results">&times;</button>
+                <h2 data-translate="appraisal-res-title">Valutazione Completata</h2>
+
+                <div id="value-range" class="value-display">
+                    <p data-translate="appraisal-res-range">Stima di Valore:</p>
+                    <div class="value-amount">
+                        €<span id="res-min">0</span> - €<span id="res-max">0</span>
+                    </div>
+                    <p class="confidence">
+                        <span data-translate="appraisal-res-confidence">Affidabilità:</span>
+                        <span id="confidence-text">⭐⭐⭐ (85%)</span>
+                    </p>
+                </div>
+
+                <div class="investment-metrics">
+                    <div class="metric-card">
+                        <span class="metric-label" data-translate="metric-rent">Affitto Mensile</span>
+                        <span class="metric-value">€<span id="res-rent">0</span></span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label" data-translate="metric-yield">Rendimento</span>
+                        <span class="metric-value"><span id="res-yield">0</span>%</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label" data-translate="metric-roi">ROI 5 anni</span>
+                        <span class="metric-value"><span id="res-roi">0</span>%</span>
+                    </div>
+                </div>
+
+                <button id="download-pdf-btn" class="btn-secondary">
+                    <i class="ph ph-download"></i>
+                    <span data-translate="appraisal-res-download-pdf">Scarica Report PDF</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Anzevino AI Real Estate. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Optimized Scripts - Deferred -->
+    <script src="dist/bundle.min.js" defer></script>
+
+    <!-- Fallback for no-JS users -->
+    <noscript>
+        <div style="padding: 20px; background: #fff3cd; text-align: center;">
+            JavaScript è necessario per utilizzare questa applicazione.
+        </div>
+    </noscript>
+</body>
+
+</html>

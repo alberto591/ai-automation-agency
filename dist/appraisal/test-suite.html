@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appraisal Form - Test Suite</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-case {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid #ddd;
+        }
+
+        .test-case.pass {
+            border-left-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .test-case.fail {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .results {
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        h2 {
+            color: #1e293b;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Appraisal Form - Test Suite</h1>
+
+    <div class="test-section">
+        <h2>Unit Tests</h2>
+        <button onclick="runValidatorTests()">Run Validator Tests</button>
+        <button onclick="runFormatterTests()">Run Formatter Tests</button>
+        <button onclick="runCacheTests()">Run Cache Tests</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <div id="unit-results" class="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Integration Tests</h2>
+        <button onclick="runIntegrationTests()">Run Integration Tests</button>
+        <div id="integration-results" class="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Test Checklist</h2>
+        <div class="test-case">
+            <input type="checkbox" id="mobile-test">
+            <label for="mobile-test">Test on mobile device (iPhone/Android)</label>
+        </div>
+        <div class="test-case">
+            <input type="checkbox" id="desktop-test">
+            <label for="desktop-test">Test on desktop browsers (Chrome, Firefox, Safari)</label>
+        </div>
+        <div class="test-case">
+            <input type="checkbox" id="validation-test">
+            <label for="validation-test">Test real-time validation feedback</label>
+        </div>
+        <div class="test-case">
+            <input type="checkbox" id="cache-test">
+            <label for="cache-test">Submit form twice and verify cache hit</label>
+        </div>
+        <div class="test-case">
+            <input type="checkbox" id="progress-test">
+            <label for="progress-test">Verify progress overlay during submission</label>
+        </div>
+    </div>
+
+    <script src="../helpers.js"></script>
+    <script>
+        // Test utilities
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(message || 'Assertion failed');
+            }
+        }
+
+        function displayResults(elementId, results) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = results.map(r =>
+                `<div class="test-case ${r.pass ? 'pass' : 'fail'}">
+                    ${r.pass ? '✅' : '❌'} ${r.name}: ${r.message}
+                </div>`
+            ).join('');
+        }
+
+        // Validator Tests
+        function runValidatorTests() {
+            const results = [];
+
+            try {
+                // Postal code tests
+                assert(validators.postalCode('20121'), 'Valid Italian postcode');
+                results.push({ pass: true, name: 'Postal Code - Valid', message: '20121 accepted' });
+
+                assert(!validators.postalCode('123'), 'Invalid short postcode');
+                results.push({ pass: true, name: 'Postal Code - Too Short', message: '123 rejected' });
+
+                assert(!validators.postalCode('abc12'), 'Invalid alpha postcode');
+                results.push({ pass: true, name: 'Postal Code - Alpha', message: 'abc12 rejected' });
+
+                // Phone tests
+                assert(validators.phone('+39 333 5555555'), 'Valid Italian phone');
+                results.push({ pass: true, name: 'Phone - Italian +39', message: 'Accepted' });
+
+                assert(validators.phone('3335555555'), 'Valid local format');
+                results.push({ pass: true, name: 'Phone - Local Format', message: 'Accepted' });
+
+                assert(!validators.phone('12345'), 'Invalid short phone');
+                results.push({ pass: true, name: 'Phone - Invalid', message: '12345 rejected' });
+
+                // SQM tests
+                assert(validators.sqm('85'), 'Valid SQM');
+                results.push({ pass: true, name: 'SQM - Valid', message: '85 accepted' });
+
+                assert(!validators.sqm('10'), 'Too small SQM');
+                results.push({ pass: true, name: 'SQM - Too Small', message: '10 rejected' });
+
+                assert(!validators.sqm('600'), 'Too large SQM');
+                results.push({ pass: true, name: 'SQM - Too Large', message: '600 rejected' });
+
+                // Address tests
+                assert(validators.address('Via Roma 10'), 'Valid address');
+                results.push({ pass: true, name: 'Address - Valid', message: 'Accepted' });
+
+                assert(!validators.address('Via'), 'Too short address');
+                results.push({ pass: true, name: 'Address - Too Short', message: 'Rejected' });
+
+            } catch (e) {
+                results.push({ pass: false, name: 'Validator Test', message: e.message });
+            }
+
+            displayResults('unit-results', results);
+        }
+
+        // Formatter Tests
+        function runFormatterTests() {
+            const results = [];
+
+            try {
+                // Phone formatting
+                const phoneInput1 = document.createElement('input');
+                phoneInput1.value = '3335555555';
+                formatPhoneNumber(phoneInput1);
+                assert(phoneInput1.value === '+393335555555' || phoneInput1.value === '+39 333 5555555',
+                    'Phone formatted correctly');
+                results.push({ pass: true, name: 'Phone Format', message: `3335555555 → ${phoneInput1.value}` });
+
+                // Postal code formatting
+                const postcodeInput1 = document.createElement('input');
+                postcodeInput1.value = 'abc12345';
+                formatPostalCode(postcodeInput1);
+                assert(postcodeInput1.value === '12345', 'Postcode filtered to digits');
+                results.push({ pass: true, name: 'Postcode Format', message: `abc12345 → ${postcodeInput1.value}` });
+
+                const postcodeInput2 = document.createElement('input');
+                postcodeInput2.value = '123456789';
+                formatPostalCode(postcodeInput2);
+                assert(postcodeInput2.value === '12345', 'Postcode limited to 5 digits');
+                results.push({ pass: true, name: 'Postcode Length', message: `123456789 → ${postcodeInput2.value}` });
+
+            } catch (e) {
+                results.push({ pass: false, name: 'Formatter Test', message: e.message });
+            }
+
+            displayResults('unit-results', results);
+        }
+
+        // Cache Tests
+        function runCacheTests() {
+            const results = [];
+
+            try {
+                // Clear cache first
+                appraisalCache.storage.clear();
+
+                const testParams = {
+                    city: 'Florence',
+                    zone: '50100',
+                    surface_sqm: 85,
+                    condition: 'good'
+                };
+
+                const testData = {
+                    estimated_value: 350000,
+                    confidence_level: 85
+                };
+
+                // Test cache miss
+                const miss = appraisalCache.get(testParams);
+                assert(miss === null, 'Cache miss returns null');
+                results.push({ pass: true, name: 'Cache Miss', message: 'Returns null correctly' });
+
+                // Test cache set
+                appraisalCache.set(testParams, testData);
+                results.push({ pass: true, name: 'Cache Set', message: 'Data stored' });
+
+                // Test cache hit
+                const hit = appraisalCache.get(testParams);
+                assert(hit !== null, 'Cache hit returns data');
+                assert(hit.estimated_value === 350000, 'Cached data matches');
+                results.push({ pass: true, name: 'Cache Hit', message: 'Data retrieved correctly' });
+
+                // Test TTL expiration (simulate)
+                const oldTimestamp = Date.now() - (16 * 60 * 1000); // 16 minutes ago
+                appraisalCache.storage.set(appraisalCache.generateKey(testParams), {
+                    data: testData,
+                    timestamp: oldTimestamp
+                });
+
+                const expired = appraisalCache.get(testParams);
+                assert(expired === null, 'Expired cache returns null');
+                results.push({ pass: true, name: 'Cache Expiration', message: 'TTL enforced correctly' });
+
+            } catch (e) {
+                results.push({ pass: false, name: 'Cache Test', message: e.message });
+            }
+
+            displayResults('unit-results', results);
+        }
+
+        // Integration Tests
+        function runIntegrationTests() {
+            const results = [];
+
+            try {
+                // Test loading progress
+                showLoadingProgress('Test message', 50);
+                const overlay = document.getElementById('loading-overlay');
+                assert(overlay !== null, 'Overlay created');
+                assert(overlay.classList.contains('active'), 'Overlay is active');
+                results.push({ pass: true, name: 'Loading Overlay', message: 'Shows correctly' });
+
+                hideLoadingProgress();
+                assert(!overlay.classList.contains('active'), 'Overlay hidden');
+                results.push({ pass: true, name: 'Hide Overlay', message: 'Hides correctly' });
+
+                // Test validate field
+                const testInput = document.createElement('input');
+                testInput.value = '20121';
+                const isValid = validateField(testInput, validators.postalCode);
+                assert(isValid === true, 'Validation works');
+                assert(testInput.classList.contains('valid'), 'Valid class added');
+                results.push({ pass: true, name: 'Validate Field', message: 'Validation integration works' });
+
+            } catch (e) {
+                results.push({ pass: false, name: 'Integration Test', message: e.message });
+            }
+
+            displayResults('integration-results', results);
+        }
+
+        function runAllTests() {
+            runValidatorTests();
+            setTimeout(() => runFormatterTests(), 100);
+            setTimeout(() => runCacheTests(), 200);
+            setTimeout(() => runIntegrationTests(), 300);
+        }
+    </script>
+</body>
+
+</html>

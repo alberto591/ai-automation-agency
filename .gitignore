@@ -17,7 +17,7 @@ node_modules/
 
 # Ignore build files
 build/
-dist/
+# dist/ - Removed to allow Vercel deployment of pre-built files
 
 # Ignore log files
 *.log
