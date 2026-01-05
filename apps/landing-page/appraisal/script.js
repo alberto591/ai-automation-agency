@@ -468,61 +468,49 @@ document.addEventListener('DOMContentLoaded', function () {
             const cachedResult = appraisalCache.get(cacheParams);
 
             if (cachedResult) {
-                // Use cached result
-                showLoadingProgress(t('loading-from-cache') || 'Loading from cache...', 100);
-                setTimeout(() => {
-                    hideLoadingProgress();
-                    displayAppraisalResults(cachedResult, submitBtn);
-                    showNotification(t('appraisal-cached') || 'Loaded from recent search', 'success');
-                }, 500);
+                // Return immediately if cached
+                displayAppraisalResults(cachedResult, submitBtn);
+                showNotification(t('appraisal-cached') || 'Caricamento da ricerca recente', 'success');
                 return;
             }
 
-            // Step 1: Creating lead (0-25%)
-            showLoadingProgress(t('loading-creating-lead') || 'Creating your request...', 10);
+            // High-speed parallel processing (Lead + Appraisal simultaneously)
+            showLoadingProgress(t('loading-analyzing') || 'Analisi dei dati di mercato...', 30);
 
-            // First, create lead with retry
-            fetchWithRetry(`${API_BASE}/api/leads`, {
+            // Fire both requests in parallel
+            const leadRequest = fetchWithRetry(`${API_BASE}/api/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            })
-                .then(leadData => {
-                    // Step 2: Analyzing market data (25-75%)
-                    showLoadingProgress(t('loading-analyzing') || 'Analyzing market data...', 40);
-                    showNotification(t('appraisal-status-success'), 'success');
+            }).catch(err => {
+                console.warn('Lead creation failed - continuing appraisal', err);
+                return null;
+            });
 
-                    // Now get real appraisal with investment metrics
-                    return fetchWithRetry(`${API_BASE}/api/appraisals/estimate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            city: detectedCity,
-                            zone: postcode,
-                            surface_sqm: parseInt(sqm),
-                            condition: condition,
-                            phone: formattedPhone // Link appraisal to lead
-                        })
-                    });
+            const appraisalRequest = fetchWithRetry(`${API_BASE}/api/appraisals/estimate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    city: detectedCity,
+                    zone: postcode,
+                    surface_sqm: parseInt(sqm),
+                    condition: condition,
+                    phone: formattedPhone
                 })
-                .then(appraisal => {
-                    // Step 3: Calculating metrics (75-90%)
-                    showLoadingProgress(t('loading-calculating') || 'Calculating investment metrics...', 80);
+            });
+
+            Promise.all([leadRequest, appraisalRequest])
+                .then(([leadData, appraisal]) => {
+                    // Update progress one last time then hide
+                    showLoadingProgress(t('loading-finalizing') || 'Finalizzazione risultati...', 100);
 
                     setTimeout(() => {
-                        // Step 4: Finalizing (90-100%)
-                        showLoadingProgress(t('loading-finalizing') || 'Finalizing results...', 95);
-
-                        setTimeout(() => {
-                            hideLoadingProgress();
-
-                            // Cache the result
-                            appraisalCache.set(cacheParams, appraisal);
-
-                            // Display results
-                            displayAppraisalResults(appraisal, submitBtn);
-                        }, 300);
-                    }, 300);
+                        hideLoadingProgress();
+                        // Cache the result
+                        appraisalCache.set(cacheParams, appraisal);
+                        // Display results immediately
+                        displayAppraisalResults(appraisal, submitBtn);
+                    }, 150); // Minimal delay for visual feedback of completion
                 })
 
         })
@@ -539,213 +527,213 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-// Typing Animation for Hero Chat
-function simulateTyping() {
-    const typingBubble = document.querySelector('.typing-indicator');
-    if (typingBubble) {
-        setTimeout(() => {
-            const chatContainer = document.querySelector('.chat-container');
-            const newMessage = document.createElement('div');
-            newMessage.className = 'chat-message from-ai';
-            newMessage.innerHTML = `
+    // Typing Animation for Hero Chat
+    function simulateTyping() {
+        const typingBubble = document.querySelector('.typing-indicator');
+        if (typingBubble) {
+            setTimeout(() => {
+                const chatContainer = document.querySelector('.chat-container');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'chat-message from-ai';
+                newMessage.innerHTML = `
                     <div class="message-time">14:23</div>
                     <div class="message-bubble ai-bubble" data-translate="chat-ai-msg-1">
                         ${t('chat-ai-msg-1')}
                     </div>
                 `;
-            typingBubble.closest('.chat-message').remove();
-            chatContainer.appendChild(newMessage);
+                typingBubble.closest('.chat-message').remove();
+                chatContainer.appendChild(newMessage);
 
-            // Continue the conversation
-            setTimeout(() => {
-                const clientResponse = document.createElement('div');
-                clientResponse.className = 'chat-message from-client';
-                clientResponse.innerHTML = `
+                // Continue the conversation
+                setTimeout(() => {
+                    const clientResponse = document.createElement('div');
+                    clientResponse.className = 'chat-message from-client';
+                    clientResponse.innerHTML = `
                         <div class="message-time">14:24</div>
                         <div class="message-bubble" data-translate="chat-client-msg-1">
                             ${t('chat-client-msg-1')}
                         </div>
                     `;
-                chatContainer.appendChild(clientResponse);
+                    chatContainer.appendChild(clientResponse);
 
-                // Scroll to bottom
+                    // Scroll to bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 2000);
+
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 2000);
+        }
+    }
 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Start typing simulation after page load
+    setTimeout(simulateTyping, 3000);
+
+    // Dashboard Stats Animation
+    const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
+    let dashboardAnimated = false;
+
+    function animateDashboardStats() {
+        if (dashboardAnimated) return;
+
+        dashboardStats.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            let current = 0;
+            const increment = target / 50;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    dashboardAnimated = true;
+                }
+                stat.textContent = Math.floor(current);
+            }, 40);
+        });
+    }
+
+    // Intersection Observer for dashboard animation
+    const dashboardSection = document.querySelector('.dashboard-section');
+    if (dashboardSection && dashboardStats.length > 0) {
+        const dashboardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateDashboardStats, 500);
+                }
+            });
+        }, {
+            threshold: 0.3
+        });
+
+        dashboardObserver.observe(dashboardSection);
+    }
+
+    // Conversation Step Navigation
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function () {
+            // Remove active state from all items
+            conversationItems.forEach(conv => conv.classList.remove('active'));
+
+            // Add active state to clicked item
+            this.classList.add('active');
+
+            // You could add logic here to show conversation details
+        });
+    });
+
+    // Feature Card Hover Effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Problem Stats Animation
+    const problemStats = document.querySelectorAll('.problem-stat');
+    let problemStatsAnimated = false;
+
+    function animateProblemStats() {
+        if (problemStatsAnimated) return;
+
+        problemStats.forEach((stat, index) => {
+            const numberElement = stat.querySelector('.stat-number');
+            const targetText = numberElement.textContent;
+            const isPercentage = targetText.includes('%');
+            const isEuro = targetText.includes('€');
+
+            let target = parseInt(targetText.replace(/[^0-9]/g, ''));
+            let current = 0;
+            const increment = target / 60;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    problemStatsAnimated = true;
+                }
+
+                let displayValue = Math.floor(current);
+                if (isPercentage) displayValue += '%';
+                if (isEuro) displayValue = '€' + displayValue.toLocaleString();
+
+                numberElement.textContent = displayValue;
+            }, 30 + (index * 100));
+        });
+    }
+
+    // Intersection Observer for problem stats
+    const problemSection = document.querySelector('.problem-section');
+    if (problemSection && problemStats.length > 0) {
+        const problemObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateProblemStats, 800);
+                }
+            });
+        }, {
+            threshold: 0.4
+        });
+
+        problemObserver.observe(problemSection);
+    }
+
+    // Form Input Enhancements
+    const formInputs = document.querySelectorAll('.form-group input, .form-group select');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function () {
+            this.parentElement.classList.add('focused');
+        });
+
+        input.addEventListener('blur', function () {
+            this.parentElement.classList.remove('focused');
+            if (this.value) {
+                this.parentElement.classList.add('filled');
+            } else {
+                this.parentElement.classList.remove('filled');
+            }
+        });
+    });
+
+    // Parallax Effect for Hero Section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.3;
+            hero.style.transform = `translateY(${rate}px)`;
+        });
+    }
+
+    // Loading states for buttons
+    function addLoadingState(button, originalText) {
+        button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
         }, 2000);
     }
-}
 
-// Start typing simulation after page load
-setTimeout(simulateTyping, 3000);
-
-// Dashboard Stats Animation
-const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
-let dashboardAnimated = false;
-
-function animateDashboardStats() {
-    if (dashboardAnimated) return;
-
-    dashboardStats.forEach(stat => {
-        const target = parseInt(stat.textContent);
-        let current = 0;
-        const increment = target / 50;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-                dashboardAnimated = true;
-            }
-            stat.textContent = Math.floor(current);
-        }, 40);
-    });
-}
-
-// Intersection Observer for dashboard animation
-const dashboardSection = document.querySelector('.dashboard-section');
-if (dashboardSection && dashboardStats.length > 0) {
-    const dashboardObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setTimeout(animateDashboardStats, 500);
-            }
-        });
-    }, {
-        threshold: 0.3
-    });
-
-    dashboardObserver.observe(dashboardSection);
-}
-
-// Conversation Step Navigation
-const conversationItems = document.querySelectorAll('.conversation-item');
-conversationItems.forEach(item => {
-    item.addEventListener('click', function () {
-        // Remove active state from all items
-        conversationItems.forEach(conv => conv.classList.remove('active'));
-
-        // Add active state to clicked item
-        this.classList.add('active');
-
-        // You could add logic here to show conversation details
-    });
-});
-
-// Feature Card Hover Effects
-const featureCards = document.querySelectorAll('.feature-card');
-featureCards.forEach(card => {
-    card.addEventListener('mouseenter', function () {
-        this.style.transform = 'translateY(-12px) scale(1.02)';
-    });
-
-    card.addEventListener('mouseleave', function () {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
-
-// Problem Stats Animation
-const problemStats = document.querySelectorAll('.problem-stat');
-let problemStatsAnimated = false;
-
-function animateProblemStats() {
-    if (problemStatsAnimated) return;
-
-    problemStats.forEach((stat, index) => {
-        const numberElement = stat.querySelector('.stat-number');
-        const targetText = numberElement.textContent;
-        const isPercentage = targetText.includes('%');
-        const isEuro = targetText.includes('€');
-
-        let target = parseInt(targetText.replace(/[^0-9]/g, ''));
-        let current = 0;
-        const increment = target / 60;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-                problemStatsAnimated = true;
-            }
-
-            let displayValue = Math.floor(current);
-            if (isPercentage) displayValue += '%';
-            if (isEuro) displayValue = '€' + displayValue.toLocaleString();
-
-            numberElement.textContent = displayValue;
-        }, 30 + (index * 100));
-    });
-}
-
-// Intersection Observer for problem stats
-const problemSection = document.querySelector('.problem-section');
-if (problemSection && problemStats.length > 0) {
-    const problemObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setTimeout(animateProblemStats, 800);
-            }
-        });
-    }, {
-        threshold: 0.4
-    });
-
-    problemObserver.observe(problemSection);
-}
-
-// Form Input Enhancements
-const formInputs = document.querySelectorAll('.form-group input, .form-group select');
-formInputs.forEach(input => {
-    input.addEventListener('focus', function () {
-        this.parentElement.classList.add('focused');
-    });
-
-    input.addEventListener('blur', function () {
-        this.parentElement.classList.remove('focused');
-        if (this.value) {
-            this.parentElement.classList.add('filled');
-        } else {
-            this.parentElement.classList.remove('filled');
+    // Success/Error Notifications
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
         }
-    });
-});
 
-// Parallax Effect for Hero Section
-const hero = document.querySelector('.hero');
-if (hero) {
-    window.addEventListener('scroll', function () {
-        const scrolled = window.pageYOffset;
-        const rate = scrolled * -0.3;
-        hero.style.transform = `translateY(${rate}px)`;
-    });
-}
-
-// Loading states for buttons
-function addLoadingState(button, originalText) {
-    button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
-    button.disabled = true;
-
-    setTimeout(() => {
-        button.innerHTML = originalText;
-        button.disabled = false;
-    }, 2000);
-}
-
-// Success/Error Notifications
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
             <div class="notification-content">
                 <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}"></i>
                 <span>${message}</span>
@@ -755,8 +743,8 @@ function showNotification(message, type = 'info') {
             </div>
         `;
 
-    // Add styles
-    notification.style.cssText = `
+        // Add styles
+        notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -772,13 +760,13 @@ function showNotification(message, type = 'info') {
             font-family: Inter, sans-serif;
         `;
 
-    notification.querySelector('.notification-content').style.cssText = `
+        notification.querySelector('.notification-content').style.cssText = `
             display: flex;
             align-items: center;
             gap: 12px;
         `;
 
-    notification.querySelector('.notification-close').style.cssText = `
+        notification.querySelector('.notification-close').style.cssText = `
             background: none;
             border: none;
             color: white;
@@ -787,32 +775,32 @@ function showNotification(message, type = 'info') {
             margin-left: auto;
         `;
 
-    // Add to DOM
-    document.body.appendChild(notification);
+        // Add to DOM
+        document.body.appendChild(notification);
 
-    // Animate in
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
 
-    // Close functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => notification.remove(), 300);
-    });
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
+        // Close functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
             notification.style.transform = 'translateX(100%)';
             setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
-}
+        });
 
-// Add mobile menu styles
-const mobileMenuStyles = `
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Add mobile menu styles
+    const mobileMenuStyles = `
         @media (max-width: 768px) {
             .nav-links {
                 position: fixed;
@@ -846,74 +834,74 @@ const mobileMenuStyles = `
         }
     `;
 
-// Inject mobile menu styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = mobileMenuStyles;
-document.head.appendChild(styleSheet);
+    // Inject mobile menu styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = mobileMenuStyles;
+    document.head.appendChild(styleSheet);
 
-// Performance optimization: Debounce scroll events
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
+    // Performance optimization: Debounce scroll events
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
             clearTimeout(timeout);
-            func(...args);
+            timeout = setTimeout(later, wait);
         };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Apply debounce to scroll handlers
-const debouncedScrollHandler = debounce(function () {
-    // Additional scroll-based animations can be added here
-}, 16); // ~60fps
-
-window.addEventListener('scroll', debouncedScrollHandler);
-
-// Accessibility improvements
-document.addEventListener('keydown', function (e) {
-    // ESC key closes mobile menu
-    if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
-        navLinks.classList.remove('active');
-        const icon = navToggle.querySelector('i');
-        icon.classList.remove('ph-x');
-        icon.classList.add('ph-list');
     }
-});
 
-// Focus management for mobile menu
-if (navLinks) {
-    const focusableElements = navLinks.querySelectorAll('a, button');
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
+    // Apply debounce to scroll handlers
+    const debouncedScrollHandler = debounce(function () {
+        // Additional scroll-based animations can be added here
+    }, 16); // ~60fps
 
-    navToggle.addEventListener('click', function () {
-        setTimeout(() => {
-            if (navLinks.classList.contains('active')) {
-                firstFocusable.focus();
-            }
-        }, 300);
-    });
+    window.addEventListener('scroll', debouncedScrollHandler);
 
-    navLinks.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab') {
-            if (e.shiftKey) {
-                if (document.activeElement === firstFocusable) {
-                    lastFocusable.focus();
-                    e.preventDefault();
-                }
-            } else {
-                if (document.activeElement === lastFocusable) {
-                    firstFocusable.focus();
-                    e.preventDefault();
-                }
-            }
+    // Accessibility improvements
+    document.addEventListener('keydown', function (e) {
+        // ESC key closes mobile menu
+        if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = navToggle.querySelector('i');
+            icon.classList.remove('ph-x');
+            icon.classList.add('ph-list');
         }
     });
-}
 
-console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
+    // Focus management for mobile menu
+    if (navLinks) {
+        const focusableElements = navLinks.querySelectorAll('a, button');
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        navToggle.addEventListener('click', function () {
+            setTimeout(() => {
+                if (navLinks.classList.contains('active')) {
+                    firstFocusable.focus();
+                }
+            }, 300);
+        });
+
+        navLinks.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+    }
+
+    console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
 });
 
 // Utility Functions
@@ -1515,5 +1503,124 @@ window.addEventListener('error', function (e) {
     if (e && e.error) {
         console.error('JavaScript error:', e.error);
         // You could send this to an error tracking service
+    }
+});
+
+// PDF Download Logic
+document.addEventListener('DOMContentLoaded', function () {
+    const downloadBtn = document.getElementById('download-pdf-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', async function (e) {
+            e.preventDefault();
+            const originalText = this.innerHTML;
+            const isItalian = document.documentElement.lang === 'it';
+
+            this.innerHTML = '<i class="ph ph-spinner"></i> ' + (isItalian ? 'Generazione...' : 'Generating...');
+            this.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const element = document.getElementById('appraisal-result');
+
+                // Create a temporary style container for PDF
+                const pdfStyleId = 'pdf-export-styles';
+                let pdfStyle = document.getElementById(pdfStyleId);
+                if (!pdfStyle) {
+                    pdfStyle = document.createElement('style');
+                    pdfStyle.id = pdfStyleId;
+                    document.head.appendChild(pdfStyle);
+                }
+
+                pdfStyle.textContent = `
+                    #appraisal-result {
+                        background: white !important;
+                        color: #0f172a !important;
+                        padding: 40px !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                        width: 1000px !important; /* Fixed width for consistent capture */
+                    }
+                    #appraisal-result * {
+                        color: #0f172a !important;
+                        border-color: #e2e8f0 !important;
+                    }
+                    .result-badge {
+                        background: #f8fafc !important;
+                        border: 1px solid #e2e8f0 !important;
+                        color: #475569 !important;
+                    }
+                    .label, .metric-label {
+                        color: #64748b !important;
+                        text-transform: uppercase !important;
+                        font-weight: 600 !important;
+                    }
+                    .value-range {
+                        color: #0f172a !important;
+                        font-size: 3rem !important;
+                        margin: 1.5rem 0 !important;
+                    }
+                    .metric-card {
+                        background: #f8fafc !important;
+                        border: 1px solid #e2e8f0 !important;
+                        padding: 1.5rem !important;
+                    }
+                    .metric-card-label { color: #64748b !important; }
+                    .metric-card-value { color: #0f172a !important; font-size: 1.5rem !important; }
+                    .metric-card-hint { color: #94a3b8 !important; }
+                    .meter-bar { background: #f1f5f9 !important; border: 1px solid #e2e8f0 !important; }
+                    .meter-fill { background: #22c55e !important; }
+                    .result-cta, .close-result { display: none !important; }
+
+                    /* Add branded header for PDF */
+                    #appraisal-result::before {
+                        content: "Anzevino AI - Report Valutativo Professionale";
+                        display: block;
+                        font-size: 1.25rem;
+                        font-weight: bold;
+                        color: #1e40af !important;
+                        border-bottom: 2px solid #1e40af;
+                        margin-bottom: 2rem;
+                        padding-bottom: 1rem;
+                        text-align: center;
+                    }
+                `;
+
+                const canvas = await html2canvas(element, {
+                    scale: 3, // Higher scale for better quality
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Clear temporary styles
+                pdfStyle.textContent = '';
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                pdf.save('Anzevino_AI_Valuation.pdf');
+
+                const successMsg = isItalian ? 'Report PDF scaricato con successo!' : 'PDF Report downloaded successfully!';
+                if (typeof showNotification === 'function') {
+                    showNotification(successMsg, 'success');
+                } else {
+                    alert(successMsg);
+                }
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                const errorMsg = isItalian ? 'Errore nella generazione del PDF. Riprova.' : 'Error generating PDF. Please try again.';
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMsg, 'error');
+                } else {
+                    alert(errorMsg);
+                }
+            } finally {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
     }
 });

@@ -23,6 +23,8 @@
 
     <!-- Icons -->
     <script src="https://unpkg.com/phosphor-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- Cal.com embed code -->
     <script type="text/javascript">
@@ -89,21 +91,7 @@
         <div class="container">
             <div class="appraisal-card">
                 <div class="appraisal-content">
-                    <div class="appraisal-text">
-                        <span class="intro-tag" data-translate="appraisal-tag">Novità</span>
-                        <h2 data-translate="appraisal-title">Valutazione Immobiliare Preliminare</h2>
-                        <p data-translate="appraisal-subtitle">L'IA analizza i prezzi di mercato della tua zona e ti
-                            invia una valutazione istantanea su WhatsApp. Gratuito, veloce, preciso.</p>
 
-                        <ul class="appraisal-features">
-                            <li><i class="ph ph-lightning"></i> <span data-translate="appraisal-f1">Analisi Big Data
-                                    real-time</span></li>
-                            <li><i class="ph ph-whatsapp-logo"></i> <span data-translate="appraisal-f2">Risultato
-                                    diretto su WhatsApp</span></li>
-                            <li><i class="ph ph-map-pin"></i> <span data-translate="appraisal-f3">Precisione per
-                                    quartiere</span></li>
-                        </ul>
-                    </div>
                     <div class="appraisal-form-box">
                         <form id="appraisal-form" class="mini-form">
                             <div class="form-group">
@@ -243,20 +231,19 @@
                         <div class="result-cta">
                             <p data-translate="appraisal-res-whatsapp-sent">Ti abbiamo inviato il report completo su
                                 WhatsApp!</p>
-                            <div
-                                style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem;">
-                                <button id="download-pdf-btn" class="btn-secondary btn-sm"
-                                    style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                                <button id="download-pdf-btn" class="btn-premium btn-premium-pdf">
                                     <i class="ph ph-download"></i> <span
                                         data-translate="appraisal-res-download-pdf">Scarica
                                         Report PDF</span>
                                 </button>
-                                <a id="feedback-link" href="/feedback.html" target="_blank" class="btn-secondary btn-sm"
-                                    style="background: rgba(255,255,255,0.1); color: #fbbf24; border: 1px solid #fbbf24;">
+                                <a id="feedback-link" href="/feedback.html" target="_blank"
+                                    class="btn-premium btn-premium-feedback">
                                     <i class="ph ph-star"></i> <span data-translate="appraisal-res-feedback">Lascia un
                                         Feedback</span>
                                 </a>
-                                <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary btn-sm">
+                                <a href="https://cal.com/anzevino-ai" target="_blank"
+                                    class="btn-premium btn-premium-expert">
                                     <i class="ph ph-calendar"></i> <span data-translate="appraisal-res-expert">Parla con
                                         un
                                         esperto</span>

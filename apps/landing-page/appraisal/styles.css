@@ -734,9 +734,13 @@ p {
 
 .chart-bars {
     display: flex;
-    align-items: end;
-    gap: 1rem;
-    height: 200px;
+    align-items: stretch;
+    gap: 1.5rem;
+    height: 250px;
+    background: rgba(226, 232, 240, 0.4);
+    padding: 2rem 1.5rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .bar-group {
@@ -744,45 +748,59 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    height: 100%;
 }
 
 .bar {
     width: 100%;
-    border-radius: 8px 8px 0 0;
+    min-width: 30px;
+    border-radius: 6px 6px 0 0;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bar:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+    filter: brightness(1.1);
 }
 
 .bar.immediate {
+    background: #dc2626;
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    border: 2px solid #991b1b;
 }
 
 .bar.fast {
+    background: #ea580c;
     background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+    border: 2px solid #9a3412;
 }
 
 .bar.medium {
+    background: #ca8a04;
     background: linear-gradient(135deg, #ca8a04 0%, #eab308 100%);
+    border: 2px solid #854d0e;
 }
 
 .bar.slow {
+    background: #059669;
     background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    border: 2px solid #065f46;
 }
 
 .bar.lost {
-    background: linear-gradient(135deg, var(--slate-gray) 0%, #64748b 100%);
+    background: #475569;
+    background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+    border: 2px solid #1e293b;
 }
 
 .bar-label {
-    font-size: 0.75rem;
-    color: var(--slate-gray);
+    font-size: 0.8125rem;
+    color: var(--navy-blue);
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* AI Appraisal Section */
@@ -813,12 +831,16 @@ p {
 }
 
 .appraisal-content {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 4rem;
+    display: flex;
+    justify-content: center;
     align-items: center;
     position: relative;
     z-index: 2;
+}
+
+.appraisal-form-box {
+    width: 100%;
+    max-width: 550px;
 }
 
 .appraisal-text h2 {
@@ -918,7 +940,7 @@ p {
     gap: 12px;
     cursor: pointer;
     font-size: 0.85rem;
-    color: var(--slate-600);
+    color: var(--slate-gray);
     user-select: none;
 }
 
@@ -947,8 +969,8 @@ p {
 }
 
 .checkbox-container input:checked~.checkmark {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
 }
 
 .checkmark:after {
@@ -2075,6 +2097,7 @@ p {
 .value-range {
     font-size: 2.5rem;
     margin: 0.5rem 0;
+    color: #ffffff;
 }
 
 .confidence-meter {
@@ -2141,6 +2164,7 @@ p {
 .value-range {
     font-size: 2.5rem;
     margin: 0.5rem 0;
+    color: #ffffff;
 }
 
 .confidence-meter {
@@ -2198,13 +2222,73 @@ p {
 
 .result-cta {
     text-align: center;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .result-cta p {
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-    opacity: 0.9;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.95;
     color: white;
+    font-weight: 500;
+}
+
+/* Premium Button Styles */
+.btn-premium {
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    backdrop-filter: blur(8px);
+}
+
+.btn-premium-pdf {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-premium-pdf:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+.btn-premium-feedback {
+    background: rgba(251, 191, 36, 0.1);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.btn-premium-feedback:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: #fbbf24;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(251, 191, 36, 0.2);
+}
+
+.btn-premium-expert {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-premium-expert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    filter: brightness(1.1);
 }
 
 /* Ensure Select matches Input */

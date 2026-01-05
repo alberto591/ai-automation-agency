@@ -111,6 +111,19 @@ function displayAppraisalResults(appraisal, submitBtn) {
     // Check if backend is in test mode (instant display)
     const isTestMode = appraisal.reasoning?.includes('TEST MODE');
 
+    // Helper to get safe rent value
+    const getSafeRent = (m, appraisal) => {
+        let rent = m.monthly_rent || 0;
+        // Fallback: if rent is 0 but we have property value, estimate it (4.8% yield)
+        if (rent === 0 && appraisal.estimated_value > 0) {
+            rent = (appraisal.estimated_value * 0.048) / 12;
+        } else if (rent === 0 && appraisal.estimated_range_min > 0) {
+            const avgVal = (appraisal.estimated_range_min + appraisal.estimated_range_max) / 2;
+            rent = (avgVal * 0.048) / 12;
+        }
+        return Math.floor(rent);
+    };
+
     if (isTestMode) {
         // Instant display (no animation) for ultra-fast testing
         document.getElementById('res-min').innerHTML = (appraisal.estimated_range_min || 0).toLocaleString();
@@ -118,7 +131,8 @@ function displayAppraisalResults(appraisal, submitBtn) {
         document.getElementById('res-sqm').innerHTML = (appraisal.avg_price_sqm || 0).toLocaleString();
 
         if (metrics && Object.keys(metrics).length > 0 && hasData) {
-            document.getElementById('res-rent').innerHTML = (metrics.monthly_rent || 0).toLocaleString();
+            const safeRent = getSafeRent(metrics, appraisal);
+            document.getElementById('res-rent').innerHTML = safeRent.toLocaleString();
             document.getElementById('res-yield').innerHTML = (metrics.cap_rate || 0).toFixed(1);
             document.getElementById('res-cap-rate').innerHTML = (metrics.cap_rate || 0).toFixed(1);
             document.getElementById('res-roi').innerHTML = (metrics.roi || 0).toFixed(1);
@@ -132,7 +146,8 @@ function displayAppraisalResults(appraisal, submitBtn) {
 
         // Use real investment metrics if available
         if (metrics && Object.keys(metrics).length > 0 && hasData) {
-            animateValue("res-rent", 0, metrics.monthly_rent || 0, 500);
+            const safeRent = getSafeRent(metrics, appraisal);
+            animateValue("res-rent", 0, safeRent, 500);
             animateValue("res-yield", 0, metrics.cap_rate || 0, 500, true);
             animateValue("res-cap-rate", 0, metrics.cap_rate || 0, 500, true);
             animateValue("res-roi", 0, metrics.roi || 0, 500, true);

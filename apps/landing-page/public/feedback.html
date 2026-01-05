@@ -177,17 +177,17 @@
 
 <body>
     <div class="feedback-card">
-        <div class="success-message" id="successMessage">
+        <div class="success-message" id="successMessage" data-translate="success">
             ✅ Grazie per il tuo feedback! Le tue opinioni ci aiutano a migliorare.
         </div>
 
-        <h1>📝 Il tuo feedback</h1>
-        <p class="subtitle">Quanto sei soddisfatto della valutazione?</p>
+        <h1 data-translate="title">📝 Il tuo feedback</h1>
+        <p class="subtitle" data-translate="subtitle">Quanto sei soddisfatto della valutazione?</p>
 
         <form id="feedbackForm">
             <!-- Overall Rating -->
             <div class="rating-section">
-                <label class="rating-label">Soddisfazione generale</label>
+                <label class="rating-label" data-translate="label_overall">Soddisfazione generale</label>
                 <div class="stars" data-rating="overall">
                     <span class="star" data-value="1">★</span>
                     <span class="star" data-value="2">★</span>
@@ -195,12 +195,13 @@
                     <span class="star" data-value="4">★</span>
                     <span class="star" data-value="5">★</span>
                 </div>
-                <div class="rating-description" id="overallDesc">Seleziona una valutazione</div>
+                <div class="rating-description" id="overallDesc" data-translate="desc_select">Seleziona una valutazione
+                </div>
             </div>
 
             <!-- Speed Rating -->
             <div class="rating-section">
-                <label class="rating-label">Velocità del servizio</label>
+                <label class="rating-label" data-translate="label_speed">Velocità del servizio</label>
                 <div class="stars" data-rating="speed">
                     <span class="star" data-value="1">★</span>
                     <span class="star" data-value="2">★</span>
@@ -208,12 +209,13 @@
                     <span class="star" data-value="4">★</span>
                     <span class="star" data-value="5">★</span>
                 </div>
-                <div class="rating-description" id="speedDesc">Quanto è stato veloce?</div>
+                <div class="rating-description" id="speedDesc" data-translate="desc_speed_q">Quanto è stato veloce?
+                </div>
             </div>
 
             <!-- Accuracy Rating -->
             <div class="rating-section">
-                <label class="rating-label">Precisione della valutazione</label>
+                <label class="rating-label" data-translate="label_accuracy">Precisione della valutazione</label>
                 <div class="stars" data-rating="accuracy">
                     <span class="star" data-value="1">★</span>
                     <span class="star" data-value="2">★</span>
@@ -221,26 +223,104 @@
                     <span class="star" data-value="4">★</span>
                     <span class="star" data-value="5">★</span>
                 </div>
-                <div class="rating-description" id="accuracyDesc">Ti sembra accurata?</div>
+                <div class="rating-description" id="accuracyDesc" data-translate="desc_accuracy_q">Ti sembra accurata?
+                </div>
             </div>
 
             <!-- Comments -->
             <div class="rating-section">
-                <label class="rating-label">Commenti (opzionale)</label>
-                <textarea id="feedbackText"
+                <label class="rating-label" data-translate="label_comments">Commenti (opzionale)</label>
+                <textarea id="feedbackText" data-translate="placeholder_comments"
                     placeholder="Raccontaci la tua esperienza... Cosa ti è piaciuto? Cosa possiamo migliorare?"
                     maxlength="1000"></textarea>
-                <div class="char-count" id="charCount">0 / 1000 caratteri</div>
+                <div class="char-count" id="charCount">0 / 1000</div>
             </div>
 
-            <button type="submit" class="submit-btn" id="submitBtn">
+            <button type="submit" class="submit-btn" id="submitBtn" data-translate="btn_submit">
                 Invia Feedback
             </button>
         </form>
     </div>
 
     <script>
-        // Dynamic API URL: Use localhost for dev, relative path for prod
+        // Translations
+        const translations = {
+            it: {
+                title: "📝 Il tuo feedback",
+                subtitle: "Quanto sei soddisfatto della valutazione?",
+                label_overall: "Soddisfazione generale",
+                label_speed: "Velocità del servizio",
+                label_accuracy: "Precisione della valutazione",
+                label_comments: "Commenti (opzionale)",
+                placeholder_comments: "Raccontaci la tua esperienza... Cosa ti è piaciuto? Cosa possiamo migliorare?",
+                btn_submit: "Invia Feedback",
+                btn_sending: "Invio in corso...",
+                success: "✅ Grazie per il tuo feedback! Le tue opinioni ci aiutano a migliorare.",
+                desc_select: "Seleziona una valutazione",
+                desc_speed_q: "Quanto è stato veloce?",
+                desc_accuracy_q: "Ti sembra accurata?",
+                desc_overall: ['Molto insoddisfatto', 'Insoddisfatto', 'Neutrale', 'Soddisfatto', 'Molto soddisfatto!'],
+                desc_speed: ['Molto lento', 'Lento', 'Accettabile', 'Veloce', 'Velocissimo!'],
+                desc_accuracy: ['Poco accurata', 'Discutibile', 'Accettabile', 'Accurata', 'Molto accurata!'],
+                alert_ratings: "Per favore, valuta tutti e tre gli aspetti prima di inviare!",
+                alert_error: "Si è verificato un errore. Riprova più tardi."
+            },
+            en: {
+                title: "📝 Your Feedback",
+                subtitle: "How satisfied are you with the valuation?",
+                label_overall: "Overall Satisfaction",
+                label_speed: "Service Speed",
+                label_accuracy: "Valuation Accuracy",
+                label_comments: "Comments (optional)",
+                placeholder_comments: "Tell us about your experience... What did you like? What can we improve?",
+                btn_submit: "Submit Feedback",
+                btn_sending: "Sending...",
+                success: "✅ Thank you for your feedback! Your opinions help us improve.",
+                desc_select: "Select a rating",
+                desc_speed_q: "How fast was it?",
+                desc_accuracy_q: "Does it seem accurate?",
+                desc_overall: ['Very Dissatisfied', 'Dissatisfied', 'Neutral', 'Satisfied', 'Very Satisfied!'],
+                desc_speed: ['Very Slow', 'Slow', 'Acceptable', 'Fast', 'Super Fast!'],
+                desc_accuracy: ['Inaccurate', 'Questionable', 'Acceptable', 'Accurate', 'Very Accurate!'],
+                alert_ratings: "Please rate all three aspects before submitting!",
+                alert_error: "An error occurred. Please try again later."
+            }
+        };
+
+        // Initialize Language
+        function t(key, lang) {
+            return translations[lang][key] || key;
+        }
+
+        function initLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlLang = urlParams.get('lang');
+            const savedLang = localStorage.getItem('preferredLanguage');
+            let lang = urlLang || savedLang || 'it';
+
+            if (!['it', 'en'].includes(lang)) lang = 'it';
+
+            document.documentElement.lang = lang;
+
+            // Apply translations
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang][key]) {
+                    if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            return lang;
+        }
+
+        const currentLang = initLanguage();
+
+        // Dynamic API URL
         const API_BASE = (window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1' ||
             window.location.protocol === 'file:' ||
@@ -252,12 +332,6 @@
             overall: 0,
             speed: 0,
             accuracy: 0
-        };
-
-        const descriptions = {
-            overall: ['Molto insoddisfatto', 'Insoddisfatto', 'Neutrale', 'Soddisfatto', 'Molto soddisfatto!'],
-            speed: ['Molto lento', 'Lento', 'Accettabile', 'Veloce', 'Velocissimo!'],
-            accuracy: ['Poco accurata', 'Discutibile', 'Accettabile', 'Accurata', 'Molto accurata!']
         };
 
         // Star rating interaction
@@ -281,7 +355,10 @@
                     });
 
                     // Update description
-                    descElement.textContent = descriptions[ratingType][value - 1];
+                    const descKey = `desc_${ratingType}`;
+                    if (translations[currentLang][descKey]) {
+                        descElement.textContent = translations[currentLang][descKey][value - 1];
+                    }
                 });
 
                 // Hover effect
@@ -312,7 +389,7 @@
 
         feedbackText.addEventListener('input', () => {
             const count = feedbackText.value.length;
-            charCount.textContent = `${count} / 1000 caratteri`;
+            charCount.textContent = `${count} / 1000`;
         });
 
         // Form submission
@@ -321,26 +398,25 @@
 
             // Validation
             if (!ratings.overall || !ratings.speed || !ratings.accuracy) {
-                alert('Per favore, valuta tutti e tre gli aspetti prima di inviare!');
+                alert(t('alert_ratings', currentLang));
                 return;
             }
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Invio in corso...';
+            submitBtn.textContent = t('btn_sending', currentLang);
 
             try {
                 // Get appraisal data from URL params or localStorage
                 const urlParams = new URLSearchParams(window.location.search);
                 const feedbackData = {
                     appraisal_id: urlParams.get('appraisal_id'),
-                    rating: ratings.overall,
+                    overall_rating: ratings.overall,
                     speed_rating: ratings.speed,
                     accuracy_rating: ratings.accuracy,
                     feedback_text: feedbackText.value || null,
                     appraisal_email: urlParams.get('email') || localStorage.getItem('appraisal_email'),
                     appraisal_phone: urlParams.get('phone') || localStorage.getItem('appraisal_phone'),
-                    estimated_value: parseFloat(urlParams.get('value')) || null,
                 };
 
                 const response = await fetch(`${API_BASE}/api/feedback/submit`, {
@@ -363,9 +439,9 @@
                     throw new Error('Submission failed');
                 }
             } catch (error) {
-                alert('Si è verificato un errore. Riprova più tardi.');
+                alert(t('alert_error', currentLang));
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Invia Feedback';
+                submitBtn.textContent = t('btn_submit', currentLang);
             }
         });
     </script>
