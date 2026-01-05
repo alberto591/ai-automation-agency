@@ -21,6 +21,7 @@ build/
 
 # Ignore log files
 *.log
+server_logs*.txt
 
 # Ignore coverage files
 coverage/
@@ -33,6 +34,9 @@ __pycache__/
 
 # Ignore npm debug log
 npm-debug.log
+
+# Ignore temp files
+temp/
 
 # Ignore yarn files
 yarn-error.log
