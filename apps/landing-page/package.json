@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run build:prod",
+    "build": "npm run build:prod && node build.js",
     "build:prod": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
     "optimize:js": "terser appraisal/script.js appraisal/helpers.js -c -m -o appraisal/dist/bundle.min.js --source-map",
     "optimize:js:modules": "terser appraisal/modules/*.js -c -m --module -o appraisal/dist/modules.min.js --source-map",
