@@ -1,7 +1,7 @@
 # System Status
 
 **Status**: 🟢 Operational
-**Last Updated**: 2026-01-05
+**Last Updated**: 2026-01-05 18:20
 
 ## Component Health
 
@@ -12,8 +12,8 @@
 
 ### Backend (API & Workers)
 - **Status**: Stable
-- **Tests**: 149 Unit Tests PASSED.
-- **Dependencies**: Fixed missing `gspread`, `pandas` in `requirements.txt`.
+- **Tests**: 149 Unit Tests PASSED (after sklearn dependency fix).
+- **Dependencies**: Added `gspread`, `pandas`, `scikit-learn` to `requirements.txt`.
 - **Environment**: `pytest` running successfully in venv.
 
 ### Frontend (Landing Page)
@@ -22,7 +22,8 @@
 - **Optimization**: Dist size ~556KB (well under limits).
 - **Dependencies**: Added `terser` to devDependencies.
 
-## Recent Fixes
-1.  **Database**: Verified schema compatibility for feedback forms.
-2.  **CI/CD**: Resolved `ModuleNotFoundError` for Google Sheets integration.
-3.  **Frontend**: Fixed build pipeline missing compression tools.
+## Recent Fixes (2026-01-05)
+1.  **CI**: Added `scikit-learn>=1.4.0` for XGBoost sklearn interface.
+2.  **Lint**: Fixed UP015 (unnecessary mode argument) in `apply_migration.py`.
+3.  **Frontend**: Dashboard visuals and appraisal tool updates committed.
+4.  **Database**: Verified schema compatibility for feedback forms.
