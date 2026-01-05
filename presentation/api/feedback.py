@@ -78,7 +78,16 @@ async def submit_feedback(feedback: FeedbackRequest) -> dict[str, Any]:
         )
 
         # Insert into database
-        result = db.client.table("appraisal_feedback").insert(insert_data).execute()
+        try:
+            result = db.client.table("appraisal_feedback").insert(insert_data).execute()
+        except Exception as e:
+            # Fallback if appraisal_id column is missing in older DB schemas
+            if "appraisal_id" in str(e) or "PGRST204" in str(e):
+                logger.warning("FEEDBACK_FALLBACK_NO_APPRAISAL_ID")
+                insert_data.pop("appraisal_id", None)
+                result = db.client.table("appraisal_feedback").insert(insert_data).execute()
+            else:
+                raise
 
         # Check for success
         data_list = cast(list[Any], result.data)

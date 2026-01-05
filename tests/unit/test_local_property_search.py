@@ -29,12 +29,28 @@ class TestLocalPropertySearchService:
         mock_query.lte.return_value = mock_query
         mock_query.gt.return_value = mock_query
         mock_query.limit.return_value = mock_query
+        mock_query.eq.return_value = mock_query
 
         mock_result = Mock()
         mock_result.data = [
-            {"title": "Test 1", "price": 500000, "sqm": 100, "description": "Firenze Centro"},
-            {"title": "Test 2", "price": 600000, "sqm": 120, "description": "Firenze Centro"},
-            {"title": "Test 3", "price": 400000, "sqm": 80, "description": "Firenze Centro"},
+            {
+                "title": "Apartment Test 1",
+                "price": 500000,
+                "sqm": 100,
+                "description": "Firenze Centro",
+            },
+            {
+                "title": "Apartment Test 2",
+                "price": 600000,
+                "sqm": 120,
+                "description": "Firenze Centro",
+            },
+            {
+                "title": "Apartment Test 3",
+                "price": 400000,
+                "sqm": 80,
+                "description": "Firenze Centro",
+            },
         ]
         mock_query.execute.return_value = mock_result
 
@@ -57,13 +73,24 @@ class TestLocalPropertySearchService:
         mock_query.lte.return_value = mock_query
         mock_query.gt.return_value = mock_query
         mock_query.limit.return_value = mock_query
+        mock_query.eq.return_value = mock_query
 
         mock_result = Mock()
         mock_result.data = [
-            {"title": "Valid", "price": 500000, "sqm": 100, "description": "Firenze"},  # 5000/sqm
-            {"title": "Too Cheap", "price": 10000, "sqm": 100, "description": "Firenze"},  # 100/sqm
             {
-                "title": "Too Expensive",
+                "title": "Valid Apartment",
+                "price": 500000,
+                "sqm": 100,
+                "description": "Firenze",
+            },  # 5000/sqm
+            {
+                "title": "Too Cheap Apartment",
+                "price": 10000,
+                "sqm": 100,
+                "description": "Firenze",
+            },  # 100/sqm
+            {
+                "title": "Too Expensive Apartment",
                 "price": 5000000,
                 "sqm": 50,
                 "description": "Firenze",
@@ -76,7 +103,7 @@ class TestLocalPropertySearchService:
         )
 
         assert len(results) == 1
-        assert results[0].title == "Valid"
+        assert results[0].title == "Valid Apartment"
 
     def test_empty_results_on_error(self, search_service, mock_db):
         """Should return empty list and not crash on DB error."""

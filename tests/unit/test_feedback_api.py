@@ -14,20 +14,20 @@ class TestFeedbackAPI:
         """Test Pydantic validation for FeedbackRequest."""
         # Valid request
         req = FeedbackRequest(
-            rating=5,
+            overall_rating=5,
             speed_rating=4,
             accuracy_rating=5,
             appraisal_id="550e8400-e29b-41d4-a716-446655440000",
         )
-        assert req.rating == 5
+        assert req.overall_rating == 5
 
         # Invalid rating (< 1)
         with pytest.raises(ValueError):
-            FeedbackRequest(rating=0, speed_rating=5, accuracy_rating=5)
+            FeedbackRequest(overall_rating=0, speed_rating=5, accuracy_rating=5)
 
         # Invalid rating (> 5)
         with pytest.raises(ValueError):
-            FeedbackRequest(rating=6, speed_rating=5, accuracy_rating=5)
+            FeedbackRequest(overall_rating=6, speed_rating=5, accuracy_rating=5)
 
     @patch("presentation.api.feedback.SupabaseAdapter")
     def test_submit_feedback_success(self, mock_adapter_class):
@@ -40,7 +40,7 @@ class TestFeedbackAPI:
         mock_table.execute.return_value = Mock(data=[{"id": "test-fb-id"}])
 
         req = FeedbackRequest(
-            rating=5,
+            overall_rating=5,
             speed_rating=5,
             accuracy_rating=5,
             appraisal_id="550e8400-e29b-41d4-a716-446655440000",
@@ -57,7 +57,7 @@ class TestFeedbackAPI:
         # Verify appraisal_id was included in insert
         insert_args = mock_table.insert.call_args[0][0]
         assert insert_args["appraisal_id"] == "550e8400-e29b-41d4-a716-446655440000"
-        assert insert_args["rating"] == 5
+        assert insert_args["overall_rating"] == 5
 
     @patch("presentation.api.feedback.SupabaseAdapter")
     def test_submit_feedback_resilience(self, mock_adapter_class):
@@ -75,7 +75,7 @@ class TestFeedbackAPI:
         ]
 
         req = FeedbackRequest(
-            rating=5,
+            overall_rating=5,
             speed_rating=5,
             accuracy_rating=5,
             appraisal_id="550e8400-e29b-41d4-a716-446655440000",

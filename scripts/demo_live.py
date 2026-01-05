@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 import requests
 
@@ -48,7 +47,6 @@ pause_for_effect()
 # STEP 1: CAPTURE
 header("STEP 1: THE CAPTURE")
 print("Simulating an incoming email from 'Immobiliare.it'...")
-time.sleep(1)
 
 payload = {
     "name": NAME,

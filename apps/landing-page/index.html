@@ -16,8 +16,8 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- Optimized Styles -->
+    <link rel="stylesheet" href="appraisal/dist/styles.min.css">
 
     <!-- Icons -->
     <script src="https://unpkg.com/phosphor-icons"></script>
@@ -198,11 +198,6 @@
                             </div>
                         </div>
 
-                        <div class="ai-badge">
-                            <i class="ph ph-robot"></i>
-                            <span data-translate="ai-active">AI Attivo</span>
-                            <div class="pulse"></div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -315,7 +310,8 @@
                         </ul>
 
                         <div style="margin-top: 3rem;">
-                            <a href="/appraisal/" class="btn-primary btn-large" style="min-width: 300px;">
+                            <a href="#appraisal" class="btn-primary btn-large" style="min-width: 300px;"
+                                onclick="document.getElementById('appraisal-form').scrollIntoView({behavior: 'smooth'})">
                                 <i class="ph ph-magic-wand"></i>
                                 <span data-translate="appraisal-cta-button">Prova Gratuitamente Fifi AI</span>
                             </a>
@@ -866,8 +862,9 @@
         </div>
     </footer>
 
-    <!-- Booking Integration -->
-    <script src="script.js"></script>
+    <!-- Optimized Scripts -->
+    <script src="appraisal/dist/bundle.min.js"></script>
+    <script src="appraisal/sw-register.js"></script>
 </body>
 
 </html>

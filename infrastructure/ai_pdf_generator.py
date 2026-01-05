@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any
 
 from fpdf import FPDF  # fpdf2 package
+from fpdf.enums import XPos, YPos
 
 from infrastructure.logging import get_logger
 
@@ -40,11 +41,11 @@ class PropertyPDFGenerator:
             pdf.set_font("Helvetica", "B", 24)
             pdf.set_text_color(255, 255, 255)
             pdf.set_xy(10, 10)
-            pdf.cell(0, 20, self.agency_name, ln=True)
+            pdf.cell(0, 20, self.agency_name, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
             pdf.set_font("Helvetica", "", 12)
             pdf.set_xy(10, 25)
-            pdf.cell(0, 10, "Scheda Immobiliare Professionale", ln=True)
+            pdf.cell(0, 10, "Scheda Immobiliare Professionale", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
             # --- Hero Image ---
             image_url = property_data.get("image_url")
@@ -92,13 +93,13 @@ class PropertyPDFGenerator:
             pdf.set_text_color(*self.agency_color)
             price = property_data.get("price", 0)
             formatted_price = f"EUR {price:,.0f}".replace(",", ".")
-            pdf.cell(0, 10, f"Prezzo: {formatted_price}", ln=True)
+            pdf.cell(0, 10, f"Prezzo: {formatted_price}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_text_color(0, 0, 0)
             pdf.ln(10)
 
             # --- Features Table ---
             pdf.set_font("Helvetica", "B", 12)
-            pdf.cell(0, 10, "Dettagli Proprietà:", ln=True)
+            pdf.cell(0, 10, "Dettagli Proprietà:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "", 12)
 
             # Helper to handle None or missing values
@@ -128,13 +129,13 @@ class PropertyPDFGenerator:
                 pdf.set_font("Helvetica", "B", 11)
                 pdf.cell(50, 8, f"{feature}:", border="B")
                 pdf.set_font("Helvetica", "", 11)
-                pdf.cell(0, 8, str(value), border="B", ln=True)
+                pdf.cell(0, 8, str(value), border="B", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
             pdf.ln(10)
 
             # --- Description ---
             pdf.set_font("Helvetica", "B", 12)
-            pdf.cell(0, 10, "Descrizione:", ln=True)
+            pdf.cell(0, 10, "Descrizione:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "", 11)
             pdf.multi_cell(
                 0, 7, property_data.get("description", "Nessuna descrizione disponibile.")
@@ -144,8 +145,24 @@ class PropertyPDFGenerator:
             pdf.set_y(-30)
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(150, 150, 150)
-            pdf.cell(0, 10, f"Generato il {datetime.now().strftime('%d/%m/%Y %H:%M')}", 0, 0, "L")
-            pdf.cell(0, 10, "Documento creato da Anzevino AI", 0, 0, "R")
+            pdf.cell(
+                0,
+                10,
+                f"Generato il {datetime.now().strftime('%d/%m/%Y %H:%M')}",
+                0,
+                new_x=XPos.RIGHT,
+                new_y=YPos.TOP,
+                align="L",
+            )
+            pdf.cell(
+                0,
+                10,
+                "Documento creato da Anzevino AI",
+                0,
+                new_x=XPos.RIGHT,
+                new_y=YPos.TOP,
+                align="R",
+            )
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -182,11 +199,19 @@ class PropertyPDFGenerator:
             pdf.set_font("Helvetica", "B", 22)
             pdf.set_text_color(255, 255, 255)
             pdf.set_xy(10, 8)
-            pdf.cell(0, 12, "Fifi AI - Valutazione Immobiliare", ln=True)
+            pdf.cell(
+                0, 12, "Fifi AI - Valutazione Immobiliare", new_x=XPos.LMARGIN, new_y=YPos.NEXT
+            )
 
             pdf.set_font("Helvetica", "", 10)
             pdf.set_xy(10, 22)
-            pdf.cell(0, 8, f"Generato il {datetime.now().strftime('%d/%m/%Y %H:%M')}", ln=True)
+            pdf.cell(
+                0,
+                8,
+                f"Generato il {datetime.now().strftime('%d/%m/%Y %H:%M')}",
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
 
             pdf.set_text_color(0, 0, 0)
             pdf.set_y(45)
@@ -194,13 +219,13 @@ class PropertyPDFGenerator:
             # --- Property Address ---
             pdf.set_font("Helvetica", "B", 14)
             address = appraisal_data.get("address", "Indirizzo non specificato")
-            pdf.cell(0, 10, f"Immobile: {address}", ln=True)
+            pdf.cell(0, 10, f"Immobile: {address}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(5)
 
             # --- Executive Summary ---
             pdf.set_font("Helvetica", "B", 12)
             pdf.set_fill_color(240, 240, 240)
-            pdf.cell(0, 10, "Riepilogo Valutazione", ln=True, fill=True)
+            pdf.cell(0, 10, "Riepilogo Valutazione", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
             pdf.ln(2)
 
             predicted_value = appraisal_data.get("predicted_value", 0)
@@ -208,15 +233,33 @@ class PropertyPDFGenerator:
             confidence_level = appraisal_data.get("confidence_level", 0)
 
             pdf.set_font("Helvetica", "", 11)
-            pdf.cell(0, 8, f"Valore Stimato: EUR {predicted_value:,}".replace(",", "."), ln=True)
-            pdf.cell(0, 8, f"Range di Confidenza: {confidence_range}".replace("€", "EUR "), ln=True)
-            pdf.cell(0, 8, f"Livello di Confidenza: {confidence_level}%", ln=True)
+            pdf.cell(
+                0,
+                8,
+                f"Valore Stimato: EUR {predicted_value:,}".replace(",", "."),
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
+            pdf.cell(
+                0,
+                8,
+                f"Range di Confidenza: {confidence_range}".replace("€", "EUR "),
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
+            pdf.cell(
+                0,
+                8,
+                f"Livello di Confidenza: {confidence_level}%",
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
             pdf.ln(5)
 
             # --- Property Details ---
             pdf.set_font("Helvetica", "B", 12)
             pdf.set_fill_color(240, 240, 240)
-            pdf.cell(0, 10, "Dettagli Proprietà", ln=True, fill=True)
+            pdf.cell(0, 10, "Dettagli Proprietà", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
             pdf.ln(2)
 
             features = appraisal_data.get("features", {})
@@ -236,7 +279,7 @@ class PropertyPDFGenerator:
                 pdf.set_font("Helvetica", "B", 10)
                 pdf.cell(50, 7, f"{label}:", border="B")
                 pdf.set_font("Helvetica", "", 10)
-                pdf.cell(0, 7, str(value), border="B", ln=True)
+                pdf.cell(0, 7, str(value), border="B", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
             pdf.ln(5)
 
@@ -245,7 +288,9 @@ class PropertyPDFGenerator:
             if metrics:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.set_fill_color(240, 240, 240)
-                pdf.cell(0, 10, "Analisi Investimento", ln=True, fill=True)
+                pdf.cell(
+                    0, 10, "Analisi Investimento", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True
+                )
                 pdf.ln(2)
 
                 pdf.set_font("Helvetica", "", 11)
@@ -269,7 +314,7 @@ class PropertyPDFGenerator:
                     pdf.set_font("Helvetica", "B", 10)
                     pdf.cell(70, 7, f"{label}:", border="B")
                     pdf.set_font("Helvetica", "", 10)
-                    pdf.cell(0, 7, str(value), border="B", ln=True)
+                    pdf.cell(0, 7, str(value), border="B", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
                 pdf.ln(5)
 
@@ -278,7 +323,9 @@ class PropertyPDFGenerator:
             if comparables:
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.set_fill_color(240, 240, 240)
-                pdf.cell(0, 10, "Immobili Comparabili", ln=True, fill=True)
+                pdf.cell(
+                    0, 10, "Immobili Comparabili", new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True
+                )
                 pdf.ln(2)
 
                 pdf.set_font("Helvetica", "", 9)
@@ -289,7 +336,7 @@ class PropertyPDFGenerator:
                     price_sqm = price / sqm if sqm > 0 else 0
 
                     pdf.set_font("Helvetica", "B", 10)
-                    pdf.cell(0, 6, f"{i}. {title[:60]}", ln=True)
+                    pdf.cell(0, 6, f"{i}. {title[:60]}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                     pdf.set_font("Helvetica", "", 9)
                     pdf.cell(
                         0,
@@ -297,7 +344,8 @@ class PropertyPDFGenerator:
                         f"   Prezzo: EUR {price:,} | {sqm} mq | EUR {price_sqm:,.0f}/mq".replace(
                             ",", "."
                         ),
-                        ln=True,
+                        new_x=XPos.LMARGIN,
+                        new_y=YPos.NEXT,
                     )
                     pdf.ln(2)
 
@@ -319,7 +367,15 @@ class PropertyPDFGenerator:
             pdf.set_y(-20)
             pdf.set_font("Helvetica", "", 8)
             pdf.set_text_color(150, 150, 150)
-            pdf.cell(0, 5, "Powered by Fifi AI - Anzevino Real Estate Intelligence", 0, 0, "C")
+            pdf.cell(
+                0,
+                5,
+                "Powered by Fifi AI - Anzevino Real Estate Intelligence",
+                0,
+                new_x=XPos.RIGHT,
+                new_y=YPos.TOP,
+                align="C",
+            )
 
             # Ensure directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)

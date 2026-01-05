@@ -1,0 +1,295 @@
+/* ======================================
+   MOBILE OPTIMIZATIONS & RESPONSIVE DESIGN
+   ====================================== */
+
+/* Mobile-First: Base styles for mobile devices */
+@media (max-width: 767px) {
+
+    /* Typography adjustments */
+    h1 {
+        font-size: 2.25rem;
+    }
+
+    h2 {
+        font-size: 1.875rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    /* Container padding */
+    .container {
+        padding: 0 1rem;
+    }
+
+    /* Navigation mobile */
+    .navbar .container {
+        padding: 0 1rem;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 2rem 1rem;
+        gap: 1.5rem;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        transform: translateX(0);
+    }
+
+    .language-toggle {
+        margin-left: 1rem;
+    }
+
+    /* Buttons - Touch-friendly sizes (min 48px) */
+    .btn-primary,
+    .btn-secondary {
+        min-height: 48px;
+        padding: 14px 24px;
+        font-size: 16px;
+        /* Prevents iOS zoom */
+        touch-action: manipulation;
+        /* Prevents double-tap zoom */
+    }
+
+    .btn-large {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* Appraisal Form - Mobile optimized */
+    .appraisal-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .appraisal-form-box {
+        padding: 1.5rem;
+    }
+
+    .mini-form .form-group {
+        padding: 14px 16px;
+        /* Touch-friendly */
+    }
+
+    .mini-form .form-group input,
+    .mini-form .form-group select {
+        font-size: 16px;
+        /* Prevents iOS zoom on focus */
+        padding: 0;
+    }
+
+    /* Results Section - Mobile layout */
+    .appraisal-result-box {
+        max-height: 85vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
+    }
+
+    .result-value-container h3 {
+        font-size: 1.5rem;
+    }
+
+    .result-metrics {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .metric-item {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    /* Investment Metrics - Single column */
+    .investment-metrics-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .metric-card {
+        padding: 1.25rem 1rem;
+    }
+
+    /* CTA Buttons - Stack vertically */
+    .result-cta {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .result-cta button,
+    .result-cta a {
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+    }
+
+    /* Form disclaimer */
+    .form-disclaimer {
+        font-size: 0.8125rem !important;
+    }
+
+    /* Checkbox touch target */
+    .checkmark {
+        min-width: 24px;
+        height: 24px;
+    }
+
+    /* Hero section mobile */
+    .hero {
+        padding: 6rem 0 4rem;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    /* Problem section mobile */
+    .problem-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .problem-stats {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .container {
+        padding: 0 1.5rem;
+    }
+
+    .appraisal-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .appraisal-form-box {
+        padding: 2rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .investment-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero-content {
+        gap: 4rem;
+    }
+
+    .result-cta {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Input validation states */
+.form-group input.error,
+.form-group select.error {
+    border-color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.mini-form .form-group input.error {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* Improved focus states for accessibility */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, 0.5);
+    outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+/* Hide spinner on number inputs for mobile */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Prevent text selection on buttons (better touch UX) */
+button,
+.btn-primary,
+.btn-secondary {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 767px) and (orientation: landscape) {
+    .appraisal-result-box {
+        max-height: 70vh;
+    }
+
+    .hero {
+        padding: 5rem 0 3rem;
+    }
+}
+
+/* Very small devices (<375px) */
+@media (max-width: 374px) {
+
+    .btn-primary,
+    .btn-secondary {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+
+    .appraisal-form-box {
+        padding: 1.25rem;
+    }
+
+    .metric-card {
+        padding: 1rem 0.75rem;
+    }
+
+    .result-value-container h3 {
+        font-size: 1.25rem;
+    }
+}

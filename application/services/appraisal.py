@@ -59,6 +59,11 @@ class AppraisalService:
         """
         Generates a property valuation using AI research for comparables.
         """
+        # Ultra-fast test mode for UI development
+        if settings.TEST_MODE:
+            logger.info("TEST_MODE_ENABLED", context={"instant_response": True})
+            return self._create_test_result(request)
+
         start_time = time.time()
         used_local_search = False
         used_perplexity = False
@@ -90,7 +95,9 @@ class AppraisalService:
                 research_text = self.research.find_market_comparables(
                     city=request.city,
                     zone=request.zone,
-                    property_type=request.property_type,
+                    property_type="appartamento"
+                    if request.property_type == "apartment"
+                    else request.property_type,
                     surface_sqm=request.surface_sqm,
                 )
                 comparables = self._parse_comparables(research_text)
@@ -329,3 +336,57 @@ If no valid comparables found, return: []"""
             return 2
         else:
             return 1
+
+    def _create_test_result(self, request: AppraisalRequest) -> AppraisalResult:
+        """Returns instant mock data for ultra-fast UI testing."""
+        base_price = 3500  # €/sqm
+        estimated_value = base_price * request.surface_sqm
+
+        # Create realistic mock comparables
+        comparables = [
+            Comparable(
+                title=f"Appartamento {request.city} - {request.zone}",
+                price=340000,
+                surface_sqm=95,
+                price_per_sqm=3579,
+                description="Mock comparable property 1",
+            ),
+            Comparable(
+                title=f"Bilocale {request.city} Centro",
+                price=280000,
+                surface_sqm=80,
+                price_per_sqm=3500,
+                description="Mock comparable property 2",
+            ),
+            Comparable(
+                title=f"Trilocale {request.zone}",
+                price=420000,
+                surface_sqm=120,
+                price_per_sqm=3500,
+                description="Mock comparable property 3",
+            ),
+        ]
+
+        # Calculate investment metrics
+        estimated_rent = self.investment_calc.estimate_monthly_rent(
+            property_price=int(estimated_value), zone=request.zone
+        )
+
+        investment_metrics = self.investment_calc.calculate_metrics(
+            property_price=int(estimated_value),
+            estimated_monthly_rent=estimated_rent,
+        )
+
+        return AppraisalResult(
+            estimated_value=round(estimated_value, -3),
+            estimated_range_min=round(estimated_value * 0.95, -3),
+            estimated_range_max=round(estimated_value * 1.05, -3),
+            avg_price_sqm=base_price,
+            price_sqm_min=3200,
+            price_sqm_max=3800,
+            comparables=comparables,
+            reasoning="⚡ TEST MODE: Instant mock data for UI testing",
+            investment_metrics=asdict(investment_metrics) if investment_metrics else None,
+            confidence_level=85,
+            reliability_stars=4,
+        )

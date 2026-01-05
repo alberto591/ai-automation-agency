@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run build:prod",
+    "build:prod": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
+    "optimize:js": "terser appraisal/script.js appraisal/helpers.js -c -m -o appraisal/dist/bundle.min.js --source-map",
+    "optimize:js:modules": "terser appraisal/modules/*.js -c -m --module -o appraisal/dist/modules.min.js --source-map",
+    "optimize:css": "cleancss -o appraisal/dist/styles.min.css appraisal/styles.css appraisal/mobile-styles.css appraisal/loading-styles.css",
+    "build:all": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -19,10 +24,12 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "clean-css-cli": "^5.6.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "terser": "^5.44.1",
     "vite": "^7.2.4"
   }
 }

@@ -658,8 +658,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="notification-content">
                 <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}"></i>
                 <span>${message}</span>
-                <button class="notification-close class="ph ph">
-                    <i-x"></i>
+                <button class="notification-close">
+                    <i class="ph ph-x"></i>
                 </button>
             </div>
         `;

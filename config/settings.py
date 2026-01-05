@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     # External APIs
     RAPIDAPI_KEY: str | None = None
 
+    # Testing
+    TEST_MODE: bool = Field(
+        default=False, description="Enable ultra-fast test mode (bypasses API calls)"
+    )
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

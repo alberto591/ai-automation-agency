@@ -1,0 +1,110 @@
+/* ======================================
+   LOADING PROGRESS OVERLAY
+   ====================================== */
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+#loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+    max-width: 400px;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-spinner {
+    width: 64px;
+    height: 64px;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #4ade80;
+    border-right-color: #22c55e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-message {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    min-height: 1.75rem;
+    transition: opacity 0.3s ease;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+    .loading-content {
+        max-width: 90%;
+        padding: 2rem 1.5rem;
+    }
+
+    .loading-spinner {
+        width: 56px;
+        height: 56px;
+    }
+
+    .loading-message {
+        font-size: 1.125rem;
+    }
+}
+
+/* Valid/Invalid field states */
+input.valid,
+select.valid {
+    border-color: #22c55e !important;
+    background-color: rgba(34, 197, 94, 0.05) !important;
+}
+
+input.error:not(:focus),
+select.error:not(:focus) {
+    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.05) !important;
+}

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class PropertyCondition(str, Enum):
@@ -70,6 +70,4 @@ class AppraisalResult(BaseModel):
         "It is not a formal professional appraisal."
     )
 
-    class Config:
-        # Allow arbitrary types for investment_metrics
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
