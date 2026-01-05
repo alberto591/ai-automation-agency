@@ -1,7 +1,7 @@
 {
     "headers": [
         {
-            "source": "/appraisal/dist/(.*)",
+            "source": "/appraisal/assets/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",

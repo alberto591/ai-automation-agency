@@ -1,0 +1,787 @@
+> [debug] [2026-01-05T11:30:27.684Z] Found config in file "/Users/lycanbeats/Desktop/agenzia-ai/vercel.json"
+Vercel CLI 50.1.2
+> [debug] [2026-01-05T11:30:27.688Z] user supplied a possible target for deployment or an extension
+> [debug] [2026-01-05T11:30:27.691Z] failed to find extension command with name "vercel---prod"
+> [debug] [2026-01-05T11:30:27.706Z] Setting target to production
+> [debug] [2026-01-05T11:30:27.724Z] Found ".git/config" - detected "/Users/lycanbeats/Desktop/agenzia-ai" as repo root
+> [debug] [2026-01-05T11:30:27.754Z] Spinner invoked (Retrieving project…) with a 1000ms delay
+> [debug] [2026-01-05T11:30:27.754Z] Valid access token, skipping token refresh.
+> [debug] [2026-01-05T11:30:27.754Z] Valid access token, skipping token refresh.
+> [debug] [2026-01-05T11:30:27.774Z] #1 → GET https://api.vercel.com/teams/team_YpZNR22w5W8Zb2UKR9eJCxl0
+> [debug] [2026-01-05T11:30:27.777Z] #2 → GET https://api.vercel.com/v9/projects/prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+> [debug] [2026-01-05T11:30:28.423Z] #1 ← 200 OK: sfo1::wzlbr-1767612628423-cc297cf00118 [649ms]
+> [debug] [2026-01-05T11:30:28.455Z] #2 ← 200 OK: sfo1::2f7vw-1767612628425-55d17c96990c [678ms]
+> [debug] [2026-01-05T11:30:28.481Z] Spinner invoked (Deploying albertocalvorivas-5425s-projects/agenzia-ai) with a 0ms delay
+[client-debug] 2026-01-05T11:30:28.481Z Creating deployment...
+[client-debug] 2026-01-05T11:30:28.481Z Provided 'path' is a directory.
+[client-debug] 2026-01-05T11:30:28.482Z Found 26 rules in .vercelignore
+[client-debug] 2026-01-05T11:30:28.482Z Building file tree...
+[client-debug] 2026-01-05T11:30:28.494Z Found 286 files in the specified directory
+[client-debug] 2026-01-05T11:30:28.510Z Yielding a 'hashes-calculated' event with 247 hashes
+> [debug] [2026-01-05T11:30:28.510Z] Valid access token, skipping token refresh.
+> [debug] [2026-01-05T11:30:28.510Z] #3 → GET https://api.vercel.com/v9/projects/agenzia-ai?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+> [debug] [2026-01-05T11:30:28.826Z] #3 ← 200 OK: sfo1::2f7vw-1767612628721-bbc451d54a06 [316ms]
+[client-debug] 2026-01-05T11:30:28.827Z Using provided API URL: https://api.vercel.com
+[client-debug] 2026-01-05T11:30:28.827Z Using provided user agent: vercel 50.1.2 node-v24.7.0 darwin (arm64)
+[client-debug] 2026-01-05T11:30:28.827Z Setting platform version to harcoded value 2
+[client-debug] 2026-01-05T11:30:28.827Z Creating the deployment and starting upload...
+[client-debug] 2026-01-05T11:30:28.827Z Determining necessary files for upload...
+[client-debug] 2026-01-05T11:30:28.827Z Creating deployment
+[client-debug] 2026-01-05T11:30:28.830Z Sending deployment creation API request
+[client-debug] 2026-01-05T11:30:29.292Z Deployment response: {"error":{"code":"missing_files","message":"Missing files","missing":["40cdc9973e21850b76dbe98c574cf440466a7f79","9f3e8431354db8ccf2a8e8c40aecd4865ce94a01"]}}
+[client-debug] 2026-01-05T11:30:29.292Z Error: Deployment request status is 400
+[client-debug] 2026-01-05T11:30:29.292Z 2 files are required to upload
+[client-debug] 2026-01-05T11:30:29.293Z Yielding a 'file-count' event
+> [debug] [2026-01-05T11:30:29.293Z] Total files 247, 2 changed
+> [debug] [2026-01-05T11:30:29.293Z] Spinner invoked (Uploading [--------------------] (0.0B/2.2KB)) with a 0ms delay
+[client-debug] 2026-01-05T11:30:29.293Z Building an upload list...
+[client-debug] 2026-01-05T11:30:29.293Z Starting upload
+[client-debug] 2026-01-05T11:30:29.293Z POST https://api.vercel.com/v2/files?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+[client-debug] 2026-01-05T11:30:29.294Z POST https://api.vercel.com/v2/files?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+> [debug] [2026-01-05T11:30:29.294Z] Spinner invoked (Uploading [===============-----] (1.7KB/2.2KB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:29.294Z] Spinner invoked (Uploading [====================] (2.2KB/2.2KB)) with a 0ms delay
+[client-debug] 2026-01-05T11:30:29.608Z DONE in 315ms: POST https://api.vercel.com/v2/files?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+[client-debug] 2026-01-05T11:30:29.608Z File 40cdc9973e21850b76dbe98c574cf440466a7f79 (/Users/lycanbeats/Desktop/agenzia-ai/vercel_logs.txt) uploaded
+[client-debug] 2026-01-05T11:30:29.608Z Yielding a 'file-uploaded' event
+> [debug] [2026-01-05T11:30:29.608Z] Uploaded: /Users/lycanbeats/Desktop/agenzia-ai/vercel_logs.txt (1.66KB)
+[client-debug] 2026-01-05T11:30:29.628Z DONE in 334ms: POST https://api.vercel.com/v2/files?teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+[client-debug] 2026-01-05T11:30:29.628Z File 9f3e8431354db8ccf2a8e8c40aecd4865ce94a01 (/Users/lycanbeats/Desktop/agenzia-ai/.vercelignore) uploaded
+[client-debug] 2026-01-05T11:30:29.628Z Yielding a 'file-uploaded' event
+> [debug] [2026-01-05T11:30:29.628Z] Uploaded: /Users/lycanbeats/Desktop/agenzia-ai/.vercelignore (551B)
+[client-debug] 2026-01-05T11:30:29.628Z All files uploaded
+[client-debug] 2026-01-05T11:30:29.628Z Yielding a 'all-files-uploaded' event
+[client-debug] 2026-01-05T11:30:29.628Z Starting deployment creation
+[client-debug] 2026-01-05T11:30:29.628Z Creating deployment
+[client-debug] 2026-01-05T11:30:29.629Z Sending deployment creation API request
+[client-debug] 2026-01-05T11:30:31.180Z Deployment response: {"alias":["agenzia-ai-albertocalvorivas-5425s-projects.vercel.app"],"aliasAssigned":false,"automaticAliases":["agenzia-ai-albertocalvorivas-5425s-projects.vercel.app"],"bootedAt":1767612630334,"buildingAt":1767612630334,"buildSkipped":false,"createdAt":1767612630334,"creator":{"uid":"Dh8nmestYsPQQlHToTpUXlEW","username":"albertocalvorivas-591"},"id":"dpl_DR2QFkyUqgPXjrLHVn1QwvPix9ca","name":"agenzia-ai","meta":{"githubCommitAuthorName":"alberto591","githubCommitAuthorEmail":"albertocalvorivas@gmail.com","githubCommitMessage":"fix: Replace Vite build with simple copy build to preserve HTML references","githubCommitOrg":"alberto591","githubCommitRef":"master","githubCommitRepo":"ai-automation-agency","githubCommitSha":"789cfc5bbf030e245eb3c557824abb857c9cf96c","githubDeployment":"1","githubOrg":"alberto591","githubRepo":"ai-automation-agency","gitDirty":"1"},"originCacheRegion":"iad1","project":{"id":"prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m","name":"agenzia-ai","framework":null},"public":false,"readyState":"QUEUED","regions":["iad1"],"source":"cli","status":"QUEUED","target":"production","team":{"id":"team_YpZNR22w5W8Zb2UKR9eJCxl0","name":"albertocalvorivas-5425's projects","slug":"albertocalvorivas-5425s-projects"},"type":"LAMBDAS","url":"agenzia-72ho1n0iw-albertocalvorivas-5425s-projects.vercel.app","version":2,"previewCommentsEnabled":true,"oidcTokenClaims":{"sub":"owner:albertocalvorivas-5425s-projects:project:agenzia-ai:environment:production","iss":"https://oidc.vercel.com/albertocalvorivas-5425s-projects","scope":"owner:albertocalvorivas-5425s-projects:project:agenzia-ai:environment:production","aud":"https://vercel.com/albertocalvorivas-5425s-projects","owner":"albertocalvorivas-5425s-projects","owner_id":"team_YpZNR22w5W8Zb2UKR9eJCxl0","project":"agenzia-ai","project_id":"prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m","environment":"production","plan":"hobby"},"lambdas":[{"id":"bld_mo5rpnjte","createdAt":1767612630745,"entrypoint":".","readyState":"READY","readyStateAt":1767612630745,"output":[]}],"aliasAssignedAt":null,"build":{"env":[]},"builds":[],"createdIn":"sfo1","env":[],"functions":null,"inspectorUrl":"https://vercel.com/albertocalvorivas-5425s-projects/agenzia-ai/DR2QFkyUqgPXjrLHVn1QwvPix9ca","isInConcurrentBuildsQueue":false,"isInSystemBuildsQueue":true,"ownerId":"team_YpZNR22w5W8Zb2UKR9eJCxl0","plan":"hobby","projectId":"prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m","projectSettings":{"buildCommand":"./scripts/build.sh","devCommand":null,"framework":null,"commandForIgnoringBuildStep":null,"installCommand":null,"outputDirectory":"dist","speedInsights":{"id":"oopSyORUI6UqryAdvmBZO1cGCez","hasData":false},"webAnalytics":{"id":"5TwxS6CSvyoUMfsyUvg83195P"},"nodeVersion":"24.x"},"routes":[{"src":"^/appraisal/assets(?:/(.*))$","headers":{"Cache-Control":"public, max-age=31536000, immutable"},"continue":true},{"src":"^/appraisal/sw\\.js$","headers":{"Cache-Control":"public, max-age=0, must-revalidate","Service-Worker-Allowed":"/appraisal/"},"continue":true},{"src":"^(?:/(.*))$","headers":{"X-Content-Type-Options":"nosniff","X-Frame-Options":"SAMEORIGIN","X-XSS-Protection":"1; mode=block"},"continue":true},{"handle":"filesystem"},{"src":"^/api(?:/(.*))$","dest":"/api/index.py","check":true},{"src":"^/dashboard(?:/(.*))$","dest":"/dashboard/index.html","check":true}],"config":{"version":1,"secureComputePrimaryRegion":null,"secureComputeFallbackRegion":null,"functionTimeout":300,"functionType":"fluid","functionMemoryType":"standard","isUsingActiveCPU":true}}
+[client-debug] 2026-01-05T11:30:31.180Z Deployment created
+[client-debug] 2026-01-05T11:30:31.180Z Yielding a 'created' event
+Inspect: https://vercel.com/albertocalvorivas-5425s-projects/agenzia-ai/DR2QFkyUqgPXjrLHVn1QwvPix9ca [3s]
+Production: https://agenzia-72ho1n0iw-albertocalvorivas-5425s-projects.vercel.app [3s]
+https://agenzia-72ho1n0iw-albertocalvorivas-5425s-projects.vercel.app> [debug] [2026-01-05T11:30:31.180Z] Valid access token, skipping token refresh.
+> [debug] [2026-01-05T11:30:31.180Z] Spinner invoked (Queued...) with a 0ms delay
+> [debug] [2026-01-05T11:30:31.181Z] #4 → GET https://api.vercel.com/v2/user
+[client-debug] 2026-01-05T11:30:31.181Z Waiting for deployment to be ready...
+[client-debug] 2026-01-05T11:30:31.181Z Waiting for builds and the deployment to complete...
+> [debug] [2026-01-05T11:30:31.375Z] #4 ← 200 OK: sfo1::wzlbr-1767612631391-c571ab9aa825 [194ms]
+> [debug] [2026-01-05T11:30:31.375Z] Valid access token, skipping token refresh.
+> [debug] [2026-01-05T11:30:31.376Z] #5 → GET https://api.vercel.com/v3/now/deployments/dpl_DR2QFkyUqgPXjrLHVn1QwvPix9ca/events?direction=forward&follow=1&format=lines&teamId=team_YpZNR22w5W8Zb2UKR9eJCxl0
+[client-debug] 2026-01-05T11:30:33.088Z Deployment state changed to BUILDING
+[client-debug] 2026-01-05T11:30:33.088Z Yielding a 'building' event
+> [debug] [2026-01-05T11:30:33.088Z] Spinner invoked (Queued...) with a 0ms delay
+> [debug] [2026-01-05T11:30:34.729Z] #5 ← 200 OK: sfo1::wzlbr-1767612631586-85c363b46ea4 [3.35s]
+> [debug] [2026-01-05T11:30:34.730Z] Spinner invoked (Building: Running build in Washington, D.C., USA (East) – iad1) with a 0ms delay
+> [debug] [2026-01-05T11:30:34.730Z] Spinner invoked (Building: Build machine configuration: 2 cores, 8 GB) with a 0ms delay
+> [debug] [2026-01-05T11:30:34.730Z] Spinner invoked (Building: Retrieving list of deployment files...) with a 0ms delay
+> [debug] [2026-01-05T11:30:34.730Z] Spinner invoked (Building: Downloading 286 deployment files...) with a 0ms delay
+> [debug] [2026-01-05T11:30:35.764Z] Spinner invoked (Building: Restored build cache from previous deployment (9fUCF9Cxx6CWpGJwfXDT935aivZQ)) with a 0ms delay
+> [debug] [2026-01-05T11:30:35.764Z] Spinner invoked (Building: Running "vercel build") with a 0ms delay
+> [debug] [2026-01-05T11:30:37.834Z] Spinner invoked (Building: Vercel CLI 50.1.3) with a 0ms delay
+> [debug] [2026-01-05T11:30:37.834Z] Spinner invoked (Building: Installing dependencies...) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting fastapi>=0.109.0 (from -r /vercel/path0/requirements.txt (line 1))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading fastapi-0.128.0-py3-none-any.whl.metadata (30 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting uvicorn>=0.27.0 (from -r /vercel/path0/requirements.txt (line 2))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading uvicorn-0.40.0-py3-none-any.whl.metadata (6.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting gunicorn>=21.2.0 (from -r /vercel/path0/requirements.txt (line 3))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting supabase>=2.3.0 (from -r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading supabase-2.27.0-py3-none-any.whl.metadata (4.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting pydantic>=2.6.0 (from -r /vercel/path0/requirements.txt (line 5))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading pydantic-2.12.5-py3-none-any.whl.metadata (90 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.6/90.6 kB 28.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting pydantic-settings>=2.2.0 (from -r /vercel/path0/requirements.txt (line 6))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading pydantic_settings-2.12.0-py3-none-any.whl.metadata (3.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting python-dotenv>=1.0.1 (from -r /vercel/path0/requirements.txt (line 7))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading python_dotenv-1.2.1-py3-none-any.whl.metadata (25 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting requests>=2.31.0 (from -r /vercel/path0/requirements.txt (line 8))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting httpx>=0.26.0 (from -r /vercel/path0/requirements.txt (line 9))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting google-auth>=2.27.0 (from -r /vercel/path0/requirements.txt (line 10))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading google_auth-2.45.0-py2.py3-none-any.whl.metadata (6.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting google-api-python-client>=2.116.0 (from -r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Downloading google_api_python_client-2.187.0-py3-none-any.whl.metadata (7.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.907Z] Spinner invoked (Building: Collecting google-auth-oauthlib>=1.2.0 (from -r /vercel/path0/requirements.txt (line 12))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading google_auth_oauthlib-1.2.3-py3-none-any.whl.metadata (3.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Collecting google-auth-httplib2>=0.2.0 (from -r /vercel/path0/requirements.txt (line 13))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading google_auth_httplib2-0.3.0-py3-none-any.whl.metadata (3.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Collecting twilio>=8.12.0 (from -r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading twilio-9.9.0-py2.py3-none-any.whl.metadata (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Collecting beautifulsoup4>=4.12.0 (from -r /vercel/path0/requirements.txt (line 15))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading beautifulsoup4-4.14.3-py3-none-any.whl.metadata (3.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Collecting python-multipart>=0.0.9 (from -r /vercel/path0/requirements.txt (line 16))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading python_multipart-0.0.21-py3-none-any.whl.metadata (1.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Collecting email-validator>=2.1.0 (from -r /vercel/path0/requirements.txt (line 17))) with a 0ms delay
+> [debug] [2026-01-05T11:30:39.908Z] Spinner invoked (Building: Downloading email_validator-2.3.0-py3-none-any.whl.metadata (26 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting langchain>=0.1.0 (from -r /vercel/path0/requirements.txt (line 18))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading langchain-1.2.0-py3-none-any.whl.metadata (4.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting langchain-mistralai>=0.0.5 (from -r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading langchain_mistralai-1.1.1-py3-none-any.whl.metadata (2.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting openai>=1.12.0 (from -r /vercel/path0/requirements.txt (line 20))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading openai-2.14.0-py3-none-any.whl.metadata (29 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting tiktoken>=0.6.0 (from -r /vercel/path0/requirements.txt (line 21))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading tiktoken-0.12.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting sentry-sdk>=1.40.0 (from -r /vercel/path0/requirements.txt (line 22))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading sentry_sdk-2.48.0-py2.py3-none-any.whl.metadata (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting python-dateutil>=2.8.2 (from -r /vercel/path0/requirements.txt (line 24))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting tenacity>=8.2.3 (from -r /vercel/path0/requirements.txt (line 25))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading tenacity-9.1.2-py3-none-any.whl.metadata (1.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting gspread>=6.0.0 (from -r /vercel/path0/requirements.txt (line 26))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading gspread-6.2.1-py3-none-any.whl.metadata (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting python-jose>=3.3.0 (from python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading python_jose-3.5.0-py2.py3-none-any.whl.metadata (5.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting pandas>=2.2.0 (from -r /vercel/path0/requirements.txt (line 29))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading pandas-2.3.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 91.2/91.2 kB 47.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting numpy>=1.26.0 (from -r /vercel/path0/requirements.txt (line 30))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading numpy-2.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting scikit-learn>=1.4.0 (from -r /vercel/path0/requirements.txt (line 31))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading scikit_learn-1.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting xgboost>=2.0.0 (from -r /vercel/path0/requirements.txt (line 32))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading xgboost-3.1.2-py3-none-manylinux_2_28_x86_64.whl.metadata (2.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting matplotlib>=3.8.0 (from -r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading matplotlib-3.10.8-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (52 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 52.8/52.8 kB 30.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting seaborn>=0.13.0 (from -r /vercel/path0/requirements.txt (line 34))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting fpdf2>=2.7.0 (from -r /vercel/path0/requirements.txt (line 35))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading fpdf2-2.8.5-py3-none-any.whl.metadata (76 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.9/76.9 kB 40.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting langgraph>=0.0.10 (from -r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading langgraph-1.0.5-py3-none-any.whl.metadata (7.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting thefuzz>=0.20.0 (from -r /vercel/path0/requirements.txt (line 37))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading thefuzz-0.22.1-py3-none-any.whl.metadata (3.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting mistralai>=0.1.0 (from -r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading mistralai-1.10.0-py3-none-any.whl.metadata (40 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.2/40.2 kB 19.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting langchain-core>=0.1.0 (from -r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading langchain_core-1.2.6-py3-none-any.whl.metadata (3.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Collecting redis>=5.0.0 (from -r /vercel/path0/requirements.txt (line 40))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.977Z] Spinner invoked (Building: Downloading redis-7.1.0-py3-none-any.whl.metadata (12 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting prometheus-client>=0.19.0 (from -r /vercel/path0/requirements.txt (line 41))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading prometheus_client-0.23.1-py3-none-any.whl.metadata (1.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting starlette<0.51.0,>=0.40.0 (from fastapi>=0.109.0->-r /vercel/path0/requirements.txt (line 1))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading starlette-0.50.0-py3-none-any.whl.metadata (6.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting typing-extensions>=4.8.0 (from fastapi>=0.109.0->-r /vercel/path0/requirements.txt (line 1))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting annotated-doc>=0.0.2 (from fastapi>=0.109.0->-r /vercel/path0/requirements.txt (line 1))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting click>=7.0 (from uvicorn>=0.27.0->-r /vercel/path0/requirements.txt (line 2))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading click-8.3.1-py3-none-any.whl.metadata (2.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting h11>=0.8 (from uvicorn>=0.27.0->-r /vercel/path0/requirements.txt (line 2))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting packaging (from gunicorn>=21.2.0->-r /vercel/path0/requirements.txt (line 3))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting realtime==2.27.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading realtime-2.27.0-py3-none-any.whl.metadata (7.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting supabase-functions==2.27.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading supabase_functions-2.27.0-py3-none-any.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting storage3==2.27.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading storage3-2.27.0-py3-none-any.whl.metadata (2.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting supabase-auth==2.27.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading supabase_auth-2.27.0-py3-none-any.whl.metadata (6.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Collecting postgrest==2.27.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:41.978Z] Spinner invoked (Building: Downloading postgrest-2.27.0-py3-none-any.whl.metadata (3.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting yarl>=1.22.0 (from supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading yarl-1.22.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (75 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.1/75.1 kB 38.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting deprecation>=2.1.0 (from postgrest==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading deprecation-2.1.0-py2.py3-none-any.whl.metadata (4.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting websockets<16,>=11 (from realtime==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting pyiceberg>=0.10.0 (from storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading pyiceberg-0.10.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting pyjwt>=2.10.1 (from pyjwt[crypto]>=2.10.1->supabase-auth==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading PyJWT-2.10.1-py3-none-any.whl.metadata (4.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting strenum>=0.4.15 (from supabase-functions==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading StrEnum-0.4.15-py3-none-any.whl.metadata (5.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Collecting annotated-types>=0.6.0 (from pydantic>=2.6.0->-r /vercel/path0/requirements.txt (line 5))) with a 0ms delay
+> [debug] [2026-01-05T11:30:43.012Z] Spinner invoked (Building: Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Collecting pydantic-core==2.41.5 (from pydantic>=2.6.0->-r /vercel/path0/requirements.txt (line 5))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Downloading pydantic_core-2.41.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Collecting typing-inspection>=0.4.2 (from pydantic>=2.6.0->-r /vercel/path0/requirements.txt (line 5))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Collecting charset_normalizer<4,>=2 (from requests>=2.31.0->-r /vercel/path0/requirements.txt (line 8))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Downloading charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Collecting idna<4,>=2.5 (from requests>=2.31.0->-r /vercel/path0/requirements.txt (line 8))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Downloading idna-3.11-py3-none-any.whl.metadata (8.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Collecting urllib3<3,>=1.21.1 (from requests>=2.31.0->-r /vercel/path0/requirements.txt (line 8))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.061Z] Spinner invoked (Building: Downloading urllib3-2.6.2-py3-none-any.whl.metadata (6.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting certifi>=2017.4.17 (from requests>=2.31.0->-r /vercel/path0/requirements.txt (line 8))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading certifi-2026.1.4-py3-none-any.whl.metadata (2.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting anyio (from httpx>=0.26.0->-r /vercel/path0/requirements.txt (line 9))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading anyio-4.12.0-py3-none-any.whl.metadata (4.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting httpcore==1.* (from httpx>=0.26.0->-r /vercel/path0/requirements.txt (line 9))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting cachetools<7.0,>=2.0.0 (from google-auth>=2.27.0->-r /vercel/path0/requirements.txt (line 10))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading cachetools-6.2.4-py3-none-any.whl.metadata (5.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting pyasn1-modules>=0.2.1 (from google-auth>=2.27.0->-r /vercel/path0/requirements.txt (line 10))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting rsa<5,>=3.1.4 (from google-auth>=2.27.0->-r /vercel/path0/requirements.txt (line 10))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading rsa-4.9.1-py3-none-any.whl.metadata (5.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting httplib2<1.0.0,>=0.19.0 (from google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading httplib2-0.31.0-py3-none-any.whl.metadata (2.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5 (from google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading google_api_core-2.28.1-py3-none-any.whl.metadata (3.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting uritemplate<5,>=3.0.1 (from google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting google-auth>=2.27.0 (from -r /vercel/path0/requirements.txt (line 10))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading google_auth-2.41.1-py2.py3-none-any.whl.metadata (6.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Collecting requests-oauthlib>=0.7.0 (from google-auth-oauthlib>=1.2.0->-r /vercel/path0/requirements.txt (line 12))) with a 0ms delay
+> [debug] [2026-01-05T11:30:44.062Z] Spinner invoked (Building: Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl.metadata (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting aiohttp>=3.8.4 (from twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading aiohttp-3.13.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting aiohttp-retry>=2.8.3 (from twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading aiohttp_retry-2.9.1-py3-none-any.whl.metadata (8.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting soupsieve>=1.6.1 (from beautifulsoup4>=4.12.0->-r /vercel/path0/requirements.txt (line 15))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading soupsieve-2.8.1-py3-none-any.whl.metadata (4.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting dnspython>=2.0.0 (from email-validator>=2.1.0->-r /vercel/path0/requirements.txt (line 17))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting httpx-sse<1.0.0,>=0.3.1 (from langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading httpx_sse-0.4.3-py3-none-any.whl.metadata (9.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting tokenizers<1.0.0,>=0.15.1 (from langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting distro<2,>=1.7.0 (from openai>=1.12.0->-r /vercel/path0/requirements.txt (line 20))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting jiter<1,>=0.10.0 (from openai>=1.12.0->-r /vercel/path0/requirements.txt (line 20))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading jiter-0.12.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting sniffio (from openai>=1.12.0->-r /vercel/path0/requirements.txt (line 20))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting tqdm>4 (from openai>=1.12.0->-r /vercel/path0/requirements.txt (line 20))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading tqdm-4.67.1-py3-none-any.whl.metadata (57 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.7/57.7 kB 30.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting regex>=2022.1.18 (from tiktoken>=0.6.0->-r /vercel/path0/requirements.txt (line 21))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading regex-2025.11.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.5/40.5 kB 15.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting six>=1.5 (from python-dateutil>=2.8.2->-r /vercel/path0/requirements.txt (line 24))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Collecting ecdsa!=0.15 (from python-jose>=3.3.0->python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:45.080Z] Spinner invoked (Building: Downloading ecdsa-0.19.1-py2.py3-none-any.whl.metadata (29 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting pyasn1>=0.5.0 (from python-jose>=3.3.0->python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading pyasn1-0.6.1-py3-none-any.whl.metadata (8.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting pytz>=2020.1 (from pandas>=2.2.0->-r /vercel/path0/requirements.txt (line 29))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting tzdata>=2022.7 (from pandas>=2.2.0->-r /vercel/path0/requirements.txt (line 29))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading tzdata-2025.3-py2.py3-none-any.whl.metadata (1.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting scipy>=1.10.0 (from scikit-learn>=1.4.0->-r /vercel/path0/requirements.txt (line 31))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (62 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 29.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting joblib>=1.3.0 (from scikit-learn>=1.4.0->-r /vercel/path0/requirements.txt (line 31))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading joblib-1.5.3-py3-none-any.whl.metadata (5.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting threadpoolctl>=3.2.0 (from scikit-learn>=1.4.0->-r /vercel/path0/requirements.txt (line 31))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting nvidia-nccl-cu12 (from xgboost>=2.0.0->-r /vercel/path0/requirements.txt (line 32))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading nvidia_nccl_cu12-2.28.9-py3-none-manylinux_2_18_x86_64.whl.metadata (2.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting contourpy>=1.0.1 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading contourpy-1.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting cycler>=0.10 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting fonttools>=4.22.0 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading fonttools-4.61.1-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (114 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 114.2/114.2 kB 54.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Collecting kiwisolver>=1.3.1 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:46.113Z] Spinner invoked (Building: Downloading kiwisolver-1.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (6.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting pillow>=8 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading pillow-12.1.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting pyparsing>=3 (from matplotlib>=3.8.0->-r /vercel/path0/requirements.txt (line 33))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading pyparsing-3.3.1-py3-none-any.whl.metadata (5.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting defusedxml (from fpdf2>=2.7.0->-r /vercel/path0/requirements.txt (line 35))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting langgraph-checkpoint<4.0.0,>=2.1.0 (from langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading langgraph_checkpoint-3.0.1-py3-none-any.whl.metadata (4.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting langgraph-prebuilt<1.1.0,>=1.0.2 (from langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading langgraph_prebuilt-1.0.5-py3-none-any.whl.metadata (5.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting langgraph-sdk<0.4.0,>=0.3.0 (from langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading langgraph_sdk-0.3.1-py3-none-any.whl.metadata (1.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting xxhash>=3.5.0 (from langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading xxhash-3.6.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting rapidfuzz<4.0.0,>=3.0.0 (from thefuzz>=0.20.0->-r /vercel/path0/requirements.txt (line 37))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading rapidfuzz-3.14.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (12 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting eval-type-backport>=0.2.0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading eval_type_backport-0.3.1-py3-none-any.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting invoke<3.0.0,>=2.2.0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading invoke-2.2.1-py3-none-any.whl.metadata (3.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting opentelemetry-api<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading opentelemetry_api-1.39.1-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_http-1.39.1-py3-none-any.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting opentelemetry-sdk<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading opentelemetry_sdk-1.39.1-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Collecting opentelemetry-semantic-conventions<0.60,>=0.59b0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:48.282Z] Spinner invoked (Building: Downloading opentelemetry_semantic_conventions-0.59b0-py3-none-any.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting pyyaml<7.0.0,>=6.0.2 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting jsonpatch<2.0.0,>=1.33.0 (from langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading jsonpatch-1.33-py2.py3-none-any.whl.metadata (3.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting langsmith<1.0.0,>=0.3.45 (from langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading langsmith-0.6.0-py3-none-any.whl.metadata (15 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting uuid-utils<1.0,>=0.12.0 (from langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading uuid_utils-0.12.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting cryptography>=3.4.0 (from python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting aiohappyeyeballs>=2.5.0 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl.metadata (5.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting aiosignal>=1.4.0 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting attrs>=17.3.0 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading attrs-25.4.0-py3-none-any.whl.metadata (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting frozenlist>=1.1.1 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting multidict<7.0,>=4.5 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading multidict-6.7.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Collecting propcache>=0.2.0 (from aiohttp>=3.8.4->twilio>=8.12.0->-r /vercel/path0/requirements.txt (line 14))) with a 0ms delay
+> [debug] [2026-01-05T11:30:49.301Z] Spinner invoked (Building: Downloading propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting cffi>=2.0.0 (from cryptography>=3.4.0->python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting googleapis-common-protos<2.0.0,>=1.56.2 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading googleapis_common_protos-1.72.0-py3-none-any.whl.metadata (9.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<7.0.0,>=3.19.5 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting proto-plus<2.0.0,>=1.22.3 (from google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,<3.0.0,>=1.31.5->google-api-python-client>=2.116.0->-r /vercel/path0/requirements.txt (line 11))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading proto_plus-1.27.0-py3-none-any.whl.metadata (2.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting jsonpointer>=1.9 (from jsonpatch<2.0.0,>=1.33.0->langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading jsonpointer-3.0.0-py2.py3-none-any.whl.metadata (2.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Collecting ormsgpack>=1.12.0 (from langgraph-checkpoint<4.0.0,>=2.1.0->langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:52.329Z] Spinner invoked (Building: Downloading ormsgpack-1.12.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting orjson>=3.10.1 (from langgraph-sdk<0.4.0,>=0.3.0->langgraph>=0.0.10->-r /vercel/path0/requirements.txt (line 36))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading orjson-3.11.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (41 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 41.6/41.6 kB 21.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting requests-toolbelt>=1.0.0 (from langsmith<1.0.0,>=0.3.45->langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl.metadata (14 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting zstandard>=0.23.0 (from langsmith<1.0.0,>=0.3.45->langchain-core>=0.1.0->-r /vercel/path0/requirements.txt (line 39))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading zstandard-0.25.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting importlib-metadata<8.8.0,>=6.0 (from opentelemetry-api<2.0.0,>=1.33.1->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading importlib_metadata-8.7.1-py3-none-any.whl.metadata (4.7 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-common==1.39.1 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_common-1.39.1-py3-none-any.whl.metadata (1.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-proto==1.39.1 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_proto-1.39.1-py3-none-any.whl.metadata (2.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: INFO: pip is looking at multiple versions of opentelemetry-sdk to determine which version is compatible with other requirements. This could take a while.) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_http-1.39.0-py3-none-any.whl.metadata (2.4 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-sdk<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_sdk-1.39.0-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-api<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_api-1.39.0-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-sdk<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_sdk-1.38.0-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-api<2.0.0,>=1.33.1 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_api-1.38.0-py3-none-any.whl.metadata (1.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-common==1.39.0 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_common-1.39.0-py3-none-any.whl.metadata (1.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-proto==1.39.0 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_proto-1.39.0-py3-none-any.whl.metadata (2.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0 (from mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_http-1.38.0-py3-none-any.whl.metadata (2.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-exporter-otlp-proto-common==1.38.0 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_common-1.38.0-py3-none-any.whl.metadata (1.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting opentelemetry-proto==1.38.0 (from opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.37.0->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading opentelemetry_proto-1.38.0-py3-none-any.whl.metadata (2.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting oauthlib>=3.0.0 (from requests-oauthlib>=0.7.0->google-auth-oauthlib>=1.2.0->-r /vercel/path0/requirements.txt (line 12))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading oauthlib-3.3.1-py3-none-any.whl.metadata (7.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting huggingface-hub<2.0,>=0.16.4 (from tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading huggingface_hub-1.2.3-py3-none-any.whl.metadata (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->python-jose[cryptography]>=3.3.0->-r /vercel/path0/requirements.txt (line 28))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading pycparser-2.23-py3-none-any.whl.metadata (993 bytes)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting h2<5,>=3 (from httpx[http2]<0.29,>=0.26->postgrest==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading h2-4.3.0-py3-none-any.whl.metadata (5.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting filelock (from huggingface-hub<2.0,>=0.16.4->tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading filelock-3.20.2-py3-none-any.whl.metadata (2.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting fsspec>=2023.5.0 (from huggingface-hub<2.0,>=0.16.4->tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading fsspec-2025.12.0-py3-none-any.whl.metadata (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting hf-xet<2.0.0,>=1.2.0 (from huggingface-hub<2.0,>=0.16.4->tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading hf_xet-1.2.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting shellingham (from huggingface-hub<2.0,>=0.16.4->tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting typer-slim (from huggingface-hub<2.0,>=0.16.4->tokenizers<1.0.0,>=0.15.1->langchain-mistralai>=0.0.5->-r /vercel/path0/requirements.txt (line 19))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading typer_slim-0.21.0-py3-none-any.whl.metadata (16 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting zipp>=3.20 (from importlib-metadata<8.8.0,>=6.0->opentelemetry-api<2.0.0,>=1.33.1->mistralai>=0.1.0->-r /vercel/path0/requirements.txt (line 38))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading zipp-3.23.0-py3-none-any.whl.metadata (3.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting mmh3<6.0.0,>=4.0.0 (from pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading mmh3-5.2.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (14 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting pyroaring<2.0.0,>=1.0.0 (from pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading pyroaring-1.0.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting rich<15.0.0,>=10.11.0 (from pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading rich-14.2.0-py3-none-any.whl.metadata (18 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting sortedcontainers==2.4.0 (from pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Collecting strictyaml<2.0.0,>=1.7.0 (from pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:53.371Z] Spinner invoked (Building: Downloading strictyaml-1.7.3-py3-none-any.whl.metadata (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Collecting hyperframe<7,>=6.1 (from h2<5,>=3->httpx[http2]<0.29,>=0.26->postgrest==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading hyperframe-6.1.0-py3-none-any.whl.metadata (4.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Collecting hpack<5,>=4.1 (from h2<5,>=3->httpx[http2]<0.29,>=0.26->postgrest==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading hpack-4.1.0-py3-none-any.whl.metadata (4.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Collecting markdown-it-py>=2.2.0 (from rich<15.0.0,>=10.11.0->pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading markdown_it_py-4.0.0-py3-none-any.whl.metadata (7.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Collecting pygments<3.0.0,>=2.13.0 (from rich<15.0.0,>=10.11.0->pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich<15.0.0,>=10.11.0->pyiceberg>=0.10.0->storage3==2.27.0->supabase>=2.3.0->-r /vercel/path0/requirements.txt (line 4))) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading fastapi-0.128.0-py3-none-any.whl (103 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.1/103.1 kB 47.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading uvicorn-0.40.0-py3-none-any.whl (68 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.5/68.5 kB 35.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.0/85.0 kB 33.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading supabase-2.27.0-py3-none-any.whl (16 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading postgrest-2.27.0-py3-none-any.whl (21 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading realtime-2.27.0-py3-none-any.whl (22 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading storage3-2.27.0-py3-none-any.whl (27 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading supabase_auth-2.27.0-py3-none-any.whl (48 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.0/48.0 kB 24.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading supabase_functions-2.27.0-py3-none-any.whl (8.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading pydantic-2.12.5-py3-none-any.whl (463 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 463.6/463.6 kB 74.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading pydantic_core-2.41.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 145.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading pydantic_settings-2.12.0-py3-none-any.whl (51 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.9/51.9 kB 13.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading python_dotenv-1.2.1-py3-none-any.whl (21 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading requests-2.32.5-py3-none-any.whl (64 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 31.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading httpx-0.28.1-py3-none-any.whl (73 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 39.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 39.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading google_api_python_client-2.187.0-py3-none-any.whl (14.6 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.6/14.6 MB 158.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading google_auth_oauthlib-1.2.3-py3-none-any.whl (19 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading google_auth-2.41.1-py2.py3-none-any.whl (221 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.3/221.3 kB 84.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading google_auth_httplib2-0.3.0-py3-none-any.whl (9.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading twilio-9.9.0-py2.py3-none-any.whl (1.8 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 197.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading beautifulsoup4-4.14.3-py3-none-any.whl (107 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.7/107.7 kB 55.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading python_multipart-0.0.21-py3-none-any.whl (24 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading email_validator-2.3.0-py3-none-any.whl (35 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading langchain-1.2.0-py3-none-any.whl (102 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.8/102.8 kB 56.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading langchain_mistralai-1.1.1-py3-none-any.whl (19 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading openai-2.14.0-py3-none-any.whl (1.1 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 196.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading tiktoken-0.12.0-cp312-cp312-manylinux_2_28_x86_64.whl (1.2 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 188.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: Downloading sentry_sdk-2.48.0-py2.py3-none-any.whl (414 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.401Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 414.6/414.6 kB 137.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 85.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading gspread-6.2.1-py3-none-any.whl (59 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.0/60.0 kB 30.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading python_jose-3.5.0-py2.py3-none-any.whl (34 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading pandas-2.3.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.4 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.4/12.4 MB 163.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading numpy-2.4.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.4 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.4/16.4 MB 154.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading scikit_learn-1.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (8.9 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.9/8.9 MB 206.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:54.402Z] Spinner invoked (Building: Downloading xgboost-3.1.2-py3-none-manylinux_2_28_x86_64.whl (115.9 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 115.9/115.9 MB 49.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading matplotlib-3.10.8-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.7 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.7/8.7 MB 211.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 294.9/294.9 kB 115.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading fpdf2-2.8.5-py3-none-any.whl (301 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 301.6/301.6 kB 113.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading langgraph-1.0.5-py3-none-any.whl (157 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 157.1/157.1 kB 70.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading thefuzz-0.22.1-py3-none-any.whl (8.2 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading mistralai-1.10.0-py3-none-any.whl (460 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 461.0/461.0 kB 136.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading langchain_core-1.2.6-py3-none-any.whl (489 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 489.1/489.1 kB 140.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading redis-7.1.0-py3-none-any.whl (354 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 354.2/354.2 kB 125.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading prometheus_client-0.23.1-py3-none-any.whl (61 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.1/61.1 kB 30.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading aiohttp-3.13.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 186.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading aiohttp_retry-2.9.1-py3-none-any.whl (10.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading anyio-4.12.0-py3-none-any.whl (113 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 113.4/113.4 kB 58.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading cachetools-6.2.4-py3-none-any.whl (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: Downloading certifi-2026.1.4-py3-none-any.whl (152 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.471Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 152.9/152.9 kB 74.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.489Z] Spinner invoked (Building: Downloading charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (153 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 153.5/153.5 kB 36.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading click-8.3.1-py3-none-any.whl (108 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.3/108.3 kB 32.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading contourpy-1.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (362 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 362.6/362.6 kB 108.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 216.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading distro-1.9.0-py3-none-any.whl (20 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading dnspython-2.8.0-py3-none-any.whl (331 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 331.1/331.1 kB 46.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading ecdsa-0.19.1-py2.py3-none-any.whl (150 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 150.6/150.6 kB 76.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading eval_type_backport-0.3.1-py3-none-any.whl (6.1 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading fonttools-4.61.1-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (5.0 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.0/5.0 MB 203.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading google_api_core-2.28.1-py3-none-any.whl (173 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 173.7/173.7 kB 81.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.490Z] Spinner invoked (Building: Downloading h11-0.16.0-py3-none-any.whl (37 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading httplib2-0.31.0-py3-none-any.whl (91 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 91.1/91.1 kB 46.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading httpx_sse-0.4.3-py3-none-any.whl (9.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading idna-3.11-py3-none-any.whl (71 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.0/71.0 kB 41.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading invoke-2.2.1-py3-none-any.whl (160 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 160.3/160.3 kB 70.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading jiter-0.12.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (361 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 361.3/361.3 kB 107.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading joblib-1.5.3-py3-none-any.whl (309 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 309.1/309.1 kB 113.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading jsonpatch-1.33-py2.py3-none-any.whl (12 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading kiwisolver-1.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.5 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.5/1.5 MB 197.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading langgraph_checkpoint-3.0.1-py3-none-any.whl (46 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.2/46.2 kB 20.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading langgraph_prebuilt-1.0.5-py3-none-any.whl (35 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading langgraph_sdk-0.3.1-py3-none-any.whl (66 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 32.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: Downloading langsmith-0.6.0-py3-none-any.whl (283 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.491Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 283.3/283.3 kB 103.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_sdk-1.38.0-py3-none-any.whl (132 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 132.3/132.3 kB 60.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_semantic_conventions-0.59b0-py3-none-any.whl (207 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 208.0/208.0 kB 84.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_api-1.38.0-py3-none-any.whl (65 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 65.9/65.9 kB 28.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_http-1.38.0-py3-none-any.whl (19 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_exporter_otlp_proto_common-1.38.0-py3-none-any.whl (18 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading opentelemetry_proto-1.38.0-py3-none-any.whl (72 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.5/72.5 kB 35.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading packaging-25.0-py3-none-any.whl (66 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 34.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading pillow-12.1.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.0 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 216.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading pyasn1-0.6.1-py3-none-any.whl (83 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.1/83.1 kB 27.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 181.3/181.3 kB 78.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading PyJWT-2.10.1-py3-none-any.whl (22 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.492Z] Spinner invoked (Building: Downloading pyparsing-3.3.1-py3-none-any.whl (121 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.8/121.8 kB 65.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: Downloading pytz-2025.2-py2.py3-none-any.whl (509 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 509.2/509.2 kB 98.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 157.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: Downloading rapidfuzz-3.14.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.2 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.509Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 221.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.510Z] Spinner invoked (Building: Downloading regex-2025.11.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (803 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.510Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 803.5/803.5 kB 177.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.510Z] Spinner invoked (Building: Downloading requests_oauthlib-2.0.0-py2.py3-none-any.whl (24 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.510Z] Spinner invoked (Building: Downloading rsa-4.9.1-py3-none-any.whl (34 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:56.510Z] Spinner invoked (Building: Downloading scipy-1.16.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (35.7 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.7/35.7 MB 102.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading soupsieve-2.8.1-py3-none-any.whl (36 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading starlette-0.50.0-py3-none-any.whl (74 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.0/74.0 kB 25.5 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 199.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 39.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 20.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading tzdata-2025.3-py2.py3-none-any.whl (348 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 348.5/348.5 kB 114.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading uritemplate-4.2.0-py3-none-any.whl (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading urllib3-2.6.2-py3-none-any.whl (131 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.2/131.2 kB 44.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading uuid_utils-0.12.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (343 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 343.7/343.7 kB 95.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading xxhash-3.6.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (193 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 193.9/193.9 kB 73.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading yarl-1.22.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (377 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 377.3/377.3 kB 117.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:57.507Z] Spinner invoked (Building: Downloading nvidia_nccl_cu12-2.28.9-py3-none-manylinux_2_18_x86_64.whl (296.8 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 296.8/296.8 MB 6.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading attrs-25.4.0-py3-none-any.whl (67 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.6/67.6 kB 38.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 219.6/219.6 kB 63.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading deprecation-2.1.0-py2.py3-none-any.whl (11 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (242 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 242.4/242.4 kB 63.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading googleapis_common_protos-1.72.0-py3-none-any.whl (297 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 297.5/297.5 kB 101.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading huggingface_hub-1.2.3-py3-none-any.whl (520 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 521.0/521.0 kB 112.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading importlib_metadata-8.7.1-py3-none-any.whl (27 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading jsonpointer-3.0.0-py2.py3-none-any.whl (7.6 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading multidict-6.7.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (256 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 256.1/256.1 kB 105.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading oauthlib-3.3.1-py3-none-any.whl (160 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 160.1/160.1 kB 43.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading orjson-3.11.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (139 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.0/139.0 kB 69.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading ormsgpack-1.12.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (211 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 211.5/211.5 kB 79.8 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading propcache-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (221 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.6/221.6 kB 67.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading proto_plus-1.27.0-py3-none-any.whl (50 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 50.2/50.2 kB 25.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading protobuf-6.33.2-cp39-abi3-manylinux2014_x86_64.whl (323 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 323.3/323.3 kB 95.6 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading pyiceberg-0.10.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.4 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 174.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading requests_toolbelt-1.0.0-py2.py3-none-any.whl (54 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.5/54.5 kB 21.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading StrEnum-0.4.15-py3-none-any.whl (8.9 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading websockets-15.0.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (182 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.5/182.5 kB 73.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading zstandard-0.25.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.5 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.5/5.5 MB 199.4 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading fsspec-2025.12.0-py3-none-any.whl (201 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 201.4/201.4 kB 81.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading h2-4.3.0-py3-none-any.whl (61 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.8/61.8 kB 24.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading hf_xet-1.2.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 199.9 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading mmh3-5.2.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (103 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103.3/103.3 kB 52.3 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading pyroaring-1.0.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 197.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading rich-14.2.0-py3-none-any.whl (243 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 243.4/243.4 kB 98.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading strictyaml-1.7.3-py3-none-any.whl (123 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 123.9/123.9 kB 54.0 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading zipp-3.23.0-py3-none-any.whl (10 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading filelock-3.20.2-py3-none-any.whl (16 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading pycparser-2.23-py3-none-any.whl (118 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 118.1/118.1 kB 59.7 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading typer_slim-0.21.0-py3-none-any.whl (47 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.2/47.2 kB 23.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading hpack-4.1.0-py3-none-any.whl (34 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading hyperframe-6.1.0-py3-none-any.whl (13 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading markdown_it_py-4.0.0-py3-none-any.whl (87 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.3/87.3 kB 47.1 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 194.2 MB/s eta 0:00:00) with a 0ms delay
+> [debug] [2026-01-05T11:30:58.540Z] Spinner invoked (Building: Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)) with a 0ms delay
+> [debug] [2026-01-05T11:31:01.640Z] Spinner invoked (Building: Installing collected packages: strenum, sortedcontainers, pytz, pyroaring, zstandard, zipp, xxhash, websockets, uuid-utils, urllib3, uritemplate, tzdata, typing-extensions, tqdm, threadpoolctl, tenacity, soupsieve, sniffio, six, shellingham, regex, redis, rapidfuzz, pyyaml, python-multipart, python-dotenv, pyparsing, pyjwt, pygments, pycparser, pyasn1, protobuf, propcache, prometheus-client, pillow, packaging, ormsgpack, orjson, oauthlib, nvidia-nccl-cu12, numpy, multidict, mmh3, mdurl, kiwisolver, jsonpointer, joblib, jiter, invoke, idna, hyperframe, httpx-sse, hpack, hf-xet, h11, fsspec, frozenlist, fonttools, filelock, eval-type-backport, dnspython, distro, defusedxml, cycler, click, charset_normalizer, certifi, cachetools, attrs, annotated-types, annotated-doc, aiohappyeyeballs, yarl, uvicorn, typing-inspection, typer-slim, thefuzz, sentry-sdk, scipy, rsa, requests, python-dateutil, pydantic-core, pyasn1-modules, proto-plus, opentelemetry-proto, markdown-it-py, jsonpatch, importlib-metadata, httplib2, httpcore, h2, gunicorn, googleapis-common-protos, fpdf2, email-validator, ecdsa, deprecation, contourpy, cffi, beautifulsoup4, anyio, aiosignal, xgboost, tiktoken, strictyaml, starlette, scikit-learn, rich, requests-toolbelt, requests-oauthlib, python-jose, pydantic, pandas, opentelemetry-exporter-otlp-proto-common, opentelemetry-api, matplotlib, httpx, google-auth, cryptography, aiohttp, seaborn, realtime, pyiceberg, pydantic-settings, opentelemetry-semantic-conventions, openai, langsmith, langgraph-sdk, huggingface-hub, google-auth-oauthlib, google-auth-httplib2, google-api-core, fastapi, aiohttp-retry, twilio, tokenizers, supabase-functions, supabase-auth, storage3, postgrest, opentelemetry-sdk, langchain-core, gspread, google-api-python-client, supabase, opentelemetry-exporter-otlp-proto-http, langgraph-checkpoint, langchain-mistralai, mistralai, langgraph-prebuilt, langgraph, langchain) with a 0ms delay
+> [debug] [2026-01-05T11:31:41.043Z] Spinner invoked (Building: Successfully installed aiohappyeyeballs-2.6.1 aiohttp-3.13.3 aiohttp-retry-2.9.1 aiosignal-1.4.0 annotated-doc-0.0.4 annotated-types-0.7.0 anyio-4.12.0 attrs-25.4.0 beautifulsoup4-4.14.3 cachetools-6.2.4 certifi-2026.1.4 cffi-2.0.0 charset_normalizer-3.4.4 click-8.3.1 contourpy-1.3.3 cryptography-46.0.3 cycler-0.12.1 defusedxml-0.7.1 deprecation-2.1.0 distro-1.9.0 dnspython-2.8.0 ecdsa-0.19.1 email-validator-2.3.0 eval-type-backport-0.3.1 fastapi-0.128.0 filelock-3.20.2 fonttools-4.61.1 fpdf2-2.8.5 frozenlist-1.8.0 fsspec-2025.12.0 google-api-core-2.28.1 google-api-python-client-2.187.0 google-auth-2.41.1 google-auth-httplib2-0.3.0 google-auth-oauthlib-1.2.3 googleapis-common-protos-1.72.0 gspread-6.2.1 gunicorn-23.0.0 h11-0.16.0 h2-4.3.0 hf-xet-1.2.0 hpack-4.1.0 httpcore-1.0.9 httplib2-0.31.0 httpx-0.28.1 httpx-sse-0.4.3 huggingface-hub-1.2.3 hyperframe-6.1.0 idna-3.11 importlib-metadata-8.7.1 invoke-2.2.1 jiter-0.12.0 joblib-1.5.3 jsonpatch-1.33 jsonpointer-3.0.0 kiwisolver-1.4.9 langchain-1.2.0 langchain-core-1.2.6 langchain-mistralai-1.1.1 langgraph-1.0.5 langgraph-checkpoint-3.0.1 langgraph-prebuilt-1.0.5 langgraph-sdk-0.3.1 langsmith-0.6.0 markdown-it-py-4.0.0 matplotlib-3.10.8 mdurl-0.1.2 mistralai-1.10.0 mmh3-5.2.0 multidict-6.7.0 numpy-2.4.0 nvidia-nccl-cu12-2.28.9 oauthlib-3.3.1 openai-2.14.0 opentelemetry-api-1.38.0 opentelemetry-exporter-otlp-proto-common-1.38.0 opentelemetry-exporter-otlp-proto-http-1.38.0 opentelemetry-proto-1.38.0 opentelemetry-sdk-1.38.0 opentelemetry-semantic-conventions-0.59b0 orjson-3.11.5 ormsgpack-1.12.1 packaging-25.0 pandas-2.3.3 pillow-12.1.0 postgrest-2.27.0 prometheus-client-0.23.1 propcache-0.4.1 proto-plus-1.27.0 protobuf-6.33.2 pyasn1-0.6.1 pyasn1-modules-0.4.2 pycparser-2.23 pydantic-2.12.5 pydantic-core-2.41.5 pydantic-settings-2.12.0 pygments-2.19.2 pyiceberg-0.10.0 pyjwt-2.10.1 pyparsing-3.3.1 pyroaring-1.0.3 python-dateutil-2.9.0.post0 python-dotenv-1.2.1 python-jose-3.5.0 python-multipart-0.0.21 pytz-2025.2 pyyaml-6.0.3 rapidfuzz-3.14.3 realtime-2.27.0 redis-7.1.0 regex-2025.11.3 requests-2.32.5 requests-oauthlib-2.0.0 requests-toolbelt-1.0.0 rich-14.2.0 rsa-4.9.1 scikit-learn-1.8.0 scipy-1.16.3 seaborn-0.13.2 sentry-sdk-2.48.0 shellingham-1.5.4 six-1.17.0 sniffio-1.3.1 sortedcontainers-2.4.0 soupsieve-2.8.1 starlette-0.50.0 storage3-2.27.0 strenum-0.4.15 strictyaml-1.7.3 supabase-2.27.0 supabase-auth-2.27.0 supabase-functions-2.27.0 tenacity-9.1.2 thefuzz-0.22.1 threadpoolctl-3.6.0 tiktoken-0.12.0 tokenizers-0.22.2 tqdm-4.67.1 twilio-9.9.0 typer-slim-0.21.0 typing-extensions-4.15.0 typing-inspection-0.4.2 tzdata-2025.3 uritemplate-4.2.0 urllib3-2.6.2 uuid-utils-0.12.0 uvicorn-0.40.0 websockets-15.0.1 xgboost-3.1.2 xxhash-3.6.0 yarl-1.22.0 zipp-3.23.0 zstandard-0.25.0) with a 0ms delay
+> [debug] [2026-01-05T11:31:41.044Z] Spinner invoked (Building: WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv) with a 0ms delay
+> [debug] [2026-01-05T11:31:43.127Z] Spinner invoked (Building: Installing dependencies...) with a 0ms delay
+> [debug] [2026-01-05T11:31:43.127Z] Spinner invoked (Building: up to date in 507ms) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: up to date, audited 402 packages in 822ms) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: 81 packages are looking for funding) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: run `npm fund` for details) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: found 0 vulnerabilities) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: > dashboard@0.0.0 build) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: > vite build) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: vite v7.3.0 building client environment for production...) with a 0ms delay
+> [debug] [2026-01-05T11:31:45.186Z] Spinner invoked (Building: transforming...) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.402Z] Spinner invoked (Building: ✓ 2661 modules transformed.) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.402Z] Spinner invoked (Building: rendering chunks...) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: computing gzip size...) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: dist/index.html                   0.49 kB │ gzip:   0.30 kB) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: dist/assets/index-CL3JfnmN.css   60.13 kB │ gzip:  10.17 kB) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: dist/assets/index-C79lbjYP.js   743.26 kB │ gzip: 219.28 kB) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: (!) Some chunks are larger than 500 kB after minification. Consider:) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: - Using dynamic import() to code-split the application) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.) with a 0ms delay
+> [debug] [2026-01-05T11:31:51.403Z] Spinner invoked (Building: ✓ built in 5.90s) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.476Z] Spinner invoked (Building: up to date, audited 171 packages in 599ms) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: 33 packages are looking for funding) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: run `npm fund` for details) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: found 0 vulnerabilities) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: > landing_page@0.0.0 build) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: > vite build) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: vite v7.3.0 building client environment for production...) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: <script src="script.js"> in "/index.html" can't be bundled without type="module" attribute) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: transforming...) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.477Z] Spinner invoked (Building: ✓ 2 modules transformed.) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.503Z] Spinner invoked (Building: rendering chunks...) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.503Z] Spinner invoked (Building: computing gzip size...) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.503Z] Spinner invoked (Building: dist/index.html                 19.81 kB │ gzip: 4.11 kB) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.503Z] Spinner invoked (Building: dist/assets/index-eSxTAfVh.css  28.96 kB │ gzip: 6.02 kB) with a 0ms delay
+> [debug] [2026-01-05T11:31:52.503Z] Spinner invoked (Building: ✓ built in 241ms) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: up to date, audited 200 packages in 533ms) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: 37 packages are looking for funding) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: run `npm fund` for details) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: found 0 vulnerabilities) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > landing_page@0.0.0 build) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > npm run build:prod && node build.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > landing_page@0.0.0 build:prod) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > npm run optimize:js && npm run optimize:js:modules && npm run optimize:css) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > landing_page@0.0.0 optimize:js) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > terser appraisal/script.js appraisal/helpers.js -c -m -o appraisal/assets/bundle.min.js --source-map) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > landing_page@0.0.0 optimize:js:modules) with a 0ms delay
+> [debug] [2026-01-05T11:31:53.476Z] Spinner invoked (Building: > terser appraisal/modules/*.js -c -m --module -o appraisal/assets/modules.min.js --source-map) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: > landing_page@0.0.0 optimize:css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: > cleancss -o appraisal/assets/styles.min.css appraisal/styles.css appraisal/mobile-styles.css appraisal/loading-styles.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: 🚀 Building landing page...) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: 📄 Copying index.html...) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: 📄 Copying feedback.html...) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: ℹ️  feedback.html not found, skipping...) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: 📁 Copying appraisal folder...) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: ✓ bundle.min.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: ✓ bundle.min.js.map) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: ✓ modules.min.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.557Z] Spinner invoked (Building: ✓ modules.min.js.map) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ styles.min.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ helpers.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ index-prod.html) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ index.html) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ loading-styles.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ mobile-styles-addon.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ mobile-styles.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ cache.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ formatters.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ loading.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ validators.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ script.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ styles.css) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ sw-register.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ sw.js) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✓ test-suite.html) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✅ Build complete!) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: 📦 Output: /vercel/path0/apps/landing-page/dist) with a 0ms delay
+> [debug] [2026-01-05T11:31:54.558Z] Spinner invoked (Building: ✅ All apps built successfully) with a 0ms delay
+> [debug] [2026-01-05T11:31:57.667Z] Spinner invoked (Building: No Python version specified in pyproject.toml or Pipfile.lock. Using latest installed version: 3.12) with a 0ms delay
+> [debug] [2026-01-05T11:32:00.802Z] Spinner invoked (Building: Creating virtual environment at "/vercel/path0/.vercel/python/.venv"...) with a 0ms delay
+> [debug] [2026-01-05T11:32:03.907Z] Spinner invoked (Building: Using uv at "/usr/local/bin/uv") with a 0ms delay
+> [debug] [2026-01-05T11:32:03.910Z] Spinner invoked (Building: Installing required dependencies from pyproject.toml...) with a 0ms delay
+> [debug] [2026-01-05T11:32:17.370Z] Spinner invoked (Building: Build Completed in /vercel/output [2m]) with a 0ms delay
+> [debug] [2026-01-05T11:32:17.371Z] Spinner invoked (Building: Deploying outputs...) with a 0ms delay
+> [debug] [2026-01-05T11:33:07.076Z] Spinner invoked (Building: Error: The file 'prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m/3048806359f0743b99e1757b01554589db7826442b60b1b9db90fb6706a679a5.zip' exceeds the maximum upload size limit of 300MB. Actual size: 314573621 bytes) with a 0ms delay
+[client-debug] 2026-01-05T11:33:20.451Z Yielding a 'error' event
+> [debug] [2026-01-05T11:33:20.455Z] Error: Error: The file 'prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m/3048806359f0743b99e1757b01554589db7826442b60b1b9db90fb6706a679a5.zip' exceeds the maximum upload size limit of 300MB. Actual size: 314573621 bytes
+Error: The file 'prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m/3048806359f0743b99e1757b01554589db7826442b60b1b9db90fb6706a679a5.zip' exceeds the maximum upload size limit of 300MB. Actual size: 314573621 bytes
+    at Now.handleDeploymentError (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153204:16)
+    at processDeployment (/opt/homebrew/lib/node_modules/vercel/dist/index.js:152942:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Now.create (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153099:28)
+    at async createDeploy (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153350:12)
+    at async deploy_default (/opt/homebrew/lib/node_modules/vercel/dist/index.js:154262:22)
+    at async main18 (/opt/homebrew/lib/node_modules/vercel/dist/index.js:191817:19)
+> [debug] [2026-01-05T11:33:20.456Z] handling error: Error: The file 'prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m/3048806359f0743b99e1757b01554589db7826442b60b1b9db90fb6706a679a5.zip' exceeds the maximum upload size limit of 300MB. Actual size: 314573621 bytes
+    at Now.handleDeploymentError (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153204:16)
+    at processDeployment (/opt/homebrew/lib/node_modules/vercel/dist/index.js:152942:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Now.create (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153099:28)
+    at async createDeploy (/opt/homebrew/lib/node_modules/vercel/dist/index.js:153350:12)
+    at async deploy_default (/opt/homebrew/lib/node_modules/vercel/dist/index.js:154262:22)
+    at async main18 (/opt/homebrew/lib/node_modules/vercel/dist/index.js:191817:19)
+Error: The file 'prj_DrTbjXvOnZWvLE3Mxt89hN9QtY6m/3048806359f0743b99e1757b01554589db7826442b60b1b9db90fb6706a679a5.zip' exceeds the maximum upload size limit of 300MB. Actual size: 314573621 bytes
+> [debug] [2026-01-05T11:33:20.681Z] Vercel CLI 50.1.2
+
+> [debug] [2026-01-05T11:33:21.023Z] Telemetry event tracked
+> [debug] [2026-01-05T11:33:21.208Z] Telemetry subprocess exited with code 0

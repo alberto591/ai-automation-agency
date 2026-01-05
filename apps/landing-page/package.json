@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "npm run build:prod && node build.js",
     "build:prod": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
-    "optimize:js": "terser appraisal/script.js appraisal/helpers.js -c -m -o appraisal/dist/bundle.min.js --source-map",
-    "optimize:js:modules": "terser appraisal/modules/*.js -c -m --module -o appraisal/dist/modules.min.js --source-map",
-    "optimize:css": "cleancss -o appraisal/dist/styles.min.css appraisal/styles.css appraisal/mobile-styles.css appraisal/loading-styles.css",
+    "optimize:js": "terser appraisal/script.js appraisal/helpers.js -c -m -o appraisal/assets/bundle.min.js --source-map",
+    "optimize:js:modules": "terser appraisal/modules/*.js -c -m --module -o appraisal/assets/modules.min.js --source-map",
+    "optimize:css": "cleancss -o appraisal/assets/styles.min.css appraisal/styles.css appraisal/mobile-styles.css appraisal/loading-styles.css",
     "build:all": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
     "lint": "eslint .",
     "preview": "vite preview"

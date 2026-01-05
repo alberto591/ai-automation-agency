@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pandas as pd
 from xgboost import Booster
 
 from infrastructure.logging import get_logger
@@ -71,14 +70,14 @@ class XGBoostAdapter:
             )
             return None
 
-    def _prepare_features_for_inference(self, features: PropertyFeatures) -> pd.DataFrame:
-        """Convert PropertyFeatures to model input format.
+    def _prepare_features_for_inference(self, features: PropertyFeatures) -> np.ndarray:
+        """Convert PropertyFeatures to model input format using numpy.
 
         Args:
             features: Pydantic model with property characteristics
 
         Returns:
-            DataFrame with features in correct order and encoding
+            2D Numpy array with features in correct order and encoding
         """
         # Create base feature dict
         feature_dict = {
@@ -99,55 +98,54 @@ class XGBoostAdapter:
 
         # One-hot encode categoricals (must match training)
         # Zone slugs
-        if features.zone_slug:
-            for zone in [
-                "brera-milano",
-                "centro-bologna",
-                "centro-lucca",
-                "centro-milano",
-                "centro-pisa",
-                "centro-storico-roma",
-                "duomo-firenze",
-                "lambrate-milano",
-                "navigli-milano",
-                "novoli-firenze",
-                "oltrarno-firenze",
-                "porta-romana-milano",
-                "prati-roma",
-                "rifredi-firenze",
-                "san-lorenzo-roma",
-                "santa-croce-firenze",
-                "testaccio-roma",
-                "trastevere-roma",
-            ]:
-                feature_dict[f"zone_slug_{zone}"] = int(features.zone_slug == zone)
+        zones = [
+            "brera-milano",
+            "centro-bologna",
+            "centro-lucca",
+            "centro-milano",
+            "centro-pisa",
+            "centro-storico-roma",
+            "duomo-firenze",
+            "lambrate-milano",
+            "navigli-milano",
+            "novoli-firenze",
+            "oltrarno-firenze",
+            "porta-romana-milano",
+            "prati-roma",
+            "rifredi-firenze",
+            "san-lorenzo-roma",
+            "santa-croce-firenze",
+            "testaccio-roma",
+            "trastevere-roma",
+        ]
+        for zone in zones:
+            feature_dict[f"zone_slug_{zone}"] = 1 if features.zone_slug == zone else 0
 
         # Condition
         for cond in ["fair", "good", "luxury", "poor"]:
-            feature_dict[f"condition_{cond}"] = int(features.condition == cond)
+            feature_dict[f"condition_{cond}"] = 1 if features.condition == cond else 0
 
         # Energy class
-        if features.energy_class:
-            for ec in ["B", "C", "D", "E", "F", "G"]:
-                feature_dict[f"energy_class_{ec}"] = int(features.energy_class == ec)
+        for ec in ["B", "C", "D", "E", "F", "G"]:
+            feature_dict[f"energy_class_{ec}"] = 1 if features.energy_class == ec else 0
 
         # Cadastral category
-        if features.cadastral_category:
-            for cat in ["A/3", "A/4", "A/7"]:
-                feature_dict[f"cadastral_category_{cat}"] = int(features.cadastral_category == cat)
+        for cat in ["A/3", "A/4", "A/7"]:
+            feature_dict[f"cadastral_category_{cat}"] = (
+                1 if features.cadastral_category == cat else 0
+            )
 
-        # Convert to DataFrame
-        df = pd.DataFrame([feature_dict])
-
-        # Ensure all expected features are present (add missing as 0)
+        # Prepare list in correct order
+        values = []
         if self.feature_names:
             for fname in self.feature_names:
-                if fname not in df.columns:
-                    df[fname] = 0
-            # Reorder to match training
-            df = df[self.feature_names]
+                values.append(feature_dict.get(fname, 0))
+        else:
+            # Fallback if no metadata: just take everything in the dict (not recommended)
+            values = list(feature_dict.values())
 
-        return df
+        # Convert to 2D numpy array (1, n_features)
+        return np.array([values], dtype=float)
 
     def predict(self, features: PropertyFeatures) -> float:
         """Predicts property value based on features.

@@ -1,0 +1,69 @@
+# VERCEL DEPLOYMENT - Exclude unnecessary files while keeping dist/
+
+# Version control (880MB!)
+.git/
+.github/
+
+# Python backend (not needed for static frontend)
+application/
+infrastructure/
+domain/
+presentation/
+config/
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# Tests and scripts
+tests/
+test_scripts/
+scripts/
+!scripts/build.sh
+
+# Documentation
+docs/
+tutorial/
+best_practices/
+Claude.md
+*.md
+!README.md
+
+# Data and models
+data/
+.models/
+models/
+temp/
+
+# Build caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+**/node_modules/
+
+# Apps source (we only need dist/)
+apps/
+
+# Large log files
+*.log
+vercel_logs.txt
+vercel_full_debug.txt
+server_logs.txt
+
+# Other large files
+*.pdf
+*.zip
+*.tgz
+*.tar.gz
+AI Real Estate Appraisal Tool Perplex Test.html
+
+# Hidden files
+.DS_Store
+.env
+.env.local
+.agent/
+.cursorrules
+.vercel/
+
