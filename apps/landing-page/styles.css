@@ -132,13 +132,15 @@ p {
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(148, 163, 184, 0.1);
     z-index: 1000;
-    padding: 1rem 0;
+    padding: 0;
+    height: 80px;
 }
 
 .navbar .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    height: 100%;
 }
 
 .nav-brand {
@@ -213,10 +215,146 @@ p {
 }
 
 .language-toggle {
-    display: flex;
+    display: inline-flex;
     gap: 0.5rem;
-    margin-left: 2rem;
 }
+
+.utility-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+    .header-actions {
+        margin-left: 2rem;
+    }
+}
+
+
+.login-btn-enhanced {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--navy-blue);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    text-decoration: none;
+    border: 2px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.login-btn-enhanced i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.login-btn-enhanced span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
+.login-btn-enhanced:hover {
+    background: var(--accent-light);
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+}
+
+.login-btn-enhanced:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments to maintain single-line layout */
+@media (max-width: 1200px) {
+    .navbar .container {
+        padding: 0 1rem;
+    }
+
+    .nav-links {
+        gap: 1.5rem;
+    }
+
+    .nav-links a {
+        font-size: 0.9rem;
+    }
+
+    .header-actions {
+        gap: 1rem;
+    }
+
+    .login-btn-enhanced {
+        padding: 0.4rem 0.8rem;
+    }
+
+    .login-btn-enhanced i {
+        font-size: 1.3rem;
+    }
+
+    .login-btn-enhanced span {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .nav-brand {
+        margin-right: 2rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+
+    .header-actions {
+        gap: 0.75rem;
+    }
+
+    .lang-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .nav-links .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Ensure single-line for all elements */
+.navbar .container {
+    flex-wrap: nowrap;
+}
+
+.header-actions {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+}
+
+.language-toggle {
+    flex-shrink: 0;
+}
+
 
 .lang-btn {
     padding: 0.5rem 1rem;

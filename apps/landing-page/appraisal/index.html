@@ -65,19 +65,26 @@
                 </div>
             </div>
             <div class="nav-links">
-                <a href="/" data-translate="nav-home">Home</a>
-                <a href="/dashboard" data-translate="nav-dashboard">Dashboard</a>
+                <a href="/" id="home-link" data-translate="nav-home">Home</a>
                 <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
                     <span data-translate="nav-prenota-demo">Prenota Demo</span>
                 </a>
             </div>
-            <div class="language-toggle">
-                <button class="lang-btn active" data-lang="it">IT</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <div class="nav-toggle">
-                <i class="ph ph-list"></i>
+            <div class="header-actions">
+                <div class="utility-nav">
+                    <div class="language-toggle">
+                        <button class="lang-btn active" data-lang="it">IT</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                    <a href="/login.html" id="login-link" class="login-btn-enhanced" aria-label="Login">
+                        <i class="ph ph-user-circle"></i>
+                        <span data-translate="nav-login">Accedi</span>
+                    </a>
+                </div>
+                <div class="nav-toggle">
+                    <i class="ph ph-list"></i>
+                </div>
             </div>
         </div>
     </nav>

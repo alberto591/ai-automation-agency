@@ -9,6 +9,10 @@
         content="Vendi più case mentre dormi. Il tuo primo Agente AI che qualifica i lead su WhatsApp in 15 secondi, 24 ore su 24."
         data-translate="meta-description">
 
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,21 +66,26 @@
             </div>
             <div class="nav-links">
                 <a href="#soluzione" data-translate="nav-soluzione">Soluzione</a>
-                <a href="/dashboard/" data-translate="nav-dashboard">Dashboard</a>
                 <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
                 <a href="#appraisal" data-translate="nav-valutazione">Stima Preliminare</a>
                 <a href="#contatto" data-translate="nav-contatto">Contatto</a>
                 <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
-                    <span data-translate="nav-prenota-demo">Prenota Demo</span>
+                    <span data-translate="nav-contattaci">Contattaci</span>
                 </a>
             </div>
-            <div class="language-toggle">
-                <button class="lang-btn active" data-lang="it">IT</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-            <div class="nav-toggle">
-                <i class="ph ph-list"></i>
+            <div class="header-actions">
+                <div class="language-toggle">
+                    <button class="lang-btn active" data-lang="it">IT</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="/login.html" id="login-link" class="login-btn-enhanced" aria-label="Login">
+                    <i class="ph ph-user-circle"></i>
+                    <span data-translate="nav-login">Accedi</span>
+                </a>
+                <div class="nav-toggle">
+                    <i class="ph ph-list"></i>
+                </div>
             </div>
         </div>
     </nav>
@@ -148,7 +157,7 @@
                                     <div class="chat-container">
                                         <div class="chat-message from-client">
                                             <div class="message-time">14:23</div>
-                                            <div class="message-bubble">
+                                            <div class="message-bubble" data-translate="chat-entry-client">
                                                 Ciao, sono interessato a un trilocale a Roma zona Prati
                                             </div>
                                         </div>
@@ -164,14 +173,14 @@
                                         </div>
                                         <div class="chat-message from-ai">
                                             <div class="message-time">14:23</div>
-                                            <div class="message-bubble ai-bubble">
+                                            <div class="message-bubble ai-bubble" data-translate="chat-entry-ai">
                                                 Perfetto! Ho trovato 3 trilocali disponibili a Prati. Posso inviarti le
                                                 foto e organizzare una visita per domani?
                                             </div>
                                         </div>
                                         <div class="chat-message from-client">
                                             <div class="message-time">14:24</div>
-                                            <div class="message-bubble">
+                                            <div class="message-bubble" data-translate="chat-entry-feedback">
                                                 Sì, mi interessa! Grazie per la velocità
                                             </div>
                                         </div>
@@ -189,7 +198,8 @@
                                         <div class="notification-body">
                                             <strong data-translate="notif-client">Cliente: Marco R.</strong><br>
                                             <span data-translate="notif-pref">Preferenza: Trilocale Prati</span><br>
-                                            <span class="score">Score: 92/100</span>
+                                            <span class="score"><span data-translate="notif-score">Punteggio</span>:
+                                                92/100</span>
                                         </div>
                                         <div class="notification-time" data-translate="dashboard-time-2min">2 min fa
                                         </div>
@@ -523,13 +533,13 @@
                     </div>
 
                     <div class="contact-testimonial">
-                        <blockquote>
+                        <blockquote data-translate="testimonial-quote">
                             "In 3 mesi abbiamo aumentato le vendite del 340%. L'AI risponde meglio di molti agenti
                             umani."
                         </blockquote>
                         <div class="testimonial-author">
                             <strong>Roberto Anzevino</strong>
-                            <span>Direttore, Milano Premium Real Estate</span>
+                            <span data-translate="testimonial-role">Direttore, Milano Premium Real Estate</span>
                         </div>
                     </div>
                 </div>
@@ -581,11 +591,11 @@
                             </select>
                         </div>
 
-                        <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary btn-full"
-                            style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <i class="ph ph-calendar-plus"></i>
-                            <span data-translate="form-submit">Prenota Demo Gratuita</span>
-                        </a>
+                        <button type="submit" class="btn-primary btn-full" id="contactSubmit"
+                            style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="ph ph-paper-plane-tilt"></i>
+                            <span data-translate="form-submit">Invia Richiesta</span>
+                        </button>
 
                         <p class="form-note">
                             <i class="ph ph-shield-check"></i>
@@ -598,31 +608,6 @@
         </div>
     </section>
 
-    <!-- Detailed Stats Grid -->
-    <section class="stats-grid-section">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="ph ph-lightning"></i></div>
-                    <h3 data-translate="stat-speed-title">Velocità Estrema</h3>
-                    <p data-translate="stat-speed-desc">Risposte in meno di 15 secondi su WhatsApp, superando ogni
-                        aspettativa del cliente.</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="ph ph-trend-up"></i></div>
-                    <h3 data-translate="stat-conv-title">Conversion Rate +300%</h3>
-                    <p data-translate="stat-conv-desc">Trasforma semplici curiosi in lead qualificati pronti per la
-                        visita.</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="ph ph-users-three"></i></div>
-                    <h3 data-translate="stat-team-title">Team Potenziato</h3>
-                    <p data-translate="stat-team-desc">I tuoi agenti si concentrano solo sulle visite, l'AI gestisce
-                        tutto il funnel iniziale.</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
 
 
@@ -716,6 +701,13 @@
 
     <!-- Optimized Scripts -->
     <script src="appraisal/assets/bundle.min.js"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Auth Helper (must load after Supabase) -->
+    <script src="auth-helper.js"></script>
+
     <script src="appraisal/sw-register.js"></script>
 </body>
 

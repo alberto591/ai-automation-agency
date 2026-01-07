@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="register-page-title">Registrati | Anzevino AI Real Estate</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.html" type="text/css">
+
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--navy-blue);
+        }
+
+        .auth-header p {
+            color: var(--slate-gray);
+            font-size: 1rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--navy-blue);
+            font-size: 0.875rem;
+        }
+
+        .form-group input {
+            padding: 1rem;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            color: #059669;
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(5, 150, 105, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--accent-blue) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px 0 rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-register:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px 0 rgba(15, 23, 42, 0.4);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .auth-footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-home a {
+            color: var(--slate-gray);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .back-home a:hover {
+            color: var(--navy-blue);
+        }
+
+        .password-strength {
+            font-size: 0.75rem;
+            margin-top: -0.5rem;
+            color: var(--slate-gray);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 data-translate="register-title">Crea il tuo Account</h1>
+                <p data-translate="register-subtitle">Inizia a vendere di più con l'AI</p>
+            </div>
+
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label for="agency-name" data-translate="register-agency">Nome Agenzia *</label>
+                    <input type="text" id="agency-name" name="agency_name" required
+                        data-translate="register-agency-placeholder" placeholder="Nome della tua agenzia">
+                    <span class="error-message" id="agency-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" data-translate="register-email">Email *</label>
+                    <input type="email" id="email" name="email" required autocomplete="email"
+                        data-translate="register-email-placeholder" placeholder="tua@email.it">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" data-translate="register-phone">Telefono</label>
+                    <input type="tel" id="phone" name="phone" data-translate="register-phone-placeholder"
+                        placeholder="+39 123 456 7890">
+                    <span class="error-message" id="phone-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-translate="register-password">Password *</label>
+                    <input type="password" id="password" name="password" required autocomplete="new-password"
+                        data-translate="register-password-placeholder" placeholder="Minimo 8 caratteri" minlength="8">
+                    <span class="password-strength" data-translate="register-password-hint">
+                        Minimo 8 caratteri, una lettera maiuscola e un numero
+                    </span>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password" data-translate="register-confirm-password">Conferma Password *</label>
+                    <input type="password" id="confirm-password" name="confirm_password" required
+                        autocomplete="new-password" data-translate="register-confirm-password-placeholder"
+                        placeholder="Ripeti la password" minlength="8">
+                    <span class="error-message" id="confirm-password-error"></span>
+                </div>
+
+                <button type="submit" class="btn-register" id="register-btn">
+                    <span data-translate="register-button">Registrati</span>
+                </button>
+
+                <div id="register-success" class="success-message"></div>
+                <div id="register-error" class="error-message" style="text-align: center;"></div>
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    <span data-translate="register-have-account">Hai già un account?</span>
+                    <a href="/login.html" data-translate="register-login-link">Accedi</a>
+                </p>
+            </div>
+
+            <div class="back-home">
+                <a href="/" data-translate="register-back-home">
+                    <i class="ph ph-arrow-left"></i> Torna alla Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="appraisal/assets/bundle.min.js"></script>
+    <script src="auth-helper.js"></script>
+    <script>
+        const registerForm = document.getElementById('register-form');
+        const registerBtn = document.getElementById('register-btn');
+        const registerError = document.getElementById('register-error');
+        const registerSuccess = document.getElementById('register-success');
+
+        // Check if already logged in
+        AuthHelper.redirectIfLoggedIn();
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear previous messages
+            registerError.classList.remove('active');
+            registerSuccess.classList.remove('active');
+
+            const agencyName = document.getElementById('agency-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Validation
+            if (!agencyName || !email || !password || !confirmPassword) {
+                showError('Compila tutti i campi obbligatori');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Le password non corrispondono');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('La password deve contenere almeno 8 caratteri');
+                return;
+            }
+
+            // Disable button and show loading
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> <span data-translate="register-loading">Registrazione in corso...</span>';
+
+            try {
+                const { data, error } = await AuthHelper.register(email, password, {
+                    agency_name: agencyName,
+                    phone: phone
+                });
+
+                if (error) throw error;
+
+                // Success!
+                showSuccess('Registrazione completata! Controlla la tua email per confermare l\'account.');
+
+                // Redirect to login after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Registration error:', error);
+
+                let errorMessage = 'Errore durante la registrazione. Riprova.';
+
+                if (error.message.includes('already registered')) {
+                    errorMessage = 'Questa email è già registrata';
+                } else if (error.message.includes('Password')) {
+                    errorMessage = 'Password non valida. Deve contenere almeno 8 caratteri';
+                }
+
+                showError(errorMessage);
+
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = '<span data-translate="register-button">Registrati</span>';
+            }
+        });
+
+        function showError(message) {
+            registerError.textContent = message;
+            registerError.classList.add('active');
+        }
+
+        function showSuccess(message) {
+            registerSuccess.textContent = message;
+            registerSuccess.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

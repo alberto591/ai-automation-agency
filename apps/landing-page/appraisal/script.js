@@ -512,19 +512,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         displayAppraisalResults(appraisal, submitBtn);
                     }, 150); // Minimal delay for visual feedback of completion
                 })
+                .catch(error => {
+                    console.error('Appraisal error:', error);
 
-        })
-            .catch(error => {
-                console.error('Appraisal error:', error);
+                    // Get appropriate error message
+                    const errorInfo = getErrorMessage(error);
+                    showNotification(errorInfo.message, errorInfo.type);
 
-                // Get appropriate error message
-                const errorInfo = getErrorMessage(error);
-                showNotification(errorInfo.message, errorInfo.type);
-
-                // Reset button state
-                submitBtn.innerHTML = `<span data-translate="appraisal-cta">${t('appraisal-cta')}</span> <i class="ph ph-arrow-right"></i>`;
-                submitBtn.disabled = false;
-            });
+                    // Reset button state
+                    submitBtn.innerHTML = `<span data-translate="appraisal-cta">${t('appraisal-cta')}</span> <i class="ph ph-arrow-right"></i>`;
+                    submitBtn.disabled = false;
+                });
+        });
     }
 
     // Typing Animation for Hero Chat
@@ -1188,7 +1187,49 @@ const translations = {
         'notif-pref': 'Preferenza: Trilocale Prati',
         'ai-active': 'AI Attivo',
         'appraisal-sqm-placeholder': 'Superficie (mq)',
-        'appraisal-res-feedback': 'Lascia un Feedback'
+        'appraisal-res-feedback': 'Lascia un Feedback',
+        'notif-score': 'Punteggio',
+        'testimonial-quote': '"In 3 mesi abbiamo aumentato le vendite del 340%. L\'AI risponde meglio di molti agenti umani."',
+        'testimonial-role': 'Direttore, Milano Premium Real Estate',
+        'appraisal-cta-button': 'Prova Gratuitamente Fifi AI',
+        'chat-entry-client': 'Ciao, sono interessato a un trilocale a Roma zona Prati',
+        'chat-entry-ai': 'Perfetto! Ho trovato 3 trilocali disponibili a Prati. Posso inviarti le foto e organizzare una visita per domani?',
+        'chat-entry-feedback': 'Sì, mi interessa! Grazie per la velocità',
+        // Authentication
+        'nav-login': 'Accedi',
+        'nav-logout': 'Esci',
+        'login-page-title': 'Accedi | Anzevino AI Real Estate',
+        'login-title': 'Accedi al tuo Account',
+        'login-subtitle': 'Gestisci la tua agenzia con l\'AI',
+        'login-email': 'Email',
+        'login-password': 'Password',
+        'login-button': 'Accedi',
+        'login-loading': 'Accesso in corso...',
+        'login-no-account': 'Non hai un account?',
+        'login-register-link': 'Registrati',
+        'login-forgot': 'Password dimenticata?',
+        'login-back-home': 'Torna alla Home',
+        'login-email-placeholder': 'tua@email.it',
+        'login-password-placeholder': '••••••••',
+        'register-page-title': 'Registrati | Anzevino AI Real Estate',
+        'register-title': 'Crea il tuo Account',
+        'register-subtitle': 'Inizia a vendere di più con l\'AI',
+        'register-agency': 'Nome Agenzia',
+        'register-email': 'Email',
+        'register-phone': 'Telefono',
+        'register-password': 'Password',
+        'register-confirm-password': 'Conferma Password',
+        'register-button': 'Registrati',
+        'register-loading': 'Registrazione in corso...',
+        'register-have-account': 'Hai già un account?',
+        'register-login-link': 'Accedi',
+        'register-back-home': 'Torna alla Home',
+        'register-agency-placeholder': 'Nome della tua agenzia',
+        'register-email-placeholder': 'tua@email.it',
+        'register-phone-placeholder': '+39 123 456 7890',
+        'register-password-placeholder': 'Minimo 8 caratteri',
+        'register-password-hint': 'Minimo 8 caratteri, una lettera maiuscola e un numero',
+        'register-confirm-password-placeholder': 'Ripeti la password'
     },
     en: {
         // Navigation
@@ -1418,7 +1459,49 @@ const translations = {
         'notif-pref': 'Preference: 3-room Prati',
         'ai-active': 'AI Active',
         'appraisal-sqm-placeholder': 'Surface Area (sqm)',
-        'appraisal-res-feedback': 'Leave Feedback'
+        'appraisal-res-feedback': 'Leave Feedback',
+        'notif-score': 'Score',
+        'testimonial-quote': '"In 3 months we increased sales by 340%. The AI responds better than many human agents."',
+        'testimonial-role': 'Director, Milan Premium Real Estate',
+        'appraisal-cta-button': 'Try Fifi AI for free',
+        'chat-entry-client': 'Hello, I am interested in a 3-room apartment in Rome, Prati area',
+        'chat-entry-ai': 'Perfect! I found 3 available apartments in Prati. Shall I send photos and schedule a viewing for tomorrow?',
+        'chat-entry-feedback': 'Yes, I\'m interested! Thanks for the speed',
+        // Authentication
+        'nav-login': 'Login',
+        'nav-logout': 'Logout',
+        'login-page-title': 'Login | Anzevino AI Real Estate',
+        'login-title': 'Login to your Account',
+        'login-subtitle': 'Manage your agency with AI',
+        'login-email': 'Email',
+        'login-password': 'Password',
+        'login-button': 'Login',
+        'login-loading': 'Logging in...',
+        'login-no-account': 'Don\'t have an account?',
+        'login-register-link': 'Sign up',
+        'login-forgot': 'Forgot password?',
+        'login-back-home': 'Back to Home',
+        'login-email-placeholder': 'your@email.com',
+        'login-password-placeholder': '••••••••',
+        'register-page-title': 'Sign Up | Anzevino AI Real Estate',
+        'register-title': 'Create your Account',
+        'register-subtitle': 'Start selling more with AI',
+        'register-agency': 'Agency Name',
+        'register-email': 'Email',
+        'register-phone': 'Phone',
+        'register-password': 'Password',
+        'register-confirm-password': 'Confirm Password',
+        'register-button': 'Sign up',
+        'register-loading': 'Signing up...',
+        'register-have-account': 'Already have an account?',
+        'register-login-link': 'Login',
+        'register-back-home': 'Back to Home',
+        'register-agency-placeholder': 'Your agency name',
+        'register-email-placeholder': 'your@email.com',
+        'register-phone-placeholder': '+39 123 456 7890',
+        'register-password-placeholder': 'Minimum 8 characters',
+        'register-password-hint': 'Minimum 8 characters, one uppercase letter and one number',
+        'register-confirm-password-placeholder': 'Repeat password'
     }
 };
 
@@ -1460,6 +1543,18 @@ function switchLanguage(language) {
         window.history.pushState({}, '', newUrl);
     } else {
         window.history.pushState({}, '', `${currentUrl}?lang=${language}`);
+    }
+
+    // Update home link to preserve language
+    const homeLink = document.getElementById('home-link');
+    if (homeLink) {
+        homeLink.href = `/?lang=${language}`;
+    }
+
+    // Update login link to preserve language
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) {
+        loginLink.href = `/login.html?lang=${language}`;
     }
 
     // Store language preference
@@ -1636,8 +1731,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const imgWidth = 210;
                 const imgHeight = canvas.height * imgWidth / canvas.width;
 
+                const today = new Date().toISOString().split('T')[0];
                 pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-                pdf.save('Anzevino_AI_Valuation.pdf');
+                pdf.save(`Anzevino_AI_Valuation_${today}.pdf`);
 
                 const successMsg = isItalian ? 'Report PDF scaricato con successo!' : 'PDF Report downloaded successfully!';
                 if (typeof showNotification === 'function') {

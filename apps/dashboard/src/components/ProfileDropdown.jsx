@@ -13,20 +13,23 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
         async function fetchProfile() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const token = session?.access_token;
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
 
-                const response = await fetch('/api/user/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
 
-                if (response.ok) {
-                    const data = await response.json();
-                    setProfile(data);
+                if (error) {
+                    console.error("Failed to fetch profile:", error);
                 } else {
-                    console.error("Failed to fetch profile with status:", response.status);
+                    setProfile({
+                        ...data,
+                        name: user.email.split('@')[0], // Fallback name
+                        email: user.email
+                    });
                 }
             } catch (error) {
                 console.error("Error fetching profile", error);

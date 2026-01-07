@@ -4,42 +4,38 @@ import sys
 from dotenv import load_dotenv
 from supabase import Client, create_client
 
-# Load env variables
-load_dotenv()
+# Work from the root directory
+load_dotenv(".env")
 
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
 
 if not url or not key:
-    print("❌ Error: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not found in .env")
-    print("Please ensure you have the SERVICE_ROLE_KEY (not just anon key) in your .env file.")
+    print("Error: SUPABASE_URL or SUPABASE_KEY not found in environment")
     sys.exit(1)
 
 supabase: Client = create_client(url, key)
 
+email = "admin@agenzia.ai"
+password = "Password123!"
 
-def create_user():
-    email = "admin@agenzia.ai"
-    password = "Password123!"
+try:
+    print(f"Attempting to register {email}...")
+    res = supabase.auth.sign_up(
+        {
+            "email": email,
+            "password": password,
+            "options": {"data": {"agency_name": "Admin Agency", "phone": "+3900000000"}},
+        }
+    )
 
-    print(f"Creating user: {email}...")
-
-    try:
-        # Create user with auto-confirmation
-        response = supabase.auth.admin.create_user(
-            {"email": email, "password": password, "email_confirm": True}
-        )
-        print("\n✅ Admin User Created Successfully!")
-        print(f"Email:    {email}")
-        print(f"Password: {password}")
-        print(
-            "\n👉 You can use these credentials to log in to the dashboard locally or in production."
-        )
-
-    except Exception as e:
-        print(f"\n❌ Failed to create user: {e}")
-        print("Note: If the user already exists, try logging in with the existing password.")
-
-
-if __name__ == "__main__":
-    create_user()
+    if res.user:
+        print(f"✅ User {email} created successfully!")
+        print("Note: Check your email for a confirmation link if email confirmation is enabled.")
+    else:
+        print("❌ Registration failed. No user returned.")
+except Exception as e:
+    if "already registered" in str(e).lower():
+        print(f"ℹ️ User {email} is already registered.")
+    else:
+        print(f"❌ Error: {e}")
