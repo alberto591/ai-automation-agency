@@ -99,6 +99,20 @@ class Container:
             performance_logger=self.performance_logger,
         )
 
+        # Stripe Connect (lazy loaded)
+        self._stripe_connect: Any | None = None
+
+    @property
+    def stripe_connect(self) -> Any:
+        """Lazy load Stripe Connect adapter."""
+        if not self._stripe_connect:
+            from infrastructure.adapters.stripe_connect_adapter import (  # noqa: PLC0415
+                StripeConnectAdapter,
+            )
+
+            self._stripe_connect = StripeConnectAdapter()
+        return self._stripe_connect
+
     @property
     def lead_ingestion(self) -> LeadIngestionService:
         return LeadIngestionService(lead_processor=self.lead_processor)

@@ -1,0 +1,123 @@
+{
+    "templates": [
+        {
+            "name": "lead_welcome",
+            "category": "UTILITY",
+            "language": "it",
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": "Ciao {{1}}! 👋 Sono l'assistente virtuale di {{2}}. Come posso aiutarti oggi nella ricerca del tuo immobile ideale?",
+                    "example": {
+                        "body_text": [
+                            [
+                                "Marco",
+                                "Agenzia Immobiliare Roma"
+                            ]
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "property_match",
+            "category": "UTILITY",
+            "language": "it",
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": "🏠 Abbiamo trovato {{1}} immobili che corrispondono alle tue preferenze!\n\nVuoi vedere i dettagli o modificare i criteri di ricerca?",
+                    "example": {
+                        "body_text": [
+                            [
+                                "5"
+                            ]
+                        ]
+                    }
+                },
+                {
+                    "type": "BUTTONS",
+                    "buttons": [
+                        {
+                            "type": "QUICK_REPLY",
+                            "text": "Vedi Immobili"
+                        },
+                        {
+                            "type": "QUICK_REPLY",
+                            "text": "Modifica Ricerca"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "appointment_reminder",
+            "category": "UTILITY",
+            "language": "it",
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": "📅 Promemoria Appuntamento\n\n{{1}}\n📍 Data: {{2}}\n🕐 Ora: {{3}}\n\nHai bisogno di modificare l'appuntamento?",
+                    "example": {
+                        "body_text": [
+                            [
+                                "Visita appartamento Via Roma 123",
+                                "15 Gennaio 2026",
+                                "10:30"
+                            ]
+                        ]
+                    }
+                },
+                {
+                    "type": "BUTTONS",
+                    "buttons": [
+                        {
+                            "type": "QUICK_REPLY",
+                            "text": "Conferma"
+                        },
+                        {
+                            "type": "QUICK_REPLY",
+                            "text": "Riprogramma"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "payment_reminder",
+            "category": "UTILITY",
+            "language": "it",
+            "components": [
+                {
+                    "type": "BODY",
+                    "text": "💰 Promemoria Pagamento\n\nImporto: €{{1}}\nScadenza: {{2}}\nDescrizione: {{3}}\n\nVuoi procedere con il pagamento?",
+                    "example": {
+                        "body_text": [
+                            [
+                                "1,500.00",
+                                "20 Gennaio 2026",
+                                "Caparra appartamento Via Milano"
+                            ]
+                        ]
+                    }
+                },
+                {
+                    "type": "BUTTONS",
+                    "buttons": [
+                        {
+                            "type": "URL",
+                            "text": "Paga Ora",
+                            "url": "https://pay.stripe.com/{{1}}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "submission_notes": {
+        "business_name": "Agenzia AI",
+        "use_case": "Real estate lead management and appointment scheduling",
+        "expected_volume": "1,000-5,000 messages/month",
+        "target_audience": "Property buyers and renters in Italy"
+    }
+}

@@ -223,3 +223,40 @@ class CachePort(ABC):
     @abstractmethod
     def delete(self, key: str) -> None:
         pass
+
+
+class PaymentPort(ABC):
+    """Port for payment processing and multi-party splits."""
+
+    @abstractmethod
+    def create_connected_account(self, agent_email: str, agent_name: str) -> dict[str, Any]:
+        """Create a connected account for an agent."""
+        pass
+
+    @abstractmethod
+    def create_payment_with_fee(
+        self,
+        amount_cents: int,
+        currency: str,
+        agent_account_id: str,
+        description: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Create payment with platform fee split."""
+        pass
+
+    @abstractmethod
+    def get_agent_dashboard_link(self, account_id: str) -> str:
+        """Generate dashboard login link for agent."""
+        pass
+
+    @abstractmethod
+    def create_payment_link(
+        self,
+        amount_cents: int,
+        currency: str,
+        description: str,
+        agent_account_id: str | None = None,
+    ) -> str:
+        """Create a shareable payment link."""
+        pass

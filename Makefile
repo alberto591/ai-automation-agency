@@ -1,16 +1,17 @@
-.PHONY: help install lint format typecheck test clean run pre-flight
+.PHONY: help install lint format typecheck test clean run pre-flight check-deploy
 
 help:
 	@echo "Available commands:"
-	@echo "  make install    - Install dependencies and pre-commit hooks"
-	@echo "  make lint       - Run ruff linter"
-	@echo "  make format     - Format code with ruff"
-	@echo "  make typecheck  - Run mypy type checker"
-	@echo "  make test       - Run pytest"
-	@echo "  make clean      - Remove cache files"
-	@echo "  make run        - Start the FastAPI server"
-	@echo "  make pre-flight - Run comprehensive quality checks before pushing"
-	@echo "  make check-all  - Run all quality checks (lint + typecheck + test)"
+	@echo "  make install        - Install dependencies and pre-commit hooks"
+	@echo "  make lint           - Run ruff linter"
+	@echo "  make format         - Format code with ruff"
+	@echo "  make typecheck      - Run mypy type checker"
+	@echo "  make test           - Run pytest"
+	@echo "  make clean          - Remove cache files"
+	@echo "  make run            - Start the FastAPI server"
+	@echo "  make pre-flight     - Run comprehensive quality checks before pushing"
+	@echo "  make check-all      - Run all quality checks (lint + typecheck + test)"
+	@echo "  make check-deploy   - Verify remote deployment status (GitHub + Vercel)"
 
 pre-flight:
 	./venv/bin/python scripts/pre_flight_check.py
@@ -43,3 +44,6 @@ run:
 
 check-all: lint typecheck test
 	@echo "✅ All checks passed!"
+
+check-deploy:
+	./venv/bin/python scripts/check_deployment.py

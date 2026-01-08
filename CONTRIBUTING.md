@@ -55,6 +55,17 @@ refactor: Extract market adapter logic
 - **Scripts naming**: `{action}_{target}_{qualifier}.py`
 - **Markdown naming**: `{YYYY-MM-DD}_{slug}.md`
 
+### 9. Deployment Verification
+After pushing to `master`, you must verify the deployment status:
+```bash
+make check-deploy
+```
+This script checks:
+- GitHub Actions (Lint, Test)
+- Vercel Deployment Status (via links)
+
+**Note:** You need `GITHUB_TOKEN` set in your environment for this command to work.
+
 ## Architecture Principles
 - **Hexagonal Architecture**: Domain must not import from infrastructure
 - **Dependency Injection**: Use `config/container.py` as composition root

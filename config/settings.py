@@ -77,6 +77,11 @@ class Settings(BaseSettings):
     IMAP_EMAIL: str = Field(default="")
     IMAP_PASSWORD: str = Field(default="")
 
+    # Stripe Connect
+    STRIPE_SECRET_KEY: str = Field(default="")
+    STRIPE_CONNECT_CLIENT_ID: str = Field(default="")
+    BASE_URL: str = Field(default="https://agenzia-ai.vercel.app")
+
     # External APIs
     RAPIDAPI_KEY: str | None = None
 
