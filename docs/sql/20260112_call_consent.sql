@@ -10,14 +10,12 @@ CREATE TABLE IF NOT EXISTS call_consents (
     consent_timestamp TIMESTAMPTZ,
     consent_method TEXT CHECK (consent_method IN ('ivr', 'verbal', 'written')),
     recording_url TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-
-    -- Index for quick lookup by phone
-    CONSTRAINT idx_call_consents_phone INDEX (phone),
-
-    -- Index for compliance audits
-    CONSTRAINT idx_call_consents_timestamp INDEX (consent_timestamp DESC)
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_call_consents_phone ON call_consents(phone);
+CREATE INDEX IF NOT EXISTS idx_call_consents_timestamp ON call_consents(consent_timestamp DESC);
 
 -- Add RLS policies
 ALTER TABLE call_consents ENABLE ROW LEVEL SECURITY;
