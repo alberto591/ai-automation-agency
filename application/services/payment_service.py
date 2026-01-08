@@ -47,7 +47,6 @@ class PaymentService:
         for payment in candidates:
             try:
                 due_date = datetime.fromisoformat(str(payment["due_date"])).date()
-                lead_id = payment["lead_id"]
                 days_until_due = (due_date - today).days
 
                 # Determine if we should send a reminder today

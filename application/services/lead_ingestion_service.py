@@ -2,7 +2,6 @@ from typing import Any
 
 from application.services.lead_processor import LeadProcessor
 from domain.errors import BaseAppError
-from domain.lead_sources import LeadSourceType
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
@@ -63,7 +62,7 @@ class LeadIngestionService:
         try:
             name = data.get("name") or data.get("full_name")
             phone = data.get("phone") or data.get("phone_number")
-            email = data.get("email")
+
             notes = data.get("notes") or data.get("message")
             budget = data.get("budget")
 
@@ -71,13 +70,13 @@ class LeadIngestionService:
                 raise BaseAppError("Missing phone number in payload")
 
             # Normalize source
-            src_enum = LeadSourceType.MANUAL
+            # src_enum = LeadSourceType.MANUAL # Removed unused variable
             if source.lower() == "facebook":
-                src_enum = LeadSourceType.FACEBOOK
+                pass  # src_enum = LeadSourceType.FACEBOOK
             elif source.lower() == "google":
-                src_enum = LeadSourceType.GOOGLE
+                pass  # src_enum = LeadSourceType.GOOGLE
             elif source.lower() == "zapier":
-                src_enum = LeadSourceType.ZAPIER
+                pass  # src_enum = LeadSourceType.ZAPIER
 
             # Process
             query = f"Source: {source}. Notes: {notes}"

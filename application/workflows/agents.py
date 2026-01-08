@@ -827,41 +827,36 @@ def create_lead_processing_graph(
                     # Fallback to text if interactive fails
                     logger.error("INTERACTIVE_SEND_FAILED", context={"error": str(e)})
                     msg.send_message(phone, response)
-            else:
-                # Standard Text Message
-                # Check for Rich Content needed
-                # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
-                # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
-                if (
-                    state["source"] == "WHATSAPP"
-                    and state.get("retrieved_properties")
-                    and "list" not in state["status_msg"]  # Avoid loops if we flagging it
-                ):
-                    rows = []
-                    from domain.messages import Row, Section
+            elif (
+                state["source"] == "WHATSAPP"
+                and state.get("retrieved_properties")
+                and "list" not in state["status_msg"]  # Avoid loops if we flagging it
+            ):
+                rows = []
+                from domain.messages import Row, Section
 
-                    for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
-                        rows.append(
-                            Row(
-                                id=f"prop_{p.get('id', '0')}",
-                                title=p.get("title", "Property")[:24],
-                                description=f"€{p.get('price', 0):,}",
-                            )
+                for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
+                    rows.append(
+                        Row(
+                            id=f"prop_{p.get('id', '0')}",
+                            title=p.get("title", "Property")[:24],
+                            description=f"€{p.get('price', 0):,}",
                         )
-
-                    msg_model = InteractiveMessage(
-                        type="list",
-                        body_text=response[:1024],  # Truncate body if needed
-                        button_text="View Homes",
-                        sections=[Section(title="Top Matches", rows=rows)],
                     )
-                    try:
-                        msg.send_interactive_message(phone, msg_model)
-                    except Exception:
-                        # Fallback to text if interactive fails (e.g. not implemented in mock)
-                        msg.send_message(phone, response)
-                else:
+
+                msg_model = InteractiveMessage(
+                    type="list",
+                    body_text=response[:1024],  # Truncate body if needed
+                    button_text="View Homes",
+                    sections=[Section(title="Top Matches", rows=rows)],
+                )
+                try:
+                    msg.send_interactive_message(phone, msg_model)
+                except Exception:
+                    # Fallback to text if interactive fails (e.g. not implemented in mock)
                     msg.send_message(phone, response)
+            else:
+                msg.send_message(phone, response)
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:
