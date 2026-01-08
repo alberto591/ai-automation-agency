@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Perplexity Labs (Research)
     PERPLEXITY_API_KEY: str = Field(default="")
 
+    # Deepgram (Voice Transcription)
+    DEEPGRAM_API_KEY: str = Field(default="")
+
     # Redis Cache (Optional)
     REDIS_URL: str = Field(default="")  # e.g., redis://localhost:6379/0
 

@@ -49,6 +49,26 @@ class Lead:
 
 
 @dataclass
+class HandoffRequest:
+    phone: str
+    reason: str
+    agency_name: str
+    timestamp: datetime = field(default_factory=datetime.now)
+
+
+@dataclass
+class CallConsent:
+    """GDPR-compliant call recording consent."""
+
+    call_id: str
+    phone: str
+    consent_given: bool
+    consent_timestamp: datetime | None = None
+    consent_method: str = "ivr"  # 'ivr', 'verbal', 'written'
+    recording_url: str | None = None
+
+
+@dataclass
 class Agent:
     id: str
     email: str
