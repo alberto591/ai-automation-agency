@@ -16,6 +16,7 @@ from fastapi import (
     Request,
     Response,
 )
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
@@ -261,9 +262,64 @@ async def twilio_status_callback(
     return "OK"
 
 
+@app.get("/")
+def read_root() -> dict[str, str]:
+    return {"status": "ok", "service": "Agenzia AI API"}
+
+
 @app.get("/health")
-async def health_check() -> dict[str, str]:
-    return {"status": "healthy", "service": "anzevino-ai-api"}
+def health_check() -> dict[str, Any]:
+    """
+    Basic health check - returns 200 if the service is running.
+    Used by uptime monitors and load balancers.
+    """
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "agenzia-ai-api",
+        "version": "1.0.0",
+    }
+
+
+@app.get("/ready")
+def readiness_check() -> dict[str, Any]:
+    """
+    Readiness check - verifies all critical dependencies are available.
+    Returns 503 if any dependency is unavailable.
+    """
+    checks = {}
+    all_ready = True
+
+    # Check database connectivity
+    try:
+        # Quick query to verify DB connection
+        result = container.db.client.table("leads").select("count", count="exact").limit(1).execute()
+        checks["database"] = {"status": "up", "count": result.count if result else 0}
+    except Exception as e:
+        checks["database"] = {"status": "down", "error": str(e)}
+        all_ready = False
+
+    # Check Redis/cache (if configured)
+    try:
+        if container.cache:
+            # Test cache with a simple get operation
+            container.cache.get("_health_check")
+            checks["cache"] = {"status": "up"}
+        else:
+            checks["cache"] = {"status": "not configured"}
+    except Exception as e:
+        checks["cache"] = {"status": "down", "error": str(e)}
+        all_ready = False
+
+    status_code = 200 if all_ready else 503
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "ready" if all_ready else "not ready",
+            "timestamp": datetime.utcnow().isoformat(),
+            "checks": checks,
+        },
+    )
 
 
 @app.get("/metrics")
@@ -725,7 +781,7 @@ async def generate_sales_report_endpoint(req: SalesReportRequest) -> dict[str, A
             )
 
         ai_advice = "Monitorare i lead 'Hot' e sollecitare il feedback post-visita."
-        if hot_leads > MIN_HOT_LEADS_FOR_QUICK_CLOSE:
+        if hot_leads > min_hot_leads_for_quick_close:
             ai_advice = (
                 "Alta probabilità di chiusura breve. "
                 "Concentrarsi sui 3 lead più caldi per negoziazione."
