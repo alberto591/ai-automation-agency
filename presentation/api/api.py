@@ -10,7 +10,6 @@ from fastapi import (
     Depends,
     FastAPI,
     Form,
-    Header,
     HTTPException,
     Query,
     Request,
@@ -102,12 +101,6 @@ app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
 app.include_router(lead_sources.router, prefix="/api")
 app.include_router(feedback.router, prefix="/api")
-
-
-async def verify_webhook_key(x_webhook_key: str = Header(None)) -> None:
-    if settings.WEBHOOK_API_KEY and x_webhook_key != settings.WEBHOOK_API_KEY:
-        logger.warning("UNAUTHORIZED_WEBHOOK_ATTEMPT", context={"key": x_webhook_key})
-        raise HTTPException(status_code=401, detail="Unauthorized") from None
 
 
 # DTOs

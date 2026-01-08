@@ -6,7 +6,7 @@ from fastapi import APIRouter, Header, HTTPException, Query, Request
 from config.container import container
 from config.settings import settings
 from infrastructure.logging import get_logger
-from presentation.api.api import verify_webhook_key
+from presentation.api.security import verify_webhook_key
 
 logger = get_logger(__name__)
 
