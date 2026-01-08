@@ -16,8 +16,8 @@ from fastapi import (
     Request,
     Response,
 )
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 
@@ -293,7 +293,9 @@ def readiness_check() -> dict[str, Any]:
     # Check database connectivity
     try:
         # Quick query to verify DB connection
-        result = container.db.client.table("leads").select("count", count="exact").limit(1).execute()
+        result = (
+            container.db.client.table("leads").select("count", count="exact").limit(1).execute()
+        )
         checks["database"] = {"status": "up", "count": result.count if result else 0}
     except Exception as e:
         checks["database"] = {"status": "down", "error": str(e)}
