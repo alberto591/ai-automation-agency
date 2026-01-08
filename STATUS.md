@@ -13,6 +13,7 @@
 - ✅ Sales & marketing materials completed
 - ✅ Health check endpoints deployed
 - ✅ Monitoring infrastructure configured
+- ✅ Waliner Feature Parity (Sprint 1-3) completed
 - 🔄 Load testing & performance validation
 - 🔄 Documentation completion
 
@@ -65,6 +66,10 @@
 - ✅ `/ready` endpoint for deployment validation
 - ✅ Monitoring guide created
 - ✅ Cache functionality verified (16/16 tests passing)
+- ✅ ADR-064 Automated Payment Reminders
+- ✅ ADR-065 Multi-Agent Routing (Zone Affinity)
+- ✅ ADR-066 Lead Ingestion Webhooks
+- ✅ Unit tests for Routing, Payments, and Ingestion services (Passed)
 
 ---
 

@@ -45,3 +45,30 @@ class Lead:
     last_msg: str | None = None
     ai_notes: str | None = None
     updated_at: datetime | None = None
+    assigned_agent_id: str | None = None
+
+
+@dataclass
+class Agent:
+    id: str
+    email: str
+    full_name: str | None = None
+    role: str = "agent"
+    zones: list[str] = field(default_factory=list)
+    is_active: bool = True
+
+
+@dataclass
+class PaymentSchedule:
+    lead_id: str
+    amount: float
+    due_date: datetime
+    id: str | None = None
+    description: str | None = None
+    currency: str = "EUR"
+    recurrence: str = "one_time"  # monthly, one_time
+    reminder_days: list[int] = field(default_factory=lambda: [7, 3, 0])
+    status: str = "active"
+    stripe_link: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    created_at: datetime | None = None

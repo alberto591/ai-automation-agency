@@ -2,8 +2,11 @@ from typing import TYPE_CHECKING, Any
 
 from application.services.appraisal import AppraisalService
 from application.services.journey_manager import JourneyManager
+from application.services.lead_ingestion_service import LeadIngestionService
 from application.services.lead_processor import LeadProcessor, LeadScorer
 from application.services.market_intelligence import MarketIntelligenceService
+from application.services.payment_service import PaymentService
+from application.services.routing_service import RoutingService
 from config.settings import settings
 from domain.ports import CachePort, CalendarPort, MessagingPort
 
@@ -64,6 +67,9 @@ class Container:
             db=self.db, calendar=self.calendar, doc_gen=self.doc_gen, msg=self.msg
         )
 
+        self.payment_service: PaymentService = PaymentService(db=self.db, msg=self.msg)
+        self.routing_service: RoutingService = RoutingService(db=self.db)
+
         self.scorer: LeadScorer = LeadScorer()
         self.lead_processor: LeadProcessor = LeadProcessor(
             db=self.db,
@@ -76,6 +82,7 @@ class Container:
             calendar=self.calendar,
             email=self.email,
             validation=self.validation,
+            routing=self.routing_service,
         )
 
         # Local property search (for performance optimization)
@@ -91,6 +98,10 @@ class Container:
             local_search=self.local_property_search,
             performance_logger=self.performance_logger,
         )
+
+    @property
+    def lead_ingestion(self) -> LeadIngestionService:
+        return LeadIngestionService(lead_processor=self.lead_processor)
 
     @property
     def sheets(self) -> Any:

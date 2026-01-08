@@ -249,3 +249,76 @@ class SupabaseAdapter(DatabasePort):
         except Exception as e:
             logger.error("UPDATE_MESSAGE_STATUS_FAILED", context={"sid": sid, "error": str(e)})
             raise DatabaseError("Failed to update message status", cause=str(e)) from e
+
+    def save_payment_schedule(self, schedule: dict[str, Any]) -> str:
+        try:
+            # Upsert schedule
+            res = self.client.table("payment_schedules").upsert(schedule).execute()
+
+            if not res.data:
+                raise DatabaseError("Failed to save payment schedule")
+
+            return str(res.data[0]["id"])
+        except Exception as e:
+            logger.error("SAVE_PAYMENT_FAILED", context={"error": str(e)})
+            raise DatabaseError("Failed to save payment schedule", cause=str(e)) from e
+
+    def get_due_payments(self, date_limit: datetime) -> list[dict[str, Any]]:
+        try:
+            # Fetch payments due <= date_limit, join with leads to get phone
+            res = (
+                self.client.table("payment_schedules")
+                .select("*, leads(customer_phone)")
+                .lte("due_date", date_limit.isoformat())
+                .in_(
+                    "status", ["active", "paused"]
+                )  # Include paused? Maybe not. defaulting to active.
+                .execute()
+            )
+
+            data = cast(list[dict[str, Any]], res.data)
+            results = []
+            for item in data:
+                # Flatten lead phone
+                lead = item.get("leads") or {}
+                # Supabase join returns dict or list depending on relation, usually dict for 1:1 or N:1
+                phone = lead.get("customer_phone")
+
+                payment = item.copy()
+                payment["lead_phone"] = phone
+                if "leads" in payment:
+                    del payment["leads"]
+                results.append(payment)
+
+            return results
+        except Exception as e:
+            logger.error("GET_DUE_PAYMENTS_FAILED", context={"error": str(e)})
+            raise DatabaseError("Failed to fetch due payments", cause=str(e)) from e
+
+    def get_active_agents(self) -> list[dict[str, Any]]:
+        try:
+            res = (
+                self.client.table("users")
+                .select("id, email, full_name, role, zones")
+                .eq("is_active", True)
+                .eq("role", "agent")
+                .execute()
+            )
+            return cast(list[dict[str, Any]], res.data)
+        except Exception as e:
+            logger.error("GET_ACTIVE_AGENTS_FAILED", context={"error": str(e)})
+            # Return empty list instead of crashing, to allow fail-open
+            return []
+
+    def assign_lead_to_agent(self, lead_id: str, agent_id: str) -> None:
+        try:
+            self.client.table("leads").update({"assigned_agent_id": agent_id}).eq(
+                "id", lead_id
+            ).execute()
+            logger.info("LEAD_ASSIGNED", context={"lead_id": lead_id, "agent_id": agent_id})
+        except Exception as e:
+            logger.error(
+                "LEAD_ASSIGNMENT_FAILED",
+                context={"lead_id": lead_id, "agent_id": agent_id, "error": str(e)},
+            )
+            raise DatabaseError("Failed to assign lead", cause=str(e)) from e

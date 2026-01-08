@@ -11,6 +11,7 @@ from application.services.lead_scoring_service import LeadScoringService
 from config.settings import settings
 from domain.enums import LeadStatus
 from domain.handoff import HandoffReason, HandoffRequest
+from domain.messages import InteractiveMessage
 from domain.ports import AIPort, CalendarPort, DatabasePort, MessagingPort
 from domain.qualification import Intent, QualificationData
 from domain.services.logging import get_logger
@@ -81,8 +82,10 @@ class AgentState(TypedDict):
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
     language: Literal["it", "en"]
     fifi_data: dict[str, Any]  # Appraisal results
+
     qualification_data: dict[str, Any]  # Serialized QualificationData
     lead_score: dict[str, Any]  # Serialized LeadScore
+    interactive_message: InteractiveMessage | None  # New field for button/list payloads
 
 
 def create_lead_processing_graph(
@@ -193,6 +196,7 @@ def create_lead_processing_graph(
             "fifi_data": {},
             "qualification_data": lead.get("metadata", {}).get("qualification_data", {}),
             "lead_score": lead.get("metadata", {}).get("lead_score", {}),
+            "interactive_message": None,
         }
 
     def fifi_appraisal_node(state: AgentState) -> dict[str, Any]:
@@ -385,9 +389,22 @@ def create_lead_processing_graph(
 
         if next_q:
             # Ask the next question using strict template
+            # Ask the next question using strict template
+            # Check if we can use an Interactive Message (Buttons/List)
+            from application.services.message_builder import MessageBuilder
+
+            interactive_msg = None
+            if next_q["field_name"] == "intent":
+                interactive_msg = MessageBuilder.create_qualification_buttons(
+                    header=next_q["text"], body="Cosa vorresti fare?"
+                )
+            elif next_q["field_name"] == "budget":
+                interactive_msg = MessageBuilder.create_budget_buttons(header=next_q["text"])
+
             return {
                 "ai_response": next_q["text"],
                 "qualification_data": qual_data.model_dump(),
+                "interactive_message": interactive_msg,
                 "checkpoint": "done",  # Skip generation_node
             }
         else:
@@ -797,38 +814,54 @@ def create_lead_processing_graph(
             db.save_message(lead["id"], assistant_msg)
 
             # 2. Send Message via Messaging Port
-            # Check for Rich Content needed
-            # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
-            if (
-                state["source"] == "WHATSAPP"
-                and state.get("retrieved_properties")
-                and "list" not in state["status_msg"]  # Avoid loops if we flagging it
-            ):
-                from domain.messages import InteractiveMessage, Row, Section
+            inter_msg = state.get("interactive_message")
 
-                rows = []
-                for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
-                    rows.append(
-                        Row(
-                            id=f"prop_{p.get('id', '0')}",
-                            title=p.get("title", "Property")[:24],
-                            description=f"€{p.get('price', 0):,}",
-                        )
-                    )
-
-                msg_model = InteractiveMessage(
-                    type="list",
-                    body_text=response[:1024],  # Truncate body if needed
-                    button_text="View Homes",
-                    sections=[Section(title="Top Matches", rows=rows)],
-                )
+            if inter_msg:
+                # Send Interactive Message (Buttons/List)
                 try:
-                    msg.send_interactive_message(phone, msg_model)
-                except Exception:
-                    # Fallback to text if interactive fails (e.g. not implemented in mock)
+                    msg.send_interactive_message(phone, inter_msg)
+                    logger.info(
+                        "INTERACTIVE_MSG_SENT", context={"phone": phone, "type": inter_msg.type}
+                    )
+                except Exception as e:
+                    # Fallback to text if interactive fails
+                    logger.error("INTERACTIVE_SEND_FAILED", context={"error": str(e)})
                     msg.send_message(phone, response)
             else:
-                msg.send_message(phone, response)
+                # Standard Text Message
+                # Check for Rich Content needed
+                # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
+                # Heuristic: If we retrieved properties and source is WhatsApp, send visual list
+                if (
+                    state["source"] == "WHATSAPP"
+                    and state.get("retrieved_properties")
+                    and "list" not in state["status_msg"]  # Avoid loops if we flagging it
+                ):
+                    rows = []
+                    from domain.messages import Row, Section
+
+                    for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
+                        rows.append(
+                            Row(
+                                id=f"prop_{p.get('id', '0')}",
+                                title=p.get("title", "Property")[:24],
+                                description=f"€{p.get('price', 0):,}",
+                            )
+                        )
+
+                    msg_model = InteractiveMessage(
+                        type="list",
+                        body_text=response[:1024],  # Truncate body if needed
+                        button_text="View Homes",
+                        sections=[Section(title="Top Matches", rows=rows)],
+                    )
+                    try:
+                        msg.send_interactive_message(phone, msg_model)
+                    except Exception:
+                        # Fallback to text if interactive fails (e.g. not implemented in mock)
+                        msg.send_message(phone, response)
+                else:
+                    msg.send_message(phone, response)
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:

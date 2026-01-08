@@ -66,6 +66,7 @@ class LeadProcessor:
         calendar: CalendarPort | None = None,
         email: EmailPort | None = None,
         validation: Any = None,
+        routing: Any = None,
     ):
         self.db = db
         from application.workflows.agents import create_lead_processing_graph
@@ -79,6 +80,7 @@ class LeadProcessor:
         self.calendar = calendar
         self.email = email
         self.validation = validation
+        self.routing = routing
 
         # The graph creation expects the ports
         self.graph = create_lead_processing_graph(
@@ -97,6 +99,25 @@ class LeadProcessor:
 
         try:
             result = self.graph.invoke(inputs)
+
+            # Routing: Assign to agent if configured
+            if self.routing:
+                try:
+                    lead_data = self.db.get_lead(phone)
+                    if lead_data and not lead_data.get("assigned_agent_id"):
+                        from domain.models import Lead
+
+                        lead_obj = Lead(
+                            id=lead_data["id"],
+                            phone=phone,
+                            postcode=postcode or lead_data.get("postcode"),
+                        )
+                        agent_id = self.routing.assign_lead(lead_obj)
+                        if agent_id:
+                            self.db.assign_lead_to_agent(lead_data["id"], agent_id)
+                except Exception as ex:
+                    logger.error("ROUTING_STEP_FAILED", context={"phone": phone, "error": str(ex)})
+
             # Side effects (messaging, persistence) are handled by finalize_node in agents.py
             return cast(str, result.get("ai_response", ""))
         except Exception as e:

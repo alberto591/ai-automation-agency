@@ -51,6 +51,25 @@ class DatabasePort(ABC):
     def update_message_status(self, sid: str, status: str) -> None:
         pass
 
+    @abstractmethod
+    def save_payment_schedule(self, schedule: dict[str, Any]) -> str:
+        pass
+
+    @abstractmethod
+    def get_due_payments(self, date_limit: datetime) -> list[dict[str, Any]]:
+        """Returns payments due before or on date_limit that haven't been completed."""
+        pass
+
+    @abstractmethod
+    def get_active_agents(self) -> list[dict[str, Any]]:
+        """Returns list of active agents with their zones."""
+        pass
+
+    @abstractmethod
+    def assign_lead_to_agent(self, lead_id: str, agent_id: str) -> None:
+        """Assigns a lead to an agent."""
+        pass
+
 
 class AIPort(ABC):
     @abstractmethod

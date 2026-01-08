@@ -32,7 +32,7 @@ from domain.qualification import LeadCategory, LeadScore, QualificationData
 from infrastructure.logging import get_logger
 from infrastructure.monitoring.sentry import init_sentry
 from presentation.api import feedback
-from presentation.api.webhooks import calcom_webhook, portal_webhook, voice_webhook
+from presentation.api.webhooks import calcom_webhook, lead_sources, portal_webhook, voice_webhook
 from presentation.middleware.auth import get_current_user
 
 logger = get_logger(__name__)
@@ -100,6 +100,7 @@ app.add_middleware(
 app.include_router(calcom_webhook.router, prefix="/api")
 app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
+app.include_router(lead_sources.router, prefix="/api")
 app.include_router(feedback.router, prefix="/api")
 
 

@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     # Meta Cloud API
     META_ACCESS_TOKEN: str = Field(default="")
     META_PHONE_ID: str = Field(default="")
+    FACEBOOK_VERIFY_TOKEN: str = Field(default="")
+    FACEBOOK_APP_SECRET: str | None = Field(default=None)
 
     # Security
     WEBHOOK_API_KEY: str = Field(default="")
