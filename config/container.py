@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING, Any
 from application.services.appraisal import AppraisalService
 from application.services.journey_manager import JourneyManager
 from application.services.lead_processor import LeadProcessor, LeadScorer
+from application.services.market_intelligence import MarketIntelligenceService
 from config.settings import settings
-from domain.ports import CalendarPort, MessagingPort
+from domain.ports import CachePort, CalendarPort, MessagingPort
 
 if TYPE_CHECKING:
     pass
@@ -13,6 +14,10 @@ if TYPE_CHECKING:
 class Container:
     def __init__(self) -> None:
         # Import Adapters lazily to avoid circular imports with config
+        from infrastructure.adapters.cache_adapter import (  # noqa: PLC0415
+            InMemoryCacheAdapter,
+            RedisAdapter,
+        )
         from infrastructure.adapters.calcom_adapter import CalComAdapter  # noqa: PLC0415
         from infrastructure.adapters.document_adapter import DocumentAdapter  # noqa: PLC0415
         from infrastructure.adapters.langchain_adapter import LangChainAdapter  # noqa: PLC0415
@@ -39,6 +44,18 @@ class Container:
         self.scraper: ImmobiliareScraperAdapter = ImmobiliareScraperAdapter()
         self.market: IdealistaMarketAdapter = IdealistaMarketAdapter()
 
+        # Cache initialization
+        cache: CachePort
+        if settings.REDIS_URL:
+            cache = RedisAdapter(settings.REDIS_URL)
+        else:
+            cache = InMemoryCacheAdapter()
+        self.cache = cache
+
+        self.market_intel: MarketIntelligenceService = MarketIntelligenceService(
+            db=self.db, ai=self.ai, cache=self.cache
+        )
+
         # Lazy loaded sheets adapter
         self._sheets: Any | None = None
 
@@ -64,7 +81,7 @@ class Container:
         # Local property search (for performance optimization)
         from application.services.local_property_search import LocalPropertySearchService
         from infrastructure.monitoring.performance_logger import PerformanceMetricLogger
-        
+
         # Use the Supabase client from the SupabaseAdapter
         self.local_property_search = LocalPropertySearchService(db_client=self.db.client)
         self.performance_logger = PerformanceMetricLogger(db_client=self.db.client)

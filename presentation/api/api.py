@@ -1,9 +1,8 @@
+import os
 import re
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any, cast
-
-# ... (imports)
 from uuid import UUID
 
 from fastapi import (
@@ -125,6 +124,19 @@ class PhoneRequest(BaseModel):
 class ManualMessageRequest(BaseModel):
     phone: str
     message: str
+
+
+class OutreachGenerateRequest(BaseModel):
+    city: str = Field(default="Milano")
+
+
+class OutreachSendRequest(BaseModel):
+    target_id: str
+
+
+class SalesReportRequest(BaseModel):
+    property_id: str
+    owner_phone: str | None = None
 
 
 # --- PUBLIC ENDPOINTS (Webhooks & Lead Ingestion) ---
@@ -509,6 +521,241 @@ async def get_score_distribution(days: int = Query(default=30, ge=1, le=90)) -> 
     distribution = scorer.get_score_distribution(days=days)
 
     return distribution
+
+
+# --- PHASE 2: MARKET & OUTREACH ENDPOINTS ---
+
+
+@app.get("/api/market/data", dependencies=[Depends(get_current_user)])
+async def get_market_data(
+    city: str | None = Query(None),
+    zone: str | None = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+) -> dict[str, Any]:
+    query = container.db.client.table("market_data").select("*")
+    if city:
+        query = query.eq("city", city)
+    if zone:
+        query = query.ilike("zone", f"%{zone}%")
+
+    result = query.order("created_at", desc=True).limit(limit).execute()
+    return {"status": "success", "data": result.data}
+
+
+@app.get("/api/market/analysis", dependencies=[Depends(get_current_user)])
+async def get_market_analysis(
+    city: str = Query("Milano"),
+    zone: str | None = Query(None),
+) -> dict[str, Any]:
+    """
+    Returns AI-generated market analysis and combined statistics.
+    """
+    return container.market_intel.get_market_analysis(city, zone)
+
+
+@app.get("/api/market/trends", dependencies=[Depends(get_current_user)])
+async def get_market_trends(
+    zone: str = Query(..., min_length=2),
+    city: str = Query("Milano"),
+) -> dict[str, Any]:
+    """
+    Returns predictive price trends for a specific zone.
+    """
+    return container.market_intel.predict_market_trend(zone, city)
+
+
+@app.get("/api/outreach/targets", dependencies=[Depends(get_current_user)])
+async def get_outreach_targets(
+    city: str | None = Query(None),
+    status: str | None = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+) -> dict[str, Any]:
+    query = container.db.client.table("outreach_targets").select("*")
+    if city:
+        query = query.eq("city", city)
+    if status:
+        query = query.eq("status", status)
+
+    result = query.order("created_at", desc=True).limit(limit).execute()
+    return {"status": "success", "data": result.data}
+
+
+@app.post("/api/outreach/generate", dependencies=[Depends(get_current_user)])
+async def generate_outreach_targets(req: OutreachGenerateRequest) -> dict[str, Any]:
+    """
+    Triggers the agency discovery logic and populates outreach_targets.
+    """
+    try:
+        # Import late to avoid circular dependencies if any
+        from scripts.agency_outreach import search_agencies  # noqa: PLC0415
+
+        agencies = search_agencies(city=req.city)
+        count = 0
+        for agency in agencies:
+            # Prepare data for upsert
+            message = (
+                f"Ciao {agency['name']}! Ho visto la vostra vetrina in {agency['address']}. "
+                f"Ricevete lead notturni? La nostra AI li qualifica in 15 secondi su WhatsApp. "
+                f"Vuoi vedere una demo?"
+            )
+            target = {
+                "name": agency["name"],
+                "phone": agency["phone"],
+                "address": agency["address"],
+                "city": agency["city"],
+                "outreach_message": message,
+                "status": "PENDING",
+            }
+            container.db.client.table("outreach_targets").upsert(
+                target, on_conflict="phone"
+            ).execute()
+            count += 1
+
+        return {"status": "success", "message": f"Generated {count} targets for {req.city}"}
+    except Exception as e:
+        logger.error("OUTREACH_GENERATION_FAILED", context={"error": str(e)})
+        raise HTTPException(status_code=500, detail="Failed to generate outreach targets") from None
+
+
+@app.post("/api/outreach/send", dependencies=[Depends(get_current_user)])
+async def send_outreach_message(req: OutreachSendRequest) -> dict[str, Any]:
+    """
+    Sends the outreach message to a specific target and updates status.
+    """
+    try:
+        # 1. Fetch target from DB
+        res = (
+            container.db.client.table("outreach_targets")
+            .select("*")
+            .eq("id", req.target_id)
+            .single()
+            .execute()
+        )
+        target = res.data
+        if not target:
+            raise HTTPException(status_code=404, detail="Outreach target not found")
+
+        # 2. Send message via container messaging port
+        sid = container.msg.send_message(to=target["phone"], body=target["outreach_message"])
+
+        # 3. Update status in DB
+        container.db.client.table("outreach_targets").update(
+            {"status": "CONTACTED", "last_contacted_at": datetime.now().isoformat()}
+        ).eq("id", req.target_id).execute()
+
+        logger.info("OUTREACH_MESSAGE_SENT", context={"target_id": req.target_id, "sid": sid})
+
+        return {"status": "success", "message": "Outreach message sent.", "sid": sid}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("OUTREACH_SEND_FAILED", context={"target_id": req.target_id, "error": str(e)})
+        raise HTTPException(status_code=500, detail=f"Failed to send outreach: {str(e)}") from None
+
+
+@app.post("/api/reports/sales", dependencies=[Depends(get_current_user)])
+async def generate_sales_report_endpoint(req: SalesReportRequest) -> dict[str, Any]:
+    """
+    Generates a PDF sales report for a specific property.
+    """
+    try:
+        # 1. Fetch property and lead activity
+        # This is a bit complex, we'll mock some parts for now or use DB queries
+        res = (
+            container.db.client.table("properties")
+            .select("*")
+            .eq("id", req.property_id)
+            .single()
+            .execute()
+        )
+        prop = res.data
+        if not prop:
+            raise HTTPException(status_code=404, detail="Property not found")
+
+        # 2. Fetch leads interested in this property
+        # Query leads where metadata->interested_property_ids contains req.property_id
+        leads_res = (
+            container.db.client.table("leads")
+            .select("id, status, score, journey_state, metadata")
+            .execute()
+        )
+
+        # Filter in Python if complex JSONB query is tricky via client,
+        # but let's try to be efficient if possible.
+        # Actually, let's filter in Python for now to be safe with the metadata structure
+        # Constants for lead analysis
+        hot_lead_threshold = 50
+        min_leads_for_optimal_price = 10
+        min_hot_leads_for_quick_close = 3
+
+        all_leads = leads_res.data or []
+        interested_leads = []
+        for lead_data in all_leads:
+            meta = lead_data.get("metadata") or {}
+            if req.property_id in meta.get("interested_property_ids", []):
+                interested_leads.append(lead_data)
+
+        total_leads = len(interested_leads)
+        hot_leads = len(
+            [
+                lead_data
+                for lead_data in interested_leads
+                if (lead_data.get("score") or 0) >= hot_lead_threshold
+            ]
+        )
+        scheduled_viewings = len(
+            [
+                lead_data
+                for lead_data in interested_leads
+                if lead_data.get("journey_state") == "SCHEDULED"
+            ]
+        )
+
+        # 3. Dynamic Analysis/Advice based on data
+        zone_name = prop.get("zone", "N/A")
+        market_analysis = (
+            f"La zona di {zone_name} mostra un interesse costante. "
+            f"La proprietà ha attirato {total_leads} potenziali acquirenti."
+        )
+        if total_leads > min_leads_for_optimal_price:
+            market_analysis += " Il posizionamento prezzo è ottimale."
+        else:
+            market_analysis += (
+                " Valutare un leggero ribasso o nuove foto per " "aumentare il click-through rate."
+            )
+
+        ai_advice = "Monitorare i lead 'Hot' e sollecitare il feedback post-visita."
+        if hot_leads > MIN_HOT_LEADS_FOR_QUICK_CLOSE:
+            ai_advice = (
+                "Alta probabilità di chiusura breve. "
+                "Concentrarsi sui 3 lead più caldi per negoziazione."
+            )
+
+        report_data = {
+            "property_id": req.property_id,
+            "property_title": prop["title"],
+            "total_leads": total_leads,
+            "hot_leads": hot_leads,
+            "scheduled_viewings": scheduled_viewings,
+            "market_value": prop["price"],
+            "market_analysis": market_analysis,
+            "ai_advice": ai_advice,
+        }
+
+        # 4. Generate PDF
+        pdf_path = container.doc_gen.generate_pdf("sales_report", report_data)
+
+        return {
+            "status": "success",
+            "pdf_path": pdf_path,
+            "filename": os.path.basename(pdf_path),
+            "message": "Report vendite generato con successo",
+        }
+    except Exception as e:
+        logger.error(
+            "SALES_REPORT_FAILED", context={"property_id": req.property_id, "error": str(e)}
+        )
+        raise HTTPException(status_code=500, detail="Failed to generate sales report") from None
 
 
 class RouteLeadRequest(BaseModel):

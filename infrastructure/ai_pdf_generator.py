@@ -388,6 +388,108 @@ class PropertyPDFGenerator:
             logger.error("APPRAISAL_PDF_GENERATION_FAILED", context={"error": str(e)})
             raise
 
+    def generate_sales_report(self, report_data: dict[str, Any], output_path: str) -> str:
+        """
+        Creates a professional sales report for property owners.
+        Includes lead activity, market positioning, and AI advice.
+        """
+        try:
+            pdf = FPDF()
+            pdf.add_page()
+
+            # --- Header ---
+            pdf.set_fill_color(52, 73, 94)  # Elegant Navy
+            pdf.rect(0, 0, 210, 40, "F")
+
+            pdf.set_font("Helvetica", "B", 26)
+            pdf.set_text_color(255, 255, 255)
+            pdf.set_xy(10, 10)
+            pdf.cell(0, 20, "Report Vendita Professionale", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+            pdf.set_font("Helvetica", "", 12)
+            pdf.set_xy(10, 25)
+            pdf.cell(
+                0,
+                10,
+                f"Proprietà: {report_data.get('property_title', 'Proprietà Immobiliare')}",
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
+
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_y(50)
+
+            # --- Executive Summary ---
+            pdf.set_font("Helvetica", "B", 16)
+            pdf.cell(0, 10, "Attività di Vendita", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_draw_color(52, 73, 94)
+            pdf.line(10, 60, 200, 60)
+            pdf.ln(5)
+
+            # Stats Grid
+            stats = [
+                ("Lead Totali", str(report_data.get("total_leads", 0))),
+                ("Lead Qualificati (Hot)", str(report_data.get("hot_leads", 0))),
+                ("Appuntamenti Richiesti", str(report_data.get("scheduled_viewings", 0))),
+                (
+                    "Valore Mercato Stimato",
+                    f"EUR {report_data.get('market_value', 0):,}".replace(",", "."),
+                ),
+            ]
+
+            pdf.set_font("Helvetica", "B", 12)
+            for label, value in stats:
+                pdf.cell(60, 10, label, border=1)
+                pdf.set_font("Helvetica", "", 12)
+                pdf.cell(0, 10, value, border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.set_font("Helvetica", "B", 12)
+
+            pdf.ln(10)
+
+            # --- Market Analysis ---
+            pdf.set_font("Helvetica", "B", 16)
+            pdf.cell(0, 10, "Posizionamento di Mercato", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+            pdf.ln(5)
+
+            pdf.set_font("Helvetica", "", 11)
+            pdf.multi_cell(0, 7, report_data.get("market_analysis", "Analisi di mercato in corso."))
+            pdf.ln(10)
+
+            # --- AI Recommendations ---
+            pdf.set_font("Helvetica", "B", 16)
+            pdf.set_text_color(192, 57, 43)  # Alizarin Red
+            pdf.cell(
+                0,
+                10,
+                "Consigli dell'AI per Velociizzare la Vendita",
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
+            )
+            pdf.set_text_color(0, 0, 0)
+            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+            pdf.ln(5)
+
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.multi_cell(
+                0, 7, report_data.get("ai_advice", "Monitorare l'andamento del mercato locale.")
+            )
+
+            # --- Footer ---
+            pdf.set_y(-30)
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(150, 150, 150)
+            pdf.cell(
+                0, 10, f"Generato il {datetime.now().strftime('%d/%m/%Y')} | Agenzia AI", align="C"
+            )
+
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            pdf.output(output_path)
+            return output_path
+        except Exception as e:
+            logger.error("SALES_REPORT_PDF_FAILED", context={"error": str(e)})
+            raise
+
 
 if __name__ == "__main__":
     # Test generation

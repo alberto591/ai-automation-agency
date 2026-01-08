@@ -97,5 +97,23 @@ class JourneyManager:
             media_url = None
 
             self.msg.send_message(phone, msg_body, media_url=media_url)
+
+            # Record interest in DB
+            lead_data = self.db.get_lead(phone)
+            if lead_data:
+                metadata = lead_data.get("metadata") or {}
+                if not isinstance(metadata, dict):
+                    metadata = {}
+
+                interests = metadata.get("interested_property_ids", [])
+                if not isinstance(interests, list):
+                    interests = []
+
+                prop_id = property_data.get("id")
+                if prop_id and prop_id not in interests:
+                    interests.append(prop_id)
+                    metadata["interested_property_ids"] = interests
+                    self.db.update_lead(phone, {"metadata": metadata})
+
             return pdf_path
         return ""

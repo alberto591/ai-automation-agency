@@ -190,3 +190,17 @@ class NotificationPort(ABC):
         Request type is Any to avoid circular imports, but typically HandoffRequest.
         """
         pass
+
+
+class CachePort(ABC):
+    @abstractmethod
+    def get(self, key: str) -> str | None:
+        pass
+
+    @abstractmethod
+    def set(self, key: str, value: str, ttl: int = 3600) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self, key: str) -> None:
+        pass

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="login-page-title">Accedi | Anzevino AI Real Estate</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--navy-blue);
+        }
+
+        .auth-header p {
+            color: var(--slate-gray);
+            font-size: 1rem;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--navy-blue);
+            font-size: 0.875rem;
+        }
+
+        .form-group input {
+            padding: 1rem;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input.error {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.05);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: -0.5rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--accent-blue) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px 0 rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px 0 rgba(15, 23, 42, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .auth-footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-home a {
+            color: var(--slate-gray);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .back-home a:hover {
+            color: var(--navy-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 data-translate="login-title">Accedi al tuo Account</h1>
+                <p data-translate="login-subtitle">Gestisci la tua agenzia con l'AI</p>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="email" data-translate="login-email">Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="email"
+                        data-translate="login-email-placeholder" placeholder="tua@email.it">
+                    <span class="error-message" id="email-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-translate="login-password">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password"
+                        data-translate="login-password-placeholder" placeholder="••••••••">
+                    <span class="error-message" id="password-error"></span>
+                </div>
+
+                <button type="submit" class="btn-login" id="login-btn">
+                    <span data-translate="login-button">Accedi</span>
+                </button>
+
+                <div id="login-error" class="error-message" style="text-align: center;"></div>
+            </form>
+
+            <div class="auth-footer">
+                <p>
+                    <span data-translate="login-no-account">Non hai un account?</span>
+                    <a href="/register.html" data-translate="login-register-link">Registrati</a>
+                </p>
+                <p style="margin-top: 1rem;">
+                    <a href="/forgot-password.html" data-translate="login-forgot">Password dimenticata?</a>
+                </p>
+            </div>
+
+            <div class="back-home">
+                <a href="/" data-translate="login-back-home">
+                    <i class="ph ph-arrow-left"></i> Torna alla Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="appraisal/assets/bundle.min.js"></script>
+    <script src="auth-helper.js"></script>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginError = document.getElementById('login-error');
+
+        // Check if already logged in
+        AuthHelper.redirectIfLoggedIn();
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear previous errors
+            loginError.classList.remove('active');
+            loginError.textContent = '';
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            // Basic validation
+            if (!email || !password) {
+                showError('Compila tutti i campi');
+                return;
+            }
+
+            // Disable button and show loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> <span data-translate="login-loading">Accesso in corso...</span>';
+
+            try {
+                const { data, error } = await AuthHelper.login(email, password);
+
+                if (error) throw error;
+
+                // Success! Redirect to dashboard
+                window.location.href = '/dashboard/';
+
+            } catch (error) {
+                console.error('Login error:', error);
+
+                let errorMessage = 'Credenziali non valide. Riprova.';
+
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMessage = 'Email o password errati';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMessage = 'Verifica la tua email prima di accedere';
+                }
+
+                showError(errorMessage);
+
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span data-translate="login-button">Accedi</span>';
+            }
+        });
+
+        function showError(message) {
+            loginError.textContent = message;
+            loginError.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

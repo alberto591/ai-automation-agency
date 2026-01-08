@@ -27,6 +27,12 @@ class DocumentAdapter(DocumentPort):
                 filepath = os.path.join(self.output_dir, filename)
                 return generator.generate_property_pdf(data, filepath)
 
+            if template_name == "sales_report":
+                generator = PropertyPDFGenerator()
+                filename = f"sales_report_{data.get('property_id', 'unknown')}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+                filepath = os.path.join(self.output_dir, filename)
+                return generator.generate_sales_report(data, filepath)
+
             # Fallback to simplistic PDF for other templates (like 'proposta')
             pdf = FPDF()
             pdf.add_page()

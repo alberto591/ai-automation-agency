@@ -15,23 +15,43 @@ function build() {
     // Create dist directory
     mkdirSync(distDir, { recursive: true });
 
-    // Copy index.html as-is (no transformation!)
-    console.log('📄 Copying index.html...');
-    copyFileSync(
-        resolve(__dirname, 'index.html'),
-        resolve(distDir, 'index.html')
-    );
+    // Copy all HTML files
+    const htmlFiles = [
+        'index.html',
+        'login.html',
+        'register.html',
+        'forgot-password.html',
+        'reset-password.html',
+        'feedback.html',
+        'test_interface.html',
+        'test_language_switching.html'
+    ];
 
-    // Copy feedback.html if it exists
-    try {
-        console.log('📄 Copying feedback.html...');
-        copyFileSync(
-            resolve(__dirname, 'feedback.html'),
-            resolve(distDir, 'feedback.html')
-        );
-    } catch (err) {
-        console.log('ℹ️  feedback.html not found, skipping...');
-    }
+    htmlFiles.forEach(file => {
+        try {
+            console.log(`📄 Copying ${file}...`);
+            copyFileSync(
+                resolve(__dirname, file),
+                resolve(distDir, file)
+            );
+        } catch (err) {
+            console.log(`ℹ️  ${file} not found, skipping...`);
+        }
+    });
+
+    // Copy essential JS and CSS files
+    const assetFiles = ['auth-helper.js', 'styles.css', 'script.js'];
+    assetFiles.forEach(file => {
+        try {
+            console.log(`📄 Copying ${file}...`);
+            copyFileSync(
+                resolve(__dirname, file),
+                resolve(distDir, file)
+            );
+        } catch (err) {
+            console.log(`ℹ️  ${file} not found, skipping...`);
+        }
+    });
 
     // Copy appraisal folder recursively
     console.log('📁 Copying appraisal folder...');

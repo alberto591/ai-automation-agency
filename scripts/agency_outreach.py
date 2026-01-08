@@ -7,49 +7,60 @@ HEADERS: dict[str, str] = {
 
 def search_agencies(city: str = "Milano", pages: int = 1) -> list[dict[str, str]]:
     """
-    Simulates finding real estate agencies.
-    In a real scenario, this would use Google Maps API or a targeted scraper.
+    Finds real estate agencies by extracting them from active market listings.
     """
+    from infrastructure.market_service import MarketDataService
+
     print(f"🚀 Searching for Real Estate Agencies in {city}...")
+    service = MarketDataService()
+    listings = service.search_properties(zone=city, city=city)
 
-    # Example logic for a yellow-pages style search
-    # This is a template. For production, use Google Places API.
-    agencies = []
+    agencies = {}
+    for item in listings:
+        # Idealista API structure usually has 'contactName' and 'phone' or 'agencyName'
+        # Let's try to extract what we can
+        name = item.get("contactName") or item.get("agencyName") or item.get("agencyId")
+        phone = item.get("phone")
 
-    # Mocked data for demonstration if scraper fails
-    mock_data = [
-        {
-            "name": "Milano Elite Properties",
-            "phone": "+393401111111",
-            "address": "Via Dante 10",
-            "city": city,
-        },
-        {
-            "name": "Vivere Meglio Real Estate",
-            "phone": "+393402222222",
-            "address": "Piazza Duomo 5",
-            "city": city,
-        },
-        {
-            "name": "Global House Milano",
-            "phone": "+393403333333",
-            "address": "Corso Buenos Aires 12",
-            "city": city,
-        },
-    ]
+        if name and phone and name not in agencies:
+            # Clean name and phone
+            clean_name = str(name).strip()
+            clean_phone = str(phone).replace(" ", "")
+            if not clean_phone.startswith("+"):
+                clean_phone = f"+39{clean_phone}"  # Assume IT if no prefix
 
-    # For now, we return mock data + any results found
-    # (Scraper logic would go here)
+            agencies[clean_name] = {
+                "name": clean_name,
+                "phone": clean_phone,
+                "address": item.get("address", "N/A"),
+                "city": city,
+            }
 
-    return mock_data
+    results = list(agencies.values())
+    print(f"✅ Found {len(results)} unique agencies from listings.")
+
+    if not results:
+        print("⚠️ No agencies found from live listings, using fallback.")
+        return [
+            {
+                "name": "Milano Elite Properties",
+                "phone": "+393401111111",
+                "address": "Via Dante 10",
+                "city": city,
+            }
+        ]
+
+    return results
 
 
 def generate_outreach_csv(
     agencies: list[dict[str, str]], filename: str = "outreach_targets.csv"
 ) -> None:
     """
-    Saves agencies to a CSV with suggested outreach messages.
+    Saves agencies to a CSV with AI-personalized outreach messages.
     """
+    from config.container import container
+
     keys = ["name", "phone", "address", "city", "outreach_message"]
 
     with open(filename, mode="w", newline="", encoding="utf-8") as f:
@@ -57,12 +68,19 @@ def generate_outreach_csv(
         writer.writeheader()
 
         for agency in agencies:
-            # Personalize the message
-            message = (
-                f"Ciao {agency['name']}! Ho visto la vostra vetrina in {agency['address']}. "
-                f"Ricevete lead notturni? La nostra AI li qualifica in 15 secondi su WhatsApp. "
-                f"Vuoi vedere una demo?"
-            )
+            # Use AI for personalization if available, otherwise fallback
+            try:
+                prompt = (
+                    f"Genera un messaggio di outreach WhatsApp di 2-3 frasi in italiano per l'agenzia '{agency['name']}' in {agency['address']}, {agency['city']}.\n"
+                    f"Siamo un'azienda che fornisce un'AI che qualifica i lead notturni in 15 secondi.\n"
+                    f"Il tono deve essere professionale ma amichevole. Non usare emoji."
+                )
+                message = container.ai.generate_response(prompt).strip().replace('"', "")
+            except Exception:
+                message = (
+                    f"Ciao {agency['name']}! Abbiamo un'AI che qualifica i vostri lead notturni in 15 secondi su WhatsApp. "
+                    f"Vi farebbe piacere vedere una breve demo per la vostra sede di {agency['city']}?"
+                )
 
             row = {
                 "name": agency["name"],

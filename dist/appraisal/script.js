@@ -468,284 +468,271 @@ document.addEventListener('DOMContentLoaded', function () {
             const cachedResult = appraisalCache.get(cacheParams);
 
             if (cachedResult) {
-                // Use cached result
-                showLoadingProgress(t('loading-from-cache') || 'Loading from cache...', 100);
-                setTimeout(() => {
-                    hideLoadingProgress();
-                    displayAppraisalResults(cachedResult, submitBtn);
-                    showNotification(t('appraisal-cached') || 'Loaded from recent search', 'success');
-                }, 500);
+                // Return immediately if cached
+                displayAppraisalResults(cachedResult, submitBtn);
+                showNotification(t('appraisal-cached') || 'Caricamento da ricerca recente', 'success');
                 return;
             }
 
-            // Step 1: Creating lead (0-25%)
-            showLoadingProgress(t('loading-creating-lead') || 'Creating your request...', 10);
+            // High-speed parallel processing (Lead + Appraisal simultaneously)
+            showLoadingProgress(t('loading-analyzing') || 'Analisi dei dati di mercato...', 30);
 
-            // First, create lead with retry
-            fetchWithRetry(`${API_BASE}/api/leads`, {
+            // Fire both requests in parallel
+            const leadRequest = fetchWithRetry(`${API_BASE}/api/leads`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            })
-                .then(leadData => {
-                    // Step 2: Analyzing market data (25-75%)
-                    showLoadingProgress(t('loading-analyzing') || 'Analyzing market data...', 40);
-                    showNotification(t('appraisal-status-success'), 'success');
+            }).catch(err => {
+                console.warn('Lead creation failed - continuing appraisal', err);
+                return null;
+            });
 
-                    // Now get real appraisal with investment metrics
-                    return fetchWithRetry(`${API_BASE}/api/appraisals/estimate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            city: detectedCity,
-                            zone: postcode,
-                            surface_sqm: parseInt(sqm),
-                            condition: condition,
-                            phone: formattedPhone // Link appraisal to lead
-                        })
-                    });
+            const appraisalRequest = fetchWithRetry(`${API_BASE}/api/appraisals/estimate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    city: detectedCity,
+                    zone: postcode,
+                    surface_sqm: parseInt(sqm),
+                    condition: condition,
+                    phone: formattedPhone
                 })
-                .then(appraisal => {
-                    // Step 3: Calculating metrics (75-90%)
-                    showLoadingProgress(t('loading-calculating') || 'Calculating investment metrics...', 80);
+            });
+
+            Promise.all([leadRequest, appraisalRequest])
+                .then(([leadData, appraisal]) => {
+                    // Update progress one last time then hide
+                    showLoadingProgress(t('loading-finalizing') || 'Finalizzazione risultati...', 100);
 
                     setTimeout(() => {
-                        // Step 4: Finalizing (90-100%)
-                        showLoadingProgress(t('loading-finalizing') || 'Finalizing results...', 95);
-
-                        setTimeout(() => {
-                            hideLoadingProgress();
-
-                            // Cache the result
-                            appraisalCache.set(cacheParams, appraisal);
-
-                            // Display results
-                            displayAppraisalResults(appraisal, submitBtn);
-                        }, 300);
-                    }, 300);
+                        hideLoadingProgress();
+                        // Cache the result
+                        appraisalCache.set(cacheParams, appraisal);
+                        // Display results immediately
+                        displayAppraisalResults(appraisal, submitBtn);
+                    }, 150); // Minimal delay for visual feedback of completion
                 })
+                .catch(error => {
+                    console.error('Appraisal error:', error);
 
-        })
-            .catch(error => {
-                console.error('Appraisal error:', error);
+                    // Get appropriate error message
+                    const errorInfo = getErrorMessage(error);
+                    showNotification(errorInfo.message, errorInfo.type);
 
-                // Get appropriate error message
-                const errorInfo = getErrorMessage(error);
-                showNotification(errorInfo.message, errorInfo.type);
-
-                // Reset button state
-                submitBtn.innerHTML = `<span data-translate="appraisal-cta">${t('appraisal-cta')}</span> <i class="ph ph-arrow-right"></i>`;
-                submitBtn.disabled = false;
-            });
+                    // Reset button state
+                    submitBtn.innerHTML = `<span data-translate="appraisal-cta">${t('appraisal-cta')}</span> <i class="ph ph-arrow-right"></i>`;
+                    submitBtn.disabled = false;
+                });
+        });
     }
 
-// Typing Animation for Hero Chat
-function simulateTyping() {
-    const typingBubble = document.querySelector('.typing-indicator');
-    if (typingBubble) {
-        setTimeout(() => {
-            const chatContainer = document.querySelector('.chat-container');
-            const newMessage = document.createElement('div');
-            newMessage.className = 'chat-message from-ai';
-            newMessage.innerHTML = `
+    // Typing Animation for Hero Chat
+    function simulateTyping() {
+        const typingBubble = document.querySelector('.typing-indicator');
+        if (typingBubble) {
+            setTimeout(() => {
+                const chatContainer = document.querySelector('.chat-container');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'chat-message from-ai';
+                newMessage.innerHTML = `
                     <div class="message-time">14:23</div>
                     <div class="message-bubble ai-bubble" data-translate="chat-ai-msg-1">
                         ${t('chat-ai-msg-1')}
                     </div>
                 `;
-            typingBubble.closest('.chat-message').remove();
-            chatContainer.appendChild(newMessage);
+                typingBubble.closest('.chat-message').remove();
+                chatContainer.appendChild(newMessage);
 
-            // Continue the conversation
-            setTimeout(() => {
-                const clientResponse = document.createElement('div');
-                clientResponse.className = 'chat-message from-client';
-                clientResponse.innerHTML = `
+                // Continue the conversation
+                setTimeout(() => {
+                    const clientResponse = document.createElement('div');
+                    clientResponse.className = 'chat-message from-client';
+                    clientResponse.innerHTML = `
                         <div class="message-time">14:24</div>
                         <div class="message-bubble" data-translate="chat-client-msg-1">
                             ${t('chat-client-msg-1')}
                         </div>
                     `;
-                chatContainer.appendChild(clientResponse);
+                    chatContainer.appendChild(clientResponse);
 
-                // Scroll to bottom
+                    // Scroll to bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 2000);
+
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }, 2000);
+        }
+    }
 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Start typing simulation after page load
+    setTimeout(simulateTyping, 3000);
+
+    // Dashboard Stats Animation
+    const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
+    let dashboardAnimated = false;
+
+    function animateDashboardStats() {
+        if (dashboardAnimated) return;
+
+        dashboardStats.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            let current = 0;
+            const increment = target / 50;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    dashboardAnimated = true;
+                }
+                stat.textContent = Math.floor(current);
+            }, 40);
+        });
+    }
+
+    // Intersection Observer for dashboard animation
+    const dashboardSection = document.querySelector('.dashboard-section');
+    if (dashboardSection && dashboardStats.length > 0) {
+        const dashboardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateDashboardStats, 500);
+                }
+            });
+        }, {
+            threshold: 0.3
+        });
+
+        dashboardObserver.observe(dashboardSection);
+    }
+
+    // Conversation Step Navigation
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function () {
+            // Remove active state from all items
+            conversationItems.forEach(conv => conv.classList.remove('active'));
+
+            // Add active state to clicked item
+            this.classList.add('active');
+
+            // You could add logic here to show conversation details
+        });
+    });
+
+    // Feature Card Hover Effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function () {
+            this.style.transform = 'translateY(-12px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Problem Stats Animation
+    const problemStats = document.querySelectorAll('.problem-stat');
+    let problemStatsAnimated = false;
+
+    function animateProblemStats() {
+        if (problemStatsAnimated) return;
+
+        problemStats.forEach((stat, index) => {
+            const numberElement = stat.querySelector('.stat-number');
+            const targetText = numberElement.textContent;
+            const isPercentage = targetText.includes('%');
+            const isEuro = targetText.includes('€');
+
+            let target = parseInt(targetText.replace(/[^0-9]/g, ''));
+            let current = 0;
+            const increment = target / 60;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                    problemStatsAnimated = true;
+                }
+
+                let displayValue = Math.floor(current);
+                if (isPercentage) displayValue += '%';
+                if (isEuro) displayValue = '€' + displayValue.toLocaleString();
+
+                numberElement.textContent = displayValue;
+            }, 30 + (index * 100));
+        });
+    }
+
+    // Intersection Observer for problem stats
+    const problemSection = document.querySelector('.problem-section');
+    if (problemSection && problemStats.length > 0) {
+        const problemObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateProblemStats, 800);
+                }
+            });
+        }, {
+            threshold: 0.4
+        });
+
+        problemObserver.observe(problemSection);
+    }
+
+    // Form Input Enhancements
+    const formInputs = document.querySelectorAll('.form-group input, .form-group select');
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function () {
+            this.parentElement.classList.add('focused');
+        });
+
+        input.addEventListener('blur', function () {
+            this.parentElement.classList.remove('focused');
+            if (this.value) {
+                this.parentElement.classList.add('filled');
+            } else {
+                this.parentElement.classList.remove('filled');
+            }
+        });
+    });
+
+    // Parallax Effect for Hero Section
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        window.addEventListener('scroll', function () {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.3;
+            hero.style.transform = `translateY(${rate}px)`;
+        });
+    }
+
+    // Loading states for buttons
+    function addLoadingState(button, originalText) {
+        button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
         }, 2000);
     }
-}
 
-// Start typing simulation after page load
-setTimeout(simulateTyping, 3000);
-
-// Dashboard Stats Animation
-const dashboardStats = document.querySelectorAll('.stat-content .stat-number');
-let dashboardAnimated = false;
-
-function animateDashboardStats() {
-    if (dashboardAnimated) return;
-
-    dashboardStats.forEach(stat => {
-        const target = parseInt(stat.textContent);
-        let current = 0;
-        const increment = target / 50;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-                dashboardAnimated = true;
-            }
-            stat.textContent = Math.floor(current);
-        }, 40);
-    });
-}
-
-// Intersection Observer for dashboard animation
-const dashboardSection = document.querySelector('.dashboard-section');
-if (dashboardSection && dashboardStats.length > 0) {
-    const dashboardObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setTimeout(animateDashboardStats, 500);
-            }
-        });
-    }, {
-        threshold: 0.3
-    });
-
-    dashboardObserver.observe(dashboardSection);
-}
-
-// Conversation Step Navigation
-const conversationItems = document.querySelectorAll('.conversation-item');
-conversationItems.forEach(item => {
-    item.addEventListener('click', function () {
-        // Remove active state from all items
-        conversationItems.forEach(conv => conv.classList.remove('active'));
-
-        // Add active state to clicked item
-        this.classList.add('active');
-
-        // You could add logic here to show conversation details
-    });
-});
-
-// Feature Card Hover Effects
-const featureCards = document.querySelectorAll('.feature-card');
-featureCards.forEach(card => {
-    card.addEventListener('mouseenter', function () {
-        this.style.transform = 'translateY(-12px) scale(1.02)';
-    });
-
-    card.addEventListener('mouseleave', function () {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
-
-// Problem Stats Animation
-const problemStats = document.querySelectorAll('.problem-stat');
-let problemStatsAnimated = false;
-
-function animateProblemStats() {
-    if (problemStatsAnimated) return;
-
-    problemStats.forEach((stat, index) => {
-        const numberElement = stat.querySelector('.stat-number');
-        const targetText = numberElement.textContent;
-        const isPercentage = targetText.includes('%');
-        const isEuro = targetText.includes('€');
-
-        let target = parseInt(targetText.replace(/[^0-9]/g, ''));
-        let current = 0;
-        const increment = target / 60;
-
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-                problemStatsAnimated = true;
-            }
-
-            let displayValue = Math.floor(current);
-            if (isPercentage) displayValue += '%';
-            if (isEuro) displayValue = '€' + displayValue.toLocaleString();
-
-            numberElement.textContent = displayValue;
-        }, 30 + (index * 100));
-    });
-}
-
-// Intersection Observer for problem stats
-const problemSection = document.querySelector('.problem-section');
-if (problemSection && problemStats.length > 0) {
-    const problemObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                setTimeout(animateProblemStats, 800);
-            }
-        });
-    }, {
-        threshold: 0.4
-    });
-
-    problemObserver.observe(problemSection);
-}
-
-// Form Input Enhancements
-const formInputs = document.querySelectorAll('.form-group input, .form-group select');
-formInputs.forEach(input => {
-    input.addEventListener('focus', function () {
-        this.parentElement.classList.add('focused');
-    });
-
-    input.addEventListener('blur', function () {
-        this.parentElement.classList.remove('focused');
-        if (this.value) {
-            this.parentElement.classList.add('filled');
-        } else {
-            this.parentElement.classList.remove('filled');
+    // Success/Error Notifications
+    function showNotification(message, type = 'info') {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
         }
-    });
-});
 
-// Parallax Effect for Hero Section
-const hero = document.querySelector('.hero');
-if (hero) {
-    window.addEventListener('scroll', function () {
-        const scrolled = window.pageYOffset;
-        const rate = scrolled * -0.3;
-        hero.style.transform = `translateY(${rate}px)`;
-    });
-}
-
-// Loading states for buttons
-function addLoadingState(button, originalText) {
-    button.innerHTML = '<i class="ph ph-spinner"></i> Caricamento...';
-    button.disabled = true;
-
-    setTimeout(() => {
-        button.innerHTML = originalText;
-        button.disabled = false;
-    }, 2000);
-}
-
-// Success/Error Notifications
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
             <div class="notification-content">
                 <i class="ph ph-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}"></i>
                 <span>${message}</span>
@@ -755,8 +742,8 @@ function showNotification(message, type = 'info') {
             </div>
         `;
 
-    // Add styles
-    notification.style.cssText = `
+        // Add styles
+        notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -772,13 +759,13 @@ function showNotification(message, type = 'info') {
             font-family: Inter, sans-serif;
         `;
 
-    notification.querySelector('.notification-content').style.cssText = `
+        notification.querySelector('.notification-content').style.cssText = `
             display: flex;
             align-items: center;
             gap: 12px;
         `;
 
-    notification.querySelector('.notification-close').style.cssText = `
+        notification.querySelector('.notification-close').style.cssText = `
             background: none;
             border: none;
             color: white;
@@ -787,32 +774,32 @@ function showNotification(message, type = 'info') {
             margin-left: auto;
         `;
 
-    // Add to DOM
-    document.body.appendChild(notification);
+        // Add to DOM
+        document.body.appendChild(notification);
 
-    // Animate in
-    setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-    }, 100);
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
 
-    // Close functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => notification.remove(), 300);
-    });
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
+        // Close functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
             notification.style.transform = 'translateX(100%)';
             setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
-}
+        });
 
-// Add mobile menu styles
-const mobileMenuStyles = `
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Add mobile menu styles
+    const mobileMenuStyles = `
         @media (max-width: 768px) {
             .nav-links {
                 position: fixed;
@@ -846,74 +833,74 @@ const mobileMenuStyles = `
         }
     `;
 
-// Inject mobile menu styles
-const styleSheet = document.createElement('style');
-styleSheet.textContent = mobileMenuStyles;
-document.head.appendChild(styleSheet);
+    // Inject mobile menu styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = mobileMenuStyles;
+    document.head.appendChild(styleSheet);
 
-// Performance optimization: Debounce scroll events
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
+    // Performance optimization: Debounce scroll events
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
             clearTimeout(timeout);
-            func(...args);
+            timeout = setTimeout(later, wait);
         };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Apply debounce to scroll handlers
-const debouncedScrollHandler = debounce(function () {
-    // Additional scroll-based animations can be added here
-}, 16); // ~60fps
-
-window.addEventListener('scroll', debouncedScrollHandler);
-
-// Accessibility improvements
-document.addEventListener('keydown', function (e) {
-    // ESC key closes mobile menu
-    if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
-        navLinks.classList.remove('active');
-        const icon = navToggle.querySelector('i');
-        icon.classList.remove('ph-x');
-        icon.classList.add('ph-list');
     }
-});
 
-// Focus management for mobile menu
-if (navLinks) {
-    const focusableElements = navLinks.querySelectorAll('a, button');
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
+    // Apply debounce to scroll handlers
+    const debouncedScrollHandler = debounce(function () {
+        // Additional scroll-based animations can be added here
+    }, 16); // ~60fps
 
-    navToggle.addEventListener('click', function () {
-        setTimeout(() => {
-            if (navLinks.classList.contains('active')) {
-                firstFocusable.focus();
-            }
-        }, 300);
-    });
+    window.addEventListener('scroll', debouncedScrollHandler);
 
-    navLinks.addEventListener('keydown', function (e) {
-        if (e.key === 'Tab') {
-            if (e.shiftKey) {
-                if (document.activeElement === firstFocusable) {
-                    lastFocusable.focus();
-                    e.preventDefault();
-                }
-            } else {
-                if (document.activeElement === lastFocusable) {
-                    firstFocusable.focus();
-                    e.preventDefault();
-                }
-            }
+    // Accessibility improvements
+    document.addEventListener('keydown', function (e) {
+        // ESC key closes mobile menu
+        if (e.key === 'Escape' && navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+            const icon = navToggle.querySelector('i');
+            icon.classList.remove('ph-x');
+            icon.classList.add('ph-list');
         }
     });
-}
 
-console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
+    // Focus management for mobile menu
+    if (navLinks) {
+        const focusableElements = navLinks.querySelectorAll('a, button');
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        navToggle.addEventListener('click', function () {
+            setTimeout(() => {
+                if (navLinks.classList.contains('active')) {
+                    firstFocusable.focus();
+                }
+            }, 300);
+        });
+
+        navLinks.addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
+    }
+
+    console.log('🏠 Anzevino AI Real Estate - Website Loaded Successfully');
 });
 
 // Utility Functions
@@ -1042,6 +1029,24 @@ const translations = {
         'feature-item-language': 'Supporto multilingue (IT/EN)',
         'feature-item-tone': 'Tone of voice personalizzabile',
         'feature-item-takeover': 'Takeover umano immediato',
+        'feature-1-title': 'Risposte WhatsApp Istantanee',
+        'feature-1-desc': 'Risposta automatica in meno di 15 secondi, 24 ore su 24, anche durante i weekend e le festività.',
+        'feature-1-highlight': 'tempo medio di risposta',
+        'feature-2-title': 'Disponibilità 24/7',
+        'feature-2-desc': 'Il tuo agente AI lavora ininterrottamente, anche quando tu dormi o sei in vacanza.',
+        'feature-2-highlight': 'ore di lavoro annuali',
+        'feature-3-title': 'Supporto Multi-lingua',
+        'feature-3-desc': 'Comunicazione automatica in italiano e inglese, con riconoscimento intelligente della lingua del cliente.',
+        'feature-3-highlight': 'lingue supportate',
+        'feature-4-title': 'Integrazione CRM Diretta',
+        'feature-4-desc': 'Connessione immediata con i principali CRM immobiliari: Casa.it, Immobiliare.it, Idealista e software gestionali.',
+        'feature-4-highlight': 'integrazioni disponibili',
+        'feature-5-title': 'Analytics Avanzate',
+        'feature-5-desc': 'Report dettagliati su performance, conversione e ROI della tua strategia AI.',
+        'feature-5-highlight': 'metriche tracciate',
+        'feature-6-title': 'Sicurezza e Privacy',
+        'feature-6-desc': 'GDPR compliant, crittografia end-to-end e server italiani per la massima protezione dei dati.',
+        'feature-6-highlight': 'GDPR compliant',
 
         // Stats Grid
         'stat-speed-title': 'Velocità Estrema',
@@ -1182,7 +1187,52 @@ const translations = {
         'notif-pref': 'Preferenza: Trilocale Prati',
         'ai-active': 'AI Attivo',
         'appraisal-sqm-placeholder': 'Superficie (mq)',
-        'appraisal-res-feedback': 'Lascia un Feedback'
+        'appraisal-res-feedback': 'Lascia un Feedback',
+        'notif-score': 'Punteggio',
+        'testimonial-quote': '"In 3 mesi abbiamo aumentato le vendite del 340%. L\'AI risponde meglio di molti agenti umani."',
+        'testimonial-role': 'Direttore, Milano Premium Real Estate',
+        'appraisal-cta-button': 'Prova Gratuitamente Fifi AI',
+        'chat-entry-client': 'Ciao, sono interessato a un trilocale a Roma zona Prati',
+        'chat-entry-ai': 'Perfetto! Ho trovato 3 trilocali disponibili a Prati. Posso inviarti le foto e organizzare una visita per domani?',
+        'chat-entry-feedback': 'Sì, mi interessa! Grazie per la velocità',
+        // Authentication
+        'nav-home': 'Home',
+        'nav-dashboard': 'Dashboard',
+        'nav-contattaci': 'Contattaci',
+        'nav-login': 'Accedi',
+        'nav-logout': 'Esci',
+        'login-page-title': 'Accedi | Anzevino AI Real Estate',
+        'login-title': 'Accedi al tuo Account',
+        'login-subtitle': 'Gestisci la tua agenzia con l\'AI',
+        'login-email': 'Email',
+        'login-password': 'Password',
+        'login-button': 'Accedi',
+        'login-loading': 'Accesso in corso...',
+        'login-no-account': 'Non hai un account?',
+        'login-register-link': 'Registrati',
+        'login-forgot': 'Password dimenticata?',
+        'login-back-home': 'Torna alla Home',
+        'login-email-placeholder': 'tua@email.it',
+        'login-password-placeholder': '••••••••',
+        'register-page-title': 'Registrati | Anzevino AI Real Estate',
+        'register-title': 'Crea il tuo Account',
+        'register-subtitle': 'Inizia a vendere di più con l\'AI',
+        'register-agency': 'Nome Agenzia',
+        'register-email': 'Email',
+        'register-phone': 'Telefono',
+        'register-password': 'Password',
+        'register-confirm-password': 'Conferma Password',
+        'register-button': 'Registrati',
+        'register-loading': 'Registrazione in corso...',
+        'register-have-account': 'Hai già un account?',
+        'register-login-link': 'Accedi',
+        'register-back-home': 'Torna alla Home',
+        'register-agency-placeholder': 'Nome della tua agenzia',
+        'register-email-placeholder': 'tua@email.it',
+        'register-phone-placeholder': '+39 123 456 7890',
+        'register-password-placeholder': 'Minimo 8 caratteri',
+        'register-password-hint': 'Minimo 8 caratteri, una lettera maiuscola e un numero',
+        'register-confirm-password-placeholder': 'Ripeti la password'
     },
     en: {
         // Navigation
@@ -1254,6 +1304,24 @@ const translations = {
         'feature-item-language': 'Multilingual Support (IT/EN)',
         'feature-item-tone': 'Customizable Tone of Voice',
         'feature-item-takeover': 'Immediate Human Takeover',
+        'feature-1-title': 'Instant WhatsApp Responses',
+        'feature-1-desc': 'Automatic response in less than 15 seconds, 24/7, even during weekends and holidays.',
+        'feature-1-highlight': 'average response time',
+        'feature-2-title': '24/7 Availability',
+        'feature-2-desc': 'Your AI agent works uninterruptedly, even while you sleep or are on vacation.',
+        'feature-2-highlight': 'annual working hours',
+        'feature-3-title': 'Multi-language Support',
+        'feature-3-desc': 'Automatic communication in Italian and English, with intelligent recognition of the client\'s language.',
+        'feature-3-highlight': 'supported languages',
+        'feature-4-title': 'Direct CRM Integration',
+        'feature-4-desc': 'Immediate connection with major real estate CRMs: Casa.it, Immobiliare.it, Idealista, and management software.',
+        'feature-4-highlight': 'available integrations',
+        'feature-5-title': 'Advanced Analytics',
+        'feature-5-desc': 'Detailed reports on performance, conversion, and ROI of your AI strategy.',
+        'feature-5-highlight': 'tracked metrics',
+        'feature-6-title': 'Security and Privacy',
+        'feature-6-desc': 'GDPR compliant, end-to-end encryption, and Italian servers for maximum data protection.',
+        'feature-6-highlight': 'GDPR compliant',
 
         // Stats Grid
         'stat-speed-title': 'Extreme Speed',
@@ -1394,7 +1462,52 @@ const translations = {
         'notif-pref': 'Preference: 3-room Prati',
         'ai-active': 'AI Active',
         'appraisal-sqm-placeholder': 'Surface Area (sqm)',
-        'appraisal-res-feedback': 'Leave Feedback'
+        'appraisal-res-feedback': 'Leave Feedback',
+        'notif-score': 'Score',
+        'testimonial-quote': '"In 3 months we increased sales by 340%. The AI responds better than many human agents."',
+        'testimonial-role': 'Director, Milan Premium Real Estate',
+        'appraisal-cta-button': 'Try Fifi AI for free',
+        'chat-entry-client': 'Hello, I am interested in a 3-room apartment in Rome, Prati area',
+        'chat-entry-ai': 'Perfect! I found 3 available apartments in Prati. Shall I send photos and schedule a viewing for tomorrow?',
+        'chat-entry-feedback': 'Yes, I\'m interested! Thanks for the speed',
+        // Authentication
+        'nav-home': 'Home',
+        'nav-dashboard': 'Dashboard',
+        'nav-contattaci': 'Contact Us',
+        'nav-login': 'Login',
+        'nav-logout': 'Logout',
+        'login-page-title': 'Login | Anzevino AI Real Estate',
+        'login-title': 'Login to your Account',
+        'login-subtitle': 'Manage your agency with AI',
+        'login-email': 'Email',
+        'login-password': 'Password',
+        'login-button': 'Login',
+        'login-loading': 'Logging in...',
+        'login-no-account': 'Don\'t have an account?',
+        'login-register-link': 'Sign up',
+        'login-forgot': 'Forgot password?',
+        'login-back-home': 'Back to Home',
+        'login-email-placeholder': 'your@email.com',
+        'login-password-placeholder': '••••••••',
+        'register-page-title': 'Sign Up | Anzevino AI Real Estate',
+        'register-title': 'Create your Account',
+        'register-subtitle': 'Start selling more with AI',
+        'register-agency': 'Agency Name',
+        'register-email': 'Email',
+        'register-phone': 'Phone',
+        'register-password': 'Password',
+        'register-confirm-password': 'Confirm Password',
+        'register-button': 'Sign up',
+        'register-loading': 'Signing up...',
+        'register-have-account': 'Already have an account?',
+        'register-login-link': 'Login',
+        'register-back-home': 'Back to Home',
+        'register-agency-placeholder': 'Your agency name',
+        'register-email-placeholder': 'your@email.com',
+        'register-phone-placeholder': '+39 123 456 7890',
+        'register-password-placeholder': 'Minimum 8 characters',
+        'register-password-hint': 'Minimum 8 characters, one uppercase letter and one number',
+        'register-confirm-password-placeholder': 'Repeat password'
     }
 };
 
@@ -1436,6 +1549,18 @@ function switchLanguage(language) {
         window.history.pushState({}, '', newUrl);
     } else {
         window.history.pushState({}, '', `${currentUrl}?lang=${language}`);
+    }
+
+    // Update home link to preserve language
+    const homeLink = document.getElementById('home-link');
+    if (homeLink) {
+        homeLink.href = `/?lang=${language}`;
+    }
+
+    // Update login link to preserve language
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) {
+        loginLink.href = `/login.html?lang=${language}`;
     }
 
     // Store language preference
@@ -1515,5 +1640,125 @@ window.addEventListener('error', function (e) {
     if (e && e.error) {
         console.error('JavaScript error:', e.error);
         // You could send this to an error tracking service
+    }
+});
+
+// PDF Download Logic
+document.addEventListener('DOMContentLoaded', function () {
+    const downloadBtn = document.getElementById('download-pdf-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', async function (e) {
+            e.preventDefault();
+            const originalText = this.innerHTML;
+            const isItalian = document.documentElement.lang === 'it';
+
+            this.innerHTML = '<i class="ph ph-spinner"></i> ' + (isItalian ? 'Generazione...' : 'Generating...');
+            this.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const element = document.getElementById('appraisal-result');
+
+                // Create a temporary style container for PDF
+                const pdfStyleId = 'pdf-export-styles';
+                let pdfStyle = document.getElementById(pdfStyleId);
+                if (!pdfStyle) {
+                    pdfStyle = document.createElement('style');
+                    pdfStyle.id = pdfStyleId;
+                    document.head.appendChild(pdfStyle);
+                }
+
+                pdfStyle.textContent = `
+                    #appraisal-result {
+                        background: white !important;
+                        color: #0f172a !important;
+                        padding: 40px !important;
+                        border-radius: 0 !important;
+                        box-shadow: none !important;
+                        width: 1000px !important; /* Fixed width for consistent capture */
+                    }
+                    #appraisal-result * {
+                        color: #0f172a !important;
+                        border-color: #e2e8f0 !important;
+                    }
+                    .result-badge {
+                        background: #f8fafc !important;
+                        border: 1px solid #e2e8f0 !important;
+                        color: #475569 !important;
+                    }
+                    .label, .metric-label {
+                        color: #64748b !important;
+                        text-transform: uppercase !important;
+                        font-weight: 600 !important;
+                    }
+                    .value-range {
+                        color: #0f172a !important;
+                        font-size: 3rem !important;
+                        margin: 1.5rem 0 !important;
+                    }
+                    .metric-card {
+                        background: #f8fafc !important;
+                        border: 1px solid #e2e8f0 !important;
+                        padding: 1.5rem !important;
+                    }
+                    .metric-card-label { color: #64748b !important; }
+                    .metric-card-value { color: #0f172a !important; font-size: 1.5rem !important; }
+                    .metric-card-hint { color: #94a3b8 !important; }
+                    .meter-bar { background: #f1f5f9 !important; border: 1px solid #e2e8f0 !important; }
+                    .meter-fill { background: #22c55e !important; }
+                    .result-cta, .close-result { display: none !important; }
+
+                    /* Add branded header for PDF */
+                    #appraisal-result::before {
+                        content: "Anzevino AI - Report Valutativo Professionale";
+                        display: block;
+                        font-size: 1.25rem;
+                        font-weight: bold;
+                        color: #1e40af !important;
+                        border-bottom: 2px solid #1e40af;
+                        margin-bottom: 2rem;
+                        padding-bottom: 1rem;
+                        text-align: center;
+                    }
+                `;
+
+                const canvas = await html2canvas(element, {
+                    scale: 3, // Higher scale for better quality
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+
+                // Clear temporary styles
+                pdfStyle.textContent = '';
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 210;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                const today = new Date().toISOString().split('T')[0];
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`Anzevino_AI_Valuation_${today}.pdf`);
+
+                const successMsg = isItalian ? 'Report PDF scaricato con successo!' : 'PDF Report downloaded successfully!';
+                if (typeof showNotification === 'function') {
+                    showNotification(successMsg, 'success');
+                } else {
+                    alert(successMsg);
+                }
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                const errorMsg = isItalian ? 'Errore nella generazione del PDF. Riprova.' : 'Error generating PDF. Please try again.';
+                if (typeof showNotification === 'function') {
+                    showNotification(errorMsg, 'error');
+                } else {
+                    alert(errorMsg);
+                }
+            } finally {
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        });
     }
 });

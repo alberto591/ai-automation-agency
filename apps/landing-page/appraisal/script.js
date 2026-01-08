@@ -1196,6 +1196,9 @@ const translations = {
         'chat-entry-ai': 'Perfetto! Ho trovato 3 trilocali disponibili a Prati. Posso inviarti le foto e organizzare una visita per domani?',
         'chat-entry-feedback': 'Sì, mi interessa! Grazie per la velocità',
         // Authentication
+        'nav-home': 'Home',
+        'nav-dashboard': 'Dashboard',
+        'nav-contattaci': 'Contattaci',
         'nav-login': 'Accedi',
         'nav-logout': 'Esci',
         'login-page-title': 'Accedi | Anzevino AI Real Estate',
@@ -1468,6 +1471,9 @@ const translations = {
         'chat-entry-ai': 'Perfect! I found 3 available apartments in Prati. Shall I send photos and schedule a viewing for tomorrow?',
         'chat-entry-feedback': 'Yes, I\'m interested! Thanks for the speed',
         // Authentication
+        'nav-home': 'Home',
+        'nav-dashboard': 'Dashboard',
+        'nav-contattaci': 'Contact Us',
         'nav-login': 'Login',
         'nav-logout': 'Logout',
         'login-page-title': 'Login | Anzevino AI Real Estate',
