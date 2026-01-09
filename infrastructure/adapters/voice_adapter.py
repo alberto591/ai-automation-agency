@@ -1,70 +1,188 @@
+"""Voice adapter implementing VoicePort with Deepgram STT and GDPR consent."""
+
+from datetime import datetime
+
 from twilio.twiml.voice_response import VoiceResponse
 
 from config.container import container
-from domain.ports import VoicePort
+from domain.models import CallConsent
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-class TwilioVoiceAdapter(VoicePort):
+class VoiceAdapter:
+    """Voice adapter with Deepgram transcription and GDPR consent flow."""
+
+    def __init__(self) -> None:
+        """Initialize voice adapter."""
+        self.deepgram = None  # Lazy loaded
+
     def get_greeting_twiml(self, webhook_url: str) -> str:
-        """
-        Generates TwiML to greet the caller and record a message.
-        The recording is sent to 'webhook_url/transcription' for processing.
+        """Returns TwiML with GDPR consent prompt and recording.
+
+        Args:
+            webhook_url: Base URL for voice webhooks
+
+        Returns:
+            TwiML XML string
         """
         response = VoiceResponse()
 
-        # 1. Greeting
-        # Italian greeting using Alice (or other Italian voice)
+        # GDPR Consent Prompt (Italian)
         response.say(
-            "Salve. Benvenuti in Anzevino A I. "
-            "Al momento non possiamo rispondere. "
-            "Per favore, lasciate un messaggio dopo il segnale acustico indicando il vostro nome e l'immobile di interesse. "
-            "Vi contatteremo immediatamente su WhatsApp.",
-            voice="alice",
+            "Benvenuto. Questa chiamata potrebbe essere registrata per garantire "
+            "la qualità del servizio. Continuando, acconsenti alla registrazione. "
+            "Premi uno per continuare, o riattacca per rifiutare.",
             language="it-IT",
+            voice="alice",
         )
 
-        # 2. Record
-        # transcribe=True enables automatic transcription
-        # transcribeCallback points to our webhook
-        transcription_url = f"{webhook_url}/transcription"
-
-        response.record(
-            transcribe=True, transcribe_callback=transcription_url, max_length=60, play_beep=True
+        # Gather consent input
+        response.gather(
+            num_digits=1,
+            action=f"{webhook_url}/consent",
+            method="POST",
+            timeout=5,
         )
 
-        # 3. Hangup if recording finishes or no input
+        # If no input, assume no consent
+        response.say(
+            "Nessuna risposta ricevuta. Chiusura della chiamata.",
+            language="it-IT",
+            voice="alice",
+        )
         response.hangup()
 
         return str(response)
 
+    def get_consent_handler_twiml(self, webhook_url: str, digits: str, call_sid: str) -> str:
+        """Handle consent response and proceed with call.
+
+        Args:
+            webhook_url: Base URL for voice webhooks
+            digits: User's input (1 = consent, anything else = reject)
+            call_sid: Twilio Call SID
+
+        Returns:
+            TwiML XML string
+        """
+        response = VoiceResponse()
+
+        if digits == "1":
+            # Consent given - log and proceed
+            logger.info(
+                "CALL_CONSENT_GIVEN",
+                context={"call_sid": call_sid},
+            )
+
+            # Log consent to database (async task handled by webhook)
+            response.say(
+                "Grazie. Come posso aiutarti?",
+                language="it-IT",
+                voice="alice",
+            )
+
+            # Start recording
+            response.record(
+                action=f"{webhook_url}/recording",
+                transcribe=False,  # We'll use Deepgram instead
+                max_length=120,  # 2 minutes max
+                play_beep=False,
+            )
+
+        else:
+            # Consent rejected
+            logger.info(
+                "CALL_CONSENT_REJECTED",
+                context={"call_sid": call_sid, "digits": digits},
+            )
+
+            response.say(
+                "Capisco. Grazie per la chiamata. Arrivederci.",
+                language="it-IT",
+                voice="alice",
+            )
+            response.hangup()
+
+        return str(response)
+
     def handle_transcription(self, transcription_text: str, from_phone: str) -> None:
+        """Process transcribed text as an inbound lead.
+
+        Args:
+            transcription_text: Transcribed speech text
+            from_phone: Caller's phone number
         """
-        Processes the transcription as a new lead message.
-        """
-        logger.info(
-            "VOICE_TRANSCRIPTION_RECEIVED", context={"from": from_phone, "text": transcription_text}
-        )
-
-        if not transcription_text:
-            logger.warning("EMPTY_TRANSCRIPTION", context={"from": from_phone})
-            return
-
-        # Treat this as an incoming message in the generic flow
-        # This will:
-        # 1. Create/Get Lead
-        # 2. Save Message (Role: User)
-        # 3. Trigger AI Agent -> WhatsApp Reply
-
         try:
-            # We prefix with [VOICE MAIL] to give context to the AI
-            enriched_text = f"[VOICE MAIL] {transcription_text}"
+            logger.info(
+                "VOICE_TRANSCRIPTION_RECEIVED",
+                context={"phone": from_phone, "text": transcription_text[:100]},
+            )
 
-            # Using lazy import or container to avoid circular deps if needed,
-            # but adapter is called by webhook, so should be safe.
-            container.lead_processor.process_incoming_message(phone=from_phone, text=enriched_text)
+            # Process through lead processor
+            container.lead_processor.process_lead(
+                phone=from_phone,
+                name="Voice Caller",  # Will be extracted by AI if provided
+                query=transcription_text,
+            )
+
         except Exception as e:
-            logger.error("VOICE_PROCESSING_FAILED", context={"error": str(e)})
-            raise
+            logger.error(
+                "VOICE_LEAD_PROCESSING_FAILED",
+                context={"phone": from_phone, "error": str(e)},
+            )
+
+    def log_call_consent(
+        self,
+        call_sid: str,
+        phone: str,
+        consent_given: bool,
+        recording_url: str | None = None,
+    ) -> None:
+        """Log call consent to database for GDPR compliance.
+
+        Args:
+            call_sid: Twilio Call SID
+            phone: Caller's phone number
+            consent_given: Whether consent was provided
+            recording_url: URL to call recording (if available)
+        """
+        try:
+            consent = CallConsent(
+                call_id=call_sid,
+                phone=phone,
+                consent_given=consent_given,
+                consent_timestamp=datetime.now() if consent_given else None,
+                consent_method="ivr",
+                recording_url=recording_url,
+            )
+
+            # Save to database
+            container.db.client.table("call_consents").insert(
+                {
+                    "call_id": consent.call_id,
+                    "phone": consent.phone,
+                    "consent_given": consent.consent_given,
+                    "consent_timestamp": (
+                        consent.consent_timestamp.isoformat() if consent.consent_timestamp else None
+                    ),
+                    "consent_method": consent.consent_method,
+                    "recording_url": consent.recording_url,
+                }
+            ).execute()
+
+            logger.info(
+                "CALL_CONSENT_LOGGED",
+                context={
+                    "call_sid": call_sid,
+                    "phone": phone,
+                    "consent": consent_given,
+                },
+            )
+
+        except Exception as e:
+            logger.error(
+                "CALL_CONSENT_LOG_FAILED",
+                context={"call_sid": call_sid, "error": str(e)},
+            )

@@ -130,12 +130,10 @@ class Container:
 
     @property
     def voice(self) -> Any:
-        """Lazy load Voice adapter."""
-        from infrastructure.adapters.voice_adapter import (  # noqa: PLC0415
-            TwilioVoiceAdapter,
-        )
+        """Lazy load Voice adapter with GDPR consent."""
+        from infrastructure.adapters.voice_adapter import VoiceAdapter  # noqa: PLC0415
 
-        return TwilioVoiceAdapter()
+        return VoiceAdapter()
 
     @property
     def email_ingestion(self) -> Any:
