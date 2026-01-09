@@ -5,6 +5,13 @@
 
 ---
 
+> [!IMPORTANT]
+> ## 🛑 Development Freeze Until January 16, 2026
+> No new feature development until **January 16, 2026**.
+> Resume date: **Week of January 16-17, 2026**
+
+---
+
 ## Summary
 
 | Phase | Status | Pending Items |
