@@ -133,6 +133,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 language: localStorage.getItem('preferredLanguage') || 'it'
             };
 
+            // 1. Disable button and show loading state to prevent double submission
+            this.disabled = true;
+            const originalBtnContent = this.innerHTML;
+            this.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Attendi...';
+
             fetch(`${API_BASE}/api/leads`, {
                 method: 'POST',
                 headers: {
@@ -149,16 +154,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     showNotification(t('contact-success'), 'success');
 
                     contactForm.reset();
+                    // Keep disabled and show success message
                     this.innerHTML = `<i class="ph ph-check-circle"></i> ${t('contact-sent')}`;
 
+                    // Re-enable after 5 seconds just in case they want to submit another
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.innerHTML = originalBtnContent;
+                    }, 5000);
+
                     // Open Cal.com as secondary step
-                    setTimeout(() => openBooking(name, formattedPhone), 2000);
+                    setTimeout(() => openBooking(name, formattedPhone), 1500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     showNotification(t('contact-error'), 'error');
 
-                    this.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    // Reset button state on error so they can try again
+                    this.innerHTML = originalBtnContent;
                     this.disabled = false;
                 });
         });
