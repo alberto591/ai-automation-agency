@@ -9,9 +9,9 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from config.container import container
 from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.logging import get_logger
-from config.container import container
 
 logger = get_logger(__name__)
 router = APIRouter()
