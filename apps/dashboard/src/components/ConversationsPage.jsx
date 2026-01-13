@@ -10,8 +10,8 @@ export default function ConversationsPage() {
     const getWebSocketUrl = () => {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
-        const baseUrl = apiUrl.replace(/^https?:\\/\\//, '');
-    return `${wsProtocol}://${baseUrl}/ws/conversations`;
+        const baseUrl = apiUrl.replace(/^https?:\/\//, '');
+        return `${wsProtocol}://${baseUrl}/ws/conversations`;
     };
 
     const { isConnected, lastMessage } = useWebSocket(getWebSocketUrl(), {
@@ -200,71 +200,71 @@ export default function ConversationsPage() {
             Select a conversation to view messages
         </div>
     ) : (
-    <>
-        {/* Header */}
-        <div
-            style={{
-                padding: '20px',
-                borderBottom: '1px solid #e0e0e0',
-                background: '#fff',
-            }}
-        >
-            <h3 style={{ margin: 0 }}>{selectedConversation.name}</h3>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
-                {selectedConversation.phone}
-            </div>
-        </div>
-
-        {/* Messages */}
-        <div
-            style={{
-                flex: 1,
-                padding: '20px',
-                overflow: 'auto',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-            }}
-        >
-            {messages.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>
-                    No messages yet
+        <>
+            {/* Header */}
+            <div
+                style={{
+                    padding: '20px',
+                    borderBottom: '1px solid #e0e0e0',
+                    background: '#fff',
+                }}
+            >
+                <h3 style={{ margin: 0 }}>{selectedConversation.name}</h3>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
+                    {selectedConversation.phone}
                 </div>
-            ) : (
-                messages.map((msg, idx) => (
-                    <div
-                        key={idx}
-                        style={{
-                            display: 'flex',
-                            justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                        }}
-                    >
+            </div>
+
+            {/* Messages */}
+            <div
+                style={{
+                    flex: 1,
+                    padding: '20px',
+                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                }}
+            >
+                {messages.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>
+                        No messages yet
+                    </div>
+                ) : (
+                    messages.map((msg, idx) => (
                         <div
+                            key={idx}
                             style={{
-                                maxWidth: '70%',
-                                padding: '12px 16px',
-                                borderRadius: '12px',
-                                background: msg.role === 'user' ? '#3b82f6' : '#f3f4f6',
-                                color: msg.role === 'user' ? '#fff' : '#1f2937',
+                                display: 'flex',
+                                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                             }}
                         >
-                            <div>{msg.content}</div>
                             <div
                                 style={{
-                                    fontSize: '0.75rem',
-                                    marginTop: '6px',
-                                    opacity: 0.7,
+                                    maxWidth: '70%',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    background: msg.role === 'user' ? '#3b82f6' : '#f3f4f6',
+                                    color: msg.role === 'user' ? '#fff' : '#1f2937',
                                 }}
                             >
-                                {new Date(msg.timestamp).toLocaleTimeString()}
+                                <div>{msg.content}</div>
+                                <div
+                                    style={{
+                                        fontSize: '0.75rem',
+                                        marginTop: '6px',
+                                        opacity: 0.7,
+                                    }}
+                                >
+                                    {new Date(msg.timestamp).toLocaleTimeString()}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))
-            )}
-        </div>
-    </>
-)
+                    ))
+                )}
+            </div>
+        </>
+    )
 }
       </div >
     </div >
