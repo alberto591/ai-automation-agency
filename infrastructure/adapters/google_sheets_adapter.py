@@ -150,3 +150,48 @@ class GoogleSheetsAdapter:
         except Exception as e:
             logger.error("GOOGLE_SHEETS_SYNC_ERROR", context={"error": str(e)}, exc_info=True)
             return False
+
+    def sync_review(self, review_data: dict[str, Any]) -> bool:
+        """
+        Sync a review to the 'Reviews' worksheet.
+        """
+        if not self.is_connected or not self.client:
+            logger.warning("GOOGLE_SHEETS_REVIEW_SYNC_SKIPPED", context={"reason": "Not connected"})
+            return False
+
+        try:
+            # Get or create 'Reviews' worksheet
+            try:
+                worksheet = self.client.worksheet("Reviews")
+            except gspread.WorksheetNotFound:
+                worksheet = self.client.add_worksheet(title="Reviews", rows=1000, cols=10)
+                # Add headers
+                headers = [
+                    "Date",
+                    "Phone",  # Appraisal Phone
+                    "Email",
+                    "Overall Rating",
+                    "Speed",
+                    "Accuracy",
+                    "Comments",
+                ]
+                worksheet.append_row(headers)
+
+            # Format data
+            row_data = [
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                review_data.get("appraisal_phone", ""),
+                review_data.get("appraisal_email", ""),
+                review_data.get("overall_rating", 0),
+                review_data.get("speed_rating", 0),
+                review_data.get("accuracy_rating", 0),
+                review_data.get("feedback_text", ""),
+            ]
+
+            worksheet.append_row(row_data)
+            logger.info("GOOGLE_SHEETS_REVIEW_APPENDED")
+            return True
+
+        except Exception as e:
+            logger.error("GOOGLE_SHEETS_REVIEW_SYNC_ERROR", context={"error": str(e)}, exc_info=True)
+            return False

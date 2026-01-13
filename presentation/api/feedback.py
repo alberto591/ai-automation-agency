@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from infrastructure.adapters.supabase_adapter import SupabaseAdapter
 from infrastructure.logging import get_logger
+from config.container import container
 
 logger = get_logger(__name__)
 router = APIRouter()
@@ -93,6 +94,13 @@ async def submit_feedback(feedback: FeedbackRequest) -> dict[str, Any]:
         data_list = cast(list[Any], result.data)
         if data_list and len(data_list) > 0:
             feedback_id = cast(dict[str, Any], data_list[0]).get("id")
+
+            # Sync to Google Sheets
+            try:
+                container.google_sheets.sync_review(insert_data)
+            except Exception as e:
+                logger.error("SHEET_SYNC_FAILED", context={"error": str(e)})
+
             return {
                 "success": True,
                 "message": "Thank you for your feedback!",
