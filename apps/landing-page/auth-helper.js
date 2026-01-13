@@ -19,6 +19,10 @@
         // Initialize Supabase - using a local variable to avoid conflict
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Determine Dashboard URL (Local vs Prod)
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const DASHBOARD_URL = isLocal ? 'http://localhost:5174/dashboard/' : '/dashboard/';
+
         /**
          * Shared Auth Logic
          */
@@ -92,7 +96,7 @@
             async redirectIfLoggedIn() {
                 const session = await this.getSession();
                 if (session) {
-                    window.location.href = '/dashboard/';
+                    window.location.href = DASHBOARD_URL;
                 }
             },
 
@@ -105,7 +109,7 @@
 
                 if (session && loginLink) {
                     // Change Login to Dashboard
-                    loginLink.href = '/dashboard/';
+                    loginLink.href = DASHBOARD_URL;
                     const textSpan = loginLink.querySelector('span[data-translate="nav-login"]');
                     if (textSpan) {
                         textSpan.textContent = 'Dashboard';
