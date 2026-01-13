@@ -5,6 +5,7 @@ import ChatWindow from './components/ChatWindow'
 import AnalyticsPage from './components/AnalyticsPage'
 import MarketIntelPage from './components/MarketIntelPage'
 import OutreachPage from './components/OutreachPage'
+import ConversationsPage from './components/ConversationsPage'
 import LoginPage from './components/LoginPage'
 import { supabase } from './lib/supabase'
 import { BarChart3, MessageSquare, Globe, Users } from 'lucide-react'
@@ -104,16 +105,8 @@ function App() {
 
       {/* Main Content */}
       {currentView === 'inbox' ? (
-        <div className="flex flex-1 p-0 md:p-4 gap-4 overflow-hidden">
-          {/* Sidebar: 30% on large screens, hidden on mobile if chat open */}
-          <div className={`w-full md:w-[350px] lg:w-[400px] h-full glass-panel rounded-none md:rounded-3xl overflow-hidden transition-all duration-500 ${selectedLead ? 'hidden md:block' : 'block'}`}>
-            <Sidebar selectedLead={selectedLead} setSelectedLead={setSelectedLead} />
-          </div>
-
-          {/* Chat Window: rest of space */}
-          <div className={`flex-1 h-full glass-panel rounded-none md:rounded-3xl overflow-hidden transition-all duration-500 ${selectedLead ? 'block' : 'hidden md:block'}`}>
-            <ChatWindow selectedLead={selectedLead} />
-          </div>
+        <div className="flex-1 overflow-hidden">
+          <ConversationsPage />
         </div>
       ) : currentView === 'analytics' ? (
         <div className="flex-1 overflow-hidden p-0 md:p-4">
