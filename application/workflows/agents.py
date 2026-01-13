@@ -995,6 +995,9 @@ def create_lead_processing_graph(
     def route_after_ingest(state: AgentState) -> str:
         if state["checkpoint"] == "human_mode":
             return str(END)
+        # Agency Demos bypass intent/qualification and go straight to analysis flow
+        if state["source"] == "AGENCY_DEMO":
+            return "preferences"
         if state["source"] == "FIFI_APPRAISAL":
             return "fifi_appraisal"
         # If in Qualification Mode, route to it
