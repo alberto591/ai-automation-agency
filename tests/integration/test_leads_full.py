@@ -1,8 +1,8 @@
+import sys
 
-import pytest
 from fastapi.testclient import TestClient
+
 from presentation.api.api import app
-import logging
 
 # Setup client
 client = TestClient(app)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
         print("✅ test_property_search_lead PASSED")
     except AssertionError as e:
         print(f"❌ TEST FAILED: {e}")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         print(f"❌ ERROR: {e}")
-        exit(1)
+        sys.exit(1)

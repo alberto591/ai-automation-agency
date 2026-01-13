@@ -148,7 +148,9 @@ async def create_lead(lead: LeadRequest) -> dict[str, Any]:
 
     try:
         query_str = f"Agency: {lead.agency}. Notes: {lead.properties}"
-        logger.info("API_QUERY_CONSTRUCTED", context={"query": query_str, "language": lead.language})
+        logger.info(
+            "API_QUERY_CONSTRUCTED", context={"query": query_str, "language": lead.language}
+        )
         result = container.lead_processor.process_lead(
             phone=lead.phone,
             name=lead.name,
