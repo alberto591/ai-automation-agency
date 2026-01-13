@@ -100,7 +100,7 @@ app.include_router(calcom_webhook.router, prefix="/api")
 app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
 app.include_router(lead_sources.router, prefix="/api")
-app.include_router(feedback.router, prefix="/api")
+app.include_router(feedback.router, prefix="/api/feedback")
 
 
 # DTOs
