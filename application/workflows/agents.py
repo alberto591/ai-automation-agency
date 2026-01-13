@@ -140,24 +140,27 @@ def create_lead_processing_graph(
         context_data = state.get("context_data") or {}
 
         query_lower = state["user_input"].lower()
-        logger.info("SOURCE_DETECTION", context={"query_lower": query_lower, "current_source": source})
+        logger.info(
+            "SOURCE_DETECTION", context={"query_lower": query_lower, "current_source": source}
+        )
         # Only run heuristic if source is still WHATSAPP (default)
         if source == "WHATSAPP":
             if "valutazione" in query_lower or "appraisal" in query_lower:
                 source = "FIFI_APPRAISAL"
-                logger.info("SOURCE_SET", context={"source": source, "reason": "appraisal keyword found"})
+                logger.info(
+                    "SOURCE_SET", context={"source": source, "reason": "appraisal keyword found"}
+                )
             elif "agency:" in query_lower:
                 # This is a B2B lead from the agency contact form
                 source = "AGENCY_DEMO"
-                logger.info("SOURCE_SET", context={"source": source, "reason": "agency: keyword found"})
+                logger.info(
+                    "SOURCE_SET", context={"source": source, "reason": "agency: keyword found"}
+                )
                 # Extract agency name if present
                 agency_match = re.search(r"agency:\s*([^.]+)", query_lower)
                 if agency_match:
                     context_data["agency_name"] = agency_match.group(1).strip()
-            elif (
-                "immobiliare" in query_lower
-                or "idealista" in query_lower
-            ):
+            elif "immobiliare" in query_lower or "idealista" in query_lower:
                 source = "PORTAL"
                 # Try to extract property context if present
                 prop_match = re.search(r"immobile:\s*(.*)", query_lower)
@@ -643,6 +646,11 @@ def create_lead_processing_graph(
 
     def cache_check_node(state: AgentState) -> dict[str, Any]:
         """Check semantic cache."""
+        # Skip cache for Agency Demo flow to ensure personalized name/template
+        if state.get("source") == "AGENCY_DEMO":
+             embedding = ai.get_embedding(state["user_input"])
+             return {"embedding": embedding, "checkpoint": "continue"}
+
         embedding = ai.get_embedding(state["user_input"])
         cached = db.get_cached_response(embedding)
 
@@ -696,12 +704,12 @@ def create_lead_processing_graph(
         lead = state["lead_data"]
         nm = lead.get("customer_name", "Cliente")
         current_stage = lead.get("journey_state") or LeadStatus.ACTIVE
-        
+
         # SPECIAL HANDLING FOR AGENCY_DEMO: Use dedicated simple prompt
         if state["source"] == "AGENCY_DEMO":
             agency_name = state["context_data"].get("agency_name", nm)
             language = state["language"]
-            
+
             if language == "it":
                 demo_template = (
                     f"Ciao da Anzevino AI! 👋 Grazie per l'interesse, *{agency_name.title()}*!\n\n"
@@ -726,9 +734,9 @@ def create_lead_processing_graph(
                     "Looking forward to it! 🚀\n\n"
                     f"*P.S. Already working with agencies just like yours across Italy.*"
                 )
-            
+
             return {"ai_response": demo_template}
-        
+
         # STANDARD PROPERTY SEARCH FLOW (for all other sources)
         details = _format_properties(state["retrieved_properties"])
 
