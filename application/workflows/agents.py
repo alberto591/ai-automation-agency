@@ -227,85 +227,97 @@ def create_lead_processing_graph(
 
         logger.info("FIFI_APPRAISAL_START", context={"phone": state["phone"]})
 
-        # Lazy imports for ML components
-        from infrastructure.ml.feature_engineering import (
-            extract_property_features,
-        )
-        from infrastructure.ml.xgboost_adapter import XGBoostAdapter
+        try:
+            # Lazy imports for ML components
+            from infrastructure.ml.feature_engineering import (
+                extract_property_features,
+            )
+            from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 
-        # 1. Extract features from user input
-        features = extract_property_features(
-            description=state["user_input"], address=state["lead_data"].get("address")
-        )
+            # 1. Extract features from user input
+            features = extract_property_features(
+                description=state["user_input"], address=state["lead_data"].get("address")
+            )
 
-        # 2. ML Prediction (Model Simulator for Week 3)
-        adapter = XGBoostAdapter()
-        prediction = adapter.predict(features)
+            # 2. ML Prediction (Model Simulator for Week 3)
+            adapter = XGBoostAdapter()
+            prediction = adapter.predict(features)
 
-        # 3. Find comparables for uncertainty estimation
-        # We use existing retrieved properties if any, or fetch new ones
-        comparables = db.get_properties(state["user_input"], use_mock_table=True, limit=5)
-        uncertainty_score = adapter.calculate_uncertainty(prediction, comparables)
+            # 3. Find comparables for uncertainty estimation
+            # We use existing retrieved properties if any, or fetch new ones
+            comparables = db.get_properties(state["user_input"], use_mock_table=True, limit=5)
+            uncertainty_score = adapter.calculate_uncertainty(prediction, comparables)
 
-        # 4. Confidence interval
-        confidence_low = int(prediction * (1 - uncertainty_score))
-        confidence_high = int(prediction * (1 + uncertainty_score))
+            # 4. Confidence interval
+            confidence_low = int(prediction * (1 - uncertainty_score))
+            confidence_high = int(prediction * (1 + uncertainty_score))
 
-        # 5. Human oversight decision
-        status = "AUTO_APPROVED"
-        if uncertainty_score > 0.15:
-            status = "HUMAN_REVIEW_REQUIRED"
+            # 5. Human oversight decision
+            status = "AUTO_APPROVED"
+            if uncertainty_score > 0.15:
+                status = "HUMAN_REVIEW_REQUIRED"
 
-        # High Value Trigger (Safety Check)
-        if prediction > 2000000:
-            status = "HUMAN_REVIEW_REQUIRED"
-            logger.warning("HIGH_VALUE_TRIGGER", context={"value": prediction})
+            # High Value Trigger (Safety Check)
+            if prediction > 2000000:
+                status = "HUMAN_REVIEW_REQUIRED"
+                logger.warning("HIGH_VALUE_TRIGGER", context={"value": prediction})
 
-        # 6. Calculate investment metrics
-        investment_metrics = adapter.calculate_investment_metrics(
-            property_value=prediction,
-            sqm=features.sqm,
-            zone=features.zone_slug,
-        )
+            # 6. Calculate investment metrics
+            investment_metrics = adapter.calculate_investment_metrics(
+                property_value=prediction,
+                sqm=features.sqm,
+                zone=features.zone_slug,
+            )
 
-        fifi_res = {
-            "fifi_status": status,
-            "uncertainty_score": uncertainty_score,
-            "predicted_value": int(prediction),
-            "confidence_range": f"€{int(confidence_low or 0):,} - €{int(confidence_high or 0):,}",
-            "confidence_level": int((1 - uncertainty_score) * 100),
-            "comparables": comparables[:3],
-            "investment_metrics": investment_metrics,
-        }
+            fifi_res = {
+                "fifi_status": status,
+                "uncertainty_score": uncertainty_score,
+                "predicted_value": int(prediction),
+                "confidence_range": f"€{int(confidence_low or 0):,} - €{int(confidence_high or 0):,}",
+                "confidence_level": int((1 - uncertainty_score) * 100),
+                "comparables": comparables[:3],
+                "investment_metrics": investment_metrics,
+            }
 
-        # 7. Audit Trail Logging
-        if validation:
-            try:
-                validation.log_validation(
-                    predicted_value=int(prediction),
-                    actual_value=0,  # Not available yet for live audit
-                    metadata={
-                        "phone": state["phone"],
-                        "features": features.model_dump()
-                        if hasattr(features, "model_dump")
-                        else str(features),
-                        "source": "live_appraisal",
-                        "user_input": state["user_input"],
-                        "zone": features.zone_slug or "UNKNOWN",
-                        "city": "UNKNOWN",  # Could extract from features if needed
-                        "fifi_status": status,
-                    },
-                    uncertainty_score=uncertainty_score,
-                )
-                logger.info("AUDIT_LOG_SUCCESS", context={"phone": state["phone"]})
-            except Exception as e:
-                logger.error("AUDIT_LOG_FAILED", context={"error": str(e)})
+            # 7. Audit Trail Logging
+            if validation:
+                try:
+                    validation.log_validation(
+                        predicted_value=int(prediction),
+                        actual_value=0,  # Not available yet for live audit
+                        metadata={
+                            "phone": state["phone"],
+                            "features": features.model_dump()
+                            if hasattr(features, "model_dump")
+                            else str(features),
+                            "source": "live_appraisal",
+                            "user_input": state["user_input"],
+                            "zone": features.zone_slug or "UNKNOWN",
+                            "city": "UNKNOWN",  # Could extract from features if needed
+                            "fifi_status": status,
+                        },
+                        uncertainty_score=uncertainty_score,
+                    )
+                    logger.info("AUDIT_LOG_SUCCESS", context={"phone": state["phone"]})
+                except Exception as e:
+                    logger.error("AUDIT_LOG_FAILED", context={"error": str(e)})
 
-        # Tag lead as HOT and add appraisal notes
-        if journey and status == "AUTO_APPROVED":
-            journey.transition_to(state["phone"], LeadStatus.HOT)
+            # Tag lead as HOT and add appraisal notes
+            if journey and status == "AUTO_APPROVED":
+                journey.transition_to(state["phone"], LeadStatus.HOT)
 
-        return {"fifi_data": fifi_res}
+            return {"fifi_data": fifi_res}
+
+        except Exception as e:
+            logger.error("FIFI_APPRAISAL_FAILED", context={"error": str(e), "phone": state["phone"]})
+            # Return empty/error structure to prevent flow crash
+            return {
+                "fifi_data": {
+                    "fifi_status": "ERROR",
+                    "error": str(e),
+                    "predicted_value": 0
+                }
+            }
 
     def handoff_node(state: AgentState) -> dict[str, Any]:
         """
