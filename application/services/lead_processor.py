@@ -1,6 +1,7 @@
 import re
 from datetime import UTC, datetime
 from typing import Any, cast
+import asyncio
 
 from domain.enums import LeadStatus
 from domain.ports import (
@@ -15,6 +16,14 @@ from domain.ports import (
 from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
+
+# Import WebSocket manager for real-time dashboard updates
+try:
+    from infrastructure.websocket import manager as ws_manager
+    WS_AVAILABLE = True
+except ImportError:
+    WS_AVAILABLE = False
+    logger.warning("WEBSOCKET_UNAVAILABLE", context={"reason": "Module not found"})
 
 
 class LeadScorer:
@@ -252,6 +261,24 @@ class LeadProcessor:
             new_msg["metadata"] = metadata
 
         self.db.save_message(lead["id"], new_msg)
+        
+        # Broadcast to WebSocket clients for real-time dashboard updates
+        if WS_AVAILABLE:
+            try:
+                asyncio.create_task(
+                    ws_manager.broadcast_to_room(
+                        {
+                            "type": "message",
+                            "phone": phone,
+                            "lead_id": lead["id"],
+                            "lead_name": lead.get("name", "Unknown"),
+                            "message": new_msg,
+                        },
+                        room_id="all",
+                    )
+                )
+            except Exception as e:
+                logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})
 
     def send_brochure_if_interested(self, phone: str, query: str) -> None:
         """
