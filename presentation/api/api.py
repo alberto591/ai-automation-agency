@@ -110,6 +110,7 @@ class LeadRequest(BaseModel):
     phone: str
     postcode: str | None = None
     properties: str | None = None
+    language: str | None = None  # User's selected language from toggle
 
 
 class PhoneRequest(BaseModel):
@@ -146,11 +147,14 @@ async def create_lead(lead: LeadRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail="Invalid phone format")
 
     try:
+        query_str = f"Agency: {lead.agency}. Notes: {lead.properties}"
+        logger.info("API_QUERY_CONSTRUCTED", context={"query": query_str, "language": lead.language})
         result = container.lead_processor.process_lead(
             phone=lead.phone,
             name=lead.name,
-            query=f"Agency: {lead.agency}. Notes: {lead.properties}",
+            query=query_str,
             postcode=lead.postcode,
+            language=lead.language,
         )
         return {"status": "success", "ai_response": result}
     except BaseAppError as e:

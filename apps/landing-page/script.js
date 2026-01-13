@@ -129,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 name: name,
                 agency: agency,
                 phone: formattedPhone,
-                properties: formData.get('properties')
+                properties: formData.get('properties'),
+                language: localStorage.getItem('preferredLanguage') || 'it'
             };
 
             fetch(`${API_BASE}/api/leads`, {
@@ -144,36 +145,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     return response.json();
                 })
                 .then(data => {
-                    // Success
-                    const currentLang = document.documentElement.lang;
-                    const successMessage = currentLang === 'it'
-                        ? '✅ Lead ricevuto! Controlla il tuo WhatsApp tra 10 secondi.'
-                        : '✅ Lead received! Check your WhatsApp in 10 seconds.';
-
-                    // Use showNotification if available, otherwise alert fallback (though we removed the annoying one, this is key feedback)
-                    if (typeof showNotification === 'function') {
-                        showNotification(successMessage, 'success');
-                    } else {
-                        alert(successMessage);
-                    }
+                    // Success - use translation function
+                    showNotification(t('contact-success'), 'success');
 
                     contactForm.reset();
-                    this.innerHTML = '<i class="ph ph-check-circle"></i> Inviato!';
+                    this.innerHTML = `<i class="ph ph-check-circle"></i> ${t('contact-sent')}`;
 
                     // Open Cal.com as secondary step
-                    setTimeout(() => openBooking(), 2000);
+                    setTimeout(() => openBooking(name, formattedPhone), 2000);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const errorMsg = document.documentElement.lang === 'it'
-                        ? 'Errore di connessione. Riprova.'
-                        : 'Connection error. Please try again.';
-
-                    if (typeof showNotification === 'function') {
-                        showNotification(errorMsg, 'error');
-                    } else {
-                        alert(errorMsg);
-                    }
+                    showNotification(t('contact-error'), 'error');
 
                     this.innerHTML = '<i class="ph ph-warning"></i> Riprova';
                     this.disabled = false;
@@ -182,9 +165,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Cal.com Integration
-    function openBooking() {
-        // Direct link fallback for reliability
-        window.open('https://cal.com/anzevino-ai', '_blank');
+    function openBooking(name = '', phone = '') {
+        if (typeof Cal !== 'undefined') {
+            Cal("modal", {
+                calLink: "anzevino-ai",
+                active: true,
+                config: {
+                    name: name,
+                    phone: phone,
+                    // Pass branding/theme if needed
+                }
+            });
+        } else {
+            // Direct link fallback for reliability
+            window.open('https://cal.com/anzevino-ai', '_blank');
+        }
     }
 
     // Demo Button Handling
@@ -1086,6 +1081,9 @@ const translations = {
         'badge-certified': 'Certificato AI',
         'notif-title': 'Nuovo Lead Qualificato',
         'notif-client': 'Cliente: Marco R.',
+        'contact-success': '✅ Richiesta ricevuta! Controlla il tuo WhatsApp tra 10 secondi.',
+        'contact-error': 'Errore di connessione. Riprova.',
+        'contact-sent': 'Inviato!',
         'notif-pref': 'Preferenza: Trilocale Prati',
         'ai-active': 'AI Attivo',
         'appraisal-sqm-placeholder': 'Superficie (mq)'
@@ -1301,6 +1299,9 @@ const translations = {
         'badge-certified': 'AI Certified',
         'notif-title': 'New Qualified Lead',
         'notif-client': 'Client: Marco R.',
+        'contact-success': '✅ Request received! Check your WhatsApp in 10 seconds.',
+        'contact-error': 'Connection error. Please try again.',
+        'contact-sent': 'Sent!',
         'notif-pref': 'Preference: 3-room Prati',
         'ai-active': 'AI Active',
         'appraisal-sqm-placeholder': 'Surface Area (sqm)'

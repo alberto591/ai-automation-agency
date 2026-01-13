@@ -89,13 +89,13 @@ class LeadProcessor:
 
     SIMILARITY_THRESHOLD = 0.78
 
-    def process_lead(self, phone: str, name: str, query: str, postcode: str | None = None) -> str:
+    def process_lead(self, phone: str, name: str, query: str, postcode: str | None = None, language: str | None = None) -> str:
         # Clean phone
         phone = re.sub(r"\s+", "", phone)
-        logger.info("PROCESSING_LEAD", context={"phone": phone, "name": name})
+        logger.info("PROCESSING_LEAD", context={"phone": phone, "name": name, "language": language})
 
-        # Use LangGraph
-        inputs = {"phone": phone, "user_input": query, "name": name, "postcode": postcode}
+        # Use LangGraph - pass language directly, not as preferred_language
+        inputs = {"phone": phone, "user_input": query, "name": name, "postcode": postcode, "language": language}
 
         try:
             result = self.graph.invoke(inputs)

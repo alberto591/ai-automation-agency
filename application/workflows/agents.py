@@ -77,7 +77,7 @@ class AgentState(TypedDict):
     negotiation_data: dict[str, Any]
     status_msg: str
     ai_response: str
-    source: Literal["FIFI_APPRAISAL", "PORTAL", "WHATSAPP", "UNKNOWN"]
+    source: Literal["FIFI_APPRAISAL", "PORTAL", "WHATSAPP", "AGENCY_DEMO", "UNKNOWN"]
     context_data: dict[str, Any]
     checkpoint: Literal["cache_hit", "human_mode", "continue", "done"]
     language: Literal["it", "en"]
@@ -140,14 +140,23 @@ def create_lead_processing_graph(
         context_data = state.get("context_data") or {}
 
         query_lower = state["user_input"].lower()
+        logger.info("SOURCE_DETECTION", context={"query_lower": query_lower, "current_source": source})
         # Only run heuristic if source is still WHATSAPP (default)
         if source == "WHATSAPP":
             if "valutazione" in query_lower or "appraisal" in query_lower:
                 source = "FIFI_APPRAISAL"
+                logger.info("SOURCE_SET", context={"source": source, "reason": "appraisal keyword found"})
+            elif "agency:" in query_lower:
+                # This is a B2B lead from the agency contact form
+                source = "AGENCY_DEMO"
+                logger.info("SOURCE_SET", context={"source": source, "reason": "agency: keyword found"})
+                # Extract agency name if present
+                agency_match = re.search(r"agency:\s*([^.]+)", query_lower)
+                if agency_match:
+                    context_data["agency_name"] = agency_match.group(1).strip()
             elif (
                 "immobiliare" in query_lower
                 or "idealista" in query_lower
-                or "agency:" in query_lower
             ):
                 source = "PORTAL"
                 # Try to extract property context if present
@@ -156,24 +165,30 @@ def create_lead_processing_graph(
                     context_data["property_id"] = prop_match.group(1).strip()
 
         # Language Detection
-        # 1. Grounding via phone (+39 is Italian, everything else defaults to English for Tourists)
-        is_italian_number = phone.startswith("+39") or phone.startswith("39")
+        # Priority 1: User's explicit language selection from toggle (passed in inputs)
+        input_lang = state.get("language")  # This comes from the initial inputs
+        if input_lang and input_lang in ["it", "en"]:
+            language = input_lang
+        else:
+            # Priority 2: Auto-detect from phone number and input
+            # 1. Grounding via phone (+39 is Italian, everything else defaults to English)
+            is_italian_number = phone.startswith("+39") or phone.startswith("39")
 
-        # 2. Heuristic check on input
-        english_keywords = [
-            "hello",
-            "hi",
-            "info",
-            "details",
-            "property",
-            "house",
-            "buy",
-            "rent",
-            "price",
-        ]
-        is_english_input = any(word in query_lower for word in english_keywords)
+            # 2. Heuristic check on input
+            english_keywords = [
+                "hello",
+                "hi",
+                "info",
+                "details",
+                "property",
+                "house",
+                "buy",
+                "rent",
+                "price",
+            ]
+            is_english_input = any(word in query_lower for word in english_keywords)
 
-        language = "it" if is_italian_number and not is_english_input else "en"
+            language = "it" if is_italian_number and not is_english_input else "en"
 
         return {
             "lead_data": lead,
@@ -681,6 +696,40 @@ def create_lead_processing_graph(
         lead = state["lead_data"]
         nm = lead.get("customer_name", "Cliente")
         current_stage = lead.get("journey_state") or LeadStatus.ACTIVE
+        
+        # SPECIAL HANDLING FOR AGENCY_DEMO: Use dedicated simple prompt
+        if state["source"] == "AGENCY_DEMO":
+            agency_name = state["context_data"].get("agency_name", nm)
+            language = state["language"]
+            
+            if language == "it":
+                demo_template = (
+                    f"Ciao da Anzevino AI! 👋 Grazie per l'interesse, *{agency_name.title()}*!\n\n"
+                    "Abbiamo inviato un link per prenotare la demo direttamente sul vostro calendario. "
+                    "In 15 minuti vi mostriamo come:\n"
+                    "✅ **Qualifichiamo lead 24/7** su WhatsApp (senza perdere opportunità)\n"
+                    "✅ **Integriamo i dati** con il vostro CRM (nessun doppio lavoro)\n"
+                    "✅ **Rispondiamo in tempo reale** con informazioni precise\n\n"
+                    "Avete già ricevuto il link? Se preferite, possiamo fissare un orario subito qui in chat.\n\n"
+                    "A presto! 🚀\n\n"
+                    f"*P.S. Funziona già con agenzie come la vostra in tutta Italia.*"
+                )
+            else:  # English
+                demo_template = (
+                    f"Hello from Anzevino AI! 👋 Thank you for your interest, *{agency_name.title()}*!\n\n"
+                    "We've sent you a booking link for a personalized demo. "
+                    "In just 15 minutes, we'll show you how:\n"
+                    "✅ **24/7 Lead Qualification** on WhatsApp (never miss an opportunity)\n"
+                    "✅ **Seamless CRM Integration** (no double data entry)\n"
+                    "✅ **Instant, Intelligent Responses** with accurate information\n\n"
+                    "Did you receive the link? If you'd like, we can schedule a time together right here in this chat.\n\n"
+                    "Looking forward to it! 🚀\n\n"
+                    f"*P.S. Already working with agencies just like yours across Italy.*"
+                )
+            
+            return {"ai_response": demo_template}
+        
+        # STANDARD PROPERTY SEARCH FLOW (for all other sources)
         details = _format_properties(state["retrieved_properties"])
 
         prompt_template = ChatPromptTemplate.from_messages(
@@ -700,7 +749,7 @@ def create_lead_processing_graph(
                         "Available Properties Data: {properties}\n\n"
                         "Language: {language}\n\n"
                         "If Language is 'it': Short, friendly Italian, local agency vibe.\n"
-                        "If Language is 'en': Act as a professional, welcoming guide for tourists. Focus on the charm of Tuscany. Explain local nuances like 'borgo', 'agriturismo', and the lifestyle. Use warm, descriptive language.\n\n"
+                        "If Language is 'en': Act as a professional AI Solutions Consultant for Real Estate Agencies. Focus on how Anzevino AI automates lead qualification on WhatsApp, works 24/7, and integrates with CRM systems. Be innovative, helpful, and results-driven. Avoid talk about 'tourists' or 'Tuscany' unless explicitly asked about properties in that region.\n\n"
                         "### OBJECTION HANDLING ###\n"
                         "If the user expresses concerns (price, timing, trust), use the 'Empathy -> Pivot -> Value' technique:\n"
                         "1. Acknowledge and Validate: 'I understand that price is a major factor...'\n"
@@ -716,9 +765,10 @@ def create_lead_processing_graph(
                         "- If it's ABOVE, use data to justify why (e.g., premium features, renovation) or suggest it's a premium option.\n\n"
                         "### CRITICAL PHASE INSTRUCTIONS ###\n"
                         "You MUST follow these instructions based on current state (Stage: {stage}):\n"
-                        "1. If Lead Source is FIFI_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately. Use the market average to ground your estimate.\n"
-                        "2. If Lead Source is PORTAL: Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
-                        "3. If status_msg mentions 'closest alternatives': Be transparent that these might not match all criteria but are high-quality options in the desired area.\n"
+                        "1. If Lead Source is AGENCY_DEMO: This is a B2B lead from an agency requesting a demo. Send a warm welcome message thanking them for their interest, briefly mention the key benefits (24/7 lead qualification, CRM integration, instant responses), and confirm that they should have received a booking link. Keep it professional but friendly. DO NOT mention property appraisals or Senior Agents.\n"
+                        "2. If Lead Source is FIFI_APPRAISAL: Acknowledge the valuation request and provide the estimated range immediately. Use the market average to ground your estimate.\n"
+                        "3. If Lead Source is PORTAL: This is a property inquiry. Mention the specific house from {context_data} and ask if they want to see the floor plan.\n"
+                        "4. If status_msg mentions 'closest alternatives': Be transparent that these might not match all criteria but are high-quality options in the desired area.\n"
                         "Keep it native for WhatsApp (short, friendly, max 1500 characters, in the detected language: {language})."
                     ),
                 ),
@@ -805,37 +855,30 @@ def create_lead_processing_graph(
         db.save_message(lead["id"], user_msg)
 
         if response:
-            assistant_msg = {
-                "role": "assistant",
-                "content": response,
-                "timestamp": datetime.now(UTC).isoformat(),
-                "metadata": {"by": "ai", "graph": "langgraph"},
-            }
-            db.save_message(lead["id"], assistant_msg)
-
-            # 2. Send Message via Messaging Port
+            # 1. Send Message via Messaging Port
             inter_msg = state.get("interactive_message")
+            sid = None
 
             if inter_msg:
                 # Send Interactive Message (Buttons/List)
                 try:
-                    msg.send_interactive_message(phone, inter_msg)
+                    sid = msg.send_interactive_message(phone, inter_msg)
                     logger.info(
                         "INTERACTIVE_MSG_SENT", context={"phone": phone, "type": inter_msg.type}
                     )
                 except Exception as e:
                     # Fallback to text if interactive fails
                     logger.error("INTERACTIVE_SEND_FAILED", context={"error": str(e)})
-                    msg.send_message(phone, response)
+                    sid = msg.send_message(phone, response)
             elif (
                 state["source"] == "WHATSAPP"
                 and state.get("retrieved_properties")
-                and "list" not in state["status_msg"]  # Avoid loops if we flagging it
+                and "list" not in state["status_msg"]  # Avoid loops
             ):
                 rows = []
                 from domain.messages import Row, Section
 
-                for p in state["retrieved_properties"][:10]:  # Max 10 rows per section
+                for p in state["retrieved_properties"][:10]:
                     rows.append(
                         Row(
                             id=f"prop_{p.get('id', '0')}",
@@ -846,17 +889,28 @@ def create_lead_processing_graph(
 
                 msg_model = InteractiveMessage(
                     type="list",
-                    body_text=response[:1024],  # Truncate body if needed
+                    body_text=response[:1024],
                     button_text="View Homes",
                     sections=[Section(title="Top Matches", rows=rows)],
                 )
                 try:
-                    msg.send_interactive_message(phone, msg_model)
+                    sid = msg.send_interactive_message(phone, msg_model)
                 except Exception:
-                    # Fallback to text if interactive fails (e.g. not implemented in mock)
-                    msg.send_message(phone, response)
+                    # Fallback to text
+                    sid = msg.send_message(phone, response)
             else:
-                msg.send_message(phone, response)
+                sid = msg.send_message(phone, response)
+
+            # 2. Save Message to history with captured SID
+            assistant_msg = {
+                "role": "assistant",
+                "content": response,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "sid": sid,
+                "status": "sent" if sid else "failed",
+                "metadata": {"by": "ai", "graph": "langgraph"},
+            }
+            db.save_message(lead["id"], assistant_msg)
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:
