@@ -157,14 +157,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Keep disabled and show success message
                     this.innerHTML = `<i class="ph ph-check-circle"></i> ${t('contact-sent')}`;
 
-                    // Re-enable after 5 seconds just in case they want to submit another
+                    // Re-enable after 5 seconds
                     setTimeout(() => {
                         this.disabled = false;
                         this.innerHTML = originalBtnContent;
                     }, 5000);
 
-                    // Open Cal.com as secondary step
-                    setTimeout(() => openBooking(name, formattedPhone), 1500);
+                    // Open Cal.com in new tab to avoid modal freezing issues
+                    setTimeout(() => {
+                        const bookingUrl = `https://cal.com/anzevino-ai?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(formattedPhone)}`;
+                        window.open(bookingUrl, '_blank');
+                    }, 1500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -178,21 +181,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Cal.com Integration
+    // Cal.com Integration - Replaced with direct window.open in submit handler
     function openBooking(name = '', phone = '') {
-        if (typeof Cal !== 'undefined') {
-            Cal("modal", {
-                calLink: "anzevino-ai",
-                active: true,
-                config: {
-                    name: name,
-                    phone: phone,
-                    // Pass branding/theme if needed
-                }
-            });
-        } else {
-            // Direct link fallback for reliability
-            window.open('https://cal.com/anzevino-ai', '_blank');
-        }
+        console.warn('openBooking called - functionality moved to submit handler to avoid modal freezing.');
     }
 
     // Demo Button Handling
