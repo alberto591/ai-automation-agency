@@ -47,6 +47,11 @@ class TwilioAdapter(MessagingPort):
             logger.warning("SKIPPING_SELF_MESSAGE", context={"to": final_to, "from": final_from})
             return "skipped_self_send"
 
+        # 3. Check Rate Limit
+        if not self.rate_limiter.check_rate_limit(final_to):
+            logger.warning("RATE_LIMIT_BLOCKED", context={"to": final_to})
+            raise ExternalServiceError(f"Rate limit exceeded for {final_to}")
+
         try:
             params: dict[str, Any] = {"from_": final_from, "to": final_to, "body": body}
             if media_url:
