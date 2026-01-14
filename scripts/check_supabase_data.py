@@ -3,8 +3,10 @@
 Quick script to check what conversations/leads exist in Supabase
 """
 import os
-from supabase import create_client, Client
+import sys
+
 from dotenv import load_dotenv
+from supabase import Client, create_client
 
 # Load environment variables
 load_dotenv()
@@ -16,7 +18,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("❌ Missing Supabase credentials in .env file")
     print("   Required: SUPABASE_URL and SUPABASE_KEY")
-    exit(1)
+    sys.exit(1)
 
 print(f"📡 Connecting to Supabase: {SUPABASE_URL}")
 
@@ -55,7 +57,7 @@ try:
         
 except Exception as e:
     print(f"\n❌ Error querying Supabase: {e}")
-    print(f"   Make sure the 'leads' table exists in your database")
+    print("   Make sure the 'leads' table exists in your database")
 
 print("\n" + "=" * 80)
 print("📊 Summary:")
