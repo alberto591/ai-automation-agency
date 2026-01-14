@@ -258,7 +258,8 @@ class SupabaseAdapter(DatabasePort):
             if not res.data:
                 raise DatabaseError("Failed to save payment schedule")
 
-            return str(res.data[0]["id"])
+            data = cast(list[dict[str, Any]], res.data)
+            return str(data[0]["id"])
         except Exception as e:
             logger.error("SAVE_PAYMENT_FAILED", context={"error": str(e)})
             raise DatabaseError("Failed to save payment schedule", cause=str(e)) from e

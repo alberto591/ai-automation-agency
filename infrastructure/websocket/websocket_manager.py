@@ -4,6 +4,8 @@ WebSocket Connection Manager for Real-Time Dashboard Updates.
 Manages WebSocket connections, room subscriptions, and message broadcasting.
 """
 
+from typing import Any
+
 from fastapi import WebSocket
 
 from infrastructure.logging import get_logger
@@ -14,7 +16,7 @@ logger = get_logger(__name__)
 class ConnectionManager:
     """Manages WebSocket connections and room-based broadcasting."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Active connections: {connection_id: WebSocket}
         self.active_connections: dict[str, WebSocket] = {}
         # Room subscriptions: {room_id: set of connection_ids}
@@ -48,18 +50,22 @@ class ConnectionManager:
         """Unsubscribe a connection from a room."""
         if room_id in self.rooms:
             self.rooms[room_id].discard(connection_id)
-        logger.info("WS_ROOM_UNSUBSCRIBED", context={"connection_id": connection_id, "room": room_id})
+        logger.info(
+            "WS_ROOM_UNSUBSCRIBED", context={"connection_id": connection_id, "room": room_id}
+        )
 
-    async def send_personal_message(self, message: dict, connection_id: str) -> None:
+    async def send_personal_message(self, message: dict[str, Any], connection_id: str) -> None:
         """Send a message to a specific connection."""
         if connection_id in self.active_connections:
             websocket = self.active_connections[connection_id]
             try:
                 await websocket.send_json(message)
             except Exception as e:
-                logger.error("WS_SEND_ERROR", context={"connection_id": connection_id, "error": str(e)})
+                logger.error(
+                    "WS_SEND_ERROR", context={"connection_id": connection_id, "error": str(e)}
+                )
 
-    async def broadcast_to_room(self, message: dict, room_id: str) -> None:
+    async def broadcast_to_room(self, message: dict[str, Any], room_id: str) -> None:
         """Broadcast a message to all subscribers in a room."""
         if room_id not in self.rooms:
             return
@@ -70,7 +76,7 @@ class ConnectionManager:
 
         logger.info("WS_BROADCAST", context={"room": room_id, "subscribers": len(subscribers)})
 
-    async def broadcast_to_all(self, message: dict) -> None:
+    async def broadcast_to_all(self, message: dict[str, Any]) -> None:
         """Broadcast a message to all active connections."""
         connection_ids = list(self.active_connections.keys())
         for connection_id in connection_ids:

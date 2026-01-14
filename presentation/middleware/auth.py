@@ -21,7 +21,9 @@ async def get_current_user(
     if not settings.SUPABASE_JWT_SECRET:
         # Pydantic validation should catch this, but just in case
         logger.error("MISSING_JWT_SECRET", context={"reason": "SUPABASE_JWT_SECRET not set"})
-        raise HTTPException(status_code=500, detail="Server Misconfiguration: Missing SUPABASE_JWT_SECRET")
+        raise HTTPException(
+            status_code=500, detail="Server Misconfiguration: Missing SUPABASE_JWT_SECRET"
+        )
 
     token = credentials.credentials
     try:

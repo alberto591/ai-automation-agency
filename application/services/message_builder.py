@@ -1,3 +1,5 @@
+from typing import Any
+
 from domain.messages import Button, InteractiveMessage, Row, Section
 
 
@@ -56,7 +58,7 @@ class MessageBuilder:
 
     @staticmethod
     def create_property_list(
-        properties: list[dict], header: str = "Immobili trovati"
+        properties: list[dict[str, Any]], header: str = "Immobili trovati"
     ) -> InteractiveMessage:
         """Creates a list message from property data."""
         rows = []

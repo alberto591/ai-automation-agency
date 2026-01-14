@@ -49,6 +49,7 @@ export default function ChatWindow({ selectedLead }) {
 
         // Optimistic Update
         setMessages(prev => [...prev, newMessage]);
+        const messageContent = inputText;
         setInputText(""); // Clear input immediately
 
         try {
@@ -58,7 +59,7 @@ export default function ChatWindow({ selectedLead }) {
                 headers: headers,
                 body: JSON.stringify({
                     phone: selectedLead.phone,
-                    message: inputText
+                    message: messageContent
                 }),
                 signal: controller.signal
             });
@@ -66,7 +67,8 @@ export default function ChatWindow({ selectedLead }) {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                throw new Error("Failed to send");
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Failed to send");
             }
         } catch (error) {
             if (error.name === 'AbortError') {

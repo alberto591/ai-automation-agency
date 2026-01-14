@@ -44,9 +44,10 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI) -> Any:
     # Startup
     logger.info("API_STARTUP")
-    
+
     # Capture Main Event Loop for thread-safe cross-scheduling
     import asyncio
+
     try:
         container.main_loop = asyncio.get_running_loop()
         logger.info("MAIN_LOOP_CAPTURED")
@@ -116,7 +117,7 @@ app.include_router(feedback.router, prefix="/api/feedback")
 
 # WebSocket endpoint for real-time dashboard updates
 @app.websocket("/ws/conversations")
-async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None):
+async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None) -> None:  # noqa: PLR0912
     """
     WebSocket endpoint for real-time conversation updates.
 
@@ -151,20 +152,15 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None)
 
             if leads_response.data:
                 # Send conversations to the connected client
-                await websocket.send_json({
-                    "type": "conversations",
-                    "data": leads_response.data
-                })
+                await websocket.send_json({"type": "conversations", "data": leads_response.data})
                 logger.info(
                     "WS_INITIAL_DATA_SENT",
-                    context={"connection_id": connection_id, "count": len(leads_response.data)}
+                    context={"connection_id": connection_id, "count": len(leads_response.data)},
                 )
         except Exception as e:
             logger.error(
-                "WS_INITIAL_DATA_FAILED",
-                context={"connection_id": connection_id, "error": str(e)}
+                "WS_INITIAL_DATA_FAILED", context={"connection_id": connection_id, "error": str(e)}
             )
-
 
         # Keep connection alive and handle incoming messages
         while True:
@@ -331,7 +327,7 @@ async def twilio_webhook(
     # (This happens if Status Callback URL is set to Incoming URL by mistake)
     # import settings (lazy import or top level)
     from config.settings import settings
-    
+
     bot_number = settings.TWILIO_PHONE_NUMBER
     if bot_number and bot_number.replace("whatsapp:", "") == from_phone:
         logger.warning("WEBHOOK_IGNORED_SELF", context={"from": from_phone})
@@ -369,18 +365,20 @@ async def twilio_webhook(
 
     # Broadcast new message to dashboard via WebSocket
     if lead_id:
-        await ws_manager.broadcast_to_all({
-            "type": "message",
-            "phone": from_phone,
-            "lead_id": lead_id,
-            "lead_name": lead_name,
-            "message": {
-                "role": "user",
-                "content": body,
-                "timestamp": datetime.utcnow().isoformat(),
-                "media_url": media_url
+        await ws_manager.broadcast_to_all(
+            {
+                "type": "message",
+                "phone": from_phone,
+                "lead_id": lead_id,
+                "lead_name": lead_name,
+                "message": {
+                    "role": "user",
+                    "content": body,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "media_url": media_url,
+                },
             }
-        })
+        )
 
     # Process in background
     background_tasks.add_task(
@@ -430,7 +428,7 @@ def health_check() -> dict[str, Any]:
 
 
 @app.get("/ready")
-def readiness_check() -> dict[str, Any]:
+def readiness_check() -> JSONResponse:
     """
     Readiness check - verifies all critical dependencies are available.
     Returns 503 if any dependency is unavailable.
@@ -442,7 +440,7 @@ def readiness_check() -> dict[str, Any]:
     try:
         # Quick query to verify DB connection
         result = (
-            container.db.client.table("leads").select("count", count="exact").limit(1).execute()
+            container.db.client.table("leads").select("count", count="exact").limit(1).execute()  # type: ignore
         )
         checks["database"] = {"status": "up", "count": result.count if result else 0}
     except Exception as e:
@@ -837,7 +835,7 @@ async def send_outreach_message(req: OutreachSendRequest) -> dict[str, Any]:
             .single()
             .execute()
         )
-        target = res.data
+        target = cast(dict[str, Any], res.data)
         if not target:
             raise HTTPException(status_code=404, detail="Outreach target not found")
 
@@ -874,7 +872,7 @@ async def generate_sales_report_endpoint(req: SalesReportRequest) -> dict[str, A
             .single()
             .execute()
         )
-        prop = res.data
+        prop = cast(dict[str, Any], res.data)
         if not prop:
             raise HTTPException(status_code=404, detail="Property not found")
 
@@ -894,7 +892,7 @@ async def generate_sales_report_endpoint(req: SalesReportRequest) -> dict[str, A
         min_leads_for_optimal_price = 10
         min_hot_leads_for_quick_close = 3
 
-        all_leads = leads_res.data or []
+        all_leads = cast(list[dict[str, Any]], leads_res.data or [])
         interested_leads = []
         for lead_data in all_leads:
             meta = lead_data.get("metadata") or {}

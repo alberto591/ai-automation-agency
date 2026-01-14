@@ -112,7 +112,7 @@ class LeadProcessor:
         logger.info("PROCESSING_LEAD", context={"phone": phone, "name": name, "language": language})
 
         # Use LangGraph - pass language directly, not as preferred_language
-        inputs = {
+        inputs: dict[str, Any] = {
             "phone": phone,
             "user_input": query,
             "name": name,
@@ -267,7 +267,7 @@ class LeadProcessor:
         if WS_AVAILABLE:
             try:
                 from config.container import container
-                
+
                 coro = ws_manager.broadcast_to_room(
                     {
                         "type": "message",

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import ChatWindow from './ChatWindow';
 import { MessageSquare } from 'lucide-react';

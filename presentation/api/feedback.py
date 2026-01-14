@@ -97,7 +97,7 @@ async def submit_feedback(feedback: FeedbackRequest) -> dict[str, Any]:
 
             # Sync to Google Sheets
             try:
-                container.google_sheets.sync_review(insert_data)
+                container.sheets.sync_review(insert_data)
             except Exception as e:
                 logger.error("SHEET_SYNC_FAILED", context={"error": str(e)})
 
