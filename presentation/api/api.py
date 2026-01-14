@@ -455,7 +455,7 @@ async def metrics() -> Response:
 # --- PROTECTED ENDPOINTS (Dashboard Actions) ---
 
 
-@app.post("/api/leads/takeover")
+@app.post("/api/leads/takeover", dependencies=[Depends(get_current_user)])
 async def takeover_lead(req: PhoneRequest) -> dict[str, str]:
     try:
         container.lead_processor.takeover(req.phone)
@@ -465,7 +465,7 @@ async def takeover_lead(req: PhoneRequest) -> dict[str, str]:
         raise HTTPException(status_code=500, detail=f"Failed to mute AI: {str(e)}") from None
 
 
-@app.post("/api/leads/resume")
+@app.post("/api/leads/resume", dependencies=[Depends(get_current_user)])
 async def resume_lead(req: PhoneRequest) -> dict[str, str]:
     try:
         container.lead_processor.resume(req.phone)
