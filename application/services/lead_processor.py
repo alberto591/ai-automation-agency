@@ -156,27 +156,27 @@ class LeadProcessor:
     def takeover(self, phone: str) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("LEAD_TAKEOVER", context={"phone": phone})
-        # self.db.update_lead_status(phone, "human_mode")
-        self.db.save_lead(
+        # Use update_lead for partial updates to avoid overwriting/validation issues
+        self.db.update_lead(
+            phone,
             {
-                "customer_phone": phone,
                 "status": LeadStatus.HUMAN_MODE,
                 "is_ai_active": False,
                 "updated_at": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
     def resume(self, phone: str) -> None:
         phone = re.sub(r"\s+", "", phone)
         logger.info("LEAD_RESUME", context={"phone": phone})
-        # self.db.update_lead_status(phone, "active")
-        self.db.save_lead(
+        # Use update_lead for partial updates
+        self.db.update_lead(
+            phone,
             {
-                "customer_phone": phone,
                 "status": LeadStatus.ACTIVE,
                 "is_ai_active": True,
                 "updated_at": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
     def update_lead_details(
