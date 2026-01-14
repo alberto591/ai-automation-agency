@@ -107,7 +107,7 @@
 
 ### Documentation
 - [x] ADR-063 Health Check Endpoints
-- [ ] API documentation (Swagger/OpenAPI)
+- [x] API documentation (Swagger/OpenAPI)
 - [ ] Deployment runbook
 - [ ] Customer onboarding guide
 - [ ] Support troubleshooting guide
