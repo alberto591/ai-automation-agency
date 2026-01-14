@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prezzi | Anzevino AI Real Estate</title>
+    <meta name="description"
+        content="Piani tariffari chiari e trasparenti per agenti e agenzie immobiliari. Inizia con €79/mese.">
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Optimized Styles -->
+    <link rel="stylesheet" href="appraisal/assets/styles.min.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+
+    <!-- Stripe Pricing Table -->
+    <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <i class="ph ph-robot"></i>
+                    <span class="brand-name">Anzevino AI</span>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="index.html#soluzione" data-translate="nav-soluzione">Soluzione</a>
+                <a href="index.html#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
+                <a href="pricing.html" class="active" data-translate="nav-prezzi">Prezzi</a>
+                <a href="index.html#contatto" data-translate="nav-contatto">Contatto</a>
+                <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary">
+                    <i class="ph ph-calendar"></i>
+                    <span data-translate="nav-contattaci">Contattaci</span>
+                </a>
+            </div>
+            <div class="header-actions">
+                <div class="language-toggle">
+                    <button class="lang-btn active" data-lang="it">IT</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+                <a href="/login.html" class="login-btn-enhanced" aria-label="Login">
+                    <i class="ph ph-user-circle"></i>
+                    <span data-translate="nav-login">Accedi</span>
+                </a>
+                <div class="nav-toggle">
+                    <i class="ph ph-list"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pricing Hero -->
+    <section class="pricing-hero"
+        style="padding: 8rem 0 4rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+        <div class="container">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                <span class="subtitle-badge" data-translate="pricing-hero-badge"
+                    style="background: rgba(255,255,255,0.1); color: white; padding: 0.5rem 1.5rem; border-radius: 50px; font-size: 0.875rem; font-weight: 500;">
+                    Piani Semplici e Trasparenti</span>
+                <h1 style="font-size: 3rem; font-weight: 700; color: white; margin: 2rem 0 1rem; line-height: 1.2;"
+                    data-translate="pricing-hero-title">
+                    Scegli il piano perfetto per la tua agenzia
+                </h1>
+                <p style="font-size: 1.25rem; color: rgba(255,255,255,0.8); margin-bottom: 3rem;"
+                    data-translate="pricing-hero-subtitle">
+                    Nessun costo nascosto. Nessun vincolo. Disdici quando vuoi.
+                </p>
+
+                <!-- Pilot Banner -->
+                <div
+                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                        <i class="ph ph-rocket" style="font-size: 2rem; color: white;"></i>
+                        <div style="text-align: left;">
+                            <strong style="color: white; font-size: 1.125rem;"
+                                data-translate="pricing-pilot-title">Offerta Pilota Limitata</strong>
+                            <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 0.875rem;"
+                                data-translate="pricing-pilot-desc">
+                                Prime 10 agenzie: <strong>€49/mese per 3 mesi</strong> (poi prezzo regolare)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Tables Section -->
+    <section class="pricing-section" style="padding: 4rem 0 6rem; background: #f8fafc;">
+        <div class="container">
+            <!-- Stripe Pricing Table Placeholder (Future Integration) -->
+            <div id="stripe-pricing-table-container" style="display: none; margin-bottom: 2rem;">
+                <!-- Paste <stripe-pricing-table> code here -->
+            </div>
+
+            <div class="pricing-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+
+                <!-- Starter Plan -->
+                <div class="pricing-card"
+                    style="background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 2px solid transparent; transition: all 0.3s;">
+                    <div class="plan-header">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;"
+                            data-translate="pricing-starter-name">Starter</h3>
+                        <p style="color: #64748b; font-size: 0.875rem;" data-translate="pricing-starter-desc">Per agenti
+                            singoli</p>
+                    </div>
+                    <div class="plan-price" style="margin: 2rem 0;">
+                        <span style="font-size: 3rem; font-weight: 700; color: #0f172a;">€79</span>
+                        <span style="color: #64748b; font-size: 1rem;" data-translate="pricing-per-month">/mese</span>
+                        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem;">€790/<span
+                                data-translate="pricing-annual-discount">anno (17% sconto)</span></p>
+                    </div>
+                    <ul class="plan-features" style="list-style: none; padding: 0; margin: 2rem 0;">
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-unlimited-leads">Lead qualification illimitati</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-whatsapp">WhatsApp integration</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-scheduling">Appointment scheduling</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-analytics">Dashboard analytics</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-1-agent">1 agente</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-support-email">Email support</span>
+                        </li>
+                    </ul>
+                    <a href="https://cal.com/anzevino-ai" class="btn-outline"
+                        style="display: block; text-align: center; padding: 1rem; border: 2px solid #0f172a; border-radius: 8px; color: #0f172a; font-weight: 600; text-decoration: none; transition: all 0.3s;"
+                        data-translate="pricing-cta-start">
+                        Inizia ora
+                    </a>
+                </div>
+
+                <!-- Professional Plan (Most Popular) -->
+                <div class="pricing-card popular"
+                    style="background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 2px solid #3b82f6; position: relative; transform: scale(1.05);">
+                    <div class="popular-badge"
+                        style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1.5rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;"
+                        data-translate="pricing-popular-badge">
+                        Più Popolare
+                    </div>
+                    <div class="plan-header">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;"
+                            data-translate="pricing-professional-name">Professional</h3>
+                        <p style="color: #64748b; font-size: 0.875rem;" data-translate="pricing-professional-desc">Per
+                            piccoli team</p>
+                    </div>
+                    <div class="plan-price" style="margin: 2rem 0;">
+                        <span style="font-size: 3rem; font-weight: 700; color: #3b82f6;">€149</span>
+                        <span style="color: #64748b; font-size: 1rem;" data-translate="pricing-per-month">/mese</span>
+                        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem;">€1,490/<span
+                                data-translate="pricing-annual-discount">anno (17% sconto)</span></p>
+                    </div>
+                    <ul class="plan-features" style="list-style: none; padding: 0; margin: 2rem 0;">
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-starter-plus"><strong>Tutto in Starter</strong>
+                                +</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-5-agents">Fino a 5 agenti</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-routing">Lead routing automatico</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-team-dash">Team dashboard</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-calendar-sync">Calendar sync multi-agente</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-crm-export">CRM export (CSV/PDF)</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-priority-email">Priority email support</span>
+                        </li>
+                    </ul>
+                    <a href="https://cal.com/anzevino-ai" class="btn-primary"
+                        style="display: block; text-align: center; padding: 1rem; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 8px; color: white; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);"
+                        data-translate="pricing-cta-start">
+                        Inizia ora
+                    </a>
+                </div>
+
+                <!-- Agency Plan -->
+                <div class="pricing-card"
+                    style="background: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 2px solid transparent;">
+                    <div class="plan-header">
+                        <h3 style="font-size: 1.5rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;"
+                            data-translate="pricing-agency-name">Agency</h3>
+                        <p style="color: #64748b; font-size: 0.875rem;" data-translate="pricing-agency-desc">Per agenzie
+                            in crescita</p>
+                    </div>
+                    <div class="plan-price" style="margin: 2rem 0;">
+                        <span style="font-size: 3rem; font-weight: 700; color: #0f172a;">€349</span>
+                        <span style="color: #64748b; font-size: 1rem;" data-translate="pricing-per-month">/mese</span>
+                        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem;">€3,490/<span
+                                data-translate="pricing-annual-discount">anno (17% sconto)</span></p>
+                    </div>
+                    <ul class="plan-features" style="list-style: none; padding: 0; margin: 2rem 0;">
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-professional-plus"><strong>Tutto in
+                                    Professional</strong> +</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-unlimited-agents">Agenti illimitati (5-15)</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-fifi"><strong>Fifi AI Appraisal</strong> (sbloccato a
+                                €300/mo profit)</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-branding">Custom branding (white-label)</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-api">API access & webhooks</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-tracking">Advanced conversion tracking</span>
+                        </li>
+                        <li style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0;">
+                            <i class="ph ph-check-circle"
+                                style="color: #10b981; font-size: 1.25rem; flex-shrink: 0;"></i>
+                            <span data-translate="pricing-feature-priority-wa">Priority WhatsApp support</span>
+                        </li>
+                    </ul>
+                    <a href="https://cal.com/anzevino-ai" class="btn-outline"
+                        style="display: block; text-align: center; padding: 1rem; border: 2px solid #0f172a; border-radius: 8px; color: #0f172a; font-weight: 600; text-decoration: none;"
+                        data-translate="pricing-cta-contact">
+                        Contattaci
+                    </a>
+                </div>
+            </div>
+
+            <!-- Enterprise CTA -->
+            <div
+                style="margin-top: 4rem; text-align: center; padding: 3rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px;">
+                <h3 style="color: white; font-size: 2rem; margin-bottom: 1rem;"
+                    data-translate="pricing-enterprise-title">Hai bisogno di un piano Enterprise?</h3>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 2rem; font-size: 1.125rem;"
+                    data-translate="pricing-enterprise-desc">
+                    Soluzioni personalizzate per grandi agenzie (15+ agenti) con SLA garantiti e customer success
+                    manager dedicato.
+                </p>
+                <a href="mailto:contact@anzevino.ai" class="btn-primary"
+                    style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background: white; color: #0f172a; border-radius: 8px; font-weight: 600; text-decoration: none;">
+                    <i class="ph ph-envelope"></i>
+                    <span data-translate="pricing-enterprise-cta">Richiedi un preventivo</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" style="padding: 6rem 0; background: white;">
+        <div class="container" style="max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <h2 style="font-size: 2.5rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;"
+                    data-translate="pricing-faq-title">Domande Frequenti</h2>
+                <p style="color: #64748b; font-size: 1.125rem;" data-translate="pricing-faq-subtitle">Tutto quello che
+                    devi sapere sui nostri piani</p>
+            </div>
+
+            <div class="faq-list">
+                <details class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem 0;" open>
+                    <summary
+                        style="font-size: 1.125rem; font-weight: 600; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-translate="pricing-faq-q1">Posso cancellare in qualsiasi momento?</span>
+                        <i class="ph ph-caret-down" style="font-size: 1.5rem; transition: transform 0.3s;"></i>
+                    </summary>
+                    <p style="color: #64748b; margin-top: 1rem; line-height: 1.6;" data-translate="pricing-faq-a1">
+                        Sì, non c'è nessun vincolo contrattuale. Puoi disdire il servizio in qualsiasi momento senza
+                        penali.
+                    </p>
+                </details>
+
+                <details class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem 0;">
+                    <summary
+                        style="font-size: 1.125rem; font-weight: 600; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-translate="pricing-faq-q2">È deducibile dalle tasse?</span>
+                        <i class="ph ph-caret-down" style="font-size: 1.5rem;"></i>
+                    </summary>
+                    <p style="color: #64748b; margin-top: 1rem; line-height: 1.6;" data-translate="pricing-faq-a2">
+                        Sì, come qualsiasi software aziendale, l'abbonamento è completamente deducibile come spesa
+                        operativa. Riceverai fattura elettronica regolare.
+                    </p>
+                </details>
+
+                <details class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem 0;">
+                    <summary
+                        style="font-size: 1.125rem; font-weight: 600; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-translate="pricing-faq-q3">Posso passare a un piano superiore?</span>
+                        <i class="ph ph-caret-down" style="font-size: 1.5rem;"></i>
+                    </summary>
+                    <p style="color: #64748b; margin-top: 1rem; line-height: 1.6;" data-translate="pricing-faq-a3">
+                        Assolutamente sì! Puoi fare upgrade o downgrade in qualsiasi momento. Il cambio è immediato e la
+                        fatturazione viene adeguata in modo proporzionale.
+                    </p>
+                </details>
+
+                <details class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem 0;">
+                    <summary
+                        style="font-size: 1.125rem; font-weight: 600; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-translate="pricing-faq-q4">Quanto tempo serve per il setup?</span>
+                        <i class="ph ph-caret-down" style="font-size: 1.5rem;"></i>
+                    </summary>
+                    <p style="color: #64748b; margin-top: 1rem; line-height: 1.6;" data-translate="pricing-faq-a4">
+                        Il setup base richiede meno di 24 ore. Ti guidiamo passo-passo nell'integrazione con WhatsApp e
+                        il tuo gestionale. La formazione del team è inclusa.
+                    </p>
+                </details>
+
+                <details class="faq-item" style="border-bottom: 1px solid #e2e8f0; padding: 1.5rem 0;">
+                    <summary
+                        style="font-size: 1.125rem; font-weight: 600; color: #0f172a; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-translate="pricing-faq-q5">C'è un periodo di prova gratuito?</span>
+                        <i class="ph ph-caret-down" style="font-size: 1.5rem;"></i>
+                    </summary>
+                    <p style="color: #64748b; margin-top: 1rem; line-height: 1.6;" data-translate="pricing-faq-a5">
+                        Per le prime 10 agenzie, offriamo un prezzo speciale di pilot a €49/mese per 3 mesi. Questo ti
+                        permette di testare il servizio con un rischio minimo.
+                    </p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section"
+        style="padding: 6rem 0; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+        <div class="container" style="text-align: center;">
+            <h2 style="color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;"
+                data-translate="pricing-final-title">
+                Pronto a trasformare la tua agenzia?
+            </h2>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.25rem; margin-bottom: 3rem;"
+                data-translate="pricing-final-desc">
+                Inizia oggi con il piano Pilot a €49/mese. Nessun vincolo, cancella quando vuoi.
+            </p>
+            <a href="https://cal.com/anzevino-ai" class="btn-large"
+                style="display: inline-flex; align-items: center; gap: 0.75rem; padding: 1.25rem 2.5rem; background: white; color: #3b82f6; border-radius: 8px; font-weight: 600; font-size: 1.125rem; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
+                <i class="ph ph-calendar-check" style="font-size: 1.5rem;"></i>
+                <span data-translate="pricing-final-cta">Prenota Demo Gratuita</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="ph ph-robot"></i>
+                        <div class="logo-text">
+                            <strong>Anzevino AI</strong>
+                            <span>Real Estate</span>
+                        </div>
+                    </div>
+                    <p data-translate="footer-description">Il primo agente AI per le agenzie immobiliari italiane.</p>
+
+                    <div class="footer-social">
+                        <a href="#" class="social-link">
+                            <i class="ph ph-linkedin-logo"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="ph ph-instagram-logo"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="ph ph-facebook-logo"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p data-translate="footer-copyright">&copy; 2025 Anzevino AI Real Estate. Tutti i diritti riservati.</p>
+                <div class="footer-badges">
+                    <div class="badge">
+                        <i class="ph ph-shield-check"></i>
+                        <span>GDPR Compliant</span>
+                    </div>
+                    <div class="badge">
+                        <i class="ph ph-certificate"></i>
+                        <span>ISO 27001</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+
+</html>

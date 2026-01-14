@@ -323,3 +323,47 @@ class SupabaseAdapter(DatabasePort):
                 context={"lead_id": lead_id, "agent_id": agent_id, "error": str(e)},
             )
             raise DatabaseError("Failed to assign lead", cause=str(e)) from e
+
+    def save_appointment(self, appointment_data: dict[str, Any]) -> str:
+        try:
+            res = self.client.table("appointments").insert(appointment_data).execute()
+            if not res.data:
+                raise DatabaseError("Failed to save appointment")
+            # mypy thinks res.data is JSON? but it is a list of dicts here
+            data: list[dict[str, Any]] = res.data
+            return str(data[0]["id"])
+        except Exception as e:
+            logger.error("SAVE_APPOINTMENT_FAILED", context={"error": str(e)})
+            raise DatabaseError("Failed to save appointment", cause=str(e)) from e
+
+    def update_appointment_status(self, booking_id: str, status: str) -> None:
+        try:
+            self.client.table("appointments").update({"status": status}).eq(
+                "external_booking_id", booking_id
+            ).execute()
+            logger.info(
+                "APPOINTMENT_STATUS_UPDATED", context={"booking_id": booking_id, "status": status}
+            )
+        except Exception as e:
+            logger.error(
+                "UPDATE_APPOINTMENT_STATUS_FAILED",
+                context={"booking_id": booking_id, "error": str(e)},
+            )
+            raise DatabaseError("Failed to update appointment status", cause=str(e)) from e
+
+    def get_appointment_by_external_id(self, booking_id: str) -> dict[str, Any] | None:
+        try:
+            res = (
+                self.client.table("appointments")
+                .select("*")
+                .eq("external_booking_id", booking_id)
+                .limit(1)
+                .execute()
+            )
+            return res.data[0] if res.data else None
+        except Exception as e:
+            logger.error(
+                "GET_APPOINTMENT_FAILED",
+                context={"booking_id": booking_id, "error": str(e)},
+            )
+            raise DatabaseError("Failed to retrieve appointment", cause=str(e)) from e

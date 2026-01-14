@@ -70,6 +70,21 @@ class DatabasePort(ABC):
         """Assigns a lead to an agent."""
         pass
 
+    @abstractmethod
+    def save_appointment(self, appointment_data: dict[str, Any]) -> str:
+        """Saves a new appointment and returns its ID."""
+        pass
+
+    @abstractmethod
+    def update_appointment_status(self, booking_id: str, status: str) -> None:
+        """Updates the status of an appointment by its external booking ID."""
+        pass
+
+    @abstractmethod
+    def get_appointment_by_external_id(self, booking_id: str) -> dict[str, Any] | None:
+        """Retrieves an appointment by its external booking ID."""
+        pass
+
 
 class AIPort(ABC):
     @abstractmethod

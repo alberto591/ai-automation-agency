@@ -75,19 +75,37 @@ async def calcom_webhook(
             logger.warning("CALCOM_WEBHOOK_MISSING_PHONE")
             return {"status": "ok", "message": "No phone number found"}
 
+        if event_type == "BOOKING_CREATED":
             container.db.update_lead_status(phone, LeadStatus.SCHEDULED)
+            # Register booking in appointments table
+            await container.appointment_service.register_booking(
+                phone,
+                {
+                    "bookingId": booking.get("id"),
+                    "startTime": booking.get("startTime"),
+                    "endTime": booking.get("endTime"),
+                },
+            )
             logger.info(
                 "LEAD_STATUS_UPDATED_BY_CALCOM", context={"phone": phone, "status": "SCHEDULED"}
             )
 
         elif event_type == "BOOKING_CANCELLED":
             container.db.update_lead_status(phone, LeadStatus.QUALIFIED)
+            await container.appointment_service.cancel_booking(booking.get("id"))
             logger.info(
                 "LEAD_STATUS_UPDATED_BY_CALCOM", context={"phone": phone, "status": "QUALIFIED"}
             )
 
         elif event_type == "BOOKING_RESCHEDULED":
-            # Keep as SCHEDULED, just log the reschedule
+            # Keep as SCHEDULED, update booking times
+            await container.appointment_service.reschedule_booking(
+                booking.get("id"),
+                {
+                    "startTime": booking.get("startTime"),
+                    "endTime": booking.get("endTime"),
+                },
+            )
             logger.info("BOOKING_RESCHEDULED", context={"phone": phone})
 
         return {"status": "ok"}

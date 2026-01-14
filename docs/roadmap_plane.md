@@ -11,12 +11,10 @@ This roadmap outlines the strategic evolution of the Agenzia AI platform, catego
 | **1** | **English for Tourists** | Add English language to the conversation specifically for tourists. |
 | **1** | **Maintenance Checklist** | Create a comprehensive maintenance checklist. |
 | **1** | **Calendly Appointment Flow** | Implement flow: User asks → Agent/AI confirms appointment. |
-| **1** | **RAG & Matching Study** | Study more what is RAG and what is RAG Matching. |
-| **1** | **Agents Research** | Keep learning and understanding about Agents and how to use it in the app/business. |
-| **1** | **Portal Webhook Flow** | Understand how the web hook works in portals like Idealista and the flow. |
+| **1** | **Fifi Freeze** | **NO NEW FIFI DEV** until profit targets met. |
+| **1** | **Agents Research** | Keep learning and understanding about Agents and how to use it. |
 | **2** | **English Conversation Practice** | Practice and improve conversations in English. |
 | **2** | **AI Conversation Evaluation** | Really evaluate the conversation quality of the AI. |
-| **2** | **AI Valuation Tool Improvements** | Improve the AI Valuation tool and internal logic. |
 | **2** | **Demo Video Creation** | Create a professional demo video. |
 | **2** | **"Book Demo" UI** | Improve the "Book your free demo" functionality from the front end. |
 
@@ -47,9 +45,10 @@ This roadmap outlines the strategic evolution of the Agenzia AI platform, catego
 | **3** | **Legal Property Research** | Research adding properties to the database in a legal way. |
 | **3** | **Dynamic PDF Property Cards** | Script to generate dynamic PDFs from Supabase property data. |
 | **3** | **Property Fields/Expansion** | How to add properties and different fields to the database. |
-| **3** | **AI Appraisal Research** | Research the implementation of "AI Appraisal". |
+| **3** | **AI Appraisal (ML Phase)** | Implement XGBoost + OMI Ground Truth. |
 | **3** | **"Free AI Appraisal" Magnet** | Invest in studying the "Free AI Appraisal" Magnet for lead gen. |
 | **3** | **Calendar Integration** | Calendly confirmation or Google Calendar integration. |
+| **4** | **RapidAPI Activation** | Activate Idealista API once Profit > $300/mo. |
 | **4** | **Error Monitoring** | Integrate monitoring for errors. |
 | **4** | **Lead/Property Acquisition** | Strategy for new leads, more properties, and new services. |
 | **4** | **UI for Database Input** | Create a user interface to input data into the database. |

@@ -17,14 +17,19 @@ The Italian real estate market is **underserved** by international AI chatbot pl
 - ❌ No WhatsApp-first approach
 
 ### Our Strategic Position
-**Agenzia AI = Lead Qualification + Appointment Scheduling + Fifi AI Appraisal + WhatsApp Native**
+**Agenzia AI = Lead Qualification + Appointment Scheduling + ~~Fifi AI Appraisal~~ (Frozen)**
+
+### Revenue & Cost Milestones
+| Milestone | Threshold | Action |
+|-----------|-----------|-----------|
+| **Bootstrap Phase** | €0 Profit | **Fifi Freeze**: No further development on Appraisal tool. Focus on Core Sales. |
+| **Growth Phase** | **€300/mo Profit** | Unfreeze Fifi (RapidAPI Integration). |
+| **Enterprise Phase** | €1,000/mo Profit | OMI Data Lake & XGBoost Training. |
 
 ### Revenue Projections (Conservative)
 | Year | Active Agents | ARPU | MRR | ARR |
 |------|---------------|------|-----|-----|
 | 2025 | 100 | €100 | €10,000 | €120,000 |
-| 2026 | 300 | €120 | €36,000 | €432,000 |
-| 2027 | 800 | €100 | €80,000 | €960,000 |
 
 ---
 
@@ -269,17 +274,18 @@ Bot Flow:
 
 ---
 
-#### **Month 3: Fifi AI Appraisal MVP** 🔄
-**Goal**: Launch beta with 10 pilot agencies
+#### **Month 3: Fifi AI Appraisal (FROZEN)** ❄️
+**Goal**: Maintenance mode only. No new features until Profit > $300/mo.
 
 **Tasks**:
 - [x] Legal consultation (EU AI Act compliance) - Attorney brief created
-- [ ] OMI data acquisition (purchase dataset) - Deferred to Phase 2
-- [ ] Train basic XGBoost model (MAPE <20%) - ML infra ready
-- [x] Display confidence intervals in UI - Confidence levels & stars
-- [x] Add investment metrics (Cap Rate, ROI) - **Backend complete**
-- [x] Generate PDF appraisal reports - Template exists
-- [ ] Frontend integration - Integration guide created
+- [x] Implement **Expert Data Heuristics** (Regional averages) - **Completed**
+- [ ] OMI data acquisition - **Deferred (Frozen)**
+- [ ] RapidAPI Integration - **Deferred (Frozen)**
+- [x] Display confidence intervals in UI - **Completed**
+- [x] Add investment metrics (Cap Rate, ROI) - **Completed**
+- [x] Generate PDF appraisal reports - **Completed**
+- [ ] Frontend integration - **Frozen**
 
 **Success Metrics**:
 - MAPE (Mean Absolute Percentage Error): <18% (Not yet measured)
@@ -355,50 +361,57 @@ Bot Flow:
 
 ## 💵 Pricing Strategy (Italian Market)
 
-### Tier 1: Solo Agent
-**€99/month** (€1,188/year)
+> [!IMPORTANT]
+> **Pilot Phase**: First 10 agencies get **€49/mo for 3 months** (locked-in rate) to build case studies and testimonials.
+
+### Tier 1: Starter
+**€79/month** (€790/year with 17% annual discount)
 
 **Included**:
-- Lead qualification (50 leads/month)
+- Lead qualification (unlimited)
 - Appointment scheduling
 - Basic analytics dashboard
 - WhatsApp integration
 - Email support
+- 1 agent seat
 
-**Target**: Independent agents, freelancers
+**Target**: Solo agents, freelancers testing AI automation
 
 ---
 
-### Tier 2: Team (3-10 agents)
-**€299/month** (€3,588/year)
+### Tier 2: Professional
+**€149/month** (€1,490/year with 17% annual discount)
 
-**Everything in Solo +**:
+**Everything in Starter +**:
 - Lead routing & distribution
 - Team dashboard
-- Multi-agent calendar sync
+- Multi-agent calendar sync (up to 5 agents)
 - CRM export (CSV/PDF)
-- Priority support
+- Priority email support
+- Advanced analytics
 
-**Target**: Small agencies (3-10 agents)
+**Target**: Growing agents and small teams (2-5 agents)
 
 ---
 
-### Tier 3: Agency (10+ agents)
-**€799/month** (€9,588/year)
+### Tier 3: Agency
+**€349/month** (€3,490/year with 17% annual discount)
 
-**Everything in Team +**:
-- **Fifi AI Appraisal** (unlimited)
+**Everything in Professional +**:
+- Unlimited agent seats (5-15 recommended)
+- **Fifi AI Appraisal** (when unlocked at €300/mo profit milestone)
 - Custom branding (white-label)
 - API access (webhook integration)
-- Advanced analytics (conversion tracking)
-- Dedicated account manager
+- Advanced conversion tracking
+- Dedicated onboarding specialist
+- Priority WhatsApp support
 
-**Target**: Medium agencies (10-50 agents)
+**Target**: Small to medium agencies (5-15 agents)
 
 ---
 
 ### Tier 4: Enterprise
-**Custom pricing** (€2,000+/month)
+**Custom pricing** (starting at €1,000/month)
 
 **Everything in Agency +**:
 - Salesforce/HubSpot native integration
@@ -406,8 +419,9 @@ Bot Flow:
 - Custom ML model training
 - SLA guarantees (99.9% uptime)
 - Dedicated customer success manager
+- Custom contract terms
 
-**Target**: Large brokerages (50+ agents), portals
+**Target**: Large brokerages (15+ agents), portals
 
 ---
 

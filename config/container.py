@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Any
 
+from application.services.appointment_service import AppointmentService
 from application.services.appraisal import AppraisalService
 from application.services.journey_manager import JourneyManager
 from application.services.lead_ingestion_service import LeadIngestionService
@@ -99,6 +100,10 @@ class Container:
             performance_logger=self.performance_logger,
         )
 
+        self.appointment_service: AppointmentService = AppointmentService(
+            db=self.db, messaging=self.msg
+        )
+
         # Stripe Connect (lazy loaded)
         self._stripe_connect: Any | None = None
 
@@ -175,9 +180,9 @@ class Container:
 
         return IMAPAdapter()
 
-
         # Main Event Loop (for thread-safe scheduling)
         self.main_loop: Any | None = None
+
 
 # Composition Root Instance
 container = Container()
