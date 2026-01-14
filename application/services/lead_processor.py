@@ -266,22 +266,27 @@ class LeadProcessor:
         # Broadcast to WebSocket clients for real-time dashboard updates
         if WS_AVAILABLE:
             try:
-                # Schedule broadcast in background (works from sync context)
-                loop = asyncio.get_event_loop()
-                loop.create_task(
-                    ws_manager.broadcast_to_room(
-                        {
-                            "type": "message",
-                            "phone": phone,
-                            "lead_id": lead["id"],
-                            "lead_name": lead.get("name", "Unknown"),
-                            "message": new_msg,
-                        },
-                        room_id="all",
-                    )
+                from config.container import container
+                
+                coro = ws_manager.broadcast_to_room(
+                    {
+                        "type": "message",
+                        "phone": phone,
+                        "lead_id": lead["id"],
+                        "lead_name": lead.get("name", "Unknown"),
+                        "message": new_msg,
+                    },
+                    room_id="all",
                 )
+
+                if container.main_loop and container.main_loop.is_running():
+                    asyncio.run_coroutine_threadsafe(coro, container.main_loop)
+                else:
+                    # Fallback (e.g. testing)
+                    loop = asyncio.get_event_loop()
+                    loop.create_task(coro)
+
             except RuntimeError:
-                # No event loop available (e.g., in tests)
                 logger.warning("WS_BROADCAST_SKIPPED", context={"reason": "No event loop"})
             except Exception as e:
                 logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})

@@ -44,6 +44,14 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI) -> Any:
     # Startup
     logger.info("API_STARTUP")
+    
+    # Capture Main Event Loop for thread-safe cross-scheduling
+    import asyncio
+    try:
+        container.main_loop = asyncio.get_running_loop()
+        logger.info("MAIN_LOOP_CAPTURED")
+    except Exception as e:
+        logger.warning("MAIN_LOOP_CAPTURE_FAILED", context={"error": str(e)})
 
     # Initialize Sentry
     if settings.SENTRY_DSN:

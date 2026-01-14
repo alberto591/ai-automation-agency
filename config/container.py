@@ -176,5 +176,8 @@ class Container:
         return IMAPAdapter()
 
 
+        # Main Event Loop (for thread-safe scheduling)
+        self.main_loop: Any | None = None
+
 # Composition Root Instance
 container = Container()
