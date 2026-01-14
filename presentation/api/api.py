@@ -499,7 +499,7 @@ async def send_manual_message(
         return {"status": "success", "message": "Message queued.", "sid": sid}
     except Exception as e:
         logger.error("MANUAL_MESSAGE_FAILED", context={"phone": req.phone, "error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to send message") from None
+        raise HTTPException(status_code=500, detail=f"Failed to send message: {str(e)}") from None
 
 
 class LeadUpdate(BaseModel):
