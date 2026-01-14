@@ -12,7 +12,9 @@
     "optimize:css": "cleancss -o appraisal/assets/styles.min.css appraisal/styles.css appraisal/mobile-styles.css appraisal/loading-styles.css",
     "build:all": "npm run optimize:js && npm run optimize:js:modules && npm run optimize:css",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
@@ -30,6 +32,10 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "terser": "^5.44.1",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^3.0.7",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "jsdom": "^26.0.0"
   }
 }

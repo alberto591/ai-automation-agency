@@ -1,107 +1,78 @@
-import { useEffect, useState } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 export default function ConversationsPage() {
     const [conversations, setConversations] = useState([]);
-    const [selectedConversation, setSelectedConversation] = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [selectedPhone, setSelectedPhone] = useState(null);
+    // Store messages by phone number
+    const messagesMapRef = useRef({});
+    const [currentMessages, setCurrentMessages] = useState([]);
 
-    // Determine WebSocket URL based on environment
-    const getWebSocketUrl = () => {
+    // Memoize WebSocket URL to prevent reconnection loops
+    const wsUrl = useMemo(() => {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
         const baseUrl = apiUrl.replace(/^https?:\/\//, '');
         return `${wsProtocol}://${baseUrl}/ws/conversations`;
-    };
-
-    const { isConnected, lastMessage } = useWebSocket(getWebSocketUrl(), {
-        onMessage: (data) => {
-            console.log('📨 Received message:', data);
-
-            if (data.type === 'message') {
-                // Update conversations list
-                setConversations((prev) => {
-                    const existingIndex = prev.findIndex((conv) => conv.phone === data.phone);
-                    const updatedConv = {
-                        phone: data.phone,
-                        name: data.lead_name,
-                        lastMessage: data.message.content,
-                        lastMessageTime: data.message.timestamp,
-                        role: data.message.role,
-                    };
-
-                    if (existingIndex >= 0) {
-                        const updated = [...prev];
-                        updated[existingIndex] = updatedConv;
-                        // Move to top
-                        updated.unshift(updated.splice(existingIndex, 1)[0]);
-                        return updated;
-                    }
-                    return [updatedConv, ...prev];
-                });
-
-                // Update messages if this conversation is selected
-                if (selectedConversation?.phone === data.phone) {
-                    setMessages((prev) => [...prev, data.message]);
-                }
-            }
-        },
-        onOpen: () => {
-            console.log('✅ WebSocket connected');
-        },
-        onClose: () => {
-            console.log('❌ WebSocket disconnected');
-        },
-    });
-
-    // Fetch initial conversations and messages
-    useEffect(() => {
-        const fetchConversations = async () => {
-            try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-                const response = await fetch(`${apiUrl}/api/leads`);
-                if (response.ok) {
-                    const data = await response.json();
-                    // Transform to conversation format
-                    const convs = data.map((lead) => ({
-                        phone: lead.phone,
-                        name: lead.name || 'Unknown',
-                        lastMessage: lead.last_message || 'No messages yet',
-                        lastMessageTime: lead.updated_at,
-                        role: 'system',
-                    }));
-                    setConversations(convs);
-                }
-            } catch (error) {
-                console.error('Failed to fetch conversations:', error);
-            }
-        };
-
-        fetchConversations();
     }, []);
 
-    // Fetch messages for selected conversation
-    useEffect(() => {
-        if (!selectedConversation) return;
+    const handleMessage = useCallback((data) => {
+        console.log('📨 Received message:', data);
 
-        const fetchMessages = async () => {
-            try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-                const response = await fetch(`${apiUrl}/api/leads/${selectedConversation.phone}/messages`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setMessages(data);
-                }
-            } catch (error) {
-                console.error('Failed to fetch messages:', error);
+        if (data.type === 'message') {
+            const phone = data.phone;
+
+            // Store message in map
+            if (!messagesMapRef.current[phone]) {
+                messagesMapRef.current[phone] = [];
             }
-        };
+            messagesMapRef.current[phone].push(data.message);
 
-        fetchMessages();
-    }, [selectedConversation]);
+            // If this is the selected conversation, update displayed messages
+            if (selectedPhone === phone) {
+                setCurrentMessages((prev) => [...prev, data.message]);
+            }
+
+            // Update conversations list
+            setConversations((prev) => {
+                const existingIndex = prev.findIndex((conv) => conv.phone === phone);
+                const updatedConv = {
+                    phone: phone,
+                    name: data.lead_name || 'Unknown',
+                    lastMessage: data.message.content,
+                    lastMessageTime: data.message.timestamp,
+                    role: data.message.role,
+                };
+
+                if (existingIndex >= 0) {
+                    const updated = [...prev];
+                    updated.splice(existingIndex, 1);
+                    return [updatedConv, ...updated];
+                }
+                return [updatedConv, ...prev];
+            });
+        }
+    }, [selectedPhone]);
+
+    const { isConnected } = useWebSocket(wsUrl, {
+        onMessage: handleMessage,
+        onOpen: () => console.log('✅ WebSocket connected'),
+        onClose: () => console.log('❌ WebSocket disconnected'),
+    });
+
+    // When selecting a conversation, show its messages
+    const handleSelectConversation = (conv) => {
+        setSelectedPhone(conv.phone);
+        // Load messages from map
+        const msgs = messagesMapRef.current[conv.phone] || [];
+        setCurrentMessages([...msgs]);
+    };
+
+    // Get selected conversation object
+    const selectedConversation = conversations.find(c => c.phone === selectedPhone);
 
     return (
-        <div className="conversations-page" style={{ display: 'flex', height: '100vh', background: '#f8f9fa' }}>
+        <div className="conversations-page" style={{ display: 'flex', height: 'calc(100vh - 120px)', background: '#f8f9fa' }}>
             {/* Sidebar - Conversations List */}
             <div
                 className="conversations-sidebar"
@@ -143,21 +114,21 @@ export default function ConversationsPage() {
                         conversations.map((conv) => (
                             <div
                                 key={conv.phone}
-                                onClick={() => setSelectedConversation(conv)}
+                                onClick={() => handleSelectConversation(conv)}
                                 style={{
                                     padding: '16px 20px',
                                     borderBottom: '1px solid #f3f4f6',
                                     cursor: 'pointer',
-                                    background: selectedConversation?.phone === conv.phone ? '#f3f4f6' : '#fff',
+                                    background: selectedPhone === conv.phone ? '#f3f4f6' : '#fff',
                                     transition: 'background 0.2s',
                                 }}
                                 onMouseEnter={(e) => {
-                                    if (selectedConversation?.phone !== conv.phone) {
+                                    if (selectedPhone !== conv.phone) {
                                         e.currentTarget.style.background = '#f9fafb';
                                     }
                                 }}
                                 onMouseLeave={(e) => {
-                                    if (selectedConversation?.phone !== conv.phone) {
+                                    if (selectedPhone !== conv.phone) {
                                         e.currentTarget.style.background = '#fff';
                                     }
                                 }}
@@ -184,7 +155,7 @@ export default function ConversationsPage() {
             </div>
 
             {/* Main - Messages View */}
-            <div className="messages-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div className="messages-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
                 {!selectedConversation ? (
                     <div
                         style={{
@@ -222,19 +193,20 @@ export default function ConversationsPage() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: '12px',
+                                background: '#f9fafb',
                             }}
                         >
-                            {messages.length === 0 ? (
+                            {currentMessages.length === 0 ? (
                                 <div style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>
-                                    No messages yet
+                                    No messages yet - send a message to see it here!
                                 </div>
                             ) : (
-                                messages.map((msg, idx) => (
+                                currentMessages.map((msg, idx) => (
                                     <div
                                         key={idx}
                                         style={{
                                             display: 'flex',
-                                            justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                                            justifyContent: msg.role === 'user' ? 'flex-start' : 'flex-end',
                                         }}
                                     >
                                         <div
@@ -242,8 +214,9 @@ export default function ConversationsPage() {
                                                 maxWidth: '70%',
                                                 padding: '12px 16px',
                                                 borderRadius: '12px',
-                                                background: msg.role === 'user' ? '#3b82f6' : '#f3f4f6',
-                                                color: msg.role === 'user' ? '#fff' : '#1f2937',
+                                                background: msg.role === 'user' ? '#e5e7eb' : '#3b82f6',
+                                                color: msg.role === 'user' ? '#1f2937' : '#fff',
+                                                whiteSpace: 'pre-wrap',
                                             }}
                                         >
                                             <div>{msg.content}</div>
@@ -254,7 +227,7 @@ export default function ConversationsPage() {
                                                     opacity: 0.7,
                                                 }}
                                             >
-                                                {new Date(msg.timestamp).toLocaleTimeString()}
+                                                {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}
                                             </div>
                                         </div>
                                     </div>

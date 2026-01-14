@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-const normalizeMessages = (rawMessages) => {
+const _normalizeMessages = (rawMessages) => {
     const normalized = []
     if (!rawMessages) return normalized
 
@@ -56,6 +56,30 @@ export function useMessages(leadId) {
         if (!leadId) return
 
         setLoading(true)
+
+        async function fetchLeadStatus() {
+            const { data } = await supabase.from('leads').select('status').eq('id', leadId).single()
+            if (data) setStatus(data.status || "active")
+        }
+
+        async function fetchMessages() {
+            try {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .eq('lead_id', leadId)
+                    .order('created_at', { ascending: true })
+
+                if (error) throw error
+                setMessages(data)
+
+            } catch (error) {
+                console.error("Error fetching messages:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
         fetchMessages()
         fetchLeadStatus()
 
@@ -104,29 +128,6 @@ export function useMessages(leadId) {
             supabase.removeChannel(leadChannel)
         }
     }, [leadId])
-
-    async function fetchLeadStatus() {
-        const { data } = await supabase.from('leads').select('status').eq('id', leadId).single()
-        if (data) setStatus(data.status || "active")
-    }
-
-    async function fetchMessages() {
-        try {
-            const { data, error } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('lead_id', leadId)
-                .order('created_at', { ascending: true })
-
-            if (error) throw error
-            setMessages(data)
-
-        } catch (error) {
-            console.error("Error fetching messages:", error)
-        } finally {
-            setLoading(false)
-        }
-    }
 
     return { messages, setMessages, status, setStatus, loading }
 }

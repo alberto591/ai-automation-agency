@@ -28,6 +28,7 @@ class TwilioAdapter(MessagingPort):
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     def send_message(self, to: str, body: str, media_url: str | None = None) -> str:
+        logger.info("TWILIO_SEND_START", context={"to": to, "body_preview": body[:20]})
         # 1. Clean numbers
         clean_to = "".join(to.split())
         from_number = self.from_number
@@ -36,6 +37,10 @@ class TwilioAdapter(MessagingPort):
         final_to = f"whatsapp:{clean_to}" if not clean_to.startswith("whatsapp:") else clean_to
         final_from = (
             f"whatsapp:{from_number}" if not from_number.startswith("whatsapp:") else from_number
+        )
+
+        logger.info(
+            "TWILIO_FORMATTED_NUMBERS", context={"final_to": final_to, "final_from": final_from}
         )
 
         if final_to == final_from:
@@ -52,6 +57,7 @@ class TwilioAdapter(MessagingPort):
             if self.webhook_base_url:
                 params["status_callback"] = f"{self.webhook_base_url}/api/webhooks/twilio/status"
 
+            logger.info("TWILIO_API_CALL", context={"params_keys": list(params.keys())})
             message = self.client.messages.create(**params)
             logger.info(
                 "MESSAGE_SENT",

@@ -8,11 +8,7 @@ export default function MarketIntelPage() {
     const [loading, setLoading] = useState(true)
     const [analyzing, setAnalyzing] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
-    const [city, setCity] = useState("Milano")
-
-    useEffect(() => {
-        fetchMarketData()
-    }, [])
+    const city = "Milano"
 
     const fetchMarketData = async () => {
         setLoading(true)
@@ -28,6 +24,10 @@ export default function MarketIntelPage() {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        fetchMarketData()
+    }, [])
 
     const runAIAnalysis = async () => {
         setAnalyzing(true)

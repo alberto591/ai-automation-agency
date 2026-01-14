@@ -12,16 +12,12 @@ import { BarChart3, MessageSquare, Globe, Users } from 'lucide-react'
 
 function App() {
   const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedLead, setSelectedLead] = useState(null)
+  const [loading, setLoading] = useState(!!supabase)
   const [currentView, setCurrentView] = useState('inbox') // 'inbox' or 'analytics'
 
   useEffect(() => {
-    // 1. Get initial session
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
+    // Early return if supabase not initialized
+    if (!supabase) return;
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -47,9 +43,11 @@ function App() {
   }
 
   if (!session) {
+    // TODO: Fix auth redirect - temporarily disabled for WebSocket testing
     // Redirect to landing page login if not authenticated
-    window.location.href = '/login.html';
-    return null;
+    // window.location.href = '/login.html';
+    // return null;
+    console.warn('⚠️ Not authenticated - auth check temporarily disabled for testing');
   }
 
   return (

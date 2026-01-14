@@ -32,6 +32,7 @@ class Property:
 @dataclass
 class Lead:
     phone: str
+    id: str | None = None
     name: str | None = None
     agency: str | None = None
     postcode: str | None = None

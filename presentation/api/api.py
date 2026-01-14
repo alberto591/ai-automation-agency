@@ -111,40 +111,53 @@ app.include_router(feedback.router, prefix="/api/feedback")
 async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None):
     """
     WebSocket endpoint for real-time conversation updates.
-    
+
     Query params:
         client_id: Unique identifier for this connection (e.g., session ID)
     """
+    import json
     import uuid
+
     connection_id = client_id or str(uuid.uuid4())
-    
+
     await ws_manager.connect(websocket, connection_id)
-    
+
     try:
         # Subscribe to "all" room to receive all conversation updates
         ws_manager.subscribe_to_room(connection_id, "all")
-        
+
+        # Send initial connection confirmation
+        await websocket.send_json({"type": "connected", "connection_id": connection_id})
+
         # Keep connection alive and handle incoming messages
         while True:
-            data = await websocket.receive_json()
-            
-            # Handle subscription requests
-            if data.get("type") == "subscribe":
-                room_id = data.get("room")
-                if room_id:
-                    ws_manager.subscribe_to_room(connection_id, room_id)
-                    await websocket.send_json({"status": "subscribed", "room": room_id})
-            
-            elif data.get("type") == "unsubscribe":
-                room_id = data.get("room")
-                if room_id:
-                    ws_manager.unsubscribe_from_room(connection_id, room_id)
-                    await websocket.send_json({"status": "unsubscribed", "room": room_id})
-            
-            # Heartbeat/ping-pong
-            elif data.get("type") == "ping":
-                await websocket.send_json({"type": "pong"})
-                
+            try:
+                # Use receive_text for more flexibility
+                raw_data = await websocket.receive_text()
+                data = json.loads(raw_data)
+
+                # Handle subscription requests
+                if data.get("type") == "subscribe":
+                    room_id = data.get("room")
+                    if room_id:
+                        ws_manager.subscribe_to_room(connection_id, room_id)
+                        await websocket.send_json({"status": "subscribed", "room": room_id})
+
+                elif data.get("type") == "unsubscribe":
+                    room_id = data.get("room")
+                    if room_id:
+                        ws_manager.unsubscribe_from_room(connection_id, room_id)
+                        await websocket.send_json({"status": "unsubscribed", "room": room_id})
+
+                # Heartbeat/ping-pong
+                elif data.get("type") == "ping":
+                    await websocket.send_json({"type": "pong"})
+
+            except json.JSONDecodeError:
+                # Ignore malformed messages
+                logger.warning("WS_INVALID_JSON", context={"connection_id": connection_id})
+                continue
+
     except WebSocketDisconnect:
         ws_manager.disconnect(connection_id)
     except Exception as e:

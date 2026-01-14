@@ -18,6 +18,16 @@ from domain.services.logging import get_logger
 
 logger = get_logger(__name__)
 
+# Import WebSocket manager for real-time dashboard updates
+try:
+    import asyncio
+
+    from infrastructure.websocket import manager as ws_manager
+
+    WS_AVAILABLE = True
+except ImportError:
+    WS_AVAILABLE = False
+
 
 class IntentExtraction(BaseModel):
     """Structured information about user intent."""
@@ -309,15 +319,11 @@ def create_lead_processing_graph(
             return {"fifi_data": fifi_res}
 
         except Exception as e:
-            logger.error("FIFI_APPRAISAL_FAILED", context={"error": str(e), "phone": state["phone"]})
+            logger.error(
+                "FIFI_APPRAISAL_FAILED", context={"error": str(e), "phone": state["phone"]}
+            )
             # Return empty/error structure to prevent flow crash
-            return {
-                "fifi_data": {
-                    "fifi_status": "ERROR",
-                    "error": str(e),
-                    "predicted_value": 0
-                }
-            }
+            return {"fifi_data": {"fifi_status": "ERROR", "error": str(e), "predicted_value": 0}}
 
     def handoff_node(state: AgentState) -> dict[str, Any]:
         """
@@ -660,8 +666,8 @@ def create_lead_processing_graph(
         """Check semantic cache."""
         # Skip cache for Agency Demo flow to ensure personalized name/template
         if state.get("source") == "AGENCY_DEMO":
-             embedding = ai.get_embedding(state["user_input"])
-             return {"embedding": embedding, "checkpoint": "continue"}
+            embedding = ai.get_embedding(state["user_input"])
+            return {"embedding": embedding, "checkpoint": "continue"}
 
         embedding = ai.get_embedding(state["user_input"])
         cached = db.get_cached_response(embedding)
@@ -856,7 +862,7 @@ def create_lead_processing_graph(
             response = ai.generate_response(prompt)
             return {"ai_response": response}
 
-    def finalize_node(state: AgentState) -> dict[str, Any]:
+    def finalize_node(state: AgentState) -> dict[str, Any]:  # noqa: PLR0912
         """Perform side effects: sending message, updating history, caching, and PERSISTING metadata."""
         phone = state["phone"]
         response = state["ai_response"]
@@ -931,6 +937,40 @@ def create_lead_processing_graph(
                 "metadata": {"by": "ai", "graph": "langgraph"},
             }
             db.save_message(lead["id"], assistant_msg)
+
+            # Broadcast to WebSocket for real-time dashboard
+            if WS_AVAILABLE:
+                try:
+                    loop = asyncio.get_event_loop()
+                    # Broadcast user message
+                    loop.create_task(
+                        ws_manager.broadcast_to_room(
+                            {
+                                "type": "message",
+                                "phone": phone,
+                                "lead_id": lead["id"],
+                                "lead_name": lead.get("name", "Unknown"),
+                                "message": user_msg,
+                            },
+                            room_id="all",
+                        )
+                    )
+                    # Broadcast AI response
+                    loop.create_task(
+                        ws_manager.broadcast_to_room(
+                            {
+                                "type": "message",
+                                "phone": phone,
+                                "lead_id": lead["id"],
+                                "lead_name": lead.get("name", "Unknown"),
+                                "message": assistant_msg,
+                            },
+                            room_id="all",
+                        )
+                    )
+                    logger.info("WS_BROADCAST_SENT", context={"phone": phone})
+                except Exception as e:
+                    logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})
 
         # 3. Update Cache (if not a hit)
         if state["checkpoint"] != "cache_hit" and embedding and response:

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 import { Brain, TrendingUp, FileText, Activity } from 'lucide-react'
 
@@ -18,9 +18,9 @@ export default function AnalyticsPage() {
 
     useEffect(() => {
         fetchAnalytics()
-    }, [period])
+    }, [period, fetchAnalytics])
 
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async () => {
         setLoading(true)
         try {
             const [metricsRes, distributionRes, systemRes, marketRes] = await Promise.all([
@@ -55,7 +55,7 @@ export default function AnalyticsPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [period])
 
     if (loading) {
         return (

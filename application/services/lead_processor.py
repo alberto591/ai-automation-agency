@@ -1,7 +1,7 @@
+import asyncio
 import re
 from datetime import UTC, datetime
 from typing import Any, cast
-import asyncio
 
 from domain.enums import LeadStatus
 from domain.ports import (
@@ -20,6 +20,7 @@ logger = get_logger(__name__)
 # Import WebSocket manager for real-time dashboard updates
 try:
     from infrastructure.websocket import manager as ws_manager
+
     WS_AVAILABLE = True
 except ImportError:
     WS_AVAILABLE = False
@@ -118,9 +119,9 @@ class LeadProcessor:
             "postcode": postcode,
             "language": language,
             "context_data": {},  # Ensure fresh context
-            "history": [], # Ensure fresh history
-            "history_text": "", 
-            "source": "WHATSAPP", # Default, will be updated by ingest
+            "history": [],  # Ensure fresh history
+            "history_text": "",
+            "source": "WHATSAPP",  # Default, will be updated by ingest
         }
 
         try:
@@ -261,11 +262,13 @@ class LeadProcessor:
             new_msg["metadata"] = metadata
 
         self.db.save_message(lead["id"], new_msg)
-        
+
         # Broadcast to WebSocket clients for real-time dashboard updates
         if WS_AVAILABLE:
             try:
-                asyncio.create_task(
+                # Schedule broadcast in background (works from sync context)
+                loop = asyncio.get_event_loop()
+                loop.create_task(
                     ws_manager.broadcast_to_room(
                         {
                             "type": "message",
@@ -277,6 +280,9 @@ class LeadProcessor:
                         room_id="all",
                     )
                 )
+            except RuntimeError:
+                # No event loop available (e.g., in tests)
+                logger.warning("WS_BROADCAST_SKIPPED", context={"reason": "No event loop"})
             except Exception as e:
                 logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})
 

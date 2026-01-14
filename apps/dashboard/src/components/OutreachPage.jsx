@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Search, MapPin, Phone, MessageSquare, Send, CheckCircle, Clock, PlusCircle, AlertCircle } from 'lucide-react'
 
 export default function OutreachPage() {
@@ -10,9 +10,9 @@ export default function OutreachPage() {
 
     useEffect(() => {
         fetchTargets()
-    }, [])
+    }, [fetchTargets])
 
-    const fetchTargets = async () => {
+    const fetchTargets = useCallback(async () => {
         setLoading(true)
         try {
             const res = await fetch(`/api/outreach/targets?city=${city}`)
@@ -25,7 +25,7 @@ export default function OutreachPage() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [city])
 
     const generateTargets = async () => {
         setGenerating(true)
@@ -144,8 +144,8 @@ export default function OutreachPage() {
                                 onClick={() => sendOutreach(target.id)}
                                 disabled={target.status === 'CONTACTED' || sendingId === target.id}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${target.status === 'CONTACTED'
-                                        ? 'bg-emerald-50 text-emerald-600 cursor-default'
-                                        : 'bg-slate-900 hover:bg-indigo-600 text-white shadow-lg shadow-slate-200'
+                                    ? 'bg-emerald-50 text-emerald-600 cursor-default'
+                                    : 'bg-slate-900 hover:bg-indigo-600 text-white shadow-lg shadow-slate-200'
                                     }`}
                             >
                                 {sendingId === target.id ? (

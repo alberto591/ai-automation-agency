@@ -67,8 +67,9 @@ python -m best_practices.capture --validate
 - `STATUS_REPORTING_PATTERN` - get_status() on all services
 
 **Integrations:**
-- `MODEL_TIER_ROUTING` - Route queries to appropriate model tiers
-- `WHATSAPP_INTEGRATION` - Use Twilio for WhatsApp lead capture and messaging
+- `MODEL_TIER_ROUTING` - Route queries to appropriate model tiers (Mistral for general, Perplexity for research)
+- `WHATSAPP_INTEGRATION` - Use Meta WhatsApp Adapter (primary) or Twilio for messaging
+- `REAL_TIME_RESEARCH` - Use Perplexity for live data (legal, market comps) instead of hallucinations
 
 **Workflow:**
 - `RESEARCH_BEFORE_IMPLEMENTATION` - Web research before new features/complex fixes
@@ -260,7 +261,7 @@ Research integrates with other patterns in sequence:
 - ✅ **Correct**: `tests/integration/test_*.py` - Integration tests
 - ✅ **Correct**: `tests/e2e/test_*.py` - End-to-end tests
 - ❌ **WRONG**: `test_*.py` in root directory
-- ❌ **WRONG**: `test_*.py` in backend directory
+- ❌ **WRONG**: `test_*.py` in api or infrastructure directory
 
 ### Test Script Naming Convention
 Test scripts in `test_scripts/scripts/test/` must follow the pattern: `test_{target}_{qualifier}.py`
@@ -444,28 +445,34 @@ Documentation files must follow the pattern: `{YYYY-MM-DD}_{descriptive-slug}.md
    **Hexagonal Architecture Layout** (Ports & Adapters):
    ```
    project/
+   ├── apps/                      # Frontend Monorepo
+   │   ├── dashboard/            # React Admin Dashboard
+   │   │   ├── src/
+   │   │   │   ├── features/     # Feature-based texture
+   │   │   │   ├── components/   # Shared components
+   │   │   │   └── lib/          # Utilities
+   │   ├── landing-page/         # Marketing Landing Page
+   │   └── fifi/                 # Fifi Appraisal Tool
    ├── domain/                    # Core business logic (innermost layer)
    │   ├── entities/             # Business entities with identity
    │   ├── value_objects/        # Immutable values
    │   ├── services/             # Domain services (pure business rules)
-   │   ├── ports/                # Abstract interfaces (dependency inversion)
-   │   │   ├── repositories.py   # Data access interfaces
-   │   │   ├── llm_provider.py   # LLM abstraction
-   │   │   └── agent_registry.py # Agent plugin interface
+   │   ├── ports.py              # Abstract interfaces (dependency inversion)
    │   └── events/               # Domain events
    ├── application/               # Use cases (orchestration layer)
    │   ├── use_cases/            # Application-specific business flows
    │   └── services/             # Application services (cross-cutting concerns)
    ├── infrastructure/            # Adapters (outermost layer)
-   │   ├── database/             # Database adapters (implement repository ports)
-   │   ├── llm/                  # LLM provider adapters
-   │   ├── cache/                # Caching adapters
-   │   ├── events/               # Event bus implementation
-   │   └── security/             # Security implementations
-   ├── presentation/              # API/UI layer
-   │   ├── api/                  # HTTP endpoints
-   │   ├── dto/                  # Data transfer objects
-   │   └── middleware/           # Request/response middleware
+   │   ├── adapters/             # Concrete implementations of ports
+   │   │   ├── mistral_adapter.py
+   │   │   ├── perplexity_adapter.py
+   │   │   ├── meta_whatsapp_adapter.py
+   │   │   └── supabase_adapter.py
+   │   ├── logging.py
+   │   └── monitoring/
+   ├── api/                       # HTTP endpoints (FastAPI)
+   │   ├── routes/
+   │   └── dependencies.py
    ├── config/                    # Configuration
    │   ├── container.py          # Dependency injection container (composition root)
    │   └── settings.py           # Application settings
@@ -473,7 +480,7 @@ Documentation files must follow the pattern: `{YYYY-MM-DD}_{descriptive-slug}.md
    │   ├── unit/                 # Fast, isolated tests
    │   ├── integration/          # Tests with external dependencies
    │   └── e2e/                  # End-to-end tests
-  ├── docs/                     # See Documentation Standards section for layout
+   ├── docs/                     # See Documentation Standards section for layout
    ├── scripts/                   # Operational scripts
    └── test_scripts/             # System-level test scripts
    ```
@@ -611,7 +618,42 @@ Documentation files must follow the pattern: `{YYYY-MM-DD}_{descriptive-slug}.md
    - **Granular commits**: When migrating many files, use one commit per file so regressions are traceable and selective rollbacks are trivial.
    - **Breadcrumbs**: Leave a docstring/log note in deprecated modules that points to the canonical location until the last consumer moves.
    - **Instrumentation**: During feature-flag rollouts, add `[LEGACY]` / `[NEW]` log markers and feature-flag decision logs so it is obvious which path executed. Remove markers once the migration is stable.
-   - **Execution verification**: After wiring new logic, add temporary structured logs and enhance E2E tests to assert response fields (not just status codes) to prove the new path actually ran and no early `return` blocks it.
+    - **Execution verification**: After wiring new logic, add temporary structured logs and enhance E2E tests to assert response fields (not just status codes) to prove the new path actually ran and no early `return` blocks it.
+
+8e) Frontend Standards (React/Vite)
+    **Tech Stack**:
+    - **Framework**: React 19 + Vite
+    - **Data Fetching**: TanStack Query (React Query) - **MANDATORY** for server state
+    - **Styling**: Tailwind CSS + `clsx` + `tailwind-merge`
+    - **Icons**: Lucide React
+    - **Testing**: Vitest + React Testing Library
+    - **State**: URL state (first) > Local state (`useState`) > Global state (Zustand/Context)
+
+    **Core Rules**:
+    - **No `useEffect` for data fetching**: ALways use `useQuery` or `useMutation`.
+    - **No manual fetch**: Use the `supabase` client or custom typed API clients.
+    - **Component Structure**:
+      ```
+      components/
+      ├── ui/                # Generic, reusable UI components (Buttons, Inputs)
+      ├── domain/            # Domain-specific components (LeadCard, PropertyGrid)
+      └── layout/            # Layout components (Sidebar, Navbar)
+      ```
+    - **Error Handling**: Use Error Boundaries for UI crashes; `isError` state for queries.
+    - **Tailwind**: Use utility classes. For complex conditionals, use `cn()` utility (`clsx` + `tailwind-merge`).
+    - **Routing**: React Router DOM v7.
+    - **Strict Types**: All props and API responses must be typed.
+
+    **Example: Data Fetching**:
+    ```typescript
+    // ✅ GOOD: using useQuery
+    const { data: leads, isLoading } = useQuery({
+      queryKey: ['leads', filter],
+      queryFn: () => getLeads(filter)
+    });
+
+    if (isLoading) return <Skeleton />;
+    ```
 
 8d) Data & Concurrency Patterns
    - **Domain state machines**: Encode business workflows as explicit domain methods that validate state transitions and raise when invalid (e.g., pending → claimed). Keep validation out of controllers.
@@ -1000,6 +1042,20 @@ Documentation files must follow the pattern: `{YYYY-MM-DD}_{descriptive-slug}.md
     - Simplifies query logic (single collection, single dimension)
 
     All embedding operations use Mistral exclusively. Do not introduce additional embedding providers without ADR approval.
+
+11c) Real-Time Research Standards (Perplexity)
+    **Purpose**: providing up-to-date facts where LLMs hallucinate (laws, market prices).
+
+    **When to use Perplexity (`sonar-pro`)**:
+    - **Legal Compliance**: Checking recent Gazzetta Ufficiale or EU AI Act updates
+    - **Market Analysis**: Finding active listings for comparative analysis
+    - **Fact Verification**: Validating claims about entities/companies
+
+    **Implementation**:
+    - Use `PerplexityAdapter` via `ResearchPort`.
+    - Always provide a `context` to ground the research (e.g., "You are an expert Italian real estate lawyer").
+    - Cache results where possible (market comps) but not for breaking news.
+    - **NEVER** use Perplexity for generic chat; use Mistral for that.
 
 
 12) Performance and Reliability

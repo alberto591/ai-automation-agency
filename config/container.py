@@ -8,7 +8,7 @@ from application.services.market_intelligence import MarketIntelligenceService
 from application.services.payment_service import PaymentService
 from application.services.routing_service import RoutingService
 from config.settings import settings
-from domain.ports import CachePort, CalendarPort, MessagingPort
+from domain.ports import CachePort, CalendarPort, MessagingPort, ResearchPort
 
 if TYPE_CHECKING:
     pass
@@ -149,7 +149,7 @@ class Container:
         return EmailParserService(email_port=adapter)
 
     @property
-    def research(self) -> Any:
+    def research(self) -> ResearchPort:
         """Lazy load Research adapter (Perplexity Labs) with Redis cache."""
         from infrastructure.adapters.perplexity_adapter import (  # noqa: PLC0415
             PerplexityAdapter,
