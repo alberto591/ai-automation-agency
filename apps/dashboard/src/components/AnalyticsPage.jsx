@@ -18,7 +18,7 @@ export default function AnalyticsPage() {
 
     useEffect(() => {
         fetchAnalytics()
-    }, [period, fetchAnalytics])
+    }, [period])  // Only re-run when period changes, fetchAnalytics is stable via useCallback
 
     const fetchAnalytics = useCallback(async () => {
         setLoading(true)

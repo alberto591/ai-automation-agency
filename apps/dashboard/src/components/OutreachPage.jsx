@@ -10,7 +10,7 @@ export default function OutreachPage() {
 
     useEffect(() => {
         fetchTargets()
-    }, [fetchTargets])
+    }, [city])  // Only re-run when city changes, fetchTargets is stable via useCallback
 
     const fetchTargets = useCallback(async () => {
         setLoading(true)
