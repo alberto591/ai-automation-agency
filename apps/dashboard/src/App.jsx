@@ -68,7 +68,8 @@ function App() {
             <MessageSquare className="w-4 h-4" />
             Inbox
           </button>
-          <button
+          {/* Hidden tabs - not in use yet */}
+          {/* <button
             onClick={() => setCurrentView('analytics')}
             className={`flex items-center gap-2 px-4 py-2 font-medium transition-colors border-b-2 -mb-px ${currentView === 'analytics'
               ? 'border-indigo-600 text-indigo-600'
@@ -97,7 +98,7 @@ function App() {
           >
             <Users className="w-4 h-4" />
             Outreach
-          </button>
+          </button> */}
         </div>
       </div>
 

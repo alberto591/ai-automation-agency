@@ -1,12 +1,13 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
+import ChatWindow from './ChatWindow';
+import { MessageSquare } from 'lucide-react';
 
 export default function ConversationsPage() {
+
     const [conversations, setConversations] = useState([]);
     const [selectedPhone, setSelectedPhone] = useState(null);
-    // Store messages by phone number
-    const messagesMapRef = useRef({});
-    const [currentMessages, setCurrentMessages] = useState([]);
+
 
     // Memoize WebSocket URL to prevent reconnection loops
     const wsUrl = useMemo(() => {
@@ -40,20 +41,10 @@ export default function ConversationsPage() {
         else if (data.type === 'message') {
             const phone = data.phone;
 
-            // Store message in map
-            if (!messagesMapRef.current[phone]) {
-                messagesMapRef.current[phone] = [];
-            }
-            messagesMapRef.current[phone].push(data.message);
-
-            // If this is the selected conversation, update displayed messages
-            if (selectedPhone === phone) {
-                setCurrentMessages((prev) => [...prev, data.message]);
-            }
-
-            // Update conversations list
+            // Update conversations list with new last message
             setConversations((prev) => {
                 const existingIndex = prev.findIndex((conv) => conv.phone === phone);
+
                 const updatedConv = {
                     phone: phone,
                     name: data.lead_name || 'Unknown',
@@ -78,38 +69,11 @@ export default function ConversationsPage() {
         onClose: () => console.log('❌ WebSocket disconnected'),
     });
 
-    // When selecting a conversation, fetch and show its messages
-    const handleSelectConversation = async (conv) => {
+    // When selecting a conversation, just set the phone - ChatWindow handles message fetching
+    const handleSelectConversation = (conv) => {
         setSelectedPhone(conv.phone);
-
-        // Fetch messages from Supabase if we have a lead ID
-        try {
-            const { supabase } = await import('../lib/supabase');
-
-            if (supabase && conv.leadId) {
-                const { data, error } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .eq('lead_id', conv.leadId)
-                    .order('created_at', { ascending: true });
-
-                if (error) {
-                    console.error('❌ Error fetching messages:', error);
-                } else {
-                    console.log('📨 Loaded', data?.length || 0, 'messages for', conv.name);
-                    setCurrentMessages(data || []);
-                    messagesMapRef.current[conv.phone] = data || [];
-                }
-            } else {
-                // Fall back to cached messages
-                const msgs = messagesMapRef.current[conv.phone] || [];
-                setCurrentMessages([...msgs]);
-            }
-        } catch (error) {
-            console.error('❌ Error loading messages:', error);
-            setCurrentMessages([]);
-        }
     };
+
 
 
     // Get selected conversation object
@@ -208,77 +172,23 @@ export default function ConversationsPage() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             color: '#9ca3af',
+                            flexDirection: 'column',
+                            gap: '12px'
                         }}
                     >
-                        Select a conversation to view messages
+                        <div className="p-4 bg-indigo-50 rounded-full text-indigo-500">
+                            <MessageSquare className="w-8 h-8 opacity-50" />
+                        </div>
+                        <div>Select a conversation to start chatting</div>
                     </div>
                 ) : (
-                    <>
-                        {/* Header */}
-                        <div
-                            style={{
-                                padding: '20px',
-                                borderBottom: '1px solid #e0e0e0',
-                                background: '#fff',
-                            }}
-                        >
-                            <h3 style={{ margin: 0 }}>{selectedConversation.name}</h3>
-                            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
-                                {selectedConversation.phone}
-                            </div>
-                        </div>
-
-                        {/* Messages */}
-                        <div
-                            style={{
-                                flex: 1,
-                                padding: '20px',
-                                overflow: 'auto',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '12px',
-                                background: '#f9fafb',
-                            }}
-                        >
-                            {currentMessages.length === 0 ? (
-                                <div style={{ textAlign: 'center', color: '#9ca3af', padding: '40px' }}>
-                                    No messages yet - send a message to see it here!
-                                </div>
-                            ) : (
-                                currentMessages.map((msg, idx) => (
-                                    <div
-                                        key={idx}
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: msg.role === 'user' ? 'flex-start' : 'flex-end',
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '70%',
-                                                padding: '12px 16px',
-                                                borderRadius: '12px',
-                                                background: msg.role === 'user' ? '#e5e7eb' : '#3b82f6',
-                                                color: msg.role === 'user' ? '#1f2937' : '#fff',
-                                                whiteSpace: 'pre-wrap',
-                                            }}
-                                        >
-                                            <div>{msg.content}</div>
-                                            <div
-                                                style={{
-                                                    fontSize: '0.75rem',
-                                                    marginTop: '6px',
-                                                    opacity: 0.7,
-                                                }}
-                                            >
-                                                {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : ''}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </>
+                    <ChatWindow
+                        selectedLead={{
+                            id: selectedConversation.leadId,
+                            phone: selectedConversation.phone,
+                            name: selectedConversation.name
+                        }}
+                    />
                 )}
             </div>
         </div>

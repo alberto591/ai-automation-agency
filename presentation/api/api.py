@@ -325,6 +325,31 @@ async def twilio_webhook(
 
     logger.info("WEBHOOK_RECEIVED", context={"from": from_phone, "body": body, "media": media_url})
 
+    # Get lead info for WebSocket broadcast
+    try:
+        lead_response = container.db.client.table("leads").select("id, customer_name").eq("customer_phone", from_phone).single().execute()
+        lead_data = lead_response.data if lead_response else None
+        lead_id = lead_data.get("id") if lead_data else None
+        lead_name = lead_data.get("customer_name", "Unknown") if lead_data else "Unknown"
+    except Exception:
+        lead_id = None
+        lead_name = "Unknown"
+
+    # Broadcast new message to dashboard via WebSocket
+    if lead_id:
+        await ws_manager.broadcast_to_all({
+            "type": "message",
+            "phone": from_phone,
+            "lead_id": lead_id,
+            "lead_name": lead_name,
+            "message": {
+                "role": "user",
+                "content": body,
+                "timestamp": datetime.utcnow().isoformat(),
+                "media_url": media_url
+            }
+        })
+
     # Process in background
     background_tasks.add_task(
         container.lead_processor.process_incoming_message,
