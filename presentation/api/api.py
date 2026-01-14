@@ -327,7 +327,13 @@ async def twilio_webhook(
 
     # Get lead info for WebSocket broadcast
     try:
-        lead_response = container.db.client.table("leads").select("id, customer_name").eq("customer_phone", from_phone).single().execute()
+        lead_response = (
+            container.db.client.table("leads")
+            .select("id, customer_name")
+            .eq("customer_phone", from_phone)
+            .single()
+            .execute()
+        )
         lead_data = lead_response.data if lead_response else None
         lead_id = lead_data.get("id") if lead_data else None
         lead_name = lead_data.get("customer_name", "Unknown") if lead_data else "Unknown"
@@ -456,7 +462,7 @@ async def takeover_lead(req: PhoneRequest) -> dict[str, str]:
         return {"status": "success", "message": "AI Muted. Human in control."}
     except Exception as e:
         logger.error("TAKEOVER_FAILED", context={"phone": req.phone, "error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to mute AI") from None
+        raise HTTPException(status_code=500, detail=f"Failed to mute AI: {str(e)}") from None
 
 
 @app.post("/api/leads/resume", dependencies=[Depends(get_current_user)])
@@ -466,7 +472,7 @@ async def resume_lead(req: PhoneRequest) -> dict[str, str]:
         return {"status": "success", "message": "AI Resumed."}
     except Exception as e:
         logger.error("RESUME_FAILED", context={"phone": req.phone, "error": str(e)})
-        raise HTTPException(status_code=500, detail="Failed to resume AI") from None
+        raise HTTPException(status_code=500, detail=f"Failed to resume AI: {str(e)}") from None
 
 
 @app.post("/api/leads/message", dependencies=[Depends(get_current_user)])
