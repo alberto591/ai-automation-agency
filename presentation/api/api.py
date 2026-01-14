@@ -319,12 +319,27 @@ async def twilio_webhook(
     if from_phone.startswith("whatsapp:"):
         from_phone = from_phone.replace("whatsapp:", "")
 
+    # Prevent Self-Loop: If message is FROM our own number, ignore it.
+    # (This happens if Status Callback URL is set to Incoming URL by mistake)
+    # import settings (lazy import or top level)
+    from config.settings import settings
+    
+    bot_number = settings.TWILIO_PHONE_NUMBER
+    if bot_number and bot_number.replace("whatsapp:", "") == from_phone:
+        logger.warning("WEBHOOK_IGNORED_SELF", context={"from": from_phone})
+        return "OK"
+
     body = str(form_data.get("Body", ""))
     num_media_val = form_data.get("NumMedia", 0)
     num_media = int(str(num_media_val)) if num_media_val is not None else 0
 
     media_url_val = form_data.get("MediaUrl0")
     media_url = str(media_url_val) if num_media > 0 and media_url_val else None
+
+    # Block empty messages (Status updates hitting wrong URL)
+    if not body.strip() and not media_url:
+        logger.warning("WEBHOOK_IGNORED_EMPTY", context={"from": from_phone})
+        return "OK"
 
     logger.info("WEBHOOK_RECEIVED", context={"from": from_phone, "body": body, "media": media_url})
 
