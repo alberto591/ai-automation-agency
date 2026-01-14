@@ -21,7 +21,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
         if (lead) {
             setFormData({
                 name: lead.name || '',
-                email: lead.email || '',
+                email: lead.customer_email || lead.email || '',
                 budget_max: lead.budget_max || '',
                 preferred_zones: Array.isArray(lead.preferred_zones) ? lead.preferred_zones.join(', ') : (lead.preferred_zones || '')
             });
@@ -106,7 +106,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
     const budget = lead.budget_max || "N/A";
     const zone = lead.preferred_zones || "Analisi in corso...";
-    const email = lead.email || "Non disponibile";
+    const email = lead.customer_email || lead.email || "Non disponibile";
     const created = lead.created_at ? new Date(lead.created_at).toLocaleDateString() : "N/A";
 
     async function handleArchive() {
@@ -137,7 +137,8 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                 customer_name: formData.name,
                 budget_max: formData.budget_max ? parseInt(formData.budget_max) : null,
                 preferred_zones: zonesArray,
-                email: formData.email
+                preferred_zones: zonesArray,
+                customer_email: formData.email
             };
 
             const { error } = await supabase

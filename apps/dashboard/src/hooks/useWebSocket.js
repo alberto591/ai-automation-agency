@@ -14,6 +14,7 @@ export function useWebSocket(url, options = {}) {
         onError = () => { },
         reconnectInterval = 3000,
         maxReconnectAttempts = 5,
+        token = null,
     } = options;
 
     const [isConnected, setIsConnected] = useState(false);
@@ -32,10 +33,15 @@ export function useWebSocket(url, options = {}) {
         callbacksRef.current = { onMessage, onOpen, onClose, onError };
     }, [onMessage, onOpen, onClose, onError]);
 
-    // Update URL ref when it changes
+    // Update URL ref when it changes (including token)
     useEffect(() => {
-        urlRef.current = url;
-    }, [url]);
+        if (token) {
+            const separator = url.includes('?') ? '&' : '?';
+            urlRef.current = `${url}${separator}token=${token}`;
+        } else {
+            urlRef.current = url;
+        }
+    }, [url, token]);
 
     const connectRef = useRef(null);
 

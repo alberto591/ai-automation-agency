@@ -123,6 +123,8 @@ def create_lead_processing_graph(
                 "status": LeadStatus.ACTIVE,
                 "journey_state": LeadStatus.ACTIVE,
                 "is_ai_active": True,
+                "agency_id": settings.DEFAULT_TENANT_ID,  # Legacy column
+                "tenant_id": settings.DEFAULT_TENANT_ID,
                 "created_at": datetime.now(UTC).isoformat(),
                 "updated_at": datetime.now(UTC).isoformat(),
             }

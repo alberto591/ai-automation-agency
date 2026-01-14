@@ -187,18 +187,7 @@ export default function ChatWindow({ selectedLead }) {
 
                 <div className="flex items-center space-x-6">
                     {/* AI Summary Button */}
-                    <Tooltip content="Genera Riassunto AI" position="bottom">
-                        <button
-                            onClick={handleGenerateSummary}
-                            disabled={generatingSummary}
-                            className={`p-2.5 rounded-xl transition-all duration-300 hover:scale-110 active:scale-95 ${generatingSummary
-                                ? 'bg-indigo-50 text-indigo-300'
-                                : 'hover:bg-indigo-50 text-indigo-500 hover:text-indigo-600'
-                                }`}
-                        >
-                            <Sparkles className={`w-5.5 h-5.5 ${generatingSummary ? 'animate-spin' : ''}`} />
-                        </button>
-                    </Tooltip>
+
 
                     {/* Premium Toggle Switch */}
                     <Tooltip content={status === 'human_mode' ? "Riattiva AI Agent" : "Passa a Modalità Manuale"} position="bottom">

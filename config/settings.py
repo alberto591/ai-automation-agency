@@ -68,6 +68,7 @@ class Settings(BaseSettings):
     # Agency Details
     AGENCY_OWNER_PHONE: str = Field(default="")
     AGENCY_OWNER_EMAIL: str = Field(default="")
+    DEFAULT_TENANT_ID: str | None = Field(default=None)
 
     # Email / SMTP
     SMTP_SERVER: str = Field(default="smtp.gmail.com")

@@ -3,8 +3,7 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import ChatWindow from './ChatWindow';
 import { MessageSquare } from 'lucide-react';
 
-export default function ConversationsPage() {
-
+export default function ConversationsPage({ session }) {
     const [conversations, setConversations] = useState([]);
     const [selectedPhone, setSelectedPhone] = useState(null);
 
@@ -67,6 +66,7 @@ export default function ConversationsPage() {
         onMessage: handleMessage,
         onOpen: () => console.log('✅ WebSocket connected'),
         onClose: () => console.log('❌ WebSocket disconnected'),
+        token: session?.access_token,
     });
 
     // When selecting a conversation, just set the phone - ChatWindow handles message fetching

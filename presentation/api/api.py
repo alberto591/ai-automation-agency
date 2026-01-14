@@ -1,7 +1,9 @@
+import json
 import os
 import re
+import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, cast
 from uuid import UUID
 
@@ -19,6 +21,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from jose import JWTError, jwt
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 
@@ -36,6 +39,7 @@ from infrastructure.websocket import manager as ws_manager
 from presentation.api import feedback
 from presentation.api.webhooks import calcom_webhook, lead_sources, portal_webhook, voice_webhook
 from presentation.middleware.auth import get_current_user
+from presentation.middleware.tenant import TenantMiddleware
 
 logger = get_logger(__name__)
 
@@ -108,6 +112,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(TenantMiddleware)
 app.include_router(calcom_webhook.router, prefix="/api")
 app.include_router(portal_webhook.router, prefix="/api")
 app.include_router(voice_webhook.router, prefix="/api")
@@ -117,18 +122,47 @@ app.include_router(feedback.router, prefix="/api/feedback")
 
 # WebSocket endpoint for real-time dashboard updates
 @app.websocket("/ws/conversations")
-async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None) -> None:  # noqa: PLR0912
+async def websocket_endpoint(  # noqa: PLR0912, PLR0915
+    websocket: WebSocket,
+    client_id: str | None = None,
+    token: str | None = Query(None),
+) -> None:
     """
     WebSocket endpoint for real-time conversation updates.
-
-    Query params:
-        client_id: Unique identifier for this connection (e.g., session ID)
+    Secured with JWT token to enforce tenant isolation.
     """
-    import json
-    import uuid
+    # 1. Validate Token & Extract Tenant
+    tenant_id = settings.DEFAULT_TENANT_ID
+
+    if token:
+        try:
+            if not settings.SUPABASE_JWT_SECRET:
+                logger.error("MISSING_JWT_SECRET")
+                await websocket.close(code=1008)
+                return
+
+            payload = jwt.decode(
+                token,
+                settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"],
+                audience="authenticated",
+            )
+            app_meta = payload.get("app_metadata", {})
+            tenant_id = app_meta.get("active_org_id") or tenant_id
+
+        except JWTError as e:
+            logger.warning("WS_AUTH_FAILED", context={"error": str(e)})
+            # We allow connection but they won't see data if tenant_id match fails.
+            # Safe Default: Fall back to None tenant -> No Data.
+            tenant_id = None
+
+    if not tenant_id:
+        logger.warning("WS_NO_TENANT_CONTEXT")
+        # Proceeding with None tenant_id will return empty list due to filter
 
     connection_id = client_id or str(uuid.uuid4())
 
+    await websocket.accept()
     await ws_manager.connect(websocket, connection_id)
 
     try:
@@ -139,28 +173,42 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None)
         await websocket.send_json({"type": "connected", "connection_id": connection_id})
 
         # Load and send existing conversations from Supabase
-        try:
-            # Fetch active leads from database
-            leads_response = (
-                container.db.client.table("leads")
-                .select("*")
-                .in_("status", ["new", "active", "qualified"])
-                .order("updated_at", desc=True)
-                .limit(50)
-                .execute()
-            )
+        if tenant_id:
+            try:
+                # Fetch active leads from database
+                query = container.db.client.table("leads").select("*")
 
-            if leads_response.data:
-                # Send conversations to the connected client
-                await websocket.send_json({"type": "conversations", "data": leads_response.data})
-                logger.info(
-                    "WS_INITIAL_DATA_SENT",
-                    context={"connection_id": connection_id, "count": len(leads_response.data)},
+                # STRICT TENANT FILTERING
+                query = query.eq("tenant_id", tenant_id)
+
+                leads_response = (
+                    query.in_("status", ["new", "active", "qualified"])
+                    .order("updated_at", desc=True)
+                    .limit(50)
+                    .execute()
                 )
-        except Exception as e:
-            logger.error(
-                "WS_INITIAL_DATA_FAILED", context={"connection_id": connection_id, "error": str(e)}
-            )
+
+                if leads_response.data:
+                    # Send conversations to the connected client
+                    await websocket.send_json(
+                        {"type": "conversations", "data": leads_response.data}
+                    )
+                    logger.info(
+                        "WS_INITIAL_DATA_SENT",
+                        context={
+                            "connection_id": connection_id,
+                            "count": len(leads_response.data),
+                            "tenant": tenant_id,
+                        },
+                    )
+            except Exception as e:
+                logger.error(
+                    "WS_INITIAL_DATA_FAILED",
+                    context={"connection_id": connection_id, "error": str(e)},
+                )
+        else:
+            # Send empty list if no tenant context
+            await websocket.send_json({"type": "conversations", "data": []})
 
         # Keep connection alive and handle incoming messages
         while True:
@@ -374,7 +422,7 @@ async def twilio_webhook(
                 "message": {
                     "role": "user",
                     "content": body,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "media_url": media_url,
                 },
             }
@@ -421,7 +469,7 @@ def health_check() -> dict[str, Any]:
     """
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "service": "agenzia-ai-api",
         "version": "1.0.0",
     }
@@ -464,7 +512,7 @@ def readiness_check() -> JSONResponse:
         status_code=status_code,
         content={
             "status": "ready" if all_ready else "not ready",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "checks": checks,
         },
     )
@@ -925,7 +973,7 @@ async def generate_sales_report_endpoint(req: SalesReportRequest) -> dict[str, A
             market_analysis += " Il posizionamento prezzo è ottimale."
         else:
             market_analysis += (
-                " Valutare un leggero ribasso o nuove foto per " "aumentare il click-through rate."
+                " Valutare un leggero ribasso o nuove foto per aumentare il click-through rate."
             )
 
         ai_advice = "Monitorare i lead 'Hot' e sollecitare il feedback post-visita."

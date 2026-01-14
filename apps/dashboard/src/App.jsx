@@ -101,7 +101,7 @@ function App() {
       {/* Main Content */}
       {currentView === 'inbox' ? (
         <div className="flex-1 overflow-hidden">
-          <ConversationsPage />
+          <ConversationsPage session={session} />
         </div>
       ) : currentView === 'analytics' ? (
         <div className="flex-1 overflow-hidden p-0 md:p-4">
