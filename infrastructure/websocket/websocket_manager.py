@@ -4,10 +4,8 @@ WebSocket Connection Manager for Real-Time Dashboard Updates.
 Manages WebSocket connections, room subscriptions, and message broadcasting.
 """
 
-from typing import Dict, List, Set
-import asyncio
-import json
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
+
 from infrastructure.logging import get_logger
 
 logger = get_logger(__name__)
@@ -18,9 +16,9 @@ class ConnectionManager:
 
     def __init__(self):
         # Active connections: {connection_id: WebSocket}
-        self.active_connections: Dict[str, WebSocket] = {}
+        self.active_connections: dict[str, WebSocket] = {}
         # Room subscriptions: {room_id: set of connection_ids}
-        self.rooms: Dict[str, Set[str]] = {}
+        self.rooms: dict[str, set[str]] = {}
 
     async def connect(self, websocket: WebSocket, connection_id: str) -> None:
         """Accept a new WebSocket connection."""
@@ -34,7 +32,7 @@ class ConnectionManager:
             del self.active_connections[connection_id]
 
         # Remove from all rooms
-        for room_id, subscribers in self.rooms.items():
+        for _room_id, subscribers in self.rooms.items():
             subscribers.discard(connection_id)
 
         logger.info("WS_DISCONNECTED", context={"connection_id": connection_id})

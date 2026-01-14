@@ -6,38 +6,53 @@ export function useLeads() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        console.log('🔍 useLeads hook mounted')
+        console.log('🔍 Supabase client exists:', !!supabase)
+
         // Check if supabase is initialized
         if (!supabase) {
-            console.error("Supabase client not initialized. Check Env Vars.")
+            console.error("❌ Supabase client not initialized. Check Env Vars.")
             setLoading(false)
             return
         }
 
+        console.log('✅ Supabase client initialized, fetching leads...')
         fetchLeads()
 
         // Real-time subscription
+        console.log('📡 Setting up real-time subscription...')
         const channel = supabase
             .channel('public:leads')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
-                console.log("Lead change received!", payload)
+                console.log("🔔 Lead change received!", payload)
                 fetchLeads()
             })
             .subscribe()
 
+        console.log('✅ Real-time subscription established')
+
         return () => {
+            console.log('🧹 Cleaning up useLeads hook')
             supabase.removeChannel(channel)
         }
     }, [])
 
     async function fetchLeads() {
-        if (!supabase) return
+        console.log('🚀 fetchLeads() called')
+        if (!supabase) {
+            console.error('❌ fetchLeads: Supabase client not available')
+            return
+        }
 
         try {
+            console.log('📡 Making Supabase query to leads table...')
             const { data, error } = await supabase
                 .from('leads')
                 .select('*, messages(*)')
                 .neq('status', 'archived')
                 .order('updated_at', { ascending: false })
+
+            console.log('📊 Supabase response:', { data, error })
 
             if (error) throw error
 

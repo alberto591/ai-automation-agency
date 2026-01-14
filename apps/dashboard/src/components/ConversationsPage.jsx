@@ -19,7 +19,25 @@ export default function ConversationsPage() {
     const handleMessage = useCallback((data) => {
         console.log('📨 Received message:', data);
 
-        if (data.type === 'message') {
+        // Handle initial conversations list from backend
+        if (data.type === 'conversations') {
+            console.log('📋 Loading initial conversations:', data.data?.length);
+            if (data.data && Array.isArray(data.data)) {
+                const formattedConversations = data.data.map(lead => ({
+                    phone: lead.customer_phone,
+                    name: lead.customer_name || 'Unknown',
+                    lastMessage: lead.ai_summary || 'No messages yet',
+                    lastMessageTime: lead.updated_at,
+                    status: lead.status,
+                    score: lead.score || 0,
+                    leadId: lead.id  // Add lead ID for fetching messages
+                }));
+                setConversations(formattedConversations);
+                console.log('✅ Loaded', formattedConversations.length, 'conversations');
+            }
+        }
+        // Handle individual message updates
+        else if (data.type === 'message') {
             const phone = data.phone;
 
             // Store message in map
@@ -60,13 +78,39 @@ export default function ConversationsPage() {
         onClose: () => console.log('❌ WebSocket disconnected'),
     });
 
-    // When selecting a conversation, show its messages
-    const handleSelectConversation = (conv) => {
+    // When selecting a conversation, fetch and show its messages
+    const handleSelectConversation = async (conv) => {
         setSelectedPhone(conv.phone);
-        // Load messages from map
-        const msgs = messagesMapRef.current[conv.phone] || [];
-        setCurrentMessages([...msgs]);
+
+        // Fetch messages from Supabase if we have a lead ID
+        try {
+            const { supabase } = await import('../lib/supabase');
+
+            if (supabase && conv.leadId) {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .eq('lead_id', conv.leadId)
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    console.error('❌ Error fetching messages:', error);
+                } else {
+                    console.log('📨 Loaded', data?.length || 0, 'messages for', conv.name);
+                    setCurrentMessages(data || []);
+                    messagesMapRef.current[conv.phone] = data || [];
+                }
+            } else {
+                // Fall back to cached messages
+                const msgs = messagesMapRef.current[conv.phone] || [];
+                setCurrentMessages([...msgs]);
+            }
+        } catch (error) {
+            console.error('❌ Error loading messages:', error);
+            setCurrentMessages([]);
+        }
     };
+
 
     // Get selected conversation object
     const selectedConversation = conversations.find(c => c.phone === selectedPhone);

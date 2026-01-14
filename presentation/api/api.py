@@ -129,6 +129,35 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str | None = None)
         # Send initial connection confirmation
         await websocket.send_json({"type": "connected", "connection_id": connection_id})
 
+        # Load and send existing conversations from Supabase
+        try:
+            # Fetch active leads from database
+            leads_response = (
+                container.db.client.table("leads")
+                .select("*")
+                .in_("status", ["new", "active", "qualified"])
+                .order("updated_at", desc=True)
+                .limit(50)
+                .execute()
+            )
+
+            if leads_response.data:
+                # Send conversations to the connected client
+                await websocket.send_json({
+                    "type": "conversations",
+                    "data": leads_response.data
+                })
+                logger.info(
+                    "WS_INITIAL_DATA_SENT",
+                    context={"connection_id": connection_id, "count": len(leads_response.data)}
+                )
+        except Exception as e:
+            logger.error(
+                "WS_INITIAL_DATA_FAILED",
+                context={"connection_id": connection_id, "error": str(e)}
+            )
+
+
         # Keep connection alive and handle incoming messages
         while True:
             try:
