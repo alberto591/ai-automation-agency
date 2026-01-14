@@ -43,11 +43,7 @@ function App() {
   }
 
   if (!session) {
-    // TODO: Fix auth redirect - temporarily disabled for WebSocket testing
-    // Redirect to landing page login if not authenticated
-    // window.location.href = '/login.html';
-    // return null;
-    console.warn('⚠️ Not authenticated - auth check temporarily disabled for testing');
+    return <LoginPage />
   }
 
   return (
