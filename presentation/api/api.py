@@ -316,6 +316,9 @@ async def twilio_webhook(
     form_data = await request.form()
     # Cast to str to satisfy mypy since form_data can contain UploadFile
     from_phone = str(form_data.get("From", ""))
+    if from_phone.startswith("whatsapp:"):
+        from_phone = from_phone.replace("whatsapp:", "")
+
     body = str(form_data.get("Body", ""))
     num_media_val = form_data.get("NumMedia", 0)
     num_media = int(str(num_media_val)) if num_media_val is not None else 0
