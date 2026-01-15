@@ -35,10 +35,11 @@
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <div class="brand-logo">
+                <a href="index.html" class="brand-logo"
+                    style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
                     <i class="ph ph-robot"></i>
                     <span class="brand-name">Anzevino AI</span>
-                </div>
+                </a>
             </div>
             <div class="nav-links">
                 <a href="index.html#soluzione" data-translate="nav-soluzione">Soluzione</a>
@@ -105,13 +106,17 @@
     <!-- Pricing Tables Section -->
     <section class="pricing-section" style="padding: 4rem 0 6rem; background: #f8fafc;">
         <div class="container">
-            <!-- Stripe Pricing Table Placeholder (Future Integration) -->
-            <div id="stripe-pricing-table-container" style="display: none; margin-bottom: 2rem;">
-                <!-- Paste <stripe-pricing-table> code here -->
+            <!-- Stripe Pricing Table -->
+            <div id="stripe-pricing-table-container" style="margin-bottom: 4rem;">
+                <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+                <stripe-pricing-table pricing-table-id="prctbl_1SptVfPhh5oeqH8earHT1ywq"
+                    publishable-key="pk_live_51SLK3DPhh5oeqH8e8PNsTxVyoAZgJq77tgIGAnlEwhKjoSKzdNQSX1EVZSGkOAlkgcfo0b0UdCyg7zNjkJ8tRVxM00iZ1EJ4tg">
+                </stripe-pricing-table>
             </div>
 
+            <!-- Manual Pricing Grid (Legacy/Fallback - Hidden) -->
             <div class="pricing-grid"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
+                style="display: none; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto;">
 
                 <!-- Starter Plan -->
                 <div class="pricing-card"
