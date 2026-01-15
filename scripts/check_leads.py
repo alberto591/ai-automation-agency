@@ -3,8 +3,10 @@
 Quick script to check if there are any leads in Supabase database.
 """
 import os
-from supabase import create_client
+import sys
+
 from dotenv import load_dotenv
+from supabase import create_client
 
 # Load environment variables
 load_dotenv()
@@ -14,7 +16,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")  # Use service role for ad
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     print("❌ Missing Supabase credentials in .env")
-    exit(1)
+    sys.exit(1)
 
 # Create Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -79,7 +81,7 @@ try:
         
         print(f"🎯 Dashboard would see: {dashboard_count} leads")
         print(f"   (tenant_id: {dashboard_tenant[:16]}...)")
-        print(f"   (status: new, active, or qualified)")
+        print("   (status: new, active, or qualified)")
         
         if dashboard_count == 0:
             print()
