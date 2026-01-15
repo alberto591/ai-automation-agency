@@ -1,9 +1,11 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, Moon, Sun } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 function Header() {
     const { language, setLanguage, t } = useLanguage()
+    const { isDark, toggleTheme } = useTheme()
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
@@ -42,8 +44,8 @@ function Header() {
                         <button
                             onClick={() => setLanguage('it')}
                             className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${language === 'it'
-                                    ? 'bg-white text-indigo-600 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                ? 'bg-white text-indigo-600 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             IT
@@ -51,8 +53,8 @@ function Header() {
                         <button
                             onClick={() => setLanguage('en')}
                             className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${language === 'en'
-                                    ? 'bg-white text-indigo-600 shadow-sm'
-                                    : 'text-slate-600 hover:text-slate-900'
+                                ? 'bg-white text-indigo-600 shadow-sm'
+                                : 'text-slate-600 hover:text-slate-900'
                                 }`}
                         >
                             EN

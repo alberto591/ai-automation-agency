@@ -22,6 +22,30 @@
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
+/* Dark Mode Palette */
+.dark {
+  --zen-bg: 222 47% 11%;
+  /* Deep navy background */
+  --zen-sidebar: 222 47% 13%;
+  /* Slightly lighter sidebar */
+  --zen-accent: 217 91% 60%;
+  /* Bright blue accent */
+  --zen-accent-glow: 217 91% 60% / 0.20;
+  --zen-human: 15 85% 55%;
+  /* Softer orange in dark */
+  --zen-text-main: 210 40% 98%;
+  /* Off-white text */
+  --zen-text-muted: 217 33% 70%;
+  /* Light gray muted */
+  --zen-border: 215 25% 27%;
+  /* Dark gray border */
+
+  --glass-bg: rgba(30, 35, 47, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+
 @layer base {
   body {
     @apply bg-[hsl(var(--zen-bg))] text-[hsl(var(--zen-text-main))] antialiased;

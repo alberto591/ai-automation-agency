@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -28,10 +29,12 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <LanguageProvider>
-      <NotificationProvider>
-        <App />
-      </NotificationProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   </StrictMode>,
 )
