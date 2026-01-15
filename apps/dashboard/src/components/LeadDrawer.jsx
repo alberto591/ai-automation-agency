@@ -158,7 +158,13 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
     }
 
     return (
-        <div className={`absolute top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl border-l border-[hsl(var(--zen-border))] transform transition-transform duration-500 ease-in-out z-30 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`
+            fixed md:absolute top-0 right-0 h-full
+            w-full md:w-96
+            bg-white shadow-2xl border-l border-[hsl(var(--zen-border))]
+            transform transition-transform duration-500 ease-in-out z-30 flex flex-col
+            ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}>
 
             {/* Header */}
             <div className="bg-white p-6 flex justify-between items-center border-b border-[hsl(var(--zen-border))]">

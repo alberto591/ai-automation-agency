@@ -3,9 +3,11 @@ import { useWebSocket } from '../hooks/useWebSocket';
 import ChatWindow from './ChatWindow';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 export default function ConversationsPage({ session }) {
     const { t } = useLanguage();
+    const isMobile = useIsMobile();
     const [conversations, setConversations] = useState([]);
     const [selectedPhone, setSelectedPhone] = useState(null);
 
@@ -76,123 +78,103 @@ export default function ConversationsPage({ session }) {
         setSelectedPhone(conv.phone);
     };
 
+    // Back to list on mobile
+    const handleBackToList = () => {
+        setSelectedPhone(null);
+    };
 
 
     // Get selected conversation object
     const selectedConversation = conversations.find(c => c.phone === selectedPhone);
 
+    // Mobile: Show list OR chat (not both)
+    // Desktop: Show both side-by-side
+    const showList = !isMobile || !selectedPhone;
+    const showChat = !isMobile || selectedPhone;
+
     return (
-        <div className="conversations-page" style={{ display: 'flex', height: 'calc(100vh - 120px)', background: '#f8f9fa' }}>
+        <div className="conversations-page flex h-[calc(100vh-120px)] bg-gray-50">
             {/* Sidebar - Conversations List */}
-            <div
-                className="conversations-sidebar"
-                style={{
-                    width: '320px',
-                    borderRight: '1px solid #e0e0e0',
-                    background: '#fff',
-                    overflow: 'auto',
-                }}
-            >
-                <div style={{ padding: '20px', borderBottom: '1px solid #e0e0e0' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem' }}>{t('conversations.title')}</h2>
-                    <div
-                        style={{
-                            marginTop: '10px',
-                            fontSize: '0.875rem',
-                            color: isConnected ? '#10b981' : '#ef4444',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                        }}
-                    >
-                        <span style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            background: isConnected ? '#10b981' : '#ef4444'
-                        }} />
-                        {isConnected ? t('conversations.connected') : t('conversations.disconnected')}
+            {showList && (
+                <div
+                    className={`
+                        conversations-sidebar
+                        ${isMobile ? 'w-full' : 'w-80'}
+                        border-r border-gray-200 bg-white overflow-auto
+                    `}
+                >
+                    <div className="p-4 md:p-5 border-b border-gray-200">
+                        <h2 className="text-xl md:text-2xl font-bold m-0">{t('conversations.title')}</h2>
+                        <div className="mt-2 md:mt-3 text-sm flex items-center gap-2"
+                            style={{ color: isConnected ? '#10b981' : '#ef4444' }}
+                        >
+                            <span
+                                className="w-2 h-2 rounded-full"
+                                style={{ background: isConnected ? '#10b981' : '#ef4444' }}
+                            />
+                            {isConnected ? t('conversations.connected') : t('conversations.disconnected')}
+                        </div>
+                    </div>
+
+                    <div>
+                        {conversations.length === 0 ? (
+                            <div className="p-8 md:p-10 text-center text-gray-400">
+                                {t('conversations.empty.title')}
+                            </div>
+                        ) : (
+                            conversations.map((conv) => (
+                                <div
+                                    key={conv.phone}
+                                    onClick={() => handleSelectConversation(conv)}
+                                    className={`
+                                        p-4 border-b border-gray-100 cursor-pointer
+                                        transition-colors
+                                        ${selectedPhone === conv.phone ? 'bg-gray-100' : 'bg-white hover:bg-gray-50'}
+                                        active:bg-gray-200
+                                    `}
+                                >
+                                    <div className="font-semibold mb-1">{conv.name}</div>
+                                    <div className="text-sm text-gray-600 mb-1">{conv.phone}</div>
+                                    <div className="text-sm text-gray-400 truncate">{conv.lastMessage}</div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
-
-                <div>
-                    {conversations.length === 0 ? (
-                        <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
-                            {t('conversations.empty.title')}
-                        </div>
-                    ) : (
-                        conversations.map((conv) => (
-                            <div
-                                key={conv.phone}
-                                onClick={() => handleSelectConversation(conv)}
-                                style={{
-                                    padding: '16px 20px',
-                                    borderBottom: '1px solid #f3f4f6',
-                                    cursor: 'pointer',
-                                    background: selectedPhone === conv.phone ? '#f3f4f6' : '#fff',
-                                    transition: 'background 0.2s',
-                                }}
-                                onMouseEnter={(e) => {
-                                    if (selectedPhone !== conv.phone) {
-                                        e.currentTarget.style.background = '#f9fafb';
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (selectedPhone !== conv.phone) {
-                                        e.currentTarget.style.background = '#fff';
-                                    }
-                                }}
-                            >
-                                <div style={{ fontWeight: 600, marginBottom: '4px' }}>{conv.name}</div>
-                                <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px' }}>
-                                    {conv.phone}
-                                </div>
-                                <div
-                                    style={{
-                                        fontSize: '0.875rem',
-                                        color: '#9ca3af',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                    }}
-                                >
-                                    {conv.lastMessage}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-            </div>
+            )}
 
             {/* Main - Messages View */}
-            <div className="messages-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
-                {!selectedConversation ? (
-                    <div
-                        style={{
-                            flex: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#9ca3af',
-                            flexDirection: 'column',
-                            gap: '12px'
-                        }}
-                    >
-                        <div className="p-4 bg-indigo-50 rounded-full text-indigo-500">
-                            <MessageSquare className="w-8 h-8 opacity-50" />
+            {showChat && (
+                <div className="messages-panel flex-1 flex flex-col bg-white">
+                    {!selectedConversation ? (
+                        <div
+                            style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#9ca3af',
+                                flexDirection: 'column',
+                                gap: '12px'
+                            }}
+                        >
+                            <div className="p-4 bg-indigo-50 rounded-full text-indigo-500">
+                                <MessageSquare className="w-8 h-8 opacity-50" />
+                            </div>
+                            <div>{t('conversations.selectChat')}</div>
                         </div>
-                        <div>{t('conversations.selectChat')}</div>
-                    </div>
-                ) : (
-                    <ChatWindow
-                        selectedLead={{
-                            id: selectedConversation.leadId,
-                            phone: selectedConversation.phone,
-                            name: selectedConversation.name
-                        }}
-                    />
-                )}
-            </div>
+                    ) : (
+                        <ChatWindow
+                            selectedLead={{
+                                id: selectedConversation.leadId,
+                                phone: selectedConversation.phone,
+                                name: selectedConversation.name
+                            }}
+                            onBack={isMobile ? handleBackToList : undefined}
+                        />
+                    )}
+                </div>
+            )}
         </div>
     );
 }
