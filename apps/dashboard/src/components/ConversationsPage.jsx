@@ -1,13 +1,15 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import ChatWindow from './ChatWindow';
 import { MessageSquare } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { useNotifications } from '../contexts/NotificationContext';
 
 export default function ConversationsPage({ session }) {
     const { t } = useLanguage();
     const isMobile = useIsMobile();
+    const { notify, requestBrowserPermission } = useNotifications();
     const [conversations, setConversations] = useState([]);
     const [selectedPhone, setSelectedPhone] = useState(null);
 
@@ -19,6 +21,11 @@ export default function ConversationsPage({ session }) {
         const baseUrl = apiUrl.replace(/^https?:\/\//, '');
         return `${wsProtocol}://${baseUrl}/ws/conversations`;
     }, []);
+
+    // Request browser notification permission on mount
+    useEffect(() => {
+        requestBrowserPermission();
+    }, [requestBrowserPermission]);
 
     const handleMessage = useCallback((data) => {
         console.log('📨 Received message:', data);
@@ -43,6 +50,17 @@ export default function ConversationsPage({ session }) {
         // Handle individual message updates
         else if (data.type === 'message') {
             const phone = data.phone;
+
+            // Show notification for new message
+            const isNewConv = !conversations.find(c => c.phone === phone);
+            const isBackground = selectedPhone !== phone;
+
+            if (isBackground || isNewConv) {
+                notify({
+                    message: `${data.lead_name || 'New message'}: ${data.message.content}`,
+                    priority: 'low'
+                });
+            }
 
             // Update conversations list with new last message
             setConversations((prev) => {
