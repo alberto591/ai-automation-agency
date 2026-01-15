@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config.settings import settings
 from infrastructure.market_service import MarketDataService
 
+
 def test_idealista_api():
     """Test Idealista API with a sample query."""
     print("🔍 Testing Idealista API Credits...")
