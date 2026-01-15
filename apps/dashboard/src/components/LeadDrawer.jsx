@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, TrendingUp, AlertTriangle, HelpingHand } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function LeadDrawer({ lead, isOpen, onClose }) {
+    const { t } = useLanguage();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
@@ -161,7 +163,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
             {/* Header */}
             <div className="bg-white p-6 flex justify-between items-center border-b border-[hsl(var(--zen-border))]">
-                <h2 className="font-bold text-[hsl(var(--zen-text-main))] text-xl tracking-tight">Dettaglio Lead</h2>
+                <h2 className="font-bold text-[hsl(var(--zen-text-main))] text-xl tracking-tight">{t('lead.details')}</h2>
                 <button onClick={onClose} className="p-2 hover:bg-gray-50 rounded-2xl transition-all">
                     <X className="w-5 h-5 text-[hsl(var(--zen-text-muted))]" />
                 </button>
@@ -238,7 +240,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
                 {/* AI Profiling Cards */}
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                    <h4 className="text-[10px] uppercase font-black text-[hsl(var(--zen-text-muted))] tracking-[0.2em] ml-1">AI Intelligence</h4>
+                    <h4 className="text-[10px] uppercase font-black text-[hsl(var(--zen-text-muted))] tracking-[0.2em] ml-1">{t('lead.aiIntelligence')}</h4>
 
                     <div className="grid grid-cols-1 gap-3">
                         <div className="grid grid-cols-2 gap-3">
@@ -246,7 +248,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 <div className="absolute top-0 right-0 w-16 h-16 bg-green-50 rounded-full -mr-4 -mt-4 opacity-50"></div>
                                 <div className="relative">
                                     <Wallet className="w-5 h-5 mb-2 text-[hsl(var(--zen-accent))]" />
-                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Budget</div>
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">{t('lead.budget')}</div>
                                     {isEditing ? (
                                         <input
                                             type="number"
@@ -256,7 +258,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                         />
                                     ) : (
                                         <div className="text-lg font-black text-[hsl(var(--zen-text-main))]">
-                                            {budget !== "N/A" ? `${budget.toLocaleString()}€` : "Analisi..."}
+                                            {budget !== "N/A" ? `${budget.toLocaleString()}€` : t('lead.analyzing')}
                                         </div>
                                     )}
                                 </div>
@@ -266,7 +268,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 <div className="absolute top-0 right-0 w-16 h-16 bg-purple-50 rounded-full -mr-4 -mt-4 opacity-50"></div>
                                 <div className="relative">
                                     <Sparkles className="w-5 h-5 mb-2 text-purple-500" />
-                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Qualificazione</div>
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">{t('lead.qualification')}</div>
                                     <div className="flex items-baseline gap-1">
                                         <div className="text-lg font-black text-[hsl(var(--zen-text-main))]">
                                             {lead.qualification_score ? `${lead.qualification_score}/10` : "N/A"}
@@ -274,7 +276,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                         {lead.qualification_status === 'HOT' && <span className="text-xs text-orange-500 font-bold">HOT 🔥</span>}
                                     </div>
                                     <div className="text-[10px] text-[hsl(var(--zen-text-muted))] capitalize blur-none">
-                                        {lead.qualification_status?.toLowerCase().replace('_', ' ') || "In Attesa"}
+                                        {lead.qualification_status?.toLowerCase().replace('_', ' ') || t('lead.waiting')}
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +286,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 opacity-50"></div>
                             <div className="relative">
                                 <MapPin className="w-5 h-5 mb-2 text-blue-500" />
-                                <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Zone di Interesse</div>
+                                <div className="text-[10px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">{t('lead.zonesInterest')}</div>
                                 {isEditing ? (
                                     <input
                                         type="text"
@@ -328,7 +330,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
                                         <TrendingUp className="w-5 h-5 mb-1 text-indigo-300" />
-                                        <div className="text-[9px] text-indigo-200 font-bold uppercase tracking-widest">Stima Immobile (Beta)</div>
+                                        <div className="text-[9px] text-indigo-200 font-bold uppercase tracking-widest">{t('lead.propertyEstimate')}</div>
                                     </div>
                                     <div className="text-[10px] bg-indigo-500/30 px-2 py-1 rounded text-white">AI Real-time</div>
                                 </div>
@@ -350,7 +352,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                             disabled={isAppraising}
                                             className="w-full py-2 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                                         >
-                                            {isAppraising ? "Analisi Perplexity in corso..." : "Genera Stima"}
+                                            {isAppraising ? "Analisi Perplexity in corso..." : t('lead.generateEstimate')}
                                         </button>
                                     </div>
                                 ) : (
@@ -379,7 +381,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                             <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
                                 <div className="relative">
                                     <ShieldCheck className="w-4 h-4 mb-2 text-emerald-500" />
-                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Origine</div>
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">{t('lead.origin')}</div>
                                     <div className="text-[11px] font-black text-[hsl(var(--zen-text-main))] truncate">
                                         {lead.metadata?.source?.replace('_', ' ') || "WhatsApp"}
                                     </div>
@@ -388,9 +390,9 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                             <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
                                 <div className="relative">
                                     <Zap className="w-4 h-4 mb-2 text-amber-500" />
-                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">Intento</div>
+                                    <div className="text-[9px] text-[hsl(var(--zen-text-muted))] font-bold uppercase tracking-widest mb-1">{t('lead.intent')}</div>
                                     <div className="text-[11px] font-black text-[hsl(var(--zen-text-main))] truncate capitalize">
-                                        {lead.metadata?.last_intent?.toLowerCase().replace('_', ' ') || "Ingaggio"}
+                                        {lead.metadata?.last_intent?.toLowerCase().replace('_', ' ') || t('lead.engagement')}
                                     </div>
                                 </div>
                             </div>
@@ -400,7 +402,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
 
                 {/* CRM Details */}
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-                    <h4 className="text-[10px] uppercase font-black text-[hsl(var(--zen-text-muted))] tracking-[0.2em] ml-1">Anagrafica CRM</h4>
+                    <h4 className="text-[10px] uppercase font-black text-[hsl(var(--zen-text-muted))] tracking-[0.2em] ml-1">{t('lead.crmProfile')}</h4>
 
                     <div className="space-y-3 bg-white/50 p-2 rounded-[2rem] border border-[hsl(var(--zen-border))]">
                         <div className="flex items-center text-[hsl(var(--zen-text-main))] bg-white p-4 rounded-2xl shadow-sm border border-[hsl(var(--zen-border))]">
@@ -419,7 +421,7 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                         </div>
                         <div className="flex items-center text-[hsl(var(--zen-text-main))] bg-white p-4 rounded-2xl shadow-sm border border-[hsl(var(--zen-border))]">
                             <Calendar className="w-5 h-5 mr-3 text-gray-400" />
-                            <span className="text-sm font-semibold">Attivato il {created}</span>
+                            <span className="text-sm font-semibold">{t('lead.activatedOn')} {created}</span>
                         </div>
                     </div>
                 </div>
@@ -448,14 +450,14 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 onClick={() => setIsEditing(true)}
                                 className="w-full py-4 bg-[hsl(var(--zen-text-main))] text-white rounded-2xl text-sm font-bold shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center"
                             >
-                                <Edit2 className="w-4 h-4 mr-2" /> Modifica Profilo
+                                <Edit2 className="w-4 h-4 mr-2" /> {t('lead.editProfile')}
                             </button>
                             <button
                                 onClick={handleArchive}
                                 disabled={isSaving}
                                 className="w-full py-4 bg-white border border-red-100 text-red-500 rounded-2xl text-sm font-bold hover:bg-red-50 transition-all"
                             >
-                                Archivia Conversazione
+                                {t('lead.archiveConversation')}
                             </button>
                         </>
                     )}
