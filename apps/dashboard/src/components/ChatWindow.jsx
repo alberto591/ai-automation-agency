@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Send, Phone, MoreVertical, Info, Bot, User, Sparkles } from 'lucide-react';
 import { useMessages } from '../hooks/useMessages';
 import { supabase } from '../lib/supabase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 import LeadDrawer from './LeadDrawer';
 import EmptyState from './EmptyState';
 import Tooltip from './Tooltip';
 
 export default function ChatWindow({ selectedLead }) {
+    const { t } = useLanguage();
     const { messages, setMessages, status, setStatus, loading } = useMessages(selectedLead?.id);
     const bottomRef = useRef(null);
     const [inputText, setInputText] = useState("");
@@ -270,7 +272,7 @@ export default function ChatWindow({ selectedLead }) {
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && !sending && sendMessage()}
-                            placeholder="Scrivi un messaggio..."
+                            placeholder={t('chat.typeMessage')}
                             className="flex-1 p-4 bg-white/50 rounded-2xl border border-transparent focus:outline-none focus:bg-white focus:border-indigo-500/30 transition-all text-sm font-medium shadow-inner hover:bg-white/70"
                             disabled={sending}
                         />
