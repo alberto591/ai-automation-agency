@@ -188,24 +188,38 @@ async def websocket_endpoint(  # noqa: PLR0912, PLR0915
                     .execute()
                 )
 
-                if leads_response.data:
-                    # Send conversations to the connected client
-                    await websocket.send_json(
-                        {"type": "conversations", "data": leads_response.data}
-                    )
-                    logger.info(
-                        "WS_INITIAL_DATA_SENT",
-                        context={
-                            "connection_id": connection_id,
-                            "count": len(leads_response.data),
-                            "tenant": tenant_id,
-                        },
-                    )
+                # Always send conversations (even if empty list)
+                conversations_data = leads_response.data if leads_response.data else []
+                await websocket.send_json(
+                    {"type": "conversations", "data": conversations_data}
+                )
+                logger.info(
+                    "WS_INITIAL_DATA_SENT",
+                    context={
+                        "connection_id": connection_id,
+                        "count": len(conversations_data),
+                        "tenant": tenant_id,
+                    },
+                )
             except Exception as e:
                 logger.error(
                     "WS_INITIAL_DATA_FAILED",
-                    context={"connection_id": connection_id, "error": str(e)},
+                    context={
+                        "connection_id": connection_id,
+                        "error": str(e),
+                        "tenant": tenant_id,
+                    },
+                    exc_info=True,
                 )
+                # Send error to client and empty data to prevent hanging
+                try:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Failed to load conversations",
+                    })
+                    await websocket.send_json({"type": "conversations", "data": []})
+                except Exception:
+                    pass  # Connection might already be closed
         else:
             # Send empty list if no tenant context
             await websocket.send_json({"type": "conversations", "data": []})
