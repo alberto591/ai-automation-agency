@@ -129,8 +129,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 name: name,
                 agency: agency,
                 phone: formattedPhone,
-                properties: formData.get('properties')
+                properties: formData.get('properties'),
+                language: localStorage.getItem('preferredLanguage') || 'it'
             };
+
+            // 1. Disable button and show loading state to prevent double submission
+            this.disabled = true;
+            const originalBtnContent = this.innerHTML;
+            this.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Attendi...';
 
             fetch(`${API_BASE}/api/leads`, {
                 method: 'POST',
@@ -144,47 +150,40 @@ document.addEventListener('DOMContentLoaded', function () {
                     return response.json();
                 })
                 .then(data => {
-                    // Success
-                    const currentLang = document.documentElement.lang;
-                    const successMessage = currentLang === 'it'
-                        ? '✅ Lead ricevuto! Controlla il tuo WhatsApp tra 10 secondi.'
-                        : '✅ Lead received! Check your WhatsApp in 10 seconds.';
-
-                    // Use showNotification if available, otherwise alert fallback (though we removed the annoying one, this is key feedback)
-                    if (typeof showNotification === 'function') {
-                        showNotification(successMessage, 'success');
-                    } else {
-                        alert(successMessage);
-                    }
+                    // Success - use translation function
+                    showNotification(t('contact-success'), 'success');
 
                     contactForm.reset();
-                    this.innerHTML = '<i class="ph ph-check-circle"></i> Inviato!';
+                    // Keep disabled and show success message
+                    this.innerHTML = `<i class="ph ph-check-circle"></i> ${t('contact-sent')}`;
 
-                    // Open Cal.com as secondary step
-                    setTimeout(() => openBooking(), 2000);
+                    // Re-enable after 5 seconds
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.innerHTML = originalBtnContent;
+                    }, 5000);
+
+                    // Open Cal.com in new tab to avoid modal freezing issues
+                    setTimeout(() => {
+                        const bookingUrl = `https://cal.com/anzevino-ai?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(formattedPhone)}`;
+                        window.open(bookingUrl, '_blank');
+                    }, 1500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const errorMsg = document.documentElement.lang === 'it'
-                        ? 'Errore di connessione. Riprova.'
-                        : 'Connection error. Please try again.';
+                    showNotification(t('contact-error'), 'error');
 
-                    if (typeof showNotification === 'function') {
-                        showNotification(errorMsg, 'error');
-                    } else {
-                        alert(errorMsg);
-                    }
-
-                    this.innerHTML = '<i class="ph ph-warning"></i> Riprova';
+                    // Reset button state on error so they can try again
+                    this.innerHTML = originalBtnContent;
                     this.disabled = false;
                 });
         });
     }
 
     // Cal.com Integration
-    function openBooking() {
-        // Direct link fallback for reliability
-        window.open('https://cal.com/anzevino-ai', '_blank');
+    // Cal.com Integration - Replaced with direct window.open in submit handler
+    function openBooking(name = '', phone = '') {
+        console.warn('openBooking called - functionality moved to submit handler to avoid modal freezing.');
     }
 
     // Demo Button Handling
@@ -1086,9 +1085,48 @@ const translations = {
         'badge-certified': 'Certificato AI',
         'notif-title': 'Nuovo Lead Qualificato',
         'notif-client': 'Cliente: Marco R.',
+        'contact-success': '✅ Richiesta ricevuta! Controlla il tuo WhatsApp tra 10 secondi.',
+        'contact-error': 'Errore di connessione. Riprova.',
+        'contact-sent': 'Inviato!',
         'notif-pref': 'Preferenza: Trilocale Prati',
         'ai-active': 'AI Attivo',
-        'appraisal-sqm-placeholder': 'Superficie (mq)'
+        'appraisal-sqm-placeholder': 'Superficie (mq)',
+
+        // Pricing Page
+        'nav-prezzi': 'Prezzi',
+        'pricing-hero-badge': 'Piani Semplici e Trasparenti',
+        'pricing-hero-title': 'Scegli il piano perfetto per la tua agenzia',
+        'pricing-hero-subtitle': 'Nessun costo nascosto. Nessun vincolo. Disdici quando vuoi.',
+        'pricing-pilot-title': 'Offerta Pilota Limitata',
+        'pricing-starter-name': 'Starter',
+        'pricing-starter-desc': 'Per agenti singoli',
+        'pricing-professional-name': 'Professional',
+        'pricing-professional-desc': 'Per piccoli team',
+        'pricing-agency-name': 'Agency',
+        'pricing-agency-desc': 'Per agenzie in crescita',
+        'pricing-popular-badge': 'Più Popolare',
+        'pricing-per-month': '/mese',
+        'pricing-annual-discount': 'anno (17% sconto)',
+        'pricing-cta-start': 'Inizia ora',
+        'pricing-cta-contact': 'Contattaci',
+        'pricing-enterprise-title': 'Hai bisogno di un piano Enterprise?',
+        'pricing-enterprise-desc': 'Soluzioni personalizzate per grandi agenzie (15+ agenti) con SLA garantiti e customer success manager dedicato.',
+        'pricing-enterprise-cta': 'Richiedi un preventivo',
+        'pricing-faq-title': 'Domande Frequenti',
+        'pricing-faq-subtitle': 'Tutto quello che devi sapere sui nostri piani',
+        'pricing-faq-q1': 'Posso cancellare in qualsiasi momento?',
+        'pricing-faq-a1': 'Sì, non c\'è nessun vincolo contrattuale. Puoi disdire il servizio in qualsiasi momento senza penali.',
+        'pricing-faq-q2': 'È deducibile dalle tasse?',
+        'pricing-faq-a2': 'Sì, come qualsiasi software aziendale, l\'abbonamento è completamente deducibile come spesa operativa. Riceverai fattura elettronica regolare.',
+        'pricing-faq-q3': 'Posso passare a un piano superiore?',
+        'pricing-faq-a3': 'Assolutamente sì! Puoi fare upgrade o downgrade in qualsiasi momento. Il cambio è immediato e la fatturazione viene adeguata in modo proporzionale.',
+        'pricing-faq-q4': 'Quanto tempo serve per il setup?',
+        'pricing-faq-a4': 'Il setup base richiede meno di 24 ore. Ti guidiamo passo-passo nell\'integrazione con WhatsApp e il tuo gestionale. La formazione del team è inclusa.',
+        'pricing-faq-q5': 'C\'è un periodo di prova gratuito?',
+        'pricing-faq-a5': 'Per le prime 10 agenzie, offriamo un prezzo speciale di pilot a €49/mese per 3 mesi. Questo ti permette di testare il servizio con un rischio minimo.',
+        'pricing-final-title': 'Pronto a trasformare la tua agenzia?',
+        'pricing-final-desc': 'Inizia oggi con il piano Pilot a €49/mese. Nessun vincolo, cancella quando vuoi.',
+        'pricing-final-cta': 'Prenota Demo Gratuita'
     },
     en: {
         // Navigation
@@ -1301,9 +1339,48 @@ const translations = {
         'badge-certified': 'AI Certified',
         'notif-title': 'New Qualified Lead',
         'notif-client': 'Client: Marco R.',
+        'contact-success': '✅ Request received! Check your WhatsApp in 10 seconds.',
+        'contact-error': 'Connection error. Please try again.',
+        'contact-sent': 'Sent!',
         'notif-pref': 'Preference: 3-room Prati',
         'ai-active': 'AI Active',
-        'appraisal-sqm-placeholder': 'Surface Area (sqm)'
+        'appraisal-sqm-placeholder': 'Surface Area (sqm)',
+
+        // Pricing Page
+        'nav-prezzi': 'Pricing',
+        'pricing-hero-badge': 'Simple and Transparent Plans',
+        'pricing-hero-title': 'Choose the perfect plan for your agency',
+        'pricing-hero-subtitle': 'No hidden costs. No commitment. Cancel anytime.',
+        'pricing-pilot-title': 'Limited Pilot Offer',
+        'pricing-starter-name': 'Starter',
+        'pricing-starter-desc': 'For solo agents',
+        'pricing-professional-name': 'Professional',
+        'pricing-professional-desc': 'For small teams',
+        'pricing-agency-name': 'Agency',
+        'pricing-agency-desc': 'For growing agencies',
+        'pricing-popular-badge': 'Most Popular',
+        'pricing-per-month': '/month',
+        'pricing-annual-discount': 'year (17% off)',
+        'pricing-cta-start': 'Start Now',
+        'pricing-cta-contact': 'Contact Us',
+        'pricing-enterprise-title': 'Need an Enterprise plan?',
+        'pricing-enterprise-desc': 'Custom solutions for large agencies (15+ agents) with guaranteed SLAs and dedicated customer success manager.',
+        'pricing-enterprise-cta': 'Request a Quote',
+        'pricing-faq-title': 'Frequently Asked Questions',
+        'pricing-faq-subtitle': 'Everything you need to know about our plans',
+        'pricing-faq-q1': 'Can I cancel anytime?',
+        'pricing-faq-a1': 'Yes, there is no contractual obligation. You can cancel the service at any time without penalties.',
+        'pricing-faq-q2': 'Is it tax deductible?',
+        'pricing-faq-a2': 'Yes, like any business software, the subscription is fully deductible as an operating expense. You will receive a regular electronic invoice.',
+        'pricing-faq-q3': 'Can I upgrade to a higher plan?',
+        'pricing-faq-a3': 'Absolutely! You can upgrade or downgrade at any time. The change is immediate and billing is adjusted proportionally.',
+        'pricing-faq-q4': 'How long does setup take?',
+        'pricing-faq-a4': 'Basic setup takes less than 24 hours. We guide you step-by-step through WhatsApp and CRM integration. Team training is included.',
+        'pricing-faq-q5': 'Is there a free trial?',
+        'pricing-faq-a5': 'For the first 10 agencies, we offer a special pilot price of €49/month for 3 months. This allows you to test the service with minimal risk.',
+        'pricing-final-title': 'Ready to transform your agency?',
+        'pricing-final-desc': 'Start today with the Pilot plan at €49/month. No commitment, cancel anytime.',
+        'pricing-final-cta': 'Book Free Demo'
     }
 };
 

@@ -22,6 +22,7 @@ function build() {
         'register.html',
         'forgot-password.html',
         'reset-password.html',
+        'pricing.html',
         'feedback.html',
         'test_interface.html',
         'test_language_switching.html'

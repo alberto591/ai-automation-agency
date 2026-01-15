@@ -940,7 +940,7 @@ p {
     gap: 12px;
     cursor: pointer;
     font-size: 0.85rem;
-    color: var(--slate-gray);
+    color: #000000;
     user-select: none;
 }
 
@@ -990,6 +990,7 @@ p {
 
 .disclaimer-text {
     line-height: 1.4;
+    color: #000000;
 }
 
 .form-disclaimer {
