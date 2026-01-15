@@ -162,7 +162,7 @@ async def websocket_endpoint(  # noqa: PLR0912, PLR0915
 
     connection_id = client_id or str(uuid.uuid4())
 
-    await websocket.accept()
+    # Connect via manager (which handles accept internally)
     await ws_manager.connect(websocket, connection_id)
 
     try:
