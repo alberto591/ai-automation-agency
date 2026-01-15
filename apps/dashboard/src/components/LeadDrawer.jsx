@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, TrendingUp, AlertTriangle, HelpingHand } from 'lucide-react';
+import { X, Mail, Phone, MapPin, Wallet, Calendar, Check, Edit2, ShieldCheck, Sparkles, Zap, AlertTriangle, HelpingHand } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -14,9 +14,6 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
     });
     const [isSaving, setIsSaving] = useState(false);
     const [marketData, setMarketData] = useState(null);
-    const [appraisalData, setAppraisalData] = useState(null);
-    const [isAppraising, setIsAppraising] = useState(false);
-    const [appraisalParams, setAppraisalParams] = useState({ sqm: '100', type: 'apartment' });
 
     // Sync state with lead prop
     useEffect(() => {
@@ -57,50 +54,6 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
             }
         } catch (e) {
             console.error("Market data fetch failed", e);
-        }
-    }
-
-    async function handleAppraisal() {
-        if (!lead || !formData.preferred_zones) {
-            alert("Specifica una zona tra le preferenze per avviare la stima.");
-            return;
-        }
-        setIsAppraising(true);
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
-
-            const zoneRaw = formData.preferred_zones.split(',')[0].trim();
-
-            const payload = {
-                city: "Milano",
-                zone: zoneRaw,
-                property_type: appraisalParams.type,
-                surface_sqm: parseInt(appraisalParams.sqm) || 100,
-                condition: "good"
-            };
-
-            const response = await fetch('/api/appraisals/estimate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                const res = await response.json();
-                setAppraisalData(res);
-            } else {
-                const err = await response.text();
-                alert("Errore stima: " + err);
-            }
-        } catch (e) {
-            console.error("Appraisal failed", e);
-            alert("Errore di connessione.");
-        } finally {
-            setIsAppraising(false);
         }
     }
 
@@ -328,59 +281,6 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                                 </div>
                             </div>
                         )}
-
-                        {/* Appraisal Card (Beta) */}
-                        <div className="bg-gradient-to-br from-indigo-900 to-indigo-800 p-5 rounded-3xl border border-indigo-700 shadow-md hover:shadow-lg transition-all group overflow-hidden relative">
-                            <div className="relative">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div>
-                                        <TrendingUp className="w-5 h-5 mb-1 text-indigo-300" />
-                                        <div className="text-[9px] text-indigo-200 font-bold uppercase tracking-widest">{t('lead.propertyEstimate')}</div>
-                                    </div>
-                                    <div className="text-[10px] bg-indigo-500/30 px-2 py-1 rounded text-white">AI Real-time</div>
-                                </div>
-
-                                {!appraisalData ? (
-                                    <div className="mt-3">
-                                        <div className="flex gap-2 items-center mb-3">
-                                            <input
-                                                type="number"
-                                                value={appraisalParams.sqm}
-                                                onChange={(e) => setAppraisalParams({ ...appraisalParams, sqm: e.target.value })}
-                                                className="w-20 bg-black/20 text-white rounded px-2 py-1 text-sm border border-indigo-500/30 focus:border-indigo-400 outline-none"
-                                                placeholder="MQ"
-                                            />
-                                            <span className="text-white/60 text-sm font-medium">mq a {formData.preferred_zones?.split(',')[0]}</span>
-                                        </div>
-                                        <button
-                                            onClick={handleAppraisal}
-                                            disabled={isAppraising}
-                                            className="w-full py-2 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl text-xs font-bold transition-all disabled:opacity-50"
-                                        >
-                                            {isAppraising ? "Analisi Perplexity in corso..." : t('lead.generateEstimate')}
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="mt-2 animate-in fade-in">
-                                        <div className="text-3xl font-black text-white mb-1">
-                                            €{appraisalData.estimated_value.toLocaleString()}
-                                        </div>
-                                        <div className="text-xs text-indigo-200 mb-2 font-medium">
-                                            Range: €{appraisalData.estimated_range_min.toLocaleString()} - €{appraisalData.estimated_range_max.toLocaleString()}
-                                        </div>
-                                        <div className="text-[10px] text-indigo-100/80 leading-relaxed border-t border-indigo-500/30 pt-2">
-                                            {appraisalData.reasoning}
-                                        </div>
-                                        <button
-                                            onClick={() => setAppraisalData(null)}
-                                            className="mt-3 text-[10px] text-indigo-300 hover:text-white underline"
-                                        >
-                                            Nuova stima
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="bg-gray-50/50 p-4 rounded-3xl border border-[hsl(var(--zen-border))] group relative overflow-hidden">
