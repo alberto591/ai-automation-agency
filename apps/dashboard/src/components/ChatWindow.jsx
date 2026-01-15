@@ -313,83 +313,85 @@ export default function ChatWindow({ selectedLead, onBack }) {
 
                 </div>
             </div>
-            );
+        </div>
+    );
 }
 
-            import {Check, CheckCheck, Clock, AlertCircle, FileText, Image as ImageIcon, MessageSquare} from 'lucide-react';
+// Message bubble component
+import { Check, CheckCheck, Clock, AlertCircle, FileText, Image as ImageIcon, MessageSquare } from 'lucide-react';
 
-            function MessageBubble({isAi, text, time, isHuman, status, mediaUrl, channel, index}) {
+function MessageBubble({ isAi, text, time, isHuman, status, mediaUrl, channel, index }) {
     const renderStatus = () => {
         if (!isAi) return null;
-            switch (status) {
+        switch (status) {
             case 'queued':
             case 'sending':
-            return <Clock className="w-3 h-3 text-slate-400" />;
+                return <Clock className="w-3 h-3 text-slate-400" />;
             case 'sent':
-            return <Check className="w-3 h-3 text-slate-400" />;
+                return <Check className="w-3 h-3 text-slate-400" />;
             case 'delivered':
-            return <CheckCheck className="w-3 h-3 text-slate-400" />;
+                return <CheckCheck className="w-3 h-3 text-slate-400" />;
             case 'read':
-            return <CheckCheck className="w-3 h-3 text-indigo-500" />;
+                return <CheckCheck className="w-3 h-3 text-indigo-500" />;
             case 'failed':
-            return <AlertCircle className="w-3 h-3 text-red-500" />;
+                return <AlertCircle className="w-3 h-3 text-red-500" />;
             default:
-            return null;
+                return null;
         }
     };
 
     const isImage = (url) => {
         if (!url) return false;
-            return /\.(jpg|jpeg|png|webp|gif)$/i.test(url) || url.includes('image');
+        return /\.(jpg|jpeg|png|webp|gif)$/i.test(url) || url.includes('image');
     };
 
     const renderMedia = () => {
         if (!mediaUrl) return null;
-            if (isImage(mediaUrl)) {
+        if (isImage(mediaUrl)) {
             return (
-            <div className="mb-2 rounded-lg overflow-hidden border border-white/20 shadow-sm max-w-full">
-                <img src={mediaUrl} alt="Media" className="max-h-64 object-cover w-full hover:scale-105 transition-transform duration-500 cursor-pointer" />
-            </div>
+                <div className="mb-2 rounded-lg overflow-hidden border border-white/20 shadow-sm max-w-full">
+                    <img src={mediaUrl} alt="Media" className="max-h-64 object-cover w-full hover:scale-105 transition-transform duration-500 cursor-pointer" />
+                </div>
             )
         }
-            return (
+        return (
             <a href={mediaUrl} target="_blank" rel="noreferrer" className="flex items-center space-x-2 p-2 mb-2 bg-black/5 rounded-lg border border-white/10 hover:bg-black/10 transition-colors">
                 <FileText className="w-5 h-5" />
                 <span className="text-xs font-bold truncate">Visualizza Documento</span>
             </a>
-            )
+        )
     };
 
     const renderChannel = () => {
         if (channel === 'voice') return <Phone className="w-2.5 h-2.5 opacity-50" />;
-            if (channel === 'email') return <FileText className="w-2.5 h-2.5 opacity-50" />;
-            return <MessageSquare className="w-2.5 h-2.5 opacity-50" />;
+        if (channel === 'email') return <FileText className="w-2.5 h-2.5 opacity-50" />;
+        return <MessageSquare className="w-2.5 h-2.5 opacity-50" />;
     };
 
-            return (
+    return (
+        <div
+            className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-scale-in origin-${isAi ? 'bottom-right' : 'bottom-left'}`}
+            style={{ animationDelay: `${index * 50}ms` }}
+        >
             <div
-                className={`flex ${isAi ? 'justify-end' : 'justify-start'} animate-scale-in origin-${isAi ? 'bottom-right' : 'bottom-left'}`}
-                style={{ animationDelay: `${index * 50}ms` }}
+                className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all hover:shadow-md duration-300 ${isAi
+                    ? (isHuman
+                        ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100 hover:bg-orange-100'
+                        : 'bubble-ai hover:brightness-110')
+                    : 'bubble-user hover:bg-white'
+                    }`}
             >
-                <div
-                    className={`max-w-[85%] md:max-w-[70%] p-4 shadow-sm text-sm relative leading-relaxed transition-all hover:shadow-md duration-300 ${isAi
-                        ? (isHuman
-                            ? 'bg-orange-50 text-orange-900 rounded-2xl rounded-tr-none border border-orange-100 hover:bg-orange-100'
-                            : 'bubble-ai hover:brightness-110')
-                        : 'bubble-user hover:bg-white'
-                        }`}
-                >
-                    {renderMedia()}
-                    {text && <div className="whitespace-pre-wrap font-medium">{text}</div>}
-                    <div className={`text-[9px] font-bold uppercase tracking-tight flex items-center justify-end gap-1.5 mt-2 ${isAi && !isHuman ? 'text-white/60' : 'text-gray-400'
-                        }`}>
-                        {renderChannel()}
-                        {time}
-                        <span className="mx-0.5">•</span>
-                        {isHuman ? <User className="w-3 h-3" /> : (isAi ? <Bot className="w-3 h-3" /> : null)}
-                        {renderStatus()}
-                    </div>
+                {renderMedia()}
+                {text && <div className="whitespace-pre-wrap font-medium">{text}</div>}
+                <div className={`text-[9px] font-bold uppercase tracking-tight flex items-center justify-end gap-1.5 mt-2 ${isAi && !isHuman ? 'text-white/60' : 'text-gray-400'
+                    }`}>
+                    {renderChannel()}
+                    {time}
+                    <span className="mx-0.5">•</span>
+                    {isHuman ? <User className="w-3 h-3" /> : (isAi ? <Bot className="w-3 h-3" /> : null)}
+                    {renderStatus()}
                 </div>
             </div>
-            )
+        </div>
+    )
 }
