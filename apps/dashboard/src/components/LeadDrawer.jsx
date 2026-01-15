@@ -139,7 +139,6 @@ export default function LeadDrawer({ lead, isOpen, onClose }) {
                 customer_name: formData.name,
                 budget_max: formData.budget_max ? parseInt(formData.budget_max) : null,
                 preferred_zones: zonesArray,
-                preferred_zones: zonesArray,
                 customer_email: formData.email
             };
 
