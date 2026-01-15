@@ -2,8 +2,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import ChatWindow from './ChatWindow';
 import { MessageSquare } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function ConversationsPage({ session }) {
+    const { t } = useLanguage();
     const [conversations, setConversations] = useState([]);
     const [selectedPhone, setSelectedPhone] = useState(null);
 
@@ -92,7 +94,7 @@ export default function ConversationsPage({ session }) {
                 }}
             >
                 <div style={{ padding: '20px', borderBottom: '1px solid #e0e0e0' }}>
-                    <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Conversations</h2>
+                    <h2 style={{ margin: 0, fontSize: '1.5rem' }}>{t('conversations.title')}</h2>
                     <div
                         style={{
                             marginTop: '10px',
@@ -109,14 +111,14 @@ export default function ConversationsPage({ session }) {
                             borderRadius: '50%',
                             background: isConnected ? '#10b981' : '#ef4444'
                         }} />
-                        {isConnected ? 'Connected' : 'Disconnected'}
+                        {isConnected ? t('conversations.connected') : t('conversations.disconnected')}
                     </div>
                 </div>
 
                 <div>
                     {conversations.length === 0 ? (
                         <div style={{ padding: '40px 20px', textAlign: 'center', color: '#9ca3af' }}>
-                            No conversations yet
+                            {t('conversations.empty.title')}
                         </div>
                     ) : (
                         conversations.map((conv) => (
@@ -179,7 +181,7 @@ export default function ConversationsPage({ session }) {
                         <div className="p-4 bg-indigo-50 rounded-full text-indigo-500">
                             <MessageSquare className="w-8 h-8 opacity-50" />
                         </div>
-                        <div>Select a conversation to start chatting</div>
+                        <div>{t('conversations.selectChat')}</div>
                     </div>
                 ) : (
                     <ChatWindow

@@ -20,6 +20,10 @@ export const translations = {
         'conversations.qualified': 'Qualificate',
         'conversations.empty.title': 'Nessuna conversazione',
         'conversations.empty.description': 'Le conversazioni appariranno qui quando i clienti ti contatteranno',
+        'conversations.title': 'Conversazioni',
+        'conversations.connected': 'Connesso',
+        'conversations.disconnected': 'Disconnesso',
+        'conversations.selectChat': 'Seleziona una conversazione per iniziare a chattare',
 
         // Chat Window
         'chat.typeMessage': 'Scrivi un messaggio...',
@@ -96,6 +100,10 @@ export const translations = {
         'conversations.qualified': 'Qualified',
         'conversations.empty.title': 'No conversations',
         'conversations.empty.description': 'Conversations will appear here when clients contact you',
+        'conversations.title': 'Conversations',
+        'conversations.connected': 'Connected',
+        'conversations.disconnected': 'Disconnected',
+        'conversations.selectChat': 'Select a conversation to start chatting',
 
         // Chat Window
         'chat.typeMessage': 'Type a message...',

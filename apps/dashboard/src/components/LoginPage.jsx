@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Bot, Lock, ArrowRight, Mail } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function LoginPage() {
+    const { t } = useLanguage();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,8 +37,8 @@ export default function LoginPage() {
                     <div className="w-16 h-16 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl mx-auto flex items-center justify-center shadow-xl shadow-indigo-500/30 mb-4 animate-float">
                         <Bot className="w-8 h-8 text-white" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Agenzia AI</h1>
-                    <p className="text-slate-500 text-sm mt-1">Real Estate Intelligence Dashboard</p>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('header.brand')}</h1>
+                    <p className="text-slate-500 text-sm mt-1">{t('header.subtitle')}</p>
                 </div>
 
                 {/* Login Card */}
@@ -50,7 +52,7 @@ export default function LoginPage() {
                         )}
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Email</label>
+                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">{t('login.email')}</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -67,7 +69,7 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Password</label>
+                            <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">{t('login.password')}</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -96,7 +98,7 @@ export default function LoginPage() {
                                 </div>
                             ) : (
                                 <>
-                                    <span>Accedi</span>
+                                    <span>{t('login.submit')}</span>
                                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}
