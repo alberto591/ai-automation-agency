@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from "@sentry/react";
 import './index.css'
 import App from './App.jsx'
+import { LanguageProvider } from './contexts/LanguageContext'
 
 // Initialize Sentry for error tracking
 if (import.meta.env.VITE_SENTRY_DSN) {
@@ -26,6 +27,8 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 )

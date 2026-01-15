@@ -1,7 +1,9 @@
 import { LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { useLanguage } from '../contexts/LanguageContext'
 
 function Header() {
+    const { language, setLanguage, t } = useLanguage()
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
@@ -28,20 +30,42 @@ function Header() {
                         </svg>
                     </div>
                     <div className="hidden md:block">
-                        <h1 className="text-lg font-semibold text-slate-800">Anzevino AI</h1>
-                        <p className="text-xs text-slate-500">Real Estate CRM</p>
+                        <h1 className="text-lg font-semibold text-slate-800">{t('header.brand')}</h1>
+                        <p className="text-xs text-slate-500">{t('header.subtitle')}</p>
                     </div>
                 </div>
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-4">
+                    {/* Language Toggle */}
+                    <div className="flex items-center bg-slate-100 rounded-lg p-1">
+                        <button
+                            onClick={() => setLanguage('it')}
+                            className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${language === 'it'
+                                    ? 'bg-white text-indigo-600 shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                        >
+                            IT
+                        </button>
+                        <button
+                            onClick={() => setLanguage('en')}
+                            className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${language === 'en'
+                                    ? 'bg-white text-indigo-600 shadow-sm'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                        >
+                            EN
+                        </button>
+                    </div>
+
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors text-sm font-medium"
-                        title="Sign Out"
+                        title={t('header.logout')}
                     >
                         <LogOut className="w-4 h-4" />
-                        <span className="hidden sm:inline">Logout</span>
+                        <span className="hidden sm:inline">{t('header.logout')}</span>
                     </button>
                 </div>
             </div>

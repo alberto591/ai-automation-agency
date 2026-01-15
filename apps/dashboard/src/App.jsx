@@ -9,6 +9,7 @@ import ConversationsPage from './components/ConversationsPage'
 import LoginPage from './components/LoginPage'
 import { supabase } from './lib/supabase'
 import { BarChart3, MessageSquare, Globe, Users } from 'lucide-react'
+import { LanguageProvider } from './contexts/LanguageContext'
 
 function App() {
   const [session, setSession] = useState(null)
