@@ -36,17 +36,26 @@ window.ENV = {
 };
 `;
 
-// Generate for apps/landing-page
-const landingPagePath = path.join(__dirname, '..', 'apps', 'landing-page', 'config.js');
-fs.writeFileSync(landingPagePath, configContent);
-console.log('✅ Generated apps/landing-page/config.js');
-
-// Generate for dist if it exists
+// 1. Always generate for dist (this is what Vercel serves)
 const distPath = path.join(__dirname, '..', 'dist', 'config.js');
 const distDir = path.dirname(distPath);
-if (fs.existsSync(distDir)) {
-    fs.writeFileSync(distPath, configContent);
-    console.log('✅ Generated dist/config.js');
+
+if (!fs.existsSync(distDir)) {
+    console.log('📁 Creating dist directory...');
+    fs.mkdirSync(distDir, { recursive: true });
+}
+
+fs.writeFileSync(distPath, configContent);
+console.log('✅ Generated dist/config.js');
+
+// 2. Also generate for apps/landing-page if it exists (for local/other builds)
+const landingPageDir = path.join(__dirname, '..', 'apps', 'landing-page');
+if (fs.existsSync(landingPageDir)) {
+    const landingPagePath = path.join(landingPageDir, 'config.js');
+    fs.writeFileSync(landingPagePath, configContent);
+    console.log('✅ Generated apps/landing-page/config.js');
+} else {
+    console.log('ℹ️ apps/landing-page not found, skipping source config generation (normal in Vercel)');
 }
 
 console.log('✅ Config generation complete!');
