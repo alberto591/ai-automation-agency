@@ -85,7 +85,54 @@
 
 ---
 
-### 🚀 Render (Backend Service)
+### �️ Supabase (Database Platform)
+
+#### Project Settings
+- [ ] Navigate to [Supabase Dashboard](https://app.supabase.com) → Your Project
+
+#### Database Configuration
+- [ ] Verify database is created and active
+- [ ] Note your project URL: `https://[project-ref].supabase.co`
+- [ ] Go to Settings → API to get your keys
+
+#### API Keys (Copy these to other platforms)
+- [ ] Copy `Project URL` → Use as `SUPABASE_URL`
+- [ ] Copy `anon/public` key → Use as `SUPABASE_KEY` and `SUPABASE_ANON_KEY`
+- [ ] Copy `service_role` key → Use as `SUPABASE_SERVICE_ROLE_KEY` (keep secret!)
+
+#### Authentication Settings
+- [ ] Go to Authentication → URL Configuration
+- [ ] Set Site URL: `https://your-domain.vercel.app`
+- [ ] Add Redirect URLs:
+  - [ ] `https://your-domain.vercel.app/login.html`
+  - [ ] `https://your-domain.vercel.app/reset-password.html`
+  - [ ] `http://localhost:5174/login.html` (for local dashboard)
+
+#### Row Level Security (RLS)
+- [ ] Go to Database → Tables
+- [ ] Verify RLS is enabled on all tables with sensitive data
+- [ ] Review RLS policies for `leads`, `conversations`, `messages` tables
+- [ ] Ensure tenant isolation policies are in place
+
+#### Storage (if using file uploads)
+- [ ] Go to Storage → Buckets
+- [ ] Create necessary buckets (e.g., `property-images`, `documents`)
+- [ ] Set appropriate RLS policies on storage buckets
+- [ ] Configure CORS if needed
+
+#### Edge Functions (if using)
+- [ ] Go to Edge Functions
+- [ ] Deploy any custom edge functions
+- [ ] Set environment variables for edge functions
+
+#### Database Migrations
+- [ ] Ensure all migrations are applied
+- [ ] Check Database → Migrations for status
+- [ ] Run any pending migrations from `supabase/migrations/` directory
+
+---
+
+### �🚀 Render (Backend Service)
 
 #### Core Database (Required)
 - [ ] Set `SUPABASE_URL` = `https://zozgvcdnkwtyioyazgmx.supabase.co`
