@@ -1,5 +1,7 @@
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from infrastructure.ml.feature_engineering import PropertyFeatures, extract_property_features
 from infrastructure.ml.xgboost_adapter import XGBoostAdapter
 

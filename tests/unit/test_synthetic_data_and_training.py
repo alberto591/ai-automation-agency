@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from scripts.data.generate_synthetic_data import SyntheticDataGenerator
 

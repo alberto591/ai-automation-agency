@@ -1,8 +1,9 @@
 import os
-from unittest.mock import patch
-
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+from fastapi.testclient import TestClient
 
 # MOCK HEAVY DEPENDENCIES IF MISSING (For CI)
 # This allows running unit tests without installing 500MB+ of ML libraries
@@ -36,9 +37,6 @@ for mod in heavy_modules:
         mock_mod.__path__ = []
         sys.modules[mod] = mock_mod
 
-import pytest
-from fastapi.testclient import TestClient
-
 
 @pytest.fixture(autouse=True)
 def skip_ml_if_mocked(request):
@@ -48,6 +46,7 @@ def skip_ml_if_mocked(request):
         import xgboost
         if isinstance(xgboost, MagicMock) or isinstance(sys.modules.get("xgboost"), MagicMock):
             pytest.skip("Skipping ML test: dependencies are mocked")
+
 
 
 # Mock environmental variables BEFORE any imports that might trigger Container instantiation
