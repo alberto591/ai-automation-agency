@@ -128,6 +128,11 @@ class MessagingPort(ABC):
         """Sends interactive message (Buttons, List, etc.) via InteractiveMessage model."""
         pass
 
+    @abstractmethod
+    def parse_webhook_data(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Parses webhook data into a standardized format."""
+        pass
+
 
 class MarketDataPort(ABC):
     @abstractmethod

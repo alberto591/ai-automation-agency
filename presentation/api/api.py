@@ -190,9 +190,7 @@ async def websocket_endpoint(  # noqa: PLR0912, PLR0915
 
                 # Always send conversations (even if empty list)
                 conversations_data = leads_response.data if leads_response.data else []
-                await websocket.send_json(
-                    {"type": "conversations", "data": conversations_data}
-                )
+                await websocket.send_json({"type": "conversations", "data": conversations_data})
                 logger.info(
                     "WS_INITIAL_DATA_SENT",
                     context={
@@ -213,10 +211,12 @@ async def websocket_endpoint(  # noqa: PLR0912, PLR0915
                 )
                 # Send error to client and empty data to prevent hanging
                 try:
-                    await websocket.send_json({
-                        "type": "error",
-                        "message": "Failed to load conversations",
-                    })
+                    await websocket.send_json(
+                        {
+                            "type": "error",
+                            "message": "Failed to load conversations",
+                        }
+                    )
                     await websocket.send_json({"type": "conversations", "data": []})
                 except Exception:
                     pass  # Connection might already be closed
@@ -380,14 +380,15 @@ async def twilio_webhook(
     Receives webhooks from Twilio for incoming WhatsApp messages and media.
     """
     form_data = await request.form()
-    # Cast to str to satisfy mypy since form_data can contain UploadFile
-    from_phone = str(form_data.get("From", ""))
-    if from_phone.startswith("whatsapp:"):
-        from_phone = from_phone.replace("whatsapp:", "")
 
-    # Prevent Self-Loop: If message is FROM our own number, ignore it.
-    # (This happens if Status Callback URL is set to Incoming URL by mistake)
-    # import settings (lazy import or top level)
+    # Use Adapter to parse data (Cleaner Architecture)
+    parsed = container.msg.parse_webhook_data(dict(form_data))
+
+    from_phone = parsed["phone"]
+    body = parsed["body"]
+    media_url = parsed["media_url"]
+
+    # Prevent Self-Loop
     from config.settings import settings
 
     bot_number = settings.TWILIO_PHONE_NUMBER
@@ -395,15 +396,8 @@ async def twilio_webhook(
         logger.warning("WEBHOOK_IGNORED_SELF", context={"from": from_phone})
         return "OK"
 
-    body = str(form_data.get("Body", ""))
-    num_media_val = form_data.get("NumMedia", 0)
-    num_media = int(str(num_media_val)) if num_media_val is not None else 0
-
-    media_url_val = form_data.get("MediaUrl0")
-    media_url = str(media_url_val) if num_media > 0 and media_url_val else None
-
     # Block empty messages (Status updates hitting wrong URL)
-    if not body.strip() and not media_url:
+    if parsed["is_status_update"]:
         logger.warning("WEBHOOK_IGNORED_EMPTY", context={"from": from_phone})
         return "OK"
 

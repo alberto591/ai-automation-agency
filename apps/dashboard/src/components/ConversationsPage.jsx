@@ -84,11 +84,13 @@ export default function ConversationsPage({ session }) {
         }
     }, [selectedPhone]);
 
-    const { isConnected } = useWebSocket(wsUrl, {
+    const { isConnected, lastMessage } = useWebSocket(wsUrl, {
         onMessage: handleMessage,
         onOpen: () => console.log('✅ WebSocket connected'),
         onClose: () => console.log('❌ WebSocket disconnected'),
         token: session?.access_token,
+        reconnectAttempts: 10,
+        reconnectInterval: 3000
     });
 
     // When selecting a conversation, just set the phone - ChatWindow handles message fetching
@@ -189,6 +191,7 @@ export default function ConversationsPage({ session }) {
                                 name: selectedConversation.name
                             }}
                             onBack={isMobile ? handleBackToList : undefined}
+                            realtimeMessage={lastMessage}
                         />
                     )}
                 </div>

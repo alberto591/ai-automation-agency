@@ -83,49 +83,10 @@ export function useMessages(leadId) {
         fetchMessages()
         fetchLeadStatus()
 
-        // Subscribe to NEW messages and UPDATES for this lead
-        const msgChannel = supabase
-            .channel(`public:messages:lead_id=eq.${leadId}`)
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'messages',
-                filter: `lead_id=eq.${leadId}`
-            }, (payload) => {
-                if (payload.new) {
-                    setMessages(prev => [...prev, payload.new])
-                }
-            })
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'messages',
-                filter: `lead_id=eq.${leadId}`
-            }, (payload) => {
-                if (payload.new) {
-                    setMessages(prev => prev.map(m => m.id === payload.new.id ? payload.new : m))
-                }
-            })
-            .subscribe()
-
-        // Subscribe to STATUS changes for this lead
-        const leadChannel = supabase
-            .channel(`public:leads:id=eq.${leadId}`)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'leads',
-                filter: `id=eq.${leadId}`
-            }, (payload) => {
-                if (payload.new && payload.new.status) {
-                    setStatus(payload.new.status)
-                }
-            })
-            .subscribe()
+        // Real-time updates are now handled via Backend WebSocket in parent component
 
         return () => {
-            supabase.removeChannel(msgChannel)
-            supabase.removeChannel(leadChannel)
+            // Cleanup if needed
         }
     }, [leadId])
 

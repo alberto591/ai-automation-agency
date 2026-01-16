@@ -8,7 +8,7 @@ import LeadDrawer from './LeadDrawer';
 import EmptyState from './EmptyState';
 import Tooltip from './Tooltip';
 
-export default function ChatWindow({ selectedLead, onBack }) {
+export default function ChatWindow({ selectedLead, onBack, realtimeMessage }) {
     const { t } = useLanguage();
     const { messages, setMessages, status, setStatus, loading } = useMessages(selectedLead?.id);
     const bottomRef = useRef(null);
@@ -16,6 +16,37 @@ export default function ChatWindow({ selectedLead, onBack }) {
     const [sending, setSending] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [generatingSummary, setGeneratingSummary] = useState(false);
+
+    // Handle incoming real-time messages from Backend WebSocket
+    useEffect(() => {
+        if (!realtimeMessage || !selectedLead) return;
+
+        // Check if message belongs to current lead (by phone or lead_id)
+        if (realtimeMessage.type === 'message') {
+            // If payload has lead_id, use it. Otherwise fallback to phone check if available.
+            const isForCurrentLead = realtimeMessage.lead_id === selectedLead.id ||
+                realtimeMessage.phone === selectedLead.phone;
+
+            if (isForCurrentLead && realtimeMessage.message) {
+                const newMsg = realtimeMessage.message;
+
+                // Prevent duplicates (simple check by timestamp or content if id missing)
+                setMessages(prev => {
+                    const exists = prev.some(m =>
+                        m.created_at === newMsg.timestamp && m.content === newMsg.content
+                    );
+                    if (exists) return prev;
+
+                    // Helper to format backend msg to frontend shape if needed
+                    // (The backend sends { role, content, timestamp, media_url })
+                    return [...prev, {
+                        ...newMsg,
+                        created_at: newMsg.timestamp // ensure key match
+                    }];
+                });
+            }
+        }
+    }, [realtimeMessage, selectedLead]);
 
     // Auto-scroll to bottom
     useEffect(() => {

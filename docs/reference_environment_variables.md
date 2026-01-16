@@ -26,6 +26,7 @@
 - [ ] Set `SUPABASE_ANON_KEY` = Same as SUPABASE_KEY (for landing page)
 - [ ] Set `VITE_SUPABASE_URL` = Same as SUPABASE_URL (for dashboard)
 - [ ] Set `VITE_SUPABASE_ANON_KEY` = Same as SUPABASE_KEY (for dashboard)
+- [ ] Set `VITE_API_URL` = Your Backend URL (e.g., `https://your-render-app.onrender.com`)
 
 #### AI Services (Required)
 - [ ] Set `MISTRAL_API_KEY` = Your Mistral AI API key

@@ -73,11 +73,28 @@ class TwilioAdapter(MessagingPort):
             logger.error("TWILIO_SEND_FAILED", context={"to": to, "error": str(e)})
             raise ExternalServiceError("Failed to send WhatsApp message", cause=str(e)) from e
 
-    def send_interactive_message(self, to: str, message: Any) -> str:
+    def parse_webhook_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """
-        Sends an interactive message (Buttons, List, etc.).
+        Parses the raw form data from Twilio webhook into a standardized format.
+        """
+        # 1. Extract Sender Phone
+        from_phone = str(data.get("From", ""))
+        if from_phone.startswith("whatsapp:"):
+            from_phone = from_phone.replace("whatsapp:", "")
 
-        Currently not implemented for Twilio.
-        """
-        logger.warning("TWILIO_INTERACTIVE_NOT_IMPLEMENTED", context={"to": to})
-        raise NotImplementedError("Interactive messages not yet supported for Twilio adapter")
+        # 2. Extract Message Body
+        body = str(data.get("Body", "")).strip()
+
+        # 3. Extract Media
+        num_media_val = data.get("NumMedia", 0)
+        num_media = int(str(num_media_val)) if num_media_val is not None else 0
+
+        media_url_val = data.get("MediaUrl0")
+        media_url = str(media_url_val) if num_media > 0 and media_url_val else None
+
+        return {
+            "phone": from_phone,
+            "body": body,
+            "media_url": media_url,
+            "is_status_update": not body and not media_url,
+        }

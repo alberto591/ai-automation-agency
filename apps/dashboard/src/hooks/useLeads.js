@@ -7,9 +7,7 @@ export function useLeads() {
 
     useEffect(() => {
         console.log('🔍 useLeads hook mounted')
-        console.log('🔍 Supabase client exists:', !!supabase)
 
-        // Check if supabase is initialized
         if (!supabase) {
             console.error("❌ Supabase client not initialized. Check Env Vars.")
             setLoading(false)
@@ -19,21 +17,9 @@ export function useLeads() {
         console.log('✅ Supabase client initialized, fetching leads...')
         fetchLeads()
 
-        // Real-time subscription
-        console.log('📡 Setting up real-time subscription...')
-        const channel = supabase
-            .channel('public:leads')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, (payload) => {
-                console.log("🔔 Lead change received!", payload)
-                fetchLeads()
-            })
-            .subscribe()
-
-        console.log('✅ Real-time subscription established')
-
+        // Real-time subscription removed in favor of Backend WebSocket (ConversationsPage.jsx)
         return () => {
             console.log('🧹 Cleaning up useLeads hook')
-            supabase.removeChannel(channel)
         }
     }, [])
 
