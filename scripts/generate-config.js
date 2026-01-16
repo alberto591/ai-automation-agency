@@ -7,13 +7,19 @@
 const fs = require('fs');
 const path = require('path');
 
+// Debug: Show what env vars we can see
+console.log('🔍 Checking environment variables...');
+console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 // Check if required environment variables are set
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('❌ Error: SUPABASE_URL and SUPABASE_ANON_KEY must be set');
-    console.error('Set these in Vercel Environment Variables');
+    console.error('Make sure these are set in Vercel Environment Variables for Production');
+    console.error('Available env vars starting with SUPA:', Object.keys(process.env).filter(k => k.startsWith('SUPA')).join(', ') || 'none');
     process.exit(1);
 }
 
