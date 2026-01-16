@@ -68,7 +68,8 @@
                 <a href="#soluzione" data-translate="nav-soluzione">Soluzione</a>
                 <a href="#caratteristiche" data-translate="nav-caratteristiche">Caratteristiche</a>
                 <a href="pricing.html" data-translate="nav-prezzi">Prezzi</a>
-                <a href="#appraisal" data-translate="nav-valutazione">Stima Preliminare</a>
+                <!-- Hidden: Fifi tool not ready -->
+                <!-- <a href="#appraisal" data-translate="nav-valutazione">Stima Preliminare</a> -->
                 <a href="#contatto" data-translate="nav-contatto">Contatto</a>
                 <a href="https://cal.com/anzevino-ai" target="_blank" class="btn-primary">
                     <i class="ph ph-calendar"></i>
@@ -80,7 +81,7 @@
                     <button class="lang-btn active" data-lang="it">IT</button>
                     <button class="lang-btn" data-lang="en">EN</button>
                 </div>
-                <a href="/login.html" id="login-link" class="login-btn-enhanced" aria-label="Login">
+                <a href="login.html" id="login-link" class="login-btn-enhanced" aria-label="Login">
                     <i class="ph ph-user-circle"></i>
                     <span data-translate="nav-login">Accedi</span>
                 </a>
@@ -299,7 +300,8 @@
         </div>
     </section>
 
-    <!-- AI Appraisal Section (Lead Magnet CTA) -->
+    <!-- AI Appraisal Section (Lead Magnet CTA) - HIDDEN: Fifi tool not ready for public release -->
+    <!--
     <section id="appraisal" class="appraisal-section">
         <div class="container">
             <div class="appraisal-card" style="max-width: 900px; margin: 0 auto;">
@@ -331,6 +333,7 @@
             </div>
         </div>
     </section>
+    -->
 
 
 
@@ -382,7 +385,7 @@
                         </div>
 
                         <div class="dashboard-image-container">
-                            <img src="images/dashboard-mockup-real.png" alt="Anzevino AI Dashboard"
+                            <img src="public/images/dashboard-mockup-real.png" alt="Anzevino AI Dashboard"
                                 class="dashboard-real-mockup">
                         </div>
                     </div>
@@ -701,7 +704,10 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Auth Helper (must load after Supabase) -->
+    <!-- Environment Config (must load before auth-helper) -->
+    <script src="config.js"></script>
+
+    <!-- Auth Helper (must load after Supabase and config) -->
     <script src="auth-helper.js"></script>
 
     <script src="appraisal/sw-register.js"></script>
