@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Generate config.js from environment variables for landing page
 # This script should be run during build/deployment
 
