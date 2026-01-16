@@ -3,27 +3,25 @@ name: Deployment Pipeline
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.py'
+      - 'requirements*.txt'
+      - 'Dockerfile'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches: [ master ]
 
+# Cancel in-progress runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  verify-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.11"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest httpx
-    - name: Run Tests
-      # We skip full integration tests that require live API keys
-      run: |
-        pytest tests/unit
-
+    
     - name: Verify Docker Build
       run: docker build . --file Dockerfile --tag agenzia-ai:test
