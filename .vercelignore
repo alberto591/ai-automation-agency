@@ -21,6 +21,7 @@ tests/
 test_scripts/
 scripts/
 !scripts/build.sh
+!scripts/generate-config.js
 
 # Documentation
 docs/
@@ -66,4 +67,3 @@ AI Real Estate Appraisal Tool Perplex Test.html
 .agent/
 .cursorrules
 .vercel/
-
