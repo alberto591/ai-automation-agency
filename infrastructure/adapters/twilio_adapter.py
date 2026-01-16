@@ -98,3 +98,13 @@ class TwilioAdapter(MessagingPort):
             "media_url": media_url,
             "is_status_update": not body and not media_url,
         }
+
+    def send_interactive_message(self, to: str, message: Any) -> str:
+        """
+        Sends an interactive message.
+        Currently not fully implemented for Twilio, falls back to logging.
+        """
+        logger.warning(
+            "INTERACTIVE_MSG_NOT_SUPPORTED", context={"adapter": "TwilioAdapter", "to": to}
+        )
+        return f"skipped_interactive_message_for_{to}"
