@@ -19,8 +19,7 @@ venv/
 # Tests and scripts
 tests/
 test_scripts/
-scripts/
-!scripts/build.sh
+scripts/*
 !scripts/generate-config.js
 
 # Documentation
