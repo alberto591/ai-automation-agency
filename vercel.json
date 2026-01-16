@@ -1,7 +1,7 @@
 {
     "framework": null,
     "installCommand": "echo 'Using pre-built static files'",
-    "buildCommand": "node generate-config.js",
+    "buildCommand": "node -e \"const fs=require('fs');const c='window.ENV={SUPABASE_URL:\\''+process.env.SUPABASE_URL+'\\',SUPABASE_ANON_KEY:\\''+process.env.SUPABASE_ANON_KEY+'\\'};';fs.writeFileSync('dist/config.js',c);console.log('Generated dist/config.js');\"",
     "outputDirectory": "dist",
     "rewrites": [
         {
