@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 5  # Fail fast if stuck
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -44,7 +44,7 @@ jobs:
     needs: lint
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Set up Python
       uses: actions/setup-python@v5
