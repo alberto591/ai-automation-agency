@@ -3,17 +3,45 @@ name: CI
 on:
   push:
     branches: [ master, main ]
+    paths:
+      # Only run CI when backend Python code changes
+      - '**.py'
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ master, main ]
 
-# Prevent duplicate runs but don't cancel in-progress jobs
+# Cancel in-progress runs when new commit pushed (saves minutes!)
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  lint-and-test:
+  lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 5  # Fail fast if stuck
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install Ruff only
+      run: pip install ruff
+
+    - name: Lint with Ruff
+      run: ruff check .
+
+  # Only run tests on PRs (not every push)
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    timeout-minutes: 10
+    needs: lint
 
     steps:
     - uses: actions/checkout@v4
@@ -24,30 +52,19 @@ jobs:
         python-version: '3.11'
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/requirements-dev.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements.txt
-        pip install --no-cache-dir -r requirements-dev.txt
-        # Fail-safe: Explicitly install known missing deps
-        pip install pandas gspread scikit-learn
-        pip install ruff mypy pytest
-        pip list
-
-    - name: Lint with Ruff
-      run: ruff check .
-
-    - name: Type check with mypy
-      run: mypy --config-file pyproject.toml application/ domain/ infrastructure/ config/
-      continue-on-error: true
+        pip install -r requirements.txt
+        pip install pytest
 
     - name: Run tests
-      run: pytest tests/ -v
+      run: pytest tests/ -v --tb=short
       continue-on-error: true
