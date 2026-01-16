@@ -1,0 +1,28 @@
+# Lightweight dependencies for CI testing
+fastapi
+uvicorn
+gunicorn
+supabase
+pydantic
+pydantic-settings
+python-dotenv
+requests
+httpx
+google-auth
+twilio
+beautifulsoup4
+python-multipart
+email-validator
+sentry-sdk
+python-dateutil
+tenacity
+python-jose[cryptography]
+fpdf2
+thefuzz
+redis
+prometheus-client
+pytest
+pytest-asyncio
+httpx
+# Excluded heavy deps (mocked in tests/conftest.py):
+# xgboost, scikit-learn, numpy, pandas, langchain*, openai, tiktoken

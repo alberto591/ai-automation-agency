@@ -8,6 +8,7 @@ import xgboost as xgb
 from infrastructure.ml.model_registry import ModelRegistry
 
 
+@pytest.mark.ml_required
 class TestModelRegistry:
     @pytest.fixture
     def temp_registry(self):

@@ -15,6 +15,7 @@ import pandas as pd
 from scripts.data.generate_synthetic_data import SyntheticDataGenerator
 
 
+@pytest.mark.ml_required
 class TestSyntheticDataGenerator:
     """Test suite for synthetic real estate data generation."""
 
@@ -217,6 +218,7 @@ class TestSyntheticDataGenerator:
         assert median_price < mean_price
 
 
+@pytest.mark.ml_required
 class TestXGBoostTrainingComponents:
     """Test suite for XGBoost training script components."""
 

@@ -31,6 +31,7 @@ def test_extract_property_features(mock_mistral):
     assert res.condition == "good"
 
 
+@pytest.mark.ml_required
 def test_xgboost_adapter_prediction():
     """Test the XGBoostAdapter with trained XGBoost model."""
     adapter = XGBoostAdapter()
@@ -49,6 +50,7 @@ def test_xgboost_adapter_prediction():
     assert adapter.model is not None, "Model should be loaded"
 
 
+@pytest.mark.ml_required
 def test_xgboost_adapter_uncertainty():
     """Test uncertainty calculation."""
     adapter = XGBoostAdapter()
@@ -67,6 +69,7 @@ def test_xgboost_adapter_uncertainty():
 # --- Investment Metrics Tests ---
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_basic_calculation():
     """Test basic investment metrics calculation."""
     adapter = XGBoostAdapter()
@@ -88,6 +91,7 @@ def test_investment_metrics_basic_calculation():
     assert "annual_cash_flow" in metrics
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_rent_calculation():
     """Test that rent is calculated correctly based on zone."""
     adapter = XGBoostAdapter()
@@ -111,6 +115,7 @@ def test_investment_metrics_rent_calculation():
     assert metrics_default["monthly_rent"] == 1300  # 100 * 13 (default)
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_cap_rate():
     """Test Cap Rate calculation."""
     adapter = XGBoostAdapter()
@@ -126,6 +131,7 @@ def test_investment_metrics_cap_rate():
     assert metrics["gross_yield"] == metrics["cap_rate"]  # Should be same
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_cash_on_cash():
     """Test Cash-on-Cash Return calculation."""
     adapter = XGBoostAdapter()
@@ -145,6 +151,7 @@ def test_investment_metrics_cash_on_cash():
     assert metrics["cash_on_cash_return"] == round((15120 / 100000) * 100, 2)
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_roi_5_year():
     """Test 5-year ROI projection."""
     adapter = XGBoostAdapter()
@@ -162,6 +169,7 @@ def test_investment_metrics_roi_5_year():
     assert metrics["roi_5_year"] < 45
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_edge_cases():
     """Test edge cases for investment metrics."""
     adapter = XGBoostAdapter()
@@ -181,6 +189,7 @@ def test_investment_metrics_edge_cases():
     assert metrics_small["cap_rate"] > 0
 
 
+@pytest.mark.ml_required
 def test_investment_metrics_all_zones():
     """Test that all supported zones have different rent rates."""
     adapter = XGBoostAdapter()

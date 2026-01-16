@@ -1,8 +1,54 @@
 import os
 from unittest.mock import patch
 
+import sys
+from unittest.mock import MagicMock
+
+# MOCK HEAVY DEPENDENCIES IF MISSING (For CI)
+# This allows running unit tests without installing 500MB+ of ML libraries
+heavy_modules = [
+    "xgboost",
+    "sklearn",
+    "sklearn.metrics",
+    "sklearn.model_selection",
+    "sklearn.preprocessing",
+    "langchain",
+    "langchain.tools",
+    "langchain_core",
+    "langchain_core.prompts",
+    "langchain_mistralai",
+    "mistralai",
+    "numpy",
+    "pandas",
+    "openai",
+    "tiktoken",
+    "langgraph",
+    "langgraph.prebuilt"
+]
+
+for mod in heavy_modules:
+    try:
+        __import__(mod)
+    except ImportError:
+        # Create a mock module
+        mock_mod = MagicMock()
+        # Ensure it has __path__ so sub-imports might work if not explicitly in list
+        mock_mod.__path__ = []
+        sys.modules[mod] = mock_mod
+
 import pytest
 from fastapi.testclient import TestClient
+
+
+@pytest.fixture(autouse=True)
+def skip_ml_if_mocked(request):
+    """Skip tests marked with @pytest.mark.ml_required if heavy deps are mocked."""
+    if request.node.get_closest_marker("ml_required"):
+        # Check if xgboost is a mock (proxy for all heavy deps)
+        import xgboost
+        if isinstance(xgboost, MagicMock) or isinstance(sys.modules.get("xgboost"), MagicMock):
+            pytest.skip("Skipping ML test: dependencies are mocked")
+
 
 # Mock environmental variables BEFORE any imports that might trigger Container instantiation
 os.environ["SUPABASE_URL"] = "https://mock.supabase.co"
