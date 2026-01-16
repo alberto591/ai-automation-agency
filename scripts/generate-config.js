@@ -10,18 +10,20 @@ const path = require('path');
 // Debug: Show what env vars we can see
 console.log('🔍 Checking environment variables...');
 console.log('Environment variable names present:', Object.keys(process.env).sort());
-console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
 
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/^['"]|['"]$/g, '');
-const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || '').replace(/^['"]|['"]$/g, '');
+// Flexible mapping: Support both naming conventions
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/^['"]|['"]$/g, '');
+const SUPABASE_ANON_KEY = (process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').replace(/^['"]|['"]$/g, '');
+
+console.log('SUPABASE_URL exists:', !!SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY exists:', !!SUPABASE_ANON_KEY);
 
 // Check if required environment variables are set
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('❌ Error: SUPABASE_URL and SUPABASE_ANON_KEY must be set');
     // Debug: Show which one is missing
-    if (!SUPABASE_URL) console.error('Missing: SUPABASE_URL');
-    if (!SUPABASE_ANON_KEY) console.error('Missing: SUPABASE_ANON_KEY');
+    if (!SUPABASE_URL) console.error('Missing: SUPABASE_URL (searched for SUPABASE_URL, NEXT_PUBLIC_SUPABASE_URL)');
+    if (!SUPABASE_ANON_KEY) console.error('Missing: SUPABASE_ANON_KEY (searched for SUPABASE_ANON_KEY, SUPABASE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY)');
     console.error('Available env vars starting with SUPA:', Object.keys(process.env).filter(k => k.toUpperCase().startsWith('SUPA')).join(', ') || 'none');
     process.exit(1);
 }
