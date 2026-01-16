@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Complete checklist for configuring all environment variables across deployment platforms**
 >
-> Use this document to ensure all required environment variables are properly configured in Vercel, Render, Railway, and local development.
+> Use this document to ensure all required environment variables are properly configured in Vercel, Render, and local development.
 
 ---
 
@@ -11,7 +11,7 @@
 
 - **Vercel**: [Dashboard](https://vercel.com) → Your Project → Settings → Environment Variables
 - **Render**: [Dashboard](https://render.com) → Your Service → Environment
-- **Railway**: [Dashboard](https://railway.app) → Your Project → Variables
+
 - **Local**: `.env` file in project root (copy from `.env.example`)
 
 ---
@@ -150,10 +150,6 @@
 
 ---
 
-### 🚂 Railway (Alternative Backend)
-
-Use the same checklist as Render above. Railway configuration is identical.
-
 ---
 
 ### 💻 Local Development
@@ -217,7 +213,7 @@ Use the same checklist as Render above. Railway configuration is identical.
 - [ ] Test dashboard authentication
 - [ ] Verify API endpoints work
 
-### Render/Railway Deployment
+### Render Deployment
 - [ ] All required environment variables are set
 - [ ] Service starts without errors
 - [ ] Check logs for missing environment variables
