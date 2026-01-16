@@ -4,9 +4,13 @@
  */
 
 (function () {
-    // Configuration
-    const SUPABASE_URL = 'https://zozgvcdnkwtyioyazgmx.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpvemd2Y2Rua3d0eWlveWF6Z214Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNzU1MjMsImV4cCI6MjA4MTY1MTUyM30.Z-IsY7vYkwIo6sB22ZpGIMTFD9kXSRdO6Ykv_bXwOvg';
+    // Configuration - loaded from config.js (generated at build time)
+    const SUPABASE_URL = window.ENV?.SUPABASE_URL || '';
+    const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY || '';
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error('❌ Missing Supabase configuration. Ensure config.js is loaded before auth-helper.js');
+    }
 
     // Wait for Supabase library to load
     function initAuthHelper() {
@@ -17,7 +21,7 @@
         }
 
         // Initialize Supabase - using a local variable to avoid conflict
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Determine Dashboard URL (Local vs Prod)
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';

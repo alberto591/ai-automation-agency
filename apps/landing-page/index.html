@@ -701,7 +701,10 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Auth Helper (must load after Supabase) -->
+    <!-- Environment Config (must load before auth-helper) -->
+    <script src="config.js"></script>
+
+    <!-- Auth Helper (must load after Supabase and config) -->
     <script src="auth-helper.js"></script>
 
     <script src="appraisal/sw-register.js"></script>

@@ -48,3 +48,7 @@ yarn-error.log
 .vercel
 # .env*.local
 /data/
+
+# Frontend config (generated at build)
+apps/landing-page/config.js
+dist/config.js
