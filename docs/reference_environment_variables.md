@@ -21,7 +21,7 @@
 ### ☁️ Vercel (Frontend & API)
 
 #### Core Database (Required)
-- [ ] Set `SUPABASE_URL` = `https://zozgvcdnkwtyioyazgmx.supabase.co`
+- [ ] Set `SUPABASE_URL` = `https://your-project.supabase.co`
 - [ ] Set `SUPABASE_KEY` = Your Supabase anon key
 - [ ] Set `SUPABASE_ANON_KEY` = Same as SUPABASE_KEY (for landing page)
 - [ ] Set `VITE_SUPABASE_URL` = Same as SUPABASE_URL (for dashboard)
@@ -34,7 +34,7 @@
 - [ ] Set `WHATSAPP_PROVIDER` = `twilio`
 - [ ] Set `TWILIO_ACCOUNT_SID` = Your Twilio account SID
 - [ ] Set `TWILIO_AUTH_TOKEN` = Your Twilio auth token
-- [ ] Set `TWILIO_PHONE_NUMBER` = `whatsapp:+34625852546` (or your number)
+- [ ] Set `TWILIO_PHONE_NUMBER` = `whatsapp:+1234567890` (or your number)
 
 #### Messaging - Meta (Alternative to Twilio)
 - [ ] Set `WHATSAPP_PROVIDER` = `meta`
@@ -51,8 +51,8 @@
 - [ ] Set `WEBHOOK_API_KEY` = Your webhook API key (e.g., `prod_dev_secret_key_2025`)
 
 #### Agency Configuration (Required)
-- [ ] Set `AGENCY_OWNER_PHONE` = `+34625852546` (or your phone)
-- [ ] Set `AGENCY_OWNER_EMAIL` = `albertocalvorivas@gmail.com` (or your email)
+- [ ] Set `AGENCY_OWNER_PHONE` = `+1234567890` (or your phone)
+- [ ] Set `AGENCY_OWNER_EMAIL` = `your-email@example.com` (or your email)
 
 #### Google Services (Optional)
 - [ ] Set `GOOGLE_CALENDAR_ID` = Your Google Calendar ID
@@ -135,7 +135,7 @@
 ### �🚀 Render (Backend Service)
 
 #### Core Database (Required)
-- [ ] Set `SUPABASE_URL` = `https://zozgvcdnkwtyioyazgmx.supabase.co`
+- [ ] Set `SUPABASE_URL` = `https://your-project.supabase.co`
 - [ ] Set `SUPABASE_KEY` = Your Supabase anon key
 - [ ] Set `SUPABASE_SERVICE_ROLE_KEY` = Your Supabase service role key (for admin operations)
 - [ ] Set `SUPABASE_JWT_SECRET` = Your Supabase JWT secret
@@ -149,7 +149,7 @@
 - [ ] Set `WHATSAPP_PROVIDER` = `twilio`
 - [ ] Set `TWILIO_ACCOUNT_SID` = Your Twilio account SID
 - [ ] Set `TWILIO_AUTH_TOKEN` = Your Twilio auth token
-- [ ] Set `TWILIO_PHONE_NUMBER` = `whatsapp:+34625852546`
+- [ ] Set `TWILIO_PHONE_NUMBER` = `whatsapp:+1234567890`
 
 #### Messaging - Meta (Alternative)
 - [ ] Set `WHATSAPP_PROVIDER` = `meta`
@@ -169,8 +169,8 @@
 - [ ] Set `WEBHOOK_BASE_URL` = Your API base URL (e.g., `https://agenzia-api.onrender.com`)
 
 #### Agency Configuration (Required)
-- [ ] Set `AGENCY_OWNER_PHONE` = `+34625852546`
-- [ ] Set `AGENCY_OWNER_EMAIL` = `albertocalvorivas@gmail.com`
+- [ ] Set `AGENCY_OWNER_PHONE` = `+1234567890`
+- [ ] Set `AGENCY_OWNER_EMAIL` = `your-email@example.com`
 
 #### Environment (Required)
 - [ ] Set `ENVIRONMENT` = `production`
