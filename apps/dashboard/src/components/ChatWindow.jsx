@@ -87,7 +87,8 @@ export default function ChatWindow({ selectedLead, onBack, realtimeMessage }) {
 
         try {
             const headers = await getAuthHeader();
-            const response = await fetch('/api/leads/message', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${apiUrl}/api/leads/message`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({
