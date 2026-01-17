@@ -182,3 +182,65 @@ class MetaWhatsAppAdapter(MessagingPort):
         except Exception as e:
             logger.error("META_INTERACTIVE_SEND_ERROR", context={"error": str(e)})
             raise ExternalServiceError("Failed to send interactive message", cause=str(e)) from e
+
+    def parse_webhook_data(self, data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Parses webhook data from Meta WhatsApp Cloud API.
+        Meta webhooks have a different structure than Twilio.
+        """
+        # Meta webhook structure is nested in entry[0].changes[0].value.messages[0]
+        try:
+            entry = data.get("entry", [{}])[0]
+            changes = entry.get("changes", [{}])[0]
+            value = changes.get("value", {})
+            messages = value.get("messages", [{}])
+
+            if not messages:
+                # This might be a status update
+                return {
+                    "phone": "",
+                    "body": "",
+                    "media_url": None,
+                    "is_status_update": True,
+                }
+
+            message = messages[0]
+            from_phone = message.get("from", "")
+            msg_type = message.get("type", "text")
+
+            # Extract body based on message type
+            body = ""
+            media_url = None
+
+            if msg_type == "text":
+                body = message.get("text", {}).get("body", "")
+            elif msg_type == "image":
+                media_url = message.get("image", {}).get(
+                    "id"
+                )  # Meta uses media ID, not URL directly
+                body = message.get("image", {}).get("caption", "")
+            elif msg_type == "button":
+                body = message.get("button", {}).get("text", "")
+            elif msg_type == "interactive":
+                # Handle interactive responses (button/list replies)
+                interactive = message.get("interactive", {})
+                if interactive.get("type") == "button_reply":
+                    body = interactive.get("button_reply", {}).get("title", "")
+                elif interactive.get("type") == "list_reply":
+                    body = interactive.get("list_reply", {}).get("title", "")
+
+            return {
+                "phone": from_phone,
+                "body": body.strip(),
+                "media_url": media_url,
+                "is_status_update": False,
+            }
+
+        except Exception as e:
+            logger.error("META_WEBHOOK_PARSE_FAILED", context={"error": str(e)})
+            return {
+                "phone": "",
+                "body": "",
+                "media_url": None,
+                "is_status_update": True,
+            }

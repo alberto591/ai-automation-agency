@@ -943,34 +943,42 @@ def create_lead_processing_graph(
             # Broadcast to WebSocket for real-time dashboard
             if WS_AVAILABLE:
                 try:
-                    loop = asyncio.get_event_loop()
-                    # Broadcast user message
-                    loop.create_task(
-                        ws_manager.broadcast_to_room(
-                            {
-                                "type": "message",
-                                "phone": phone,
-                                "lead_id": lead["id"],
-                                "lead_name": lead.get("name", "Unknown"),
-                                "message": user_msg,
-                            },
-                            room_id="all",
+                    from config.container import container
+
+                    if container.main_loop and container.main_loop.is_running():
+                        # Broadcast user message
+                        asyncio.run_coroutine_threadsafe(
+                            ws_manager.broadcast_to_room(
+                                {
+                                    "type": "message",
+                                    "phone": phone,
+                                    "lead_id": lead["id"],
+                                    "lead_name": lead.get("name", "Unknown"),
+                                    "message": user_msg,
+                                },
+                                room_id="all",
+                            ),
+                            container.main_loop,
                         )
-                    )
-                    # Broadcast AI response
-                    loop.create_task(
-                        ws_manager.broadcast_to_room(
-                            {
-                                "type": "message",
-                                "phone": phone,
-                                "lead_id": lead["id"],
-                                "lead_name": lead.get("name", "Unknown"),
-                                "message": assistant_msg,
-                            },
-                            room_id="all",
+                        # Broadcast AI response
+                        asyncio.run_coroutine_threadsafe(
+                            ws_manager.broadcast_to_room(
+                                {
+                                    "type": "message",
+                                    "phone": phone,
+                                    "lead_id": lead["id"],
+                                    "lead_name": lead.get("name", "Unknown"),
+                                    "message": assistant_msg,
+                                },
+                                room_id="all",
+                            ),
+                            container.main_loop,
                         )
-                    )
-                    logger.info("WS_BROADCAST_SENT", context={"phone": phone})
+                        logger.info("WS_BROADCAST_SENT", context={"phone": phone})
+                    else:
+                        logger.warning(
+                            "WS_BROADCAST_SKIPPED", context={"reason": "No main loop available"}
+                        )
                 except Exception as e:
                     logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})
 

@@ -282,12 +282,10 @@ class LeadProcessor:
                 if container.main_loop and container.main_loop.is_running():
                     asyncio.run_coroutine_threadsafe(coro, container.main_loop)
                 else:
-                    # Fallback (e.g. testing)
-                    loop = asyncio.get_event_loop()
-                    loop.create_task(coro)
+                    logger.warning(
+                        "WS_BROADCAST_SKIPPED", context={"reason": "No main loop available"}
+                    )
 
-            except RuntimeError:
-                logger.warning("WS_BROADCAST_SKIPPED", context={"reason": "No event loop"})
             except Exception as e:
                 logger.warning("WS_BROADCAST_FAILED", context={"error": str(e)})
 
