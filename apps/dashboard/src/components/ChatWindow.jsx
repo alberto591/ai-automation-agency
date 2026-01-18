@@ -124,11 +124,12 @@ export default function ChatWindow({ selectedLead, onBack, realtimeMessage }) {
         // 1. Optimistic Update (Instant feedback)
         setStatus(newStatus);
 
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const endpoint = isAiActive ? '/api/leads/takeover' : '/api/leads/resume';
 
         try {
             const headers = await getAuthHeader();
-            const response = await fetch(endpoint, {
+            const response = await fetch(`${apiUrl}${endpoint}`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({ phone: selectedLead.phone })
@@ -152,7 +153,8 @@ export default function ChatWindow({ selectedLead, onBack, realtimeMessage }) {
             // Remove content-type for GET (not strictly needed but good practice not to send body headers)
             delete headers['Content-Type'];
 
-            const response = await fetch(`/api/leads/${encodeURIComponent(selectedLead.phone)}/summary`, {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await fetch(`${apiUrl}/api/leads/${encodeURIComponent(selectedLead.phone)}/summary`, {
                 headers: headers
             });
 
@@ -161,7 +163,7 @@ export default function ChatWindow({ selectedLead, onBack, realtimeMessage }) {
                 // Inject summary as a local system message for viewing pleasure
                 const summaryMsg = {
                     role: 'system',
-                    content: `📊 **Riassunto AI**\n\n${data.summary}\n\n🎯 **Azione suggerita**: ${data.suggested_action}\nSENTIMENT: ${data.sentiment}`,
+                    content: `📊 **Riassunto AI**\\n\\n${data.summary}\\n\\n🎯 **Azione suggerita**: ${data.suggested_action}\\nSENTIMENT: ${data.sentiment}`,
                     created_at: new Date().toISOString(),
                     metadata: { type: 'summary' }
                 };
